@@ -1,0 +1,12 @@
+.header__wrapper {
+    height: 100vh;
+    max-height: 100%;
+}
+.logo {
+    height: 48px;
+    margin: 8px;
+    color: #fff;
+    font-size: 24px;
+    text-align: center;
+    line-height: 48px;
+}
