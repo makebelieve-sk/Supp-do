@@ -1,14 +1,16 @@
 import React from 'react';
+import {Provider} from "react-redux";
 
-import {HeaderComponent} from './components/header';
+import {MainComponent} from './components/mainComponent';
+import store from "./redux/store";
 
 import './App.css';
 import 'antd/dist/antd.css';
 
 export const App = () => {
-  return (
-    <div className="container">
-        <HeaderComponent />
-    </div>
-  );
+    return (
+        <Provider store={store}>
+            <MainComponent/>
+        </Provider>
+    );
 };

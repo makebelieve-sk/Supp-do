@@ -11,6 +11,7 @@ router.get('/professions', async (req, res) => {
     } catch (e) {
         res.status(500).json({message: "Что-то пошло не так, попробуйте снова"})
     }
+
 });
 
 router.post('/professions', async (req, res) => {
