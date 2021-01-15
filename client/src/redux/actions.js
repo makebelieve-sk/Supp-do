@@ -1,7 +1,9 @@
 const ADD_TAB = 'ADD_TAB';
 const REMOVE_TAB = 'REMOVE_TAB';
+const PUSH_PROFESSION = 'PUSH_PROFESSION';
 
 export {
     ADD_TAB,
-    REMOVE_TAB
+    REMOVE_TAB,
+    PUSH_PROFESSION
 }

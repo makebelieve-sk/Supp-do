@@ -1,4 +1,4 @@
-import {ADD_TAB, REMOVE_TAB} from "./actions";
+import {ADD_TAB, REMOVE_TAB, PUSH_PROFESSION} from "./actions";
 
 const ActionCreator = {
     addTab: (tabContent) => {
@@ -11,6 +11,12 @@ const ActionCreator = {
         return {
             type: REMOVE_TAB,
             payload: index
+        }
+    },
+    pushProfession: (profession) => {
+        return {
+            type: PUSH_PROFESSION,
+            payload: profession
         }
     }
 }

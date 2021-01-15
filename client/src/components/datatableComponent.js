@@ -1,8 +1,10 @@
-import React, { useMemo, useState } from 'react';
+import React, {useMemo, useState} from 'react';
 import DataTable from 'react-data-table-component';
+import {useSelector} from 'react-redux';
 
-import { HeaderDatatable } from './headerDatatable';
-import { ButtonsComponent } from "./buttonsBlock";
+import {ProfessionColumns} from "../datatable.options/datatable.columns";
+import {HeaderDatatable} from './headerDatatable';
+import {ButtonsComponent} from "./buttonsBlock";
 import {conditionalRowStyles} from "../dataTableStyles";
 import {
     ruObject,
@@ -11,27 +13,9 @@ import {
     downloadCSV
 } from '../datatable.options/datatable.options';
 
-const data = [
-    { id: 1, name: '01.04.2020', notes: '613' },
-    { id: 2, name: '02.04.2020', notes: '614'  },
-    { id: 3, name: '03.04.2020', notes: '615' },
-    { id: 4, name: '04.04.2020', notes: '616' },
-];
+export const DataTableComponent = ({add, specKey}) => {
+    let data = useSelector(state => state.profession);
 
-const columns = [
-    {
-        name: 'Наименование',
-        selector: 'name',
-        sortable: true
-    },
-    {
-        name: 'Примечание',
-        selector: 'notes',
-        sortable: true
-    }
-];
-
-export const DataTableComponent = () => {
     // Создание стейта для текстового поля
     const [filterText, setFilterText] = useState('');
 
@@ -40,11 +24,13 @@ export const DataTableComponent = () => {
         (item.name && item.name.toLowerCase().includes(filterText.toLowerCase()))
     );
 
-    const exportAction = useMemo(() => <ButtonsComponent onExport={() => downloadCSV(data)} />, []);
+    const exportAction = useMemo(() =>
+            <ButtonsComponent add={add} onExport={() => downloadCSV(data)}/>
+        , [add, data]);
 
     return (
         <DataTable
-            columns={columns}
+            columns={ProfessionColumns}
             data={filteredItems}
             actions={exportAction}
             pagination

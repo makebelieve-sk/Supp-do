@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
-import {Layout, Menu, Button, Tabs} from 'antd';
+import {Layout, Menu, Button, Tabs, message} from 'antd';
 import {
     MenuUnfoldOutlined,
     MenuFoldOutlined,
@@ -11,6 +11,7 @@ import {
 
 import ActionCreator from "../redux/actionCreators";
 import {ContentTab} from "./contentTab";
+import {useHttp} from "../hooks/http.hook";
 
 import './mainComponent.css';
 
@@ -19,22 +20,39 @@ const {SubMenu} = Menu;
 const {TabPane} = Tabs;
 
 export const MainComponent = () => {
-    // Первоначальная вкладка
-    const initialTab = [
-        {title: 'Профессии', content: ContentTab, key: 'profession'},
-    ];
-
-    const [collapsed, setCollapsed] = useState(true);
-    const [activeKey, setActiveKey] = useState(initialTab[0].key);
-
     // Получаем текущие табы из хранилища
     const tabs = useSelector(state => state.tabs);
     const dispatch = useDispatch();
 
-    // Добавляем первоначальнаю вкладку Профессии
+    let startKey = tabs && tabs.length > 0 ? tabs[0].key : null;
+
+    const [collapsed, setCollapsed] = useState(true);
+    const [activeKey, setActiveKey] = useState(startKey);
+
+    const {request, error} = useHttp();
+
+    // Загрузка всех профессий
     useEffect(() => {
-        dispatch(ActionCreator.addTab(initialTab[0]));
-    }, []);
+        async function getProfessions() {
+            try {
+                const professions = await request('/api/directory/professions');
+
+                if (professions && professions.length > 0) {
+                    professions.forEach(prof => {
+                        dispatch(ActionCreator.pushProfession(prof));
+                    });
+                }
+            } catch (e) {
+            }
+        }
+
+        getProfessions();
+
+        if (error) {
+            message.error(error);
+            return null;
+        }
+    }, [dispatch, error, request]);
 
     // Функция открытия/закрытия боковой панели
     const toggleCollapsed = () => {
@@ -73,12 +91,12 @@ export const MainComponent = () => {
     };
 
     // Функция добавления вкладки
-    const add = (title, content, key) => {
+    const add = (title, content, key, tabs) => {
         let tabObject = {title, content, key};
         let index = -1;
 
         tabs.forEach((tab, i) => {
-            if (JSON.stringify(tab) === JSON.stringify(tabObject)) {
+            if (tab.key === tabObject.key) {
                 index = i;
             }
         })
@@ -100,13 +118,13 @@ export const MainComponent = () => {
                     <SubMenu key="directory" icon={<UserOutlined/>} title="Справочники">
                         <SubMenu title="Управление персоналом">
                             <Menu.Item key="profession" onClick={() => {
-                                add('Профессии', ContentTab, 'profession');
+                                add('Профессии', ContentTab, 'profession', tabs);
                             }}>Профессии</Menu.Item>
                             <Menu.Item key="department" onClick={() => {
-                                add('Подразделения', ContentTab, 'department');
+                                add('Подразделения', ContentTab, 'department', tabs);
                             }}>Подразделения</Menu.Item>
                             <Menu.Item key="person" onClick={() => {
-                                add('Персонал', ContentTab, 'person');
+                                add('Персонал', ContentTab, 'person', tabs);
                             }}>Персонал</Menu.Item>
                         </SubMenu>
                         <SubMenu title="Оборудование">
@@ -136,7 +154,13 @@ export const MainComponent = () => {
                 </Menu>
             </Sider>
             <Layout className="site-layout">
-                <Header className="site-layout-background" style={{padding: 0, height: 64, display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
+                <Header className="site-layout-background" style={{
+                    padding: 0,
+                    height: 64,
+                    display: 'flex',
+                    flexDirection: 'row',
+                    justifyContent: 'space-between'
+                }}>
                     <div style={{width: '100%', heigth: 64, lineHeigth: 64}}>
                         <Button type="primary" onClick={toggleCollapsed} style={{marginLeft: 15}}>
                             {collapsed ? <MenuUnfoldOutlined/> : <MenuFoldOutlined/>}
@@ -162,7 +186,11 @@ export const MainComponent = () => {
                         >
                             {tabs.map(tab => (
                                 <TabPane tab={tab.title} key={tab.key}>
-                                    {<tab.content />}
+                                    {<tab.content
+                                        add={add}
+                                        specKey={tab.key}
+                                        onRemove={onRemove}
+                                    />}
                                 </TabPane>
                             ))}
                         </Tabs> :

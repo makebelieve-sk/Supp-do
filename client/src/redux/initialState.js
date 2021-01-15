@@ -1,5 +1,8 @@
+import {ContentTab} from "../components/contentTab";
+
 const initialState = {
-    tabs: []
+    tabs: [{title: 'Профессии', content: ContentTab, key: 'profession'}],
+    profession: []
 };
 
 export default initialState;

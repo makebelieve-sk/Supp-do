@@ -2,10 +2,10 @@ import React from 'react';
 
 import {DataTableComponent} from './datatableComponent'
 
-export const ContentTab = () => {
+export const ContentTab = ({ add, specKey }) => {
     return (
         <>
-            <DataTableComponent/>
+            <DataTableComponent add={add} specKey={specKey} />
         </>
     )
 };
