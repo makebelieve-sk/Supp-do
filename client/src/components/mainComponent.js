@@ -21,7 +21,9 @@ const {TabPane} = Tabs;
 
 export const MainComponent = () => {
     // Получаем текущие табы из хранилища
-    const tabs = useSelector(state => state.tabs);
+    const {tabs} = useSelector(state => ({
+        tabs: state.tabs
+    }));
     const dispatch = useDispatch();
 
     let startKey = tabs && tabs.length > 0 ? tabs[0].key : null;
@@ -59,9 +61,24 @@ export const MainComponent = () => {
         setCollapsed(!collapsed);
     };
 
-    // Функция изменения активной вкладки
-    const onChange = activeKey => {
-        setActiveKey(activeKey);
+    // Функция добавления вкладки
+    const add = (title, content, key, tabs) => {
+        let tabObject = {title, content, key};
+        let index = -1;
+
+        tabs.forEach((tab, i) => {
+            if (tab.key === tabObject.key) {
+                index = i;
+            }
+        })
+
+        if (index >= 0) {
+            setActiveKey(key);
+            return null;
+        } else {
+            setActiveKey(key);
+            dispatch(ActionCreator.addTab(tabObject));
+        }
     };
 
     // Фукнция удаления вкладки
@@ -90,24 +107,9 @@ export const MainComponent = () => {
         }
     };
 
-    // Функция добавления вкладки
-    const add = (title, content, key, tabs) => {
-        let tabObject = {title, content, key};
-        let index = -1;
-
-        tabs.forEach((tab, i) => {
-            if (tab.key === tabObject.key) {
-                index = i;
-            }
-        })
-
-        if (index >= 0) {
-            setActiveKey(key);
-            return null;
-        } else {
-            setActiveKey(key);
-            dispatch(ActionCreator.addTab(tabObject));
-        }
+    // Функция изменения активной вкладки
+    const onChange = activeKey => {
+        setActiveKey(activeKey);
     };
 
     return (
@@ -168,14 +170,11 @@ export const MainComponent = () => {
                     </div>
                     <div className="logo">СУПП ДО</div>
                 </Header>
-                <Content
-                    className="site-layout-background"
-                    style={{
+                <Content className="site-layout-background" style={{
                         margin: '24px 16px',
                         padding: 24,
                         minHeight: 280,
-                    }}
-                >
+                    }}>
                     {tabs && tabs.length > 0 ?
                         <Tabs
                             hideAdd
@@ -194,7 +193,7 @@ export const MainComponent = () => {
                                 </TabPane>
                             ))}
                         </Tabs> :
-                        <div>Нет открытых вкладок</div>}
+                        <div style={{textAlign: 'center'}}>Нет открытых вкладок</div>}
                 </Content>
             </Layout>
         </Layout>

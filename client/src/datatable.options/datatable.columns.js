@@ -1,13 +1,20 @@
+// Создание колонок для раздела "Профессии"
 const ProfessionColumns = [
     {
-        name: 'Наименование',
-        selector: 'name',
-        sortable: true
+        title: 'Наименование',
+        dataIndex: 'name',
+        key: 'name',
+        width: 100,
+        sorter: (a, b) => a.name.length - b.name.length,
+        sortDirections: ['descend'],
     },
     {
-        name: 'Примечание',
-        selector: 'notes',
-        sortable: true
+        title: 'Примечание',
+        dataIndex: 'notes',
+        key: 'notes',
+        width: 100,
+        sorter: (a, b) => a.notes.length - b.notes.length,
+        sortDirections: ['descend'],
     }
 ];
 

@@ -1,14 +1,15 @@
 // Русифицированный объект
-const ruObject = {
-    rowsPerPageText: 'Показать:',
-    rangeSeparatorText: 'из',
-    noRowsPerPage: false,
-    selectAllRowsItem: true,
-    selectAllRowsItemText: 'Все'
+const localeRu = {
+    emptyText: 'Записи отсутствуют',
+    triggerDesc: 'Нажмите для сортировки',
+    triggerAsc: 'Нажмите для сортировки'
 };
-const noDataComponent = <div style={{padding: 30, fontSize: 18}}>Записи отсутствуют.</div>;
 
-const paginationRowsPerPageOptions = [3, 5, 10, 20];
+// Пагинация
+const pagination = {
+    showSizeChanger: true,
+    pageSizeOptions: ['5', '10', '20', '30']
+};
 
 // Экспорт в эксель
 const downloadCSV = (array) => {
@@ -53,8 +54,7 @@ const convertArrayOfObjectsToCSV = (array) => {
 };
 
 export {
-    ruObject,
-    noDataComponent,
-    paginationRowsPerPageOptions,
-    downloadCSV
+    localeRu,
+    downloadCSV,
+    pagination
 };

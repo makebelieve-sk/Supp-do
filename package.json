@@ -12,6 +12,7 @@
   "author": "Alex Itprom",
   "license": "ISC",
   "dependencies": {
+    "@ant-design/icons": "^4.3.0",
     "antd": "^4.10.2",
     "config": "^3.3.3",
     "express": "^4.17.1",

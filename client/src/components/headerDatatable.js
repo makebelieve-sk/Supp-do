@@ -1,31 +1,18 @@
-import React, {useMemo, useState} from 'react';
-import {Row, Button} from "antd";
-
-import {ClearButtonStyle, SearchFieldStyle} from "../dataTableStyles";
+import React, {useMemo} from 'react';
+import {Input, Row} from "antd";
 
 export const HeaderDatatable = ({filterText, setFilterText}) => {
-    // Создание стейта, сбрасывающего пагинацию при изменении значения в текстовом поле
-    const [resetPaginationToggle, setResetPaginationToggle] = useState(false);
-
     // Фукнция вызывается, когда изменяются переменные в массиве зависимостей
     return useMemo(() => {
-        const handleClear = () => {
-            if (filterText) {
-                setResetPaginationToggle(!resetPaginationToggle);
-                setFilterText('');
-            }
-        };
-
         return (
-            <>
-                <Row style={{right: 0}}>
-                    <input style={SearchFieldStyle} id="search" type="text" placeholder="Поиск"
-                           aria-label="Search Input"
-                           value={filterText} onChange={e => setFilterText(e.target.value)}/>
-                    <Button size="small" type="primary" style={ClearButtonStyle} onClick={handleClear}>X</Button>
-
-                </Row>
-            </>
+            <Row>
+                <Input.Group compact>
+                    <Input.Search defaultValue="" type="text" value={filterText}
+                                  placeholder="Поиск"
+                                  onChange={e => setFilterText(e.target.value)} allowClear
+                                  onPressEnter={e => setFilterText(e.target.value)}/>
+                </Input.Group>
+            </Row>
         );
-    }, [filterText, setFilterText, resetPaginationToggle]);
+    }, [filterText, setFilterText]);
 };
