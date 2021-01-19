@@ -70,12 +70,4 @@ router.delete('/professions', async (req, res) => {
     }
 });
 
-// router.post('/department', async (req, res) => {
-//
-// });
-//
-// router.post('/person', async (req, res) => {
-//
-// });
-
 module.exports = router;

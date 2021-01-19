@@ -22,14 +22,14 @@
 .ant-card {
     border: 0 !important;
     margin: 0 !important;
-    width: 100% !important;
 }
 .ant-table-cell:hover {
     cursor: pointer;
 }
 .container {
-    width: 50%;
+    width: 80%;
     margin: 0 auto;
+    padding: 20px;
 }
 .rdt_TableCol {
     text-align: center !important;

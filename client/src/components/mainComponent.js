@@ -31,21 +31,32 @@ export const MainComponent = () => {
     const [collapsed, setCollapsed] = useState(true);
     const [activeKey, setActiveKey] = useState(startKey);
 
-    const {request, error} = useHttp();
+    const {request, error, loading} = useHttp();
 
     // Загрузка всех профессий
     useEffect(() => {
         async function getProfessions() {
             try {
                 const professions = await request('/api/directory/professions');
+                const departments = await request('/api/directory/departments');
+                const people = await request('/api/directory/person');
 
                 if (professions && professions.length > 0) {
                     professions.forEach(prof => {
                         dispatch(ActionCreator.pushProfession(prof));
                     });
                 }
-            } catch (e) {
-            }
+                if (departments && departments.length > 0) {
+                    departments.forEach(department => {
+                        dispatch(ActionCreator.pushDepartment(department));
+                    });
+                }
+                if (people && people.length > 0) {
+                    people.forEach(person => {
+                        dispatch(ActionCreator.pushPerson(person));
+                    });
+                }
+            } catch (e) {}
         }
 
         getProfessions();
@@ -189,6 +200,7 @@ export const MainComponent = () => {
                                         add={add}
                                         specKey={tab.key}
                                         onRemove={onRemove}
+                                        loading={loading}
                                     />}
                                 </TabPane>
                             ))}

@@ -1,20 +1,34 @@
 import React, {useEffect} from 'react';
-import {Skeleton, Card, Form, Input, Row, Button, message} from 'antd';
-import {useSelector, useDispatch} from "react-redux";
+import {Button, Card, Form, Input, message, Row, Select, Skeleton} from 'antd';
+import {useDispatch, useSelector} from "react-redux";
 
 import {useHttp} from "../../hooks/http.hook";
 import ActionCreator from "../../redux/actionCreators";
 
 const {Meta} = Card;
 
-export const ProfessionTab = ({add, specKey, onRemove}) => {
+export const DepartmentTab = ({add, specKey, onRemove}) => {
     const {request, loading, error, clearError} = useHttp();
 
-    const {profession, editTab} = useSelector((state) => ({
-        profession: state.profession,
+    const {departments, editTab} = useSelector((state) => ({
+        departments: state.departments,
         editTab: state.editTab
     }));
     const dispatch = useDispatch();
+
+    // Установка выпадающего списка поля "Принадлежит"
+    const [form] = Form.useForm();
+    let departmentsToOptions = [];
+    if (departments && departments.length > 0) {
+        departments.forEach((department) => {
+            let object = {
+                label: department.name,
+                value: department.name
+            }
+
+            departmentsToOptions.push(object);
+        })
+    }
 
     // При появлении ошибки, инициализируем окно вывода этой ошибки
     useEffect(() => {
@@ -25,24 +39,25 @@ export const ProfessionTab = ({add, specKey, onRemove}) => {
         clearError();
     }, [dispatch, error, request, clearError]);
 
-    let key = specKey === 'newProfession' ? 'newProfession' : `updateProfession-${editTab._id}`;
-    let title = specKey === 'newProfession' ? 'Создание профессии' : 'Редактирование профессии';
+    let key = specKey === 'newDepartment' ? 'newDepartment' : `updateDepartment-${editTab._id}`;
+    let title = specKey === 'newDepartment' ? 'Создание подразделения' : 'Редактирование подразделения';
 
     // Функция нажатия на кнопку "Сохранить"
     const onFinish = async (values) => {
         try {
-            let method = specKey === 'newProfession' ? 'POST' : 'PUT';
-            let body = specKey === 'newProfession' ? values : {editTab, values};
+            let method = specKey === 'newDepartment' ? 'POST' : 'PUT';
+            let body = specKey === 'newDepartment' ? values : {editTab, values};
 
-            const data = await request('/api/directory/professions', method, body);
+            const data = await request('/api/directory/departments', method, body);
             message.success(data.message);
 
             onRemove(key, 'remove');
 
-            specKey === 'newProfession' ? dispatch(ActionCreator.pushProfession(data.profession)) :
-                profession.forEach((prof, index) => {
-                    if (prof._id === data.profession._id) {
-                        dispatch(ActionCreator.editProfession(index, data.profession));
+            data.department['parent'] = values.parent;
+            specKey === 'newDepartment' ? dispatch(ActionCreator.pushDepartment(data.department)) :
+                departments.forEach((department, index) => {
+                    if (department._id === data.department._id) {
+                        dispatch(ActionCreator.editDepartment(index, data.department));
                     }
                 });
         } catch (e) {}
@@ -52,14 +67,14 @@ export const ProfessionTab = ({add, specKey, onRemove}) => {
     const deleteHandler = async () => {
         try {
             if (editTab) {
-                const data = await request('/api/directory/professions', 'DELETE', editTab);
+                const data = await request('/api/directory/departments', 'DELETE', editTab);
                 message.success(data.message);
 
                 onRemove(key, 'remove');
 
-                profession.forEach((prof, index) => {
-                    if (prof._id === editTab._id) {
-                        dispatch(ActionCreator.deleteProfession(index));
+                departments.forEach((department, index) => {
+                    if (department._id === editTab._id) {
+                        dispatch(ActionCreator.deleteDepartment(index));
                     }
                 });
             }
@@ -75,7 +90,11 @@ export const ProfessionTab = ({add, specKey, onRemove}) => {
     // Функция нажатия на кнопку "Отмена"
     const cancelHandler = () => {
         onRemove(key, 'remove');
-    }
+    };
+
+    const handleChange = () => {
+        form.setFieldsValue({ sights: [] });
+    };
 
     return (
         <Card style={{width: '100%', marginTop: 16}}>
@@ -84,15 +103,19 @@ export const ProfessionTab = ({add, specKey, onRemove}) => {
                     <Meta
                         title={title}
                         description={
-                            <Form name="control-ref" onFinish={onFinish} onFinishFailed={onFinishFailed}>
+                            <Form form={form} name="control-ref" onFinish={onFinish} onFinishFailed={onFinishFailed}>
+                                <Form.Item name="parent" label="Принадлежит">
+                                    <Select options={departmentsToOptions} onChange={handleChange} />
+                                </Form.Item>
+
                                 <Form.Item
-                                    label="Профессия"
+                                    label="Наименование"
                                     name="name"
-                                    initialValue={specKey === 'newProfession' ? '' : editTab.name}
+                                    initialValue={specKey === 'newDepartment' ? '' : editTab.name}
                                     rules={[
                                         {
                                             required: true,
-                                            message: 'Введите название профессии!',
+                                            message: 'Введите название подразделения!',
                                         },
                                     ]}
                                 >
@@ -100,9 +123,9 @@ export const ProfessionTab = ({add, specKey, onRemove}) => {
                                 </Form.Item>
 
                                 <Form.Item
-                                    name="notes"
                                     label="Примечание"
-                                    initialValue={specKey === 'newProfession' ? '' : editTab.notes}
+                                    name="notes"
+                                    initialValue={specKey === 'newDepartment' ? '' : editTab.notes}
                                 >
                                     <Input/>
                                 </Form.Item>
@@ -112,7 +135,7 @@ export const ProfessionTab = ({add, specKey, onRemove}) => {
                                         <Button type="primary" htmlType="submit" loading={loading}>
                                             Сохранить
                                         </Button>
-                                        {specKey === 'newProfession' ? null :
+                                        {specKey === 'newDepartment' ? null :
                                             <Button type="danger" onClick={deleteHandler} loading={loading} style={{marginLeft: 10}}>
                                                 Удалить
                                             </Button>

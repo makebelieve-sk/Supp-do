@@ -1,11 +1,37 @@
 import React from 'react';
+import {Card, Tabs} from 'antd';
 
-import {DataTableComponent} from './datatableComponent'
+import {DataTableComponent} from './datatableComponent';
+import {TreeComponent} from "./treeComponent";
 
-export const ContentTab = ({add, specKey, onRemove}) => {
-    return (
-        <>
-            <DataTableComponent add={add} specKey={specKey}/>
-        </>
-    )
+const {TabPane} = Tabs;
+
+export const ContentTab = ({add, specKey, onRemove, loading}) => {
+    let component;
+
+    const callback = (key) => {
+        console.log(key);
+    }
+
+    if (specKey === 'department') {
+        component = (
+            <Card style={{width: '100%', marginTop: 16}}>
+                <Tabs defaultActiveKey="1" onChange={callback}>
+                    <TabPane tab="Таблица" key="table">
+                        <DataTableComponent add={add} specKey={specKey} loading={loading}/>
+                    </TabPane>
+                    <TabPane tab="Дерево" key="tree">
+                        <TreeComponent/>
+                    </TabPane>
+                </Tabs>
+            </Card>
+        )
+    } else {
+        component = (
+            <Card style={{width: '100%', marginTop: 16}}>
+                <DataTableComponent add={add} specKey={specKey} loading={loading}/>
+            </Card>
+        )
+    }
+    return component;
 };

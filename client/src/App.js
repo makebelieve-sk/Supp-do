@@ -5,7 +5,6 @@ import {MainComponent} from './components/mainComponent';
 import store from "./redux/store";
 
 import './App.css';
-import 'antd/dist/antd.css';
 
 export const App = () => {
     return (

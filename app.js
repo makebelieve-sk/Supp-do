@@ -6,7 +6,9 @@ const app = express();
 
 app.use(express.json({extended: true}));
 
-app.use('/api/directory', require("./routes/route.directory"));
+app.use('/api/directory', require("./routes/route.profession"));
+app.use('/api/directory', require("./routes/route.department"));
+app.use('/api/directory', require("./routes/route.person"));
 
 const PORT = config.port || 5000;
 
