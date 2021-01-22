@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
 import {message, Row, Table} from "antd";
 
@@ -41,8 +41,16 @@ export const DataTableComponent = ({add, specKey, loading}) => {
     });
     const dispatch = useDispatch();
 
-    // Создание стейта для текстового поля
+    // Создание стейта для текстового поля, отфильтрованных колонок, выбранных колонок и начальных колонок
     const [filterText, setFilterText] = useState('');
+    let [columnsTable, setColumnsTable] = useState(columns);
+    let [checkedColumns, setCheckedColumns] = useState([]);
+    let [initialColumns, setInitialColumns] = useState([]);
+
+    // Устанавливаем начальные значения колонок
+    useEffect(() => {
+        setInitialColumns(columns);
+    }, [columns]);
 
     // Фильтрация данных через строку поиска
     const filteredItems = data.filter(item =>
@@ -57,19 +65,26 @@ export const DataTableComponent = ({add, specKey, loading}) => {
                     filterText={filterText}
                     setFilterText={setFilterText}
                 />
-                <ButtonsComponent add={add} specKey={specKey}
-                                  onExport={() => {
-                                      if (data && data.length > 0) {
-                                          downloadCSV(data);
-                                      } else {
-                                          message.warn('Записи в таблице отсутствуют');
-                                      }
-                }}/>
+                <ButtonsComponent
+                    add={add}
+                    specKey={specKey}
+                    onExport={() => {
+                        if (data && data.length > 0) {
+                            downloadCSV(data, specKey);
+                        } else {
+                            message.warn('Записи в таблице отсутствуют');
+                        }
+                    }}
+                    checkedColumns={checkedColumns}
+                    setCheckedColumns={setCheckedColumns}
+                    setColumnsTable={setColumnsTable}
+                    initialColumns={initialColumns}
+                />
             </Row>
 
             <Table
-                columns={columns}
-                dataSource={filteredItems}
+                columns={columnsTable}
+                dataSource={columnsTable && columnsTable.length === 0 ? null : filteredItems}
                 scroll={{x: 500}}
                 size="middle"
                 locale={localeRu}
@@ -77,20 +92,22 @@ export const DataTableComponent = ({add, specKey, loading}) => {
                 pagination={pagination}
                 loading={loading}
                 rowKey={(record) => record._id.toString()}
-                onRow={(row) => ({
-                    // Открытие новой вклдки для редактирования записи
-                    onClick: () => {
-                        dispatch(ActionCreator.editTab(row));
+                onRow={(row) => {
+                    return {
+                        // Открытие новой вклдки для редактирования записи
+                        onClick: () => {
+                            dispatch(ActionCreator.editTab(row));
 
-                        if (specKey === 'profession') {
-                            add('Редактирование профессии', ProfessionTab, `updateProfession-${row._id}`, tabs);
-                        } else if (specKey === 'department') {
-                            add('Редактирование подразделения', DepartmentTab, `updateDepartment-${row._id}`, tabs);
-                        } else if (specKey === 'person') {
-                            add('Редактирование записи о сотруднике', PersonTab, `updatePerson-${row._id}`, tabs);
+                            if (specKey === 'profession') {
+                                add('Редактирование профессии', ProfessionTab, 'updateProfession', tabs);
+                            } else if (specKey === 'department') {
+                                add('Редактирование подразделения', DepartmentTab, 'updateDepartment', tabs);
+                            } else if (specKey === 'person') {
+                                add('Редактирование записи о сотруднике', PersonTab, 'updatePerson', tabs);
+                            }
                         }
                     }
-                })}
+                }}
             />
         </>
     );

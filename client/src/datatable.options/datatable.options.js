@@ -12,12 +12,12 @@ const pagination = {
 };
 
 // Экспорт в эксель
-const downloadCSV = (array) => {
+const downloadCSV = (array, name) => {
     const link = document.createElement('a');
-    let csv = convertArrayOfObjectsToCSV(array);
+    let csv = convertArrayOfObjectsToCSV(array, name);
     if (csv == null) return;
 
-    const filename = 'export.csv';
+    const filename = `${name}.csv`;
 
     if (!csv.match(/^data:text\/csv/i)) {
         csv = `data:text/csv;charset=utf-8,${csv}`;
@@ -27,15 +27,28 @@ const downloadCSV = (array) => {
     link.setAttribute('download', filename);
     link.click();
 };
-const convertArrayOfObjectsToCSV = (array) => {
-    let result;
+const convertArrayOfObjectsToCSV = (array, name) => {
+    let result, headerStr;
+
+    if (name === 'profession') {
+        headerStr = 'Наименование, Примечание';
+    }
+    if (name === 'department') {
+        headerStr = 'Наименование, Примечание, Подразделение';
+    }
+    if (name === 'person') {
+        headerStr = 'Таб №, ФИО, Подразделение, Профессия, Примечание';
+    }
 
     const columnDelimiter = ',';
     const lineDelimiter = '\n';
-    const keys = Object.keys(array[0]);
+    let keys = Object.keys(array[0]);
+
+    keys.splice(0, 1);
+    keys.splice(keys.length - 1, 1);
 
     result = '';
-    result += keys.join(columnDelimiter);
+    result += headerStr;
     result += lineDelimiter;
 
     array.forEach(item => {
@@ -43,10 +56,17 @@ const convertArrayOfObjectsToCSV = (array) => {
         keys.forEach(key => {
             if (ctr > 0) result += columnDelimiter;
 
-            result += item[key];
+            if (item[key] && item[key].name) {
+                result += item[key].name;
+            } else if (item[key]) {
+                result += item[key];
+            } else {
+                result += '';
+            }
 
             ctr++;
         });
+
         result += lineDelimiter;
     });
 

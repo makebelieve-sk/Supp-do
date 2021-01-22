@@ -4,16 +4,16 @@ const router = Router();
 
 router.get('/departments', async (req, res) => {
     try {
-        const departments = await Department.find({});
+        const departments = await Department.find({}).populate('parent');
         res.json(departments);
     } catch (e) {
-        res.status(500).json({message: "Что-то пошло не так, попробуйте снова"})
+        res.status(500).json({message: "Ошибка при получении всех записей о подразделениях, пожалуйста, попробуйте снова"})
     }
 });
 
 router.post('/departments', async (req, res) => {
     try {
-        const {name, notes} = req.body;
+        const {name, notes, parent} = req.body;
 
         const department = await Department.findOne({name});
 
@@ -21,11 +21,23 @@ router.post('/departments', async (req, res) => {
             return res.status(400).json({message: "Такое подразделение уже существует"});
         }
 
-        const newDepartment = new Department({name: name, notes: notes})
+        if (parent) {
+            if (name === parent.name) {
+                return res.status(400).json({message: "Отдел не может принадлежать сам себе"});
+            }
+        }
+
+        const newDepartment = new Department({name, notes, parent});
 
         await newDepartment.save();
 
-        const currentDepartment = await Department.findOne({ name });
+        let currentDepartment;
+
+        if (!parent) {
+            currentDepartment = await Department.findOne({ name });
+        } else {
+            currentDepartment = await Department.findOne({name}).populate('parent');
+        }
 
         res.status(201).json({message: "Подразделение создано", department: currentDepartment});
     } catch (e) {
@@ -35,16 +47,23 @@ router.post('/departments', async (req, res) => {
 
 router.put('/departments', async (req, res) => {
     try {
-        const {name, notes} = req.body.values;
+        const {name, notes, parent} = req.body.values;
         const {_id} = req.body.editTab;
-        const department = await Department.findById({_id});
+        const department = await Department.findById({_id}).populate('parent');
 
         if (!department) {
             return res.status(400).json({message: "Такое подразделение не найдено"});
         }
 
+        if (parent) {
+            if (name === parent.name) {
+                return res.status(400).json({message: "Отдел не может принадлежать сам себе"});
+            }
+        }
+
         department.name = name;
         department.notes = notes;
+        department.parent = parent;
 
         await department.save();
 
@@ -56,7 +75,7 @@ router.put('/departments', async (req, res) => {
 
 router.delete('/departments', async (req, res) => {
     try {
-        const {name, notes} = req.body;
+        const {name} = req.body;
         const department = await Department.findOne({name});
 
         if (!department) {
@@ -67,7 +86,7 @@ router.delete('/departments', async (req, res) => {
 
         res.status(201).json({message: "Подразделение успешно удалено"});
     } catch (e) {
-        res.status(500).json({message: "Ошибка при редактировании подразделения, пожалуйста, попробуйте снова"})
+        res.status(500).json({message: "Ошибка при удалении подразделения, пожалуйста, попробуйте снова"})
     }
 });
 

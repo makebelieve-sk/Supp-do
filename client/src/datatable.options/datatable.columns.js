@@ -22,7 +22,7 @@ const ProfessionColumns = [
 const DepartmentColumns = [
     {
         title: 'Принадлежит',
-        dataIndex: 'parent',
+        dataIndex: ['parent', 'name'],
         key: 'parent',
         width: 100,
         sorter: (a, b) => a.name.length - b.name.length,
@@ -66,7 +66,7 @@ const PersonColumns = [
     },
     {
         title: 'Подразделение',
-        dataIndex: 'department',
+        dataIndex: ['department', 'name'],
         key: 'department',
         width: 100,
         sorter: (a, b) => a.name.length - b.name.length,
@@ -74,7 +74,7 @@ const PersonColumns = [
     },
     {
         title: 'Профессия',
-        dataIndex: 'profession',
+        dataIndex: ['profession', 'name'],
         key: 'profession',
         width: 100,
         sorter: (a, b) => a.name.length - b.name.length,

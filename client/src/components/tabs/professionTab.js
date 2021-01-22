@@ -8,13 +8,21 @@ import ActionCreator from "../../redux/actionCreators";
 const {Meta} = Card;
 
 export const ProfessionTab = ({add, specKey, onRemove}) => {
-    const {request, loading, error, clearError} = useHttp();
+    const {request, loading, loadingDelete, error, clearError} = useHttp();
 
     const {profession, editTab} = useSelector((state) => ({
         profession: state.profession,
         editTab: state.editTab
     }));
     const dispatch = useDispatch();
+
+    // Установка выпадающего списка поля "Принадлежит"
+    const [form] = Form.useForm();
+
+    // Установка начального значения выпадающего списка, если вкладка редактируется
+    useEffect(() => {
+        form.setFieldsValue({ name: editTab.name, notes: editTab.notes });
+    }, [form, editTab.name, editTab.notes]);
 
     // При появлении ошибки, инициализируем окно вывода этой ошибки
     useEffect(() => {
@@ -25,7 +33,7 @@ export const ProfessionTab = ({add, specKey, onRemove}) => {
         clearError();
     }, [dispatch, error, request, clearError]);
 
-    let key = specKey === 'newProfession' ? 'newProfession' : `updateProfession-${editTab._id}`;
+    let key = specKey === 'newProfession' ? 'newProfession' : 'updateProfession';
     let title = specKey === 'newProfession' ? 'Создание профессии' : 'Редактирование профессии';
 
     // Функция нажатия на кнопку "Сохранить"
@@ -84,7 +92,7 @@ export const ProfessionTab = ({add, specKey, onRemove}) => {
                     <Meta
                         title={title}
                         description={
-                            <Form name="control-ref" onFinish={onFinish} onFinishFailed={onFinishFailed}>
+                            <Form form={form} name="control-ref" onFinish={onFinish} onFinishFailed={onFinishFailed}>
                                 <Form.Item
                                     label="Профессия"
                                     name="name"
@@ -113,7 +121,7 @@ export const ProfessionTab = ({add, specKey, onRemove}) => {
                                             Сохранить
                                         </Button>
                                         {specKey === 'newProfession' ? null :
-                                            <Button type="danger" onClick={deleteHandler} loading={loading} style={{marginLeft: 10}}>
+                                            <Button type="danger" onClick={deleteHandler} loading={loadingDelete} style={{marginLeft: 10}}>
                                                 Удалить
                                             </Button>
                                         }

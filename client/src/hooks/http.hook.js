@@ -1,13 +1,19 @@
 import {useCallback, useState} from 'react';
+import {message} from "antd";
 
 export const useHttp = () => {
     const [loading, setLoading] = useState(false);
+    const [loadingDelete, setLoadingDelete] = useState(false);
     const [ error, setError ] = useState(null);
 
     // Функция настройки запросов на сервер
     const request = useCallback(async (url, method = 'GET', body = null, headers = {}) => {
-        setLoading(true);
-        
+        if (method === 'DELETE') {
+            setLoadingDelete(true);
+        } else {
+            setLoading(true);
+        }
+
         try {
             if (body) {
                 body = JSON.stringify(body);
@@ -22,16 +28,19 @@ export const useHttp = () => {
             }
 
             setLoading(false);
+            setLoadingDelete(false);
 
             return data;
         } catch (e) {
             setLoading(false);
+            setLoadingDelete(false);
             setError(e.message);
+            message.error(e.message);
             throw e;
         }
     }, []);
 
     const clearError = () => setError(null);
 
-    return { request, loading, error, clearError };
+    return { request, loading, loadingDelete, error, clearError };
 };

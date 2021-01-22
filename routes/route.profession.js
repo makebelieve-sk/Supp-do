@@ -7,7 +7,7 @@ router.get('/professions', async (req, res) => {
         const professions = await Profession.find({});
         res.json(professions);
     } catch (e) {
-        res.status(500).json({message: "Что-то пошло не так, попробуйте снова"})
+        res.status(500).json({message: "Ошибка при получении всех записей о профессиях, пожалуйста, попробуйте снова"})
     }
 });
 
@@ -66,7 +66,7 @@ router.delete('/professions', async (req, res) => {
 
         res.status(201).json({message: "Профессия успешно удалена"});
     } catch (e) {
-        res.status(500).json({message: "Ошибка при редактировании профессии, пожалуйста, попробуйте снова"})
+        res.status(500).json({message: "Ошибка при удалении профессии, пожалуйста, попробуйте снова"})
     }
 });
 

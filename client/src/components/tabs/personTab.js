@@ -1,27 +1,38 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Skeleton, Card, Form, Input, Row, Button, message, Select, Col} from 'antd';
 import {useSelector, useDispatch} from "react-redux";
 
 import {useHttp} from "../../hooks/http.hook";
 import ActionCreator from "../../redux/actionCreators";
 import {PlusSquareOutlined} from "@ant-design/icons";
+import {ProfessionTab} from "./professionTab";
+import {DepartmentTab} from "./departmentTab";
 
 const {Meta} = Card;
 
 export const PersonTab = ({add, specKey, onRemove}) => {
-    const {request, loading, error, clearError} = useHttp();
+    const {request, loading, loadingDelete, error, clearError} = useHttp();
 
-    const {people, editTab, profession, departments} = useSelector((state) => ({
+    const {people, editTab, profession, departments, tabs} = useSelector((state) => ({
         people: state.people,
         editTab: state.editTab,
         profession: state.profession,
-        departments: state.departments
+        departments: state.departments,
+        tabs: state.tabs
     }));
     const dispatch = useDispatch();
 
+    const [ selectDep, setSelectDep ] = useState(null);
+    const [ selectProfession, setSelectProfession ] = useState(null);
+
+    let initialDepartment = null;
+    let initialProfession = null;
+    let initialDepartmentName = '';
+    let initialProfName = '';
+
     // Установка выпадающих списков полей "Профессии" и "Подразделение"
     const [form] = Form.useForm();
-    let departmentsToOptions = [];
+    let departmentsToOptions = [{ label: 'Не выбрано', value: '' }, ];
     if (departments && departments.length > 0) {
         departments.forEach((department) => {
             let object = {
@@ -29,10 +40,18 @@ export const PersonTab = ({add, specKey, onRemove}) => {
                 value: department.name
             }
 
+            // Если вкладка редактирования, то устанавливаем начальные значения для выпадающих списков
+            if (specKey !== 'newPerson' && editTab && editTab.department) {
+                if (editTab.department._id === department._id) {
+                    initialDepartment = department;
+                    initialDepartmentName = department.name;
+                }
+            }
+
             departmentsToOptions.push(object);
         })
     }
-    let professionToOptions = [];
+    let professionToOptions = [{ label: 'Не выбрано', value: '' }, ];
     if (profession && profession.length > 0) {
         profession.forEach((prof) => {
             let object = {
@@ -40,9 +59,22 @@ export const PersonTab = ({add, specKey, onRemove}) => {
                 value: prof.name
             }
 
+            // Если вкладка редактирования, то устанавливаем начальные значения для выпадающих списков
+            if (specKey !== 'newPerson' && editTab && editTab.profession) {
+                if (editTab.profession._id === prof._id) {
+                    initialProfession = prof;
+                    initialProfName = prof.name;
+                }
+            }
+
             professionToOptions.push(object);
         })
     }
+
+    // Установка начального значения выпадающего списка, если вкладка редактируется
+    useEffect(() => {
+        form.setFieldsValue({ department: initialDepartmentName, profession: initialProfName });
+    }, [form, initialDepartmentName, initialProfName]);
 
     // При появлении ошибки, инициализируем окно вывода этой ошибки
     useEffect(() => {
@@ -53,12 +85,15 @@ export const PersonTab = ({add, specKey, onRemove}) => {
         clearError();
     }, [dispatch, error, request, clearError]);
 
-    let key = specKey === 'newPerson' ? 'newPerson' : `updatePerson-${editTab._id}`;
+    let key = specKey === 'newPerson' ? 'newPerson' : 'updatePerson';
     let title = specKey === 'newPerson' ? 'Создание записи о сотруднике' : 'Редактирование записи о сотруднике';
 
     // Функция нажатия на кнопку "Сохранить"
     const onFinish = async (values) => {
         try {
+            values.department = selectDep ? selectDep : initialDepartment;
+            values.profession = selectProfession ? selectProfession : initialProfession;
+
             let method = specKey === 'newPerson' ? 'POST' : 'PUT';
             let body = specKey === 'newPerson' ? values : {editTab, values};
 
@@ -73,8 +108,7 @@ export const PersonTab = ({add, specKey, onRemove}) => {
                         dispatch(ActionCreator.editPerson(index, data.person));
                     }
                 });
-        } catch (e) {
-        }
+        } catch (e) {}
     };
 
     // Функция нажатия на кнопку "Удалить"
@@ -92,8 +126,7 @@ export const PersonTab = ({add, specKey, onRemove}) => {
                     }
                 });
             }
-        } catch (e) {
-        }
+        } catch (e) {}
     };
 
     // Вывод сообщения валидации
@@ -106,8 +139,34 @@ export const PersonTab = ({add, specKey, onRemove}) => {
         onRemove(key, 'remove');
     }
 
-    const handleChange = () => {
-        form.setFieldsValue({sights: []});
+    // Изменение значения в выпадающем списке "Подразделение", и сохранение этого значения в стейте
+    const handleChangeDepartment = (value) => {
+        if (departments && departments.length > 0) {
+            let department = departments.find((department) => {
+                return department.name === value;
+            });
+
+            if (department) {
+                setSelectDep(department);
+            }
+        }
+
+        form.setFieldsValue({ department: value });
+    };
+
+    // Изменение значения в выпадающем списке "Персонал", и сохранение этого значения в стейте
+    const handleChangeProfession = (value) => {
+        if (profession && profession.length > 0) {
+            let prof = profession.find((prf) => {
+                return prf.name === value;
+            });
+
+            if (profession) {
+                setSelectProfession(prof);
+            }
+        }
+
+        form.setFieldsValue({ profession: value });
     };
 
     return (
@@ -117,47 +176,58 @@ export const PersonTab = ({add, specKey, onRemove}) => {
                     <Meta
                         title={title}
                         description={
-                            <Form name="control-ref" onFinish={onFinish} onFinishFailed={onFinishFailed}>
+                            <Form form={form} name="control-ref" onFinish={onFinish} onFinishFailed={onFinishFailed}>
                                 <Form.Item
                                     label="ФИО"
                                     name="name"
                                     initialValue={specKey === 'newPerson' ? '' : editTab.name}
-                                    rules={[
-                                        {
-                                            required: true,
-                                            message: 'Введите ФИО сотрудника!',
-                                        },
-                                    ]}
+                                    rules={[{required: true, message: 'Введите ФИО сотрудника!',}]}
                                 >
                                     <Input/>
                                 </Form.Item>
 
                                 <Row gutter={8}>
                                     <Col span={22}>
-                                        <Form.Item name="department" label="Подразделение">
-                                            <Select options={departmentsToOptions} onChange={handleChange}/>
+                                        <Form.Item
+                                            name="department"
+                                            label="Подразделение"
+                                            rules={[{required: true, message: 'Выберите подразделение!',}]}
+                                        >
+                                            <Select options={departmentsToOptions} onChange={handleChangeDepartment}/>
                                         </Form.Item>
                                     </Col>
                                     <Col span={2}>
-                                        <Button icon={<PlusSquareOutlined/>} type="primary"/>
+                                        <Button
+                                            onClick={() => add('Создание подразделения', DepartmentTab, 'newDepartment', tabs)}
+                                            icon={<PlusSquareOutlined/>}
+                                            type="primary"
+                                        />
                                     </Col>
                                 </Row>
 
                                 <Row gutter={8}>
                                     <Col span={22}>
-                                        <Form.Item name="profession" label="Профессия">
-                                            <Select options={professionToOptions} onChange={handleChange}/>
+                                        <Form.Item
+                                            name="profession"
+                                            label="Профессия"
+                                            rules={[{required: true, message: 'Выберите сотрудника!',}]}
+                                        >
+                                            <Select options={professionToOptions} onChange={handleChangeProfession}/>
                                         </Form.Item>
                                     </Col>
                                     <Col span={2}>
-                                        <Button icon={<PlusSquareOutlined/>} type="primary"/>
+                                        <Button
+                                            onClick={() => add('Создание профессии', ProfessionTab, 'newProfession', tabs)}
+                                            icon={<PlusSquareOutlined/>}
+                                            type="primary"
+                                        />
                                     </Col>
                                 </Row>
 
                                 <Form.Item
                                     name="tabNumber"
                                     label="Табельный номер"
-                                    initialValue={specKey === 'newPerson' ? '' : editTab.notes}
+                                    initialValue={specKey === 'newPerson' ? '' : editTab.tabNumber}
                                 >
                                     <Input/>
                                 </Form.Item>
@@ -176,7 +246,7 @@ export const PersonTab = ({add, specKey, onRemove}) => {
                                             Сохранить
                                         </Button>
                                         {specKey === 'newProfession' ? null :
-                                            <Button type="danger" onClick={deleteHandler} loading={loading}
+                                            <Button type="danger" onClick={deleteHandler} loading={loadingDelete}
                                                     style={{marginLeft: 10}}>
                                                 Удалить
                                             </Button>

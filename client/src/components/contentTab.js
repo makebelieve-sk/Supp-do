@@ -10,7 +10,7 @@ export const ContentTab = ({add, specKey, onRemove, loading}) => {
     let component;
 
     const callback = (key) => {
-        console.log(key);
+
     }
 
     if (specKey === 'department') {

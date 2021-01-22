@@ -6,7 +6,7 @@ import {
     PUSH_PROFESSION,
     EDIT_PROFESSION,
     DELETE_PROFESSION,
-    PUSH_DEPARTMENT, EDIT_DEPARTMENT, DELETE_DEPARTMENT, PUSH_PERSON, EDIT_PERSON, DELETE_PERSON
+    PUSH_DEPARTMENT, EDIT_DEPARTMENT, DELETE_DEPARTMENT, PUSH_PERSON, EDIT_PERSON, DELETE_PERSON, SET_PREV_ACTIVE_TAB
 } from "./actions";
 
 export default function reducer(state = initialState, action) {
@@ -77,6 +77,11 @@ export default function reducer(state = initialState, action) {
             return {
                 ...state,
                 people: [ ...state.people.slice(0, pI), ...state.people.slice(pI + 1) ]
+            };
+        case SET_PREV_ACTIVE_TAB:
+            return {
+                ...state,
+                prevActiveTab: action.payload
             };
         default:
             return state;

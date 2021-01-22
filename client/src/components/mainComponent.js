@@ -21,8 +21,9 @@ const {TabPane} = Tabs;
 
 export const MainComponent = () => {
     // Получаем текущие табы из хранилища
-    const {tabs} = useSelector(state => ({
-        tabs: state.tabs
+    const {tabs, prevActiveTab} = useSelector(state => ({
+        tabs: state.tabs,
+        prevActiveTab: state.prevActiveTab
     }));
     const dispatch = useDispatch();
 
@@ -33,7 +34,7 @@ export const MainComponent = () => {
 
     const {request, error, loading} = useHttp();
 
-    // Загрузка всех профессий
+    // Загрузка всех профессий, подразделений и персонала
     useEffect(() => {
         async function getProfessions() {
             try {
@@ -78,7 +79,7 @@ export const MainComponent = () => {
         let index = -1;
 
         tabs.forEach((tab, i) => {
-            if (tab.key === tabObject.key) {
+            if (tab.key === key) {
                 index = i;
             }
         })
@@ -90,6 +91,10 @@ export const MainComponent = () => {
             setActiveKey(key);
             dispatch(ActionCreator.addTab(tabObject));
         }
+
+        if (activeKey) {
+            dispatch(ActionCreator.setPrevActiveTab(activeKey));
+        }
     };
 
     // Фукнция удаления вкладки
@@ -100,7 +105,9 @@ export const MainComponent = () => {
             tabs.forEach((pane, i) => {
                 if (pane.key === targetKey) {
                     index = i;
-                    lastIndex = i - 1;
+                }
+                if (prevActiveTab && pane.key === prevActiveTab) {
+                    lastIndex = i;
                 }
             });
 

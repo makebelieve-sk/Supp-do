@@ -10,7 +10,8 @@ import {
     DELETE_DEPARTMENT,
     PUSH_PERSON,
     EDIT_PERSON,
-    DELETE_PERSON
+    DELETE_PERSON,
+    SET_PREV_ACTIVE_TAB
 } from "./actions";
 
 const ActionCreator = {
@@ -99,6 +100,13 @@ const ActionCreator = {
         return {
             type: DELETE_PERSON,
             payload: index
+        }
+    },
+    // Установка предыдущего активного таба
+    setPrevActiveTab: (key) => {
+        return {
+            type: SET_PREV_ACTIVE_TAB,
+            payload: key
         }
     },
 }
