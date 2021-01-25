@@ -18,7 +18,7 @@ export const ContentTab = ({add, specKey, onRemove, loading}) => {
             <Card style={{width: '100%', marginTop: 16}}>
                 <Tabs defaultActiveKey="1" onChange={callback}>
                     <TabPane tab="Таблица" key="table">
-                        <DataTableComponent add={add} specKey={specKey} loading={loading}/>
+                        <DataTableComponent add={add} specKey={specKey} loadingData={loading}/>
                     </TabPane>
                     <TabPane tab="Дерево" key="tree">
                         <TreeComponent/>
@@ -29,7 +29,7 @@ export const ContentTab = ({add, specKey, onRemove, loading}) => {
     } else {
         component = (
             <Card style={{width: '100%', marginTop: 16}}>
-                <DataTableComponent add={add} specKey={specKey} loading={loading}/>
+                <DataTableComponent add={add} specKey={specKey} loadingData={loading}/>
             </Card>
         )
     }

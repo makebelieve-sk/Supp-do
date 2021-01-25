@@ -10,8 +10,9 @@ import ActionCreator from "../redux/actionCreators";
 import {ProfessionTab} from "./tabs/professionTab";
 import {DepartmentTab} from "./tabs/departmentTab";
 import {PersonTab} from "./tabs/personTab";
+import {useHttp} from "../hooks/http.hook";
 
-export const DataTableComponent = ({add, specKey, loading}) => {
+export const DataTableComponent = ({add, specKey, loadingData}) => {
     let columns = ProfessionColumns;
 
     let {data, tabs} = useSelector(state => {
@@ -40,6 +41,8 @@ export const DataTableComponent = ({add, specKey, loading}) => {
         return object;
     });
     const dispatch = useDispatch();
+
+    let {request, loading} = useHttp();
 
     // Создание стейта для текстового поля, отфильтрованных колонок, выбранных колонок и начальных колонок
     const [filterText, setFilterText] = useState('');
@@ -90,20 +93,33 @@ export const DataTableComponent = ({add, specKey, loading}) => {
                 locale={localeRu}
                 bordered
                 pagination={pagination}
-                loading={loading}
+                loading={loadingData}
                 rowKey={(record) => record._id.toString()}
                 onRow={(row) => {
                     return {
                         // Открытие новой вклдки для редактирования записи
-                        onClick: () => {
-                            dispatch(ActionCreator.editTab(row));
-
+                        onClick: async () => {
                             if (specKey === 'profession') {
-                                add('Редактирование профессии', ProfessionTab, 'updateProfession', tabs);
+                                let data = await request('/api/directory/professions/' + row._id, 'GET');
+
+                                if (data) {
+                                    dispatch(ActionCreator.editTab(data.profession));
+                                    add('Редактирование профессии', ProfessionTab, 'updateProfession', tabs);
+                                }
                             } else if (specKey === 'department') {
-                                add('Редактирование подразделения', DepartmentTab, 'updateDepartment', tabs);
+                                let data = await request('/api/directory/departments/' + row._id, 'GET');
+
+                                if (data) {
+                                    dispatch(ActionCreator.editTab(data.department));
+                                    add('Редактирование подразделения', DepartmentTab, 'updateDepartment', tabs);
+                                }
                             } else if (specKey === 'person') {
-                                add('Редактирование записи о сотруднике', PersonTab, 'updatePerson', tabs);
+                                let data = await request('/api/directory/person/' + row._id, 'GET');
+
+                                if (data) {
+                                    dispatch(ActionCreator.editTab(data.person));
+                                    add('Редактирование записи о сотруднике', PersonTab, 'updatePerson', tabs);
+                                }
                             }
                         }
                     }

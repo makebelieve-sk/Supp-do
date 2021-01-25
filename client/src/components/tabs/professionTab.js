@@ -1,6 +1,7 @@
 import React, {useEffect} from 'react';
 import {Skeleton, Card, Form, Input, Row, Button, message} from 'antd';
 import {useSelector, useDispatch} from "react-redux";
+import {CheckOutlined, DeleteOutlined, PrinterOutlined, StopOutlined} from '@ant-design/icons';
 
 import {useHttp} from "../../hooks/http.hook";
 import ActionCreator from "../../redux/actionCreators";
@@ -16,13 +17,25 @@ export const ProfessionTab = ({add, specKey, onRemove}) => {
     }));
     const dispatch = useDispatch();
 
+    let initialName, initialNotes;
+
+    profession.forEach((prof) => {
+        // Если вкладка редактирования, то устанавливаем начальные значения для выпадающих списков
+        if (specKey !== 'newProfession' && editTab) {
+            if (editTab._id === prof._id) {
+                initialName = prof.name;
+                initialNotes = prof.notes;
+            }
+        }
+    })
+
     // Установка выпадающего списка поля "Принадлежит"
     const [form] = Form.useForm();
 
     // Установка начального значения выпадающего списка, если вкладка редактируется
     useEffect(() => {
-        form.setFieldsValue({ name: editTab.name, notes: editTab.notes });
-    }, [form, editTab.name, editTab.notes]);
+        form.setFieldsValue({name: initialName, notes: initialNotes});
+    }, [form, initialName, initialNotes]);
 
     // При появлении ошибки, инициализируем окно вывода этой ошибки
     useEffect(() => {
@@ -53,7 +66,8 @@ export const ProfessionTab = ({add, specKey, onRemove}) => {
                         dispatch(ActionCreator.editProfession(index, data.profession));
                     }
                 });
-        } catch (e) {}
+        } catch (e) {
+        }
     };
 
     // Функция нажатия на кнопку "Удалить"
@@ -86,13 +100,14 @@ export const ProfessionTab = ({add, specKey, onRemove}) => {
     }
 
     return (
-        <Card style={{width: '100%', marginTop: 16}}>
-            <div className="container">
+        <div className="container">
+            <Card style={{margin: '0 auto', width: '90%'}} bordered>
                 <Skeleton loading={false} active>
                     <Meta
                         title={title}
                         description={
-                            <Form form={form} name="control-ref" onFinish={onFinish} onFinishFailed={onFinishFailed}>
+                            <Form style={{marginTop: '5%'}} form={form} name="control-ref"
+                                  onFinish={onFinish} onFinishFailed={onFinishFailed}>
                                 <Form.Item
                                     label="Профессия"
                                     name="name"
@@ -104,7 +119,7 @@ export const ProfessionTab = ({add, specKey, onRemove}) => {
                                         },
                                     ]}
                                 >
-                                    <Input/>
+                                    <Input maxLength={255} type="text"/>
                                 </Form.Item>
 
                                 <Form.Item
@@ -112,20 +127,29 @@ export const ProfessionTab = ({add, specKey, onRemove}) => {
                                     label="Примечание"
                                     initialValue={specKey === 'newProfession' ? '' : editTab.notes}
                                 >
-                                    <Input/>
+                                    <Input maxLength={255} type="text"/>
                                 </Form.Item>
 
                                 <Form.Item>
-                                    <Row justify="end">
-                                        <Button type="primary" htmlType="submit" loading={loading}>
+                                    <Row justify="end" style={{ marginTop: 20}}>
+                                        <Button type="primary" htmlType="submit" loading={loading}
+                                                style={{width: '9em'}} icon={<CheckOutlined />}>
                                             Сохранить
                                         </Button>
                                         {specKey === 'newProfession' ? null :
-                                            <Button type="danger" onClick={deleteHandler} loading={loadingDelete} style={{marginLeft: 10}}>
-                                                Удалить
-                                            </Button>
+                                            <>
+                                                <Button type="danger" onClick={deleteHandler} loading={loadingDelete}
+                                                        style={{marginLeft: 10, width: '9em'}} icon={<DeleteOutlined/>}>
+                                                    Удалить
+                                                </Button>
+                                                <Button type="secondary" onClick={() => alert(1)}
+                                                        style={{marginLeft: 10, width: '9em'}} icon={<PrinterOutlined />}>
+                                                    Печать
+                                                </Button>
+                                            </>
                                         }
-                                        <Button type="secondary" onClick={cancelHandler} style={{marginLeft: 10}}>
+                                        <Button type="secondary" onClick={cancelHandler}
+                                                style={{marginLeft: 10, width: '9em'}} icon={<StopOutlined />}>
                                             Отмена
                                         </Button>
                                     </Row>
@@ -134,7 +158,7 @@ export const ProfessionTab = ({add, specKey, onRemove}) => {
                         }
                     />
                 </Skeleton>
-            </div>
-        </Card>
+            </Card>
+        </div>
     )
 }

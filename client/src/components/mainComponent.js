@@ -1,12 +1,12 @@
 import React, {useState, useEffect} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
-import {Layout, Menu, Button, Tabs, message} from 'antd';
+import {Layout, Menu, Button, Tabs, message, Row, Col, Modal} from 'antd';
 import {
     MenuUnfoldOutlined,
     MenuFoldOutlined,
     UserOutlined,
     LaptopOutlined,
-    NotificationOutlined,
+    NotificationOutlined, QuestionCircleOutlined,
 } from '@ant-design/icons';
 
 import ActionCreator from "../redux/actionCreators";
@@ -15,7 +15,7 @@ import {useHttp} from "../hooks/http.hook";
 
 import './mainComponent.css';
 
-const {Header, Sider, Content} = Layout;
+const {Header, Sider, Content, Footer} = Layout;
 const {SubMenu} = Menu;
 const {TabPane} = Tabs;
 
@@ -31,6 +31,20 @@ export const MainComponent = () => {
 
     const [collapsed, setCollapsed] = useState(true);
     const [activeKey, setActiveKey] = useState(startKey);
+    const [isModalVisible, setIsModalVisible] = useState(false);
+
+    // Функции работы модального окна
+    const showModal = () => {
+        setIsModalVisible(true);
+    };
+
+    const handleOk = () => {
+        setIsModalVisible(false);
+    };
+
+    const handleCancel = () => {
+        setIsModalVisible(false);
+    };
 
     const {request, error, loading} = useHttp();
 
@@ -112,9 +126,8 @@ export const MainComponent = () => {
             });
 
             const panes = tabs.filter(pane => pane.key !== targetKey);
-
             if (panes.length && activeKey === targetKey) {
-                if (lastIndex >= 0) {
+                if (panes[lastIndex] && lastIndex >= 0) {
                     setActiveKey(panes[lastIndex].key);
                 } else {
                     setActiveKey(panes[0].key);
@@ -214,6 +227,29 @@ export const MainComponent = () => {
                         </Tabs> :
                         <div style={{textAlign: 'center'}}>Нет открытых вкладок</div>}
                 </Content>
+                <Footer>
+                    <Row>
+                        <Col span={18} style={{textAlign: 'center'}} className="footer_text">
+                            Система управления производственным процессом. Дефекты и отказы. 2020. Версия 1.0.0
+                        </Col>
+                        <Col span={6}>
+                            <p onClick={showModal} className="footer_text cursor">
+                                <QuestionCircleOutlined /> Помощь
+                            </p>
+                            <Modal
+                                title="Помощь"
+                                visible={isModalVisible}
+                                onOk={handleOk}
+                                onCancel={handleCancel}
+                                cancelText="Закрыть"
+                            >
+                                <p>Some contents...</p>
+                                <p>Some contents...</p>
+                                <p>Some contents...</p>
+                            </Modal>
+                        </Col>
+                    </Row>
+                </Footer>
             </Layout>
         </Layout>
     );

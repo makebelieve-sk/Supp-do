@@ -9,7 +9,7 @@ import './App.css';
 export const App = () => {
     return (
         <Provider store={store}>
-            <MainComponent/>
+            <MainComponent />
         </Provider>
     );
 };

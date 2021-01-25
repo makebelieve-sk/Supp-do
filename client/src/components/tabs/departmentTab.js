@@ -4,6 +4,7 @@ import {useDispatch, useSelector} from "react-redux";
 
 import {useHttp} from "../../hooks/http.hook";
 import ActionCreator from "../../redux/actionCreators";
+import {CheckOutlined, DeleteOutlined, PrinterOutlined, StopOutlined} from "@ant-design/icons";
 
 const {Meta} = Card;
 
@@ -16,36 +17,48 @@ export const DepartmentTab = ({add, specKey, onRemove}) => {
     }));
     const dispatch = useDispatch();
 
-    const [ selectDep, setSelectDep ] = useState(null);
+    const [selectDep, setSelectDep] = useState(null);
+    const [departmentsToOptions, setDepartmentsToOptions] = useState([]);
 
     let initialDepartment = null;
     let initialName = '';
 
     // Установка выпадающего списка поля "Принадлежит"
     const [form] = Form.useForm();
-    let departmentsToOptions = [{ label: 'Не выбрано', value: '' }, ];
-    if (departments && departments.length > 0) {
-        departments.forEach((department) => {
-            let object = {
-                label: department.name,
-                value: department.name
-            }
 
-            // Если вкладка редактирования, то устанавливаем начальные значения для выпадающих списков
-            if (specKey !== 'newDepartment' && editTab && editTab.parent) {
-                if (editTab.parent._id === department._id) {
-                    initialDepartment = department;
-                    initialName = department.name;
-                }
-            }
-
-            departmentsToOptions.push(object);
-        })
+    // Если вкладка редактирования, то устанавливаем начальные значения для выпадающих списков
+    if (specKey !== 'newDepartment' && editTab && editTab.parent) {
+        initialDepartment = editTab;
+        initialName = editTab.name;
     }
+
+    // Обновление выпадающих списков
+    useEffect(() => {
+        const getDepartments = async () => {
+            const data = await request('/api/directory/departments/names');
+            let arr = [];
+            arr.push({label: 'Не выбрано', value: ''});
+
+            if (data) {
+                data.departmentsName.forEach((depName) => {
+                    let object = {
+                        label: depName,
+                        value: depName
+                    }
+
+                    arr.push(object);
+                })
+            }
+
+            setDepartmentsToOptions(arr);
+        }
+
+        getDepartments();
+    }, [request, departments]);
 
     // Установка начального значения выпадающего списка, если вкладка редактируется
     useEffect(() => {
-        form.setFieldsValue({ parent: initialName });
+        form.setFieldsValue({parent: initialName});
     }, [form, initialName]);
 
     // При появлении ошибки, инициализируем окно вывода этой ошибки
@@ -80,7 +93,8 @@ export const DepartmentTab = ({add, specKey, onRemove}) => {
                         dispatch(ActionCreator.editDepartment(index, data.department));
                     }
                 });
-        } catch (e) {}
+        } catch (e) {
+        }
     };
 
     // Функция нажатия на кнопку "Удалить"
@@ -124,19 +138,21 @@ export const DepartmentTab = ({add, specKey, onRemove}) => {
             }
         }
 
-        form.setFieldsValue({ parent: value });
+        form.setFieldsValue({parent: value});
     };
 
     return (
-        <Card style={{width: '100%', marginTop: 16}}>
-            <div className="container">
+        <div className="container">
+            <Card style={{margin: '0 auto', width: '90%'}} bordered>
                 <Skeleton loading={false} active>
                     <Meta
                         title={title}
                         description={
-                            <Form form={form} name="control-ref" onFinish={onFinish} onFinishFailed={onFinishFailed}>
+                            <Form labelCol={{span: 8}} wrapperCol={{span: 16}} style={{marginTop: '5%'}} form={form} name="control-ref"
+                                  onFinish={onFinish} onFinishFailed={onFinishFailed}>
                                 <Form.Item name="parent" label="Принадлежит">
-                                    <Select options={departmentsToOptions} onChange={(newValue) => handleChange(newValue)} />
+                                    <Select options={departmentsToOptions}
+                                            onChange={(newValue) => handleChange(newValue)}/>
                                 </Form.Item>
 
                                 <Form.Item
@@ -150,7 +166,7 @@ export const DepartmentTab = ({add, specKey, onRemove}) => {
                                         },
                                     ]}
                                 >
-                                    <Input/>
+                                    <Input maxLength={255} type="text"/>
                                 </Form.Item>
 
                                 <Form.Item
@@ -158,29 +174,36 @@ export const DepartmentTab = ({add, specKey, onRemove}) => {
                                     name="notes"
                                     initialValue={specKey === 'newDepartment' ? '' : editTab.notes}
                                 >
-                                    <Input/>
+                                    <Input maxLength={255} type="text"/>
                                 </Form.Item>
 
-                                <Form.Item>
-                                    <Row justify="end">
-                                        <Button type="primary" htmlType="submit" loading={loading}>
-                                            Сохранить
-                                        </Button>
-                                        {specKey === 'newDepartment' ? null :
-                                            <Button type="danger" onClick={deleteHandler} loading={loadingDelete} style={{marginLeft: 10}}>
+                                <Row justify="end" style={{marginTop: 20}}>
+                                    <Button type="primary" htmlType="submit" loading={loading}
+                                            style={{width: '9em'}} icon={<CheckOutlined/>}>
+                                        Сохранить
+                                    </Button>
+                                    {specKey === 'newProfession' ? null :
+                                        <>
+                                            <Button type="danger" onClick={deleteHandler} loading={loadingDelete}
+                                                    style={{marginLeft: 10, width: '9em'}} icon={<DeleteOutlined/>}>
                                                 Удалить
                                             </Button>
-                                        }
-                                        <Button type="secondary" onClick={cancelHandler} style={{marginLeft: 10}}>
-                                            Отмена
-                                        </Button>
-                                    </Row>
-                                </Form.Item>
+                                            <Button type="secondary" onClick={() => alert(1)}
+                                                    style={{marginLeft: 10, width: '9em'}} icon={<PrinterOutlined/>}>
+                                                Печать
+                                            </Button>
+                                        </>
+                                    }
+                                    <Button type="secondary" onClick={cancelHandler}
+                                            style={{marginLeft: 10, width: '9em'}} icon={<StopOutlined/>}>
+                                        Отмена
+                                    </Button>
+                                </Row>
                             </Form>
                         }
                     />
                 </Skeleton>
-            </div>
-        </Card>
+            </Card>
+        </div>
     )
 }

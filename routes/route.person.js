@@ -2,6 +2,20 @@ const {Router} = require("express");
 const Person = require("../models/Person");
 const router = Router();
 
+router.get('/person/:id', async (req, res) => {
+    try {
+        const person = await Person.findById({_id: req.params.id}).populate('department').populate('profession');
+
+        if (!person) {
+            return res.status(400).json({message: "Такая запись о сотруднике не существует"});
+        }
+
+        res.status(201).json({person: person});
+    } catch (e) {
+        res.status(500).json({message: "Ошибка при открытии записи, пожалуйста, попробуйте снова"})
+    }
+});
+
 router.get('/person', async (req, res) => {
     try {
         const people = await Person.find({}).populate('department').populate('profession');
