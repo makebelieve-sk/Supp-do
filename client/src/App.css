@@ -1,0 +1,103 @@
+.header__wrapper {
+    height: 100vh;
+    max-height: 100%;
+}
+.logo {
+    height: 48px;
+    width: 15%;
+    margin: 8px;
+    color: #fff;
+    font-size: 24px;
+    text-align: center;
+    line-height: 48px;
+}
+.ant-tabs-top > .ant-tabs-nav, .ant-tabs-bottom > .ant-tabs-nav, .ant-tabs-top > div > .ant-tabs-nav, .ant-tabs-bottom > div > .ant-tabs-nav {
+    margin: 0 !important;
+    padding: 0 !important;
+    border-bottom: 0 !important;
+}
+.ant-tabs-card > .ant-tabs-nav .ant-tabs-tab, .ant-tabs-card > div > .ant-tabs-nav .ant-tabs-tab {
+    border: 0 !important;
+}
+.ant-table-cell:hover {
+    cursor: pointer;
+}
+.container {
+    width: 100%;
+    margin: 0 auto;
+    background-color: #ffffff;
+    padding: 30px;
+}
+.rdt_TableCol {
+    text-align: center !important;
+}
+.cursor:hover {
+    cursor: pointer;
+}
+.footer_text {
+    -webkit-tap-highlight-color: transparent;
+    --blue: #007bff;
+    --indigo: #6610f2;
+    --purple: #6f42c1;
+    --pink: #e83e8c;
+    --red: #dc3545;
+    --orange: #fd7e14;
+    --yellow: #ffc107;
+    --green: #28a745;
+    --teal: #20c997;
+    --cyan: #17a2b8;
+    --white: #fff;
+    --gray: #6c757d;
+    --gray-dark: #343a40;
+    --primary: #007bff;
+    --secondary: #6c757d;
+    --success: #28a745;
+    --info: #17a2b8;
+    --warning: #ffc107;
+    --danger: #dc3545;
+    --light: #f8f9fa;
+    --dark: #343a40;
+    --breakpoint-xs: 0;
+    --breakpoint-sm: 576px;
+    --breakpoint-md: 768px;
+    --breakpoint-lg: 992px;
+    --breakpoint-xl: 1200px;
+    --font-family-sans-serif: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+    --font-family-monospace: SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    text-align: left;
+    box-sizing: border-box;
+    color: #6c757d!important;
+}
+.ant-modal-footer .ant-btn-primary {
+    display: none;
+}
+#root {
+    min-height: 100vh;
+}
+.ant-layout {
+    min-height: 100vh;
+}
+.ant-card {
+    margin-top: 0 !important;
+}
+.ant-card-bordered {
+    border-left: 0 !important;
+}
+
+/* стилизация форм авторизации*/
+.login-form {
+    max-width: 400px;
+}
+.login-form-forgot {
+    float: right;
+}
+.ant-col-rtl .login-form-forgot {
+    float: left;
+}
+.login-form-button {
+    width: 100%;
+}

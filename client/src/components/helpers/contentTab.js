@@ -1,8 +1,8 @@
 import React from 'react';
 import {Card, Tabs} from 'antd';
 
-import {DataTableComponent} from './datatableComponent';
-import {TreeComponent} from "./treeComponent";
+import {DataTableComponent} from '../contentComponent/datatableComponent';
+import {TreeComponent} from "../contentComponent/treeComponent";
 
 const {TabPane} = Tabs;
 

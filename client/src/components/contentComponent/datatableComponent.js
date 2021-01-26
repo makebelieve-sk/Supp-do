@@ -2,15 +2,15 @@ import React, {useState, useEffect} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
 import {message, Row, Table} from "antd";
 
-import {ProfessionColumns, DepartmentColumns, PersonColumns} from "../datatable.options/datatable.columns";
-import {downloadCSV, localeRu, pagination} from '../datatable.options/datatable.options';
+import {ProfessionColumns, DepartmentColumns, PersonColumns} from "../../datatable.options/datatable.columns";
+import {downloadCSV, localeRu, pagination} from '../../datatable.options/datatable.options';
 import {HeaderDatatable} from './headerDatatable';
-import {ButtonsComponent} from "./buttonsBlock";
-import ActionCreator from "../redux/actionCreators";
-import {ProfessionTab} from "./tabs/professionTab";
-import {DepartmentTab} from "./tabs/departmentTab";
-import {PersonTab} from "./tabs/personTab";
-import {useHttp} from "../hooks/http.hook";
+import {ButtonsComponent} from "./buttonsDatatable";
+import ActionCreator from "../../redux/actionCreators";
+import {ProfessionTab} from "../tabs/professionTab";
+import {DepartmentTab} from "../tabs/departmentTab";
+import {PersonTab} from "../tabs/personTab";
+import {useHttp} from "../../hooks/http.hook";
 
 export const DataTableComponent = ({add, specKey, loadingData}) => {
     let columns = ProfessionColumns;
@@ -42,7 +42,7 @@ export const DataTableComponent = ({add, specKey, loadingData}) => {
     });
     const dispatch = useDispatch();
 
-    let {request, loading} = useHttp();
+    let {request} = useHttp();
 
     // Создание стейта для текстового поля, отфильтрованных колонок, выбранных колонок и начальных колонок
     const [filterText, setFilterText] = useState('');

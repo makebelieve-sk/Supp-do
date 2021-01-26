@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
 import {Layout, Menu, Button, Tabs, message, Row, Col, Modal} from 'antd';
 import {
@@ -9,23 +9,24 @@ import {
     NotificationOutlined, QuestionCircleOutlined,
 } from '@ant-design/icons';
 
-import ActionCreator from "../redux/actionCreators";
-import {ContentTab} from "./contentTab";
-import {useHttp} from "../hooks/http.hook";
-
-import './mainComponent.css';
+import ActionCreator from "../../redux/actionCreators";
+import {ContentTab} from "../helpers/contentTab";
+import {useHttp} from "../../hooks/http.hook";
+import {AuthContext} from "../../context/authContext";
 
 const {Header, Sider, Content, Footer} = Layout;
 const {SubMenu} = Menu;
 const {TabPane} = Tabs;
 
-export const MainComponent = () => {
+export const MainPage = () => {
     // Получаем текущие табы из хранилища
     const {tabs, prevActiveTab} = useSelector(state => ({
         tabs: state.tabs,
         prevActiveTab: state.prevActiveTab
     }));
     const dispatch = useDispatch();
+
+    const auth = useContext(AuthContext);
 
     let startKey = tabs && tabs.length > 0 ? tabs[0].key : null;
 
@@ -182,7 +183,9 @@ export const MainComponent = () => {
                     </SubMenu>
                     <SubMenu key="user" icon={<NotificationOutlined/>} title="Пользователь">
                         <Menu.Item key="changePassword">Сменить пароль</Menu.Item>
-                        <Menu.Item key="logout">Выйти</Menu.Item>
+                        <Menu.Item key="logout" onClick={() => {
+                            auth.logout();
+                        }}>Выйти</Menu.Item>
                     </SubMenu>
                 </Menu>
             </Sider>

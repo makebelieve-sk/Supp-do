@@ -3,10 +3,10 @@ import {useSelector} from "react-redux";
 import {Button, Row, Menu, Dropdown, Checkbox} from 'antd';
 import {PlusOutlined, FileExcelOutlined, PrinterOutlined, EditOutlined} from '@ant-design/icons';
 
-import {ProfessionTab} from "./tabs/professionTab";
-import {DepartmentTab} from "./tabs/departmentTab";
-import {PersonTab} from "./tabs/personTab";
-import {ProfessionColumns, DepartmentColumns, PersonColumns} from "../datatable.options/datatable.columns";
+import {ProfessionTab} from "../tabs/professionTab";
+import {DepartmentTab} from "../tabs/departmentTab";
+import {PersonTab} from "../tabs/personTab";
+import {ProfessionColumns, DepartmentColumns, PersonColumns} from "../../datatable.options/datatable.columns";
 
 export const ButtonsComponent = ({add, specKey, onExport, checkedColumns, setCheckedColumns, setColumnsTable, initialColumns}) => {
     // Получение табов из хранилища redux
