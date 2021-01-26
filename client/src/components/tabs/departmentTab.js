@@ -35,22 +35,21 @@ export const DepartmentTab = ({add, specKey, onRemove}) => {
     // Обновление выпадающих списков
     useEffect(() => {
         const getDepartments = async () => {
-            const data = await request('/api/directory/departments/names');
-            let arr = [];
-            arr.push({label: 'Не выбрано', value: ''});
+            const data = await request('/api/directory/departments');
+            let departmentsToOptions = [{label: 'Не выбрано', value: ''}];
 
             if (data) {
-                data.departmentsName.forEach((depName) => {
+                data.forEach((department) => {
                     let object = {
-                        label: depName,
-                        value: depName
+                        label: department.name,
+                        value: department.name
                     }
 
-                    arr.push(object);
+                    departmentsToOptions.push(object);
                 })
             }
 
-            setDepartmentsToOptions(arr);
+            setDepartmentsToOptions(departmentsToOptions);
         }
 
         getDepartments();
@@ -87,7 +86,7 @@ export const DepartmentTab = ({add, specKey, onRemove}) => {
 
             onRemove(key, 'remove');
 
-            specKey === 'newDepartment' ? dispatch(ActionCreator.pushDepartment(data.department)) :
+            specKey === 'newDepartment' ? dispatch(ActionCreator.createDepartment(data.department)) :
                 departments.forEach((department, index) => {
                     if (department._id === data.department._id) {
                         dispatch(ActionCreator.editDepartment(index, data.department));

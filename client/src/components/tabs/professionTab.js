@@ -19,15 +19,11 @@ export const ProfessionTab = ({add, specKey, onRemove}) => {
 
     let initialName, initialNotes;
 
-    profession.forEach((prof) => {
-        // Если вкладка редактирования, то устанавливаем начальные значения для выпадающих списков
-        if (specKey !== 'newProfession' && editTab) {
-            if (editTab._id === prof._id) {
-                initialName = prof.name;
-                initialNotes = prof.notes;
-            }
-        }
-    })
+    // Если вкладка редактирования, то устанавливаем начальные значения для выпадающих списков
+    if (specKey !== 'newProfession' && editTab) {
+        initialName = editTab.name;
+        initialNotes = editTab.notes;
+    }
 
     // Установка выпадающего списка поля "Принадлежит"
     const [form] = Form.useForm();
@@ -60,7 +56,7 @@ export const ProfessionTab = ({add, specKey, onRemove}) => {
 
             onRemove(key, 'remove');
 
-            specKey === 'newProfession' ? dispatch(ActionCreator.pushProfession(data.profession)) :
+            specKey === 'newProfession' ? dispatch(ActionCreator.createProfession(data.profession)) :
                 profession.forEach((prof, index) => {
                     if (prof._id === data.profession._id) {
                         dispatch(ActionCreator.editProfession(index, data.profession));

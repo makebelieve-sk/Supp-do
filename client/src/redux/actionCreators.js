@@ -2,13 +2,13 @@ import {
     ADD_TAB,
     EDIT_TAB,
     REMOVE_TAB,
-    PUSH_PROFESSION,
+    CREATE_PROFESSION,
     EDIT_PROFESSION,
     DELETE_PROFESSION,
-    PUSH_DEPARTMENT,
+    CREATE_DEPARTMENT,
     EDIT_DEPARTMENT,
     DELETE_DEPARTMENT,
-    PUSH_PERSON,
+    CREATE_PERSON,
     EDIT_PERSON,
     DELETE_PERSON,
     SET_PREV_ACTIVE_TAB
@@ -37,9 +37,9 @@ const ActionCreator = {
         }
     },
     // Добавление профессии
-    pushProfession: (profession) => {
+    createProfession: (profession) => {
         return {
-            type: PUSH_PROFESSION,
+            type: CREATE_PROFESSION,
             payload: profession
         }
     },
@@ -59,9 +59,9 @@ const ActionCreator = {
         }
     },
     // Добавление подразделения
-    pushDepartment: (department) => {
+    createDepartment: (department) => {
         return {
-            type: PUSH_DEPARTMENT,
+            type: CREATE_DEPARTMENT,
             payload: department
         }
     },
@@ -81,9 +81,9 @@ const ActionCreator = {
         }
     },
     // Добавление сотрудника
-    pushPerson: (profession) => {
+    createPerson: (profession) => {
         return {
-            type: PUSH_PERSON,
+            type: CREATE_PERSON,
             payload: profession
         }
     },

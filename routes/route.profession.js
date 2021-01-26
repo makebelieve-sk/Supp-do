@@ -2,26 +2,6 @@ const {Router} = require("express");
 const Profession = require("../models/Profession");
 const router = Router();
 
-router.get('/profession/names', async (req, res) => {
-    try {
-        const professions = await Profession.find({});
-
-        if (!professions) {
-            return res.status(400).json({message: "Список профессий пуст"});
-        }
-
-        let professionsName = [];
-
-        professions.forEach((profession) => {
-            professionsName.push(profession.name);
-        })
-
-        res.status(201).json({professionsName: professionsName});
-    } catch (e) {
-        res.status(500).json({message: "Ошибка при получении списка профессий, пожалуйста, попробуйте снова"})
-    }
-});
-
 router.get('/professions/:id', async (req, res) => {
     try {
         const profession = await Profession.findById({_id: req.params.id});

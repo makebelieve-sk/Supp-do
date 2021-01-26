@@ -53,37 +53,35 @@ export const PersonTab = ({add, specKey, onRemove}) => {
     // Обновление выпадающих списков
     useEffect(() => {
         const getData = async () => {
-            const dataDepartments = await request('/api/directory/departments/names');
-            const dataProfessions = await request('/api/directory/profession/names');
-            let arrDep = [];
-            let arrProf = [];
+            const dataDepartments = await request('/api/directory/departments');
+            const dataProfessions = await request('/api/directory/professions');
 
-            arrDep.push({label: 'Не выбрано', value: ''});
-            arrProf.push({label: 'Не выбрано', value: ''});
+            let departmentsToOptions = [{label: 'Не выбрано', value: ''}];
+            let professionsToOptions = [{label: 'Не выбрано', value: ''}];
 
             if (dataDepartments) {
-                dataDepartments.departmentsName.forEach((depName) => {
+                dataDepartments.forEach((department) => {
                     let object = {
-                        label: depName,
-                        value: depName
+                        label: department.name,
+                        value: department.name
                     }
 
-                    arrDep.push(object);
+                    departmentsToOptions.push(object);
                 })
             }
             if (dataProfessions) {
-                dataProfessions.professionsName.forEach((profName) => {
+                dataProfessions.forEach((prof) => {
                     let object = {
-                        label: profName,
-                        value: profName
+                        label: prof.name,
+                        value: prof.name
                     }
 
-                    arrProf.push(object);
+                    professionsToOptions.push(object);
                 })
             }
 
-            setDepartmentsToOptions(arrDep);
-            setProfessionsToOptions(arrProf);
+            setDepartmentsToOptions(departmentsToOptions);
+            setProfessionsToOptions(professionsToOptions);
         }
 
         getData();
@@ -120,7 +118,7 @@ export const PersonTab = ({add, specKey, onRemove}) => {
 
             onRemove(key, 'remove');
 
-            specKey === 'newPerson' ? dispatch(ActionCreator.pushPerson(data.person)) :
+            specKey === 'newPerson' ? dispatch(ActionCreator.createPerson(data.person)) :
                 people.forEach((pers, index) => {
                     if (pers._id === data.person._id) {
                         dispatch(ActionCreator.editPerson(index, data.person));
@@ -210,7 +208,7 @@ export const PersonTab = ({add, specKey, onRemove}) => {
 
                                 <Form.Item label="Подразделение">
                                     <Row gutter={8}>
-                                        <Col span={16}>
+                                        <Col span={22}>
                                             <Form.Item
                                                 name="department"
                                                 noStyle
@@ -220,20 +218,20 @@ export const PersonTab = ({add, specKey, onRemove}) => {
                                                         onChange={handleChangeDepartment}/>
                                             </Form.Item>
                                         </Col>
-                                        <Col span={8}>
+                                        <Col span={2}>
                                             <Button
                                                 style={{width: '100%'}}
                                                 onClick={() => add('Создание подразделения', DepartmentTab, 'newDepartment', tabs)}
                                                 icon={<PlusOutlined/>}
                                                 type="secondary"
-                                            >Создать подразделение</Button>
+                                            />
                                         </Col>
                                     </Row>
                                 </Form.Item>
 
                                 <Form.Item label="Профессия">
                                     <Row gutter={8}>
-                                        <Col span={16}>
+                                        <Col span={22}>
                                             <Form.Item
                                                 name="profession"
                                                 noStyle
@@ -242,13 +240,13 @@ export const PersonTab = ({add, specKey, onRemove}) => {
                                                 <Select options={professionsToOptions} onChange={handleChangeProfession}/>
                                             </Form.Item>
                                         </Col>
-                                        <Col span={8}>
+                                        <Col span={2}>
                                             <Button
                                                 style={{width: '100%'}}
                                                 onClick={() => add('Создание профессии', ProfessionTab, 'newProfession', tabs)}
                                                 icon={<PlusOutlined/>}
                                                 type="secondary"
-                                            >Создать профессию</Button>
+                                            />
                                         </Col>
                                     </Row>
                                 </Form.Item>

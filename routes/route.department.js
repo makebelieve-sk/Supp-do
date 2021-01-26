@@ -2,26 +2,6 @@ const {Router} = require("express");
 const Department = require("../models/Department");
 const router = Router();
 
-router.get('/departments/names', async (req, res) => {
-    try {
-        const departments = await Department.find({});
-
-        if (!departments) {
-            return res.status(400).json({message: "Список подразделений пуст"});
-        }
-
-        let departmentsName = [];
-
-        departments.forEach((department) => {
-            departmentsName.push(department.name);
-        })
-
-        res.status(201).json({departmentsName: departmentsName});
-    } catch (e) {
-        res.status(500).json({message: "Ошибка при получении списка подразделений, пожалуйста, попробуйте снова"})
-    }
-});
-
 router.get('/departments/:id', async (req, res) => {
     try {
         const department = await Department.findById({_id: req.params.id}).populate('parent');

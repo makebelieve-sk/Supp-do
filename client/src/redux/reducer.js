@@ -3,10 +3,16 @@ import {
     ADD_TAB,
     EDIT_TAB,
     REMOVE_TAB,
-    PUSH_PROFESSION,
+    CREATE_PROFESSION,
     EDIT_PROFESSION,
     DELETE_PROFESSION,
-    PUSH_DEPARTMENT, EDIT_DEPARTMENT, DELETE_DEPARTMENT, PUSH_PERSON, EDIT_PERSON, DELETE_PERSON, SET_PREV_ACTIVE_TAB
+    CREATE_DEPARTMENT,
+    EDIT_DEPARTMENT,
+    DELETE_DEPARTMENT,
+    CREATE_PERSON,
+    EDIT_PERSON,
+    DELETE_PERSON,
+    SET_PREV_ACTIVE_TAB
 } from "./actions";
 
 export default function reducer(state = initialState, action) {
@@ -27,7 +33,7 @@ export default function reducer(state = initialState, action) {
                 ...state,
                 tabs: [ ...state.tabs.slice(0, index), ...state.tabs.slice(index + 1) ]
             };
-        case PUSH_PROFESSION:
+        case CREATE_PROFESSION:
             return {
                 ...state,
                 profession: [ ...state.profession, action.payload ]
@@ -44,7 +50,7 @@ export default function reducer(state = initialState, action) {
                 ...state,
                 profession: [ ...state.profession.slice(0, i), ...state.profession.slice(i + 1) ]
             };
-        case PUSH_DEPARTMENT:
+        case CREATE_DEPARTMENT:
             return {
                 ...state,
                 departments: [ ...state.departments, action.payload ]
@@ -61,7 +67,7 @@ export default function reducer(state = initialState, action) {
                 ...state,
                 departments: [ ...state.departments.slice(0, dI), ...state.departments.slice(dI + 1) ]
             };
-        case PUSH_PERSON:
+        case CREATE_PERSON:
             return {
                 ...state,
                 people: [ ...state.people, action.payload ]

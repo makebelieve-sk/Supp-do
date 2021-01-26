@@ -58,17 +58,17 @@ export const MainComponent = () => {
 
                 if (professions && professions.length > 0) {
                     professions.forEach(prof => {
-                        dispatch(ActionCreator.pushProfession(prof));
+                        dispatch(ActionCreator.createProfession(prof));
                     });
                 }
                 if (departments && departments.length > 0) {
                     departments.forEach(department => {
-                        dispatch(ActionCreator.pushDepartment(department));
+                        dispatch(ActionCreator.createDepartment(department));
                     });
                 }
                 if (people && people.length > 0) {
                     people.forEach(person => {
-                        dispatch(ActionCreator.pushPerson(person));
+                        dispatch(ActionCreator.createPerson(person));
                     });
                 }
             } catch (e) {}
