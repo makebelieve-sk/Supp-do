@@ -1,9 +1,9 @@
 import {ContentTab} from "../components/helpers/contentTab";
 
 const initialState = {
-    tabs: [{title: 'Профессии', content: ContentTab, key: 'profession'}],
+    tabs: [{title: 'Профессии', content: ContentTab, key: 'professions'}],
     prevActiveTab: null,
-    profession: [],
+    professions: [],
     departments: [],
     people: [],
     editTab: null

@@ -5,6 +5,7 @@ import {RegistrationComponent} from "../authComponents/regComponent";
 import {ChangePasswordComponent} from "../authComponents/changePassword";
 
 export const AuthPage = () => {
+    // Создание стейта для показа формы регистрации и смены пароля
     const [regForm, setRegForm] = useState(false);
     const [changePass, setChangePass] = useState(false);
 

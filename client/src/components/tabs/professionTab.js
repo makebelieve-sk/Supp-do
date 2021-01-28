@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Skeleton, Card, Form, Input, Row, Button, message} from 'antd';
 import {useSelector, useDispatch} from "react-redux";
 import {CheckOutlined, DeleteOutlined, PrinterOutlined, StopOutlined} from '@ant-design/icons';
@@ -8,27 +8,31 @@ import ActionCreator from "../../redux/actionCreators";
 
 const {Meta} = Card;
 
-export const ProfessionTab = ({add, specKey, onRemove}) => {
+export const ProfessionTab = ({add, specKey, onRemove, loadingData, tabData}) => {
+    // Установка спиннера загрузки при сохранении записи
+    const [loadingSave, setLoadingSave] = useState(false);
+
+    // Получение функции создания запросов на сервер, состояний загрузки/загрузки при удалении элемента и ошибки,
+    // очищения ошибки
     const {request, loading, loadingDelete, error, clearError} = useHttp();
 
-    const {profession, editTab} = useSelector((state) => ({
-        profession: state.profession,
-        editTab: state.editTab
-    }));
+    // Получение списка профессий из хранилища redux
+    const professions = useSelector((state) => state.professions);
     const dispatch = useDispatch();
 
+    // Определение начальных значений для полей "Наименование" и "Примечание"
     let initialName, initialNotes;
 
-    // Если вкладка редактирования, то устанавливаем начальные значения для выпадающих списков
-    if (specKey !== 'newProfession' && editTab) {
-        initialName = editTab.name;
-        initialNotes = editTab.notes;
+    // Если вкладка редактирования, то устанавливаем начальные значения для полей "Наименование" и "Примечание"
+    if (tabData) {
+        initialName = tabData.name;
+        initialNotes = tabData.notes;
     }
 
-    // Установка выпадающего списка поля "Принадлежит"
+    // Инициализация хука useForm() от Form antd
     const [form] = Form.useForm();
 
-    // Установка начального значения выпадающего списка, если вкладка редактируется
+    // Установка начальных значений полей "Наименование" и "Примечание", и если вкладка редактируется
     useEffect(() => {
         form.setFieldsValue({name: initialName, notes: initialNotes});
     }, [form, initialName, initialNotes]);
@@ -42,78 +46,88 @@ export const ProfessionTab = ({add, specKey, onRemove}) => {
         clearError();
     }, [dispatch, error, request, clearError]);
 
-    let key = specKey === 'newProfession' ? 'newProfession' : 'updateProfession';
     let title = specKey === 'newProfession' ? 'Создание профессии' : 'Редактирование профессии';
 
-    // Функция нажатия на кнопку "Сохранить"
-    const onFinish = async (values) => {
+    // Функция сохранения записи
+    const onSave = async (values) => {
         try {
-            let method = specKey === 'newProfession' ? 'POST' : 'PUT';
-            let body = specKey === 'newProfession' ? values : {editTab, values};
+            setLoadingSave(true);
+
+            let method = !tabData ? 'POST' : 'PUT';
+            let body = !tabData ? values : {tabData, values};
 
             const data = await request('/api/directory/professions', method, body);
-            message.success(data.message);
 
-            onRemove(key, 'remove');
+            if (data) {
+                setLoadingSave(false);
 
-            specKey === 'newProfession' ? dispatch(ActionCreator.createProfession(data.profession)) :
-                profession.forEach((prof, index) => {
-                    if (prof._id === data.profession._id) {
-                        dispatch(ActionCreator.editProfession(index, data.profession));
-                    }
-                });
-        } catch (e) {
-        }
-    };
-
-    // Функция нажатия на кнопку "Удалить"
-    const deleteHandler = async () => {
-        try {
-            if (editTab) {
-                const data = await request('/api/directory/professions', 'DELETE', editTab);
                 message.success(data.message);
 
-                onRemove(key, 'remove');
+                // Удаление текущей вкладки
+                onRemove(specKey, 'remove');
 
-                profession.forEach((prof, index) => {
-                    if (prof._id === editTab._id) {
-                        dispatch(ActionCreator.deleteProfession(index));
-                    }
-                });
+                // Если это редактирование записи, то происходит изменение записи в хранилище redux,
+                // иначе происходит запись новой записи в хранилище redux
+                !tabData ?
+                    dispatch(ActionCreator.createProfession(data.profession)) :
+                    professions.forEach((prof, index) => {
+                        if (prof._id === data.profession._id) {
+                            dispatch(ActionCreator.editProfession(index, data.profession));
+                        }
+                    });
             }
         } catch (e) {
         }
     };
 
-    // Вывод сообщения валидации
+    // Функция удаления записи
+    const deleteHandler = async () => {
+        try {
+            if (tabData) {
+                const data = await request('/api/directory/professions', 'DELETE', tabData);
+
+                if (data) {
+                    message.success(data.message);
+
+                    // Удаление текущей вкладки
+                    onRemove(specKey, 'remove');
+
+                    // Удаляем запись из хранилища redux
+                    professions.forEach((prof, index) => {
+                        if (prof._id === tabData._id) {
+                            dispatch(ActionCreator.deleteProfession(index));
+                        }
+                    });
+                }
+            }
+        } catch (e) {}
+    };
+
+    // Вывод сообщения валидации формы
     const onFinishFailed = () => {
         message.error('Заполните обязательные поля');
     };
 
     // Функция нажатия на кнопку "Отмена"
     const cancelHandler = () => {
-        onRemove(key, 'remove');
+        // Удаляем текущую вкладку
+        onRemove(specKey, 'remove');
     }
 
     return (
         <div className="container">
             <Card style={{margin: '0 auto', width: '90%'}} bordered>
-                <Skeleton loading={false} active>
+                <Skeleton loading={loading} active>
                     <Meta
                         title={title}
                         description={
                             <Form style={{marginTop: '5%'}} form={form} name="control-ref"
-                                  onFinish={onFinish} onFinishFailed={onFinishFailed}>
+                                  onFinish={onSave} onFinishFailed={onFinishFailed}>
                                 <Form.Item
                                     label="Профессия"
                                     name="name"
-                                    initialValue={specKey === 'newProfession' ? '' : editTab.name}
-                                    rules={[
-                                        {
-                                            required: true,
-                                            message: 'Введите название профессии!',
-                                        },
-                                    ]}
+                                    initialValue={!tabData ? '' : tabData.name}
+                                    rules={[{required: true, message: 'Введите название профессии!'}]}
                                 >
                                     <Input maxLength={255} type="text"/>
                                 </Form.Item>
@@ -121,18 +135,18 @@ export const ProfessionTab = ({add, specKey, onRemove}) => {
                                 <Form.Item
                                     name="notes"
                                     label="Примечание"
-                                    initialValue={specKey === 'newProfession' ? '' : editTab.notes}
+                                    initialValue={!tabData ? '' : tabData.notes}
                                 >
                                     <Input maxLength={255} type="text"/>
                                 </Form.Item>
 
                                 <Form.Item>
                                     <Row justify="end" style={{ marginTop: 20}}>
-                                        <Button type="primary" htmlType="submit" loading={loading}
+                                        <Button type="primary" htmlType="submit" loading={loadingSave}
                                                 style={{width: '9em'}} icon={<CheckOutlined />}>
                                             Сохранить
                                         </Button>
-                                        {specKey === 'newProfession' ? null :
+                                        {!tabData ? null :
                                             <>
                                                 <Button type="danger" onClick={deleteHandler} loading={loadingDelete}
                                                         style={{marginLeft: 10, width: '9em'}} icon={<DeleteOutlined/>}>

@@ -49,7 +49,7 @@ router.post('/professions', async (req, res) => {
 router.put('/professions', async (req, res) => {
     try {
         const {name, notes} = req.body.values;
-        const {_id} = req.body.editTab;
+        const {_id} = req.body.tabData;
         const profession = await Profession.findById({_id});
 
         if (!profession) {

@@ -10,10 +10,14 @@ export const AuthComponent = ({setRegForm, setChangePass}) => {
     const {request, loading} = useHttp();
     const auth = useContext(AuthContext);
 
-    const onFinish = async (values) => {
+    // Функция входа пользователя
+    const login = async (values) => {
         const data = await request('/api/auth/login', 'POST', values);
-        auth.login(data.token, data.userId, data.user);
-        console.log(data.user)
+
+        if (data) {
+            auth.login(data.token, data.userId, data.user);
+            console.log(data.user)
+        }
     };
 
     return (
@@ -26,7 +30,7 @@ export const AuthComponent = ({setRegForm, setChangePass}) => {
                         initialValues={{
                             remember: true,
                         }}
-                        onFinish={onFinish}
+                        onFinish={login}
                     >
                         <Form.Item
                             name="login"

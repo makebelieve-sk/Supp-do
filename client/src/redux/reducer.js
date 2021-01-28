@@ -3,6 +3,9 @@ import {
     ADD_TAB,
     EDIT_TAB,
     REMOVE_TAB,
+    GET_ALL_PROFESSIONS,
+    GET_ALL_DEPARTMENTS,
+    GET_ALL_PEOPLE,
     CREATE_PROFESSION,
     EDIT_PROFESSION,
     DELETE_PROFESSION,
@@ -13,7 +16,7 @@ import {
     EDIT_PERSON,
     DELETE_PERSON,
     SET_PREV_ACTIVE_TAB
-} from "./actions";
+} from "./actionsConstants";
 
 export default function reducer(state = initialState, action) {
     switch (action.type) {
@@ -33,22 +36,37 @@ export default function reducer(state = initialState, action) {
                 ...state,
                 tabs: [ ...state.tabs.slice(0, index), ...state.tabs.slice(index + 1) ]
             };
+        case GET_ALL_PROFESSIONS:
+            return {
+                ...state,
+                professions:  action.payload
+            };
+        case GET_ALL_DEPARTMENTS:
+            return {
+                ...state,
+                departments: action.payload
+            };
+        case GET_ALL_PEOPLE:
+            return {
+                ...state,
+                people: action.payload
+            };
         case CREATE_PROFESSION:
             return {
                 ...state,
-                profession: [ ...state.profession, action.payload ]
+                professions: [ ...state.professions, action.payload ]
             };
         case EDIT_PROFESSION:
             let j = action.index;
             return {
                 ...state,
-                profession: [ ...state.profession.slice(0, j), action.payload, ...state.profession.slice(j + 1) ]
+                professions: [ ...state.professions.slice(0, j), action.payload, ...state.professions.slice(j + 1) ]
             };
         case DELETE_PROFESSION:
             let i = action.payload;
             return {
                 ...state,
-                profession: [ ...state.profession.slice(0, i), ...state.profession.slice(i + 1) ]
+                professions: [ ...state.professions.slice(0, i), ...state.professions.slice(i + 1) ]
             };
         case CREATE_DEPARTMENT:
             return {

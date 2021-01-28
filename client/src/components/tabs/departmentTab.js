@@ -8,28 +8,31 @@ import {CheckOutlined, DeleteOutlined, PrinterOutlined, StopOutlined} from "@ant
 
 const {Meta} = Card;
 
-export const DepartmentTab = ({add, specKey, onRemove}) => {
+export const DepartmentTab = ({add, specKey, onRemove, loadingData, tabData}) => {
+    // Получение функции создания запросов на сервер, состояний загрузки/загрузки при удалении элемента и ошибки,
+    // очищения ошибки
     const {request, loading, loadingDelete, error, clearError} = useHttp();
 
-    const {departments, editTab} = useSelector((state) => ({
-        departments: state.departments,
-        editTab: state.editTab
-    }));
+    // Получение списка подразделений из хранилища redux
+    const departments = useSelector((state) => state.departments);
     const dispatch = useDispatch();
 
+    // Создание стейта для значений в выпадающем списке "Подразделения" и начального значения и
+    // установка спиннера загрузки при сохранении записи
     const [selectDep, setSelectDep] = useState(null);
     const [departmentsToOptions, setDepartmentsToOptions] = useState([]);
+    const [loadingSave, setLoadingSave] = useState(false);
 
     let initialDepartment = null;
     let initialName = '';
 
-    // Установка выпадающего списка поля "Принадлежит"
+    // Инициализация хука useForm() от Form antd
     const [form] = Form.useForm();
 
     // Если вкладка редактирования, то устанавливаем начальные значения для выпадающих списков
-    if (specKey !== 'newDepartment' && editTab && editTab.parent) {
-        initialDepartment = editTab;
-        initialName = editTab.name;
+    if (tabData && tabData.parent) {
+        initialDepartment = tabData;
+        initialName = tabData.name;
     }
 
     // Обновление выпадающих списков
@@ -69,60 +72,73 @@ export const DepartmentTab = ({add, specKey, onRemove}) => {
         clearError();
     }, [dispatch, error, request, clearError]);
 
-    let key = specKey === 'newDepartment' ? 'newDepartment' : 'updateDepartment';
-    let title = specKey === 'newDepartment' ? 'Создание подразделения' : 'Редактирование подразделения';
+    let title = !tabData ? 'Создание подразделения' : 'Редактирование подразделения';
 
-    // Функция нажатия на кнопку "Сохранить"
-    const onFinish = async (values) => {
+    // Функция сохранения записи
+    const onSave = async (values) => {
         try {
+            setLoadingSave(true);
+
             values.parent = selectDep ? selectDep : initialDepartment;
 
-            let method = specKey === 'newDepartment' ? 'POST' : 'PUT';
-            let body = specKey === 'newDepartment' ? values : {editTab, values};
+            let method = !tabData ? 'POST' : 'PUT';
+            let body = !tabData ? values : {tabData, values};
 
             const data = await request('/api/directory/departments', method, body);
 
-            message.success(data.message);
+            if (data) {
+                setLoadingSave(false);
 
-            onRemove(key, 'remove');
-
-            specKey === 'newDepartment' ? dispatch(ActionCreator.createDepartment(data.department)) :
-                departments.forEach((department, index) => {
-                    if (department._id === data.department._id) {
-                        dispatch(ActionCreator.editDepartment(index, data.department));
-                    }
-                });
-        } catch (e) {
-        }
-    };
-
-    // Функция нажатия на кнопку "Удалить"
-    const deleteHandler = async () => {
-        try {
-            if (editTab) {
-                const data = await request('/api/directory/departments', 'DELETE', editTab);
                 message.success(data.message);
 
-                onRemove(key, 'remove');
+                // Удаление текущей вкладки
+                onRemove(specKey, 'remove');
 
-                departments.forEach((department, index) => {
-                    if (department._id === editTab._id) {
-                        dispatch(ActionCreator.deleteDepartment(index));
-                    }
-                });
+                // Если это редактирование записи, то происходит изменение записи в хранилище redux,
+                // иначе происходит запись новой записи в хранилище redux
+                !tabData ? dispatch(ActionCreator.createDepartment(data.department)) :
+                    departments.forEach((department, index) => {
+                        if (department._id === data.department._id) {
+                            dispatch(ActionCreator.editDepartment(index, data.department));
+                        }
+                    });
             }
         } catch (e) {
         }
     };
 
-    // Вывод сообщения валидации
+    // Функция удаления записи
+    const deleteHandler = async () => {
+        try {
+            if (tabData) {
+                const data = await request('/api/directory/departments', 'DELETE', tabData);
+
+                if (data) {
+                    message.success(data.message);
+
+                    // Удаление текущей вкладки
+                    onRemove(specKey, 'remove');
+
+                    // Удаляем запись из хранилища redux
+                    departments.forEach((department, index) => {
+                        if (department._id === tabData._id) {
+                            dispatch(ActionCreator.deleteDepartment(index));
+                        }
+                    });
+                }
+            }
+        } catch (e) {
+        }
+    };
+
+    // Вывод сообщения валидации формы
     const onFinishFailed = () => {
         message.error('Заполните обязательные поля');
     };
 
     // Функция нажатия на кнопку "Отмена"
     const cancelHandler = () => {
-        onRemove(key, 'remove');
+        onRemove(specKey, 'remove');
     };
 
     // Изменение значения в выпадающем списке "Подразделение", и сохранение этого значения в стейте
@@ -148,7 +164,7 @@ export const DepartmentTab = ({add, specKey, onRemove}) => {
                         title={title}
                         description={
                             <Form labelCol={{span: 8}} wrapperCol={{span: 16}} style={{marginTop: '5%'}} form={form} name="control-ref"
-                                  onFinish={onFinish} onFinishFailed={onFinishFailed}>
+                                  onFinish={onSave} onFinishFailed={onFinishFailed}>
                                 <Form.Item name="parent" label="Принадлежит">
                                     <Select options={departmentsToOptions}
                                             onChange={(newValue) => handleChange(newValue)}/>
@@ -157,13 +173,8 @@ export const DepartmentTab = ({add, specKey, onRemove}) => {
                                 <Form.Item
                                     label="Наименование"
                                     name="name"
-                                    initialValue={specKey === 'newDepartment' ? '' : editTab.name}
-                                    rules={[
-                                        {
-                                            required: true,
-                                            message: 'Введите название подразделения!',
-                                        },
-                                    ]}
+                                    initialValue={!tabData ? '' : tabData.name}
+                                    rules={[{required: true, message: 'Введите название подразделения!'}]}
                                 >
                                     <Input maxLength={255} type="text"/>
                                 </Form.Item>
@@ -171,17 +182,17 @@ export const DepartmentTab = ({add, specKey, onRemove}) => {
                                 <Form.Item
                                     label="Примечание"
                                     name="notes"
-                                    initialValue={specKey === 'newDepartment' ? '' : editTab.notes}
+                                    initialValue={!tabData ? '' : tabData.notes}
                                 >
                                     <Input maxLength={255} type="text"/>
                                 </Form.Item>
 
                                 <Row justify="end" style={{marginTop: 20}}>
-                                    <Button type="primary" htmlType="submit" loading={loading}
+                                    <Button type="primary" htmlType="submit" loading={loadingSave}
                                             style={{width: '9em'}} icon={<CheckOutlined/>}>
                                         Сохранить
                                     </Button>
-                                    {specKey === 'newProfession' ? null :
+                                    {!tabData ? null :
                                         <>
                                             <Button type="danger" onClick={deleteHandler} loading={loadingDelete}
                                                     style={{marginLeft: 10, width: '9em'}} icon={<DeleteOutlined/>}>

@@ -1,65 +1,81 @@
-import React, {useState, useEffect} from 'react';
-import {useSelector, useDispatch} from 'react-redux';
+import React, {useState} from 'react';
+import {useSelector} from 'react-redux';
 import {message, Row, Table} from "antd";
 
-import {ProfessionColumns, DepartmentColumns, PersonColumns} from "../../datatable.options/datatable.columns";
 import {downloadCSV, localeRu, pagination} from '../../datatable.options/datatable.options';
 import {HeaderDatatable} from './headerDatatable';
 import {ButtonsComponent} from "./buttonsDatatable";
-import ActionCreator from "../../redux/actionCreators";
-import {ProfessionTab} from "../tabs/professionTab";
-import {DepartmentTab} from "../tabs/departmentTab";
-import {PersonTab} from "../tabs/personTab";
 import {useHttp} from "../../hooks/http.hook";
+import {ColumnsMapHelper, RowMapHelper} from "../helpers/dataTableMap.helper";
 
 export const DataTableComponent = ({add, specKey, loadingData}) => {
-    let columns = ProfessionColumns;
+    // Получение колонок для таблицы
+    const columns = ColumnsMapHelper(specKey);
 
+    // Получение массива данных для заполнения таблицы, и получение текущих открытых вкладок
     let {data, tabs} = useSelector(state => {
-        let object;
-        if (specKey === 'profession') {
-            object = {
-                data: state.profession,
+        if (state[specKey]) {
+            return {
+                data: state[specKey],
                 tabs: state.tabs
             }
-        } else if (specKey === 'department') {
-            object = {
-                data: state.departments,
-                tabs: state.tabs
-            }
-
-            columns = DepartmentColumns;
-        } else if (specKey === 'person') {
-            object = {
-                data: state.people,
-                tabs: state.tabs
-            }
-
-            columns = PersonColumns;
+        } else {
+            let messageErrorText = 'Произошла ошибка при заполнении таблицы, пожалуйста, попробуйте снова';
+            message.error(messageErrorText);
         }
-
-        return object;
     });
-    const dispatch = useDispatch();
 
-    let {request} = useHttp();
+    // Получение функции создания запросов на сервер
+    let {request, loading} = useHttp();
 
     // Создание стейта для текстового поля, отфильтрованных колонок, выбранных колонок и начальных колонок
     const [filterText, setFilterText] = useState('');
-    let [columnsTable, setColumnsTable] = useState(columns);
-    let [checkedColumns, setCheckedColumns] = useState([]);
-    let [initialColumns, setInitialColumns] = useState([]);
-
-    // Устанавливаем начальные значения колонок
-    useEffect(() => {
-        setInitialColumns(columns);
-    }, [columns]);
+    const [columnsTable, setColumnsTable] = useState(columns);
+    const [checkedColumns, setCheckedColumns] = useState([]);
 
     // Фильтрация данных через строку поиска
-    const filteredItems = data.filter(item =>
-        (item.notes && item.notes.toLowerCase().includes(filterText.toLowerCase())) ||
-        (item.name && item.name.toLowerCase().includes(filterText.toLowerCase()))
-    );
+    let dataKeys = [];
+    let filteredItems = new Set();
+
+    if (data && data.length > 0) {
+        // Получаем ключи - столбцы таблицы
+        dataKeys = Object.keys(data[0]);
+
+        dataKeys.splice(0, 1);
+        dataKeys.splice(dataKeys.length - 1, 1);
+
+        data.forEach(item => {
+            if (dataKeys && dataKeys.length > 0) {
+                dataKeys.forEach(key => {
+                    if (item[key]) {
+                        if (typeof item[key] === "number") {
+                            item[key] = item[key] + '';
+                            if (item[key].toLowerCase().includes(filterText.toLowerCase())) {
+                                filteredItems.add(item);
+                            }
+                        }
+
+                        if (typeof item[key] === "object") {
+                            if (item[key].name.toLowerCase().includes(filterText.toLowerCase())) {
+                                filteredItems.add(item);
+                            }
+                        }
+
+                        if (typeof item[key] === "string") {
+                            if (item[key].toLowerCase().includes(filterText.toLowerCase())) {
+                                filteredItems.add(item);
+                            }
+                        }
+                    }
+                })
+            }
+        });
+    }
+
+    // Экспорт данных
+    const onExport = () => {
+        return data && data.length > 0 ? downloadCSV(data, specKey) : message.error('Записи в таблице отсутствуют');
+    };
 
     return (
         <>
@@ -71,59 +87,30 @@ export const DataTableComponent = ({add, specKey, loadingData}) => {
                 <ButtonsComponent
                     add={add}
                     specKey={specKey}
-                    onExport={() => {
-                        if (data && data.length > 0) {
-                            downloadCSV(data, specKey);
-                        } else {
-                            message.warn('Записи в таблице отсутствуют');
-                        }
-                    }}
+                    onExport={onExport}
                     checkedColumns={checkedColumns}
                     setCheckedColumns={setCheckedColumns}
                     setColumnsTable={setColumnsTable}
-                    initialColumns={initialColumns}
+                    initialColumns={columns}
                 />
             </Row>
 
             <Table
                 columns={columnsTable}
-                dataSource={columnsTable && columnsTable.length === 0 ? null : filteredItems}
+                dataSource={columnsTable && columnsTable.length === 0 ? null : Array.from(filteredItems)}
                 scroll={{x: 500}}
                 size="middle"
                 locale={localeRu}
                 bordered
                 pagination={pagination}
-                loading={loadingData}
+                loading={loadingData || loading}
                 rowKey={(record) => record._id.toString()}
-                onRow={(row) => {
-                    return {
-                        // Открытие новой вклдки для редактирования записи
-                        onClick: async () => {
-                            if (specKey === 'profession') {
-                                let data = await request('/api/directory/professions/' + row._id, 'GET');
-
-                                if (data) {
-                                    dispatch(ActionCreator.editTab(data.profession));
-                                    add('Редактирование профессии', ProfessionTab, 'updateProfession', tabs);
-                                }
-                            } else if (specKey === 'department') {
-                                let data = await request('/api/directory/departments/' + row._id, 'GET');
-
-                                if (data) {
-                                    dispatch(ActionCreator.editTab(data.department));
-                                    add('Редактирование подразделения', DepartmentTab, 'updateDepartment', tabs);
-                                }
-                            } else if (specKey === 'person') {
-                                let data = await request('/api/directory/person/' + row._id, 'GET');
-
-                                if (data) {
-                                    dispatch(ActionCreator.editTab(data.person));
-                                    add('Редактирование записи о сотруднике', PersonTab, 'updatePerson', tabs);
-                                }
-                            }
-                        }
+                onRow={(row) => ({
+                    onClick: () => {
+                        // Открытие новой вкладки для редактирования записи
+                        RowMapHelper(specKey, add, tabs, request, row);
                     }
-                }}
+                })}
             />
         </>
     );

@@ -6,19 +6,16 @@ import {TreeComponent} from "../contentComponent/treeComponent";
 
 const {TabPane} = Tabs;
 
-export const ContentTab = ({add, specKey, onRemove, loading}) => {
+export const ContentTab = ({add, specKey, onRemove, loadingData}) => {
     let component;
 
-    const callback = (key) => {
-
-    }
-
+    // Если вкладка "Подразделения", то в её содержимое добавляем вкладки "Таблица" и "Дерево", иначе возвращаем таблицу
     if (specKey === 'department') {
         component = (
             <Card style={{width: '100%', marginTop: 16}}>
-                <Tabs defaultActiveKey="1" onChange={callback}>
+                <Tabs defaultActiveKey="table">
                     <TabPane tab="Таблица" key="table">
-                        <DataTableComponent add={add} specKey={specKey} loadingData={loading}/>
+                        <DataTableComponent add={add} specKey={specKey} loadingData={loadingData}/>
                     </TabPane>
                     <TabPane tab="Дерево" key="tree">
                         <TreeComponent/>
@@ -29,9 +26,10 @@ export const ContentTab = ({add, specKey, onRemove, loading}) => {
     } else {
         component = (
             <Card style={{width: '100%', marginTop: 16}}>
-                <DataTableComponent add={add} specKey={specKey} loadingData={loading}/>
+                <DataTableComponent add={add} specKey={specKey} loadingData={loadingData}/>
             </Card>
         )
     }
+
     return component;
 };

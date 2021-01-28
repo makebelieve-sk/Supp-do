@@ -2,6 +2,9 @@ import {
     ADD_TAB,
     EDIT_TAB,
     REMOVE_TAB,
+    GET_ALL_PROFESSIONS,
+    GET_ALL_DEPARTMENTS,
+    GET_ALL_PEOPLE,
     CREATE_PROFESSION,
     EDIT_PROFESSION,
     DELETE_PROFESSION,
@@ -12,7 +15,7 @@ import {
     EDIT_PERSON,
     DELETE_PERSON,
     SET_PREV_ACTIVE_TAB
-} from "./actions";
+} from "./actionsConstants";
 
 const ActionCreator = {
     // Добавление вкладки
@@ -34,6 +37,27 @@ const ActionCreator = {
         return {
             type: REMOVE_TAB,
             payload: index
+        }
+    },
+    // Добавление профессии
+    getAllProfessions: (professions) => {
+        return {
+            type: GET_ALL_PROFESSIONS,
+            payload: professions
+        }
+    },
+    // Добавление профессии
+    getAllDepartments: (departments) => {
+        return {
+            type: GET_ALL_DEPARTMENTS,
+            payload: departments
+        }
+    },
+    // Добавление профессии
+    getAllPeople: (people) => {
+        return {
+            type: GET_ALL_PEOPLE,
+            payload: people
         }
     },
     // Добавление профессии

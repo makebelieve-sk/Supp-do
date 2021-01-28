@@ -7,13 +7,16 @@ import {useAuth} from "./hooks/auth.hook";
 import {AuthContext} from "./context/authContext";
 
 export const App = () => {
-    const {login, logout, token, userId} = useAuth();
+    // Определяем контексту начальные значения, полученные из хука useAuth
+    const {login, logout, token, userId, user} = useAuth();
+    // Инициализируем флаг авторизации
     const isAuthenticated = !!token;
+    // Определяем роутинг приложения
     const routes = useRoutes(isAuthenticated);
 
     return (
         <AuthContext.Provider value={{
-            token, login, logout, userId, isAuthenticated
+            token, login, logout, userId, isAuthenticated, user
         }}>
             <Router>
                 {routes}

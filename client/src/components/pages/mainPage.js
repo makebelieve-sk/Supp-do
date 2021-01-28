@@ -26,27 +26,28 @@ export const MainPage = () => {
     }));
     const dispatch = useDispatch();
 
+    // Получение контекста авторизации (токен, id пользователя, пользователь, функции входа/выхода, флаг авторизации)
     const auth = useContext(AuthContext);
 
+    // Установка начальной активной вкладки
     let startKey = tabs && tabs.length > 0 ? tabs[0].key : null;
 
+    // Создание стейтов для скрытия/раскрытия боковой панели, активной вкладки и показа модального окна
     const [collapsed, setCollapsed] = useState(true);
     const [activeKey, setActiveKey] = useState(startKey);
     const [isModalVisible, setIsModalVisible] = useState(false);
 
-    // Функции работы модального окна
+    // Функция показа модального окна
     const showModal = () => {
         setIsModalVisible(true);
     };
 
-    const handleOk = () => {
-        setIsModalVisible(false);
-    };
-
+    // Функция закрытия модального окна
     const handleCancel = () => {
         setIsModalVisible(false);
     };
 
+    // Получение функции создания запросов на сервер, состояний загрузки и ошибки
     const {request, error, loading} = useHttp();
 
     // Загрузка всех профессий, подразделений и персонала
@@ -55,22 +56,16 @@ export const MainPage = () => {
             try {
                 const professions = await request('/api/directory/professions');
                 const departments = await request('/api/directory/departments');
-                const people = await request('/api/directory/person');
+                const people = await request('/api/directory/people');
 
                 if (professions && professions.length > 0) {
-                    professions.forEach(prof => {
-                        dispatch(ActionCreator.createProfession(prof));
-                    });
+                    dispatch(ActionCreator.getAllProfessions(professions));
                 }
                 if (departments && departments.length > 0) {
-                    departments.forEach(department => {
-                        dispatch(ActionCreator.createDepartment(department));
-                    });
+                    dispatch(ActionCreator.getAllDepartments(departments));
                 }
                 if (people && people.length > 0) {
-                    people.forEach(person => {
-                        dispatch(ActionCreator.createPerson(person));
-                    });
+                    dispatch(ActionCreator.getAllPeople(people));
                 }
             } catch (e) {}
         }
@@ -89,8 +84,8 @@ export const MainPage = () => {
     };
 
     // Функция добавления вкладки
-    const add = (title, content, key, tabs) => {
-        let tabObject = {title, content, key};
+    const add = (title, content, key, tabs, row) => {
+        let tabObject = {title, content, key, row};
         let index = -1;
 
         tabs.forEach((tab, i) => {
@@ -152,13 +147,13 @@ export const MainPage = () => {
                     <SubMenu key="directory" icon={<UserOutlined/>} title="Справочники">
                         <SubMenu title="Управление персоналом">
                             <Menu.Item key="profession" onClick={() => {
-                                add('Профессии', ContentTab, 'profession', tabs);
+                                add('Профессии', ContentTab, 'professions', tabs, null);
                             }}>Профессии</Menu.Item>
-                            <Menu.Item key="department" onClick={() => {
-                                add('Подразделения', ContentTab, 'department', tabs);
+                            <Menu.Item key="departments" onClick={() => {
+                                add('Подразделения', ContentTab, 'departments', tabs, null);
                             }}>Подразделения</Menu.Item>
-                            <Menu.Item key="person" onClick={() => {
-                                add('Персонал', ContentTab, 'person', tabs);
+                            <Menu.Item key="people" onClick={() => {
+                                add('Персонал', ContentTab, 'people', tabs, null);
                             }}>Персонал</Menu.Item>
                         </SubMenu>
                         <SubMenu title="Оборудование">
@@ -197,7 +192,7 @@ export const MainPage = () => {
                     flexDirection: 'row',
                     justifyContent: 'space-between'
                 }}>
-                    <div style={{width: '100%', heigth: 64, lineHeigth: 64}}>
+                    <div style={{width: '100%'}}>
                         <Button type="primary" onClick={toggleCollapsed} style={{marginLeft: 15}}>
                             {collapsed ? <MenuUnfoldOutlined/> : <MenuFoldOutlined/>}
                         </Button>
@@ -223,12 +218,13 @@ export const MainPage = () => {
                                         add={add}
                                         specKey={tab.key}
                                         onRemove={onRemove}
-                                        loading={loading}
+                                        loadingData={loading}
+                                        tabData={tab.row}
                                     />}
                                 </TabPane>
                             ))}
                         </Tabs> :
-                        <div style={{textAlign: 'center'}}>Нет открытых вкладок</div>}
+                        <div style={{textAlign: 'center', padding: 10}}>Нет открытых вкладок</div>}
                 </Content>
                 <Footer>
                     <Row>
@@ -242,7 +238,6 @@ export const MainPage = () => {
                             <Modal
                                 title="Помощь"
                                 visible={isModalVisible}
-                                onOk={handleOk}
                                 onCancel={handleCancel}
                                 cancelText="Закрыть"
                             >

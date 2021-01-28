@@ -1,3 +1,5 @@
+import {ExportMapHelper} from "../components/helpers/dataTableMap.helper";
+
 // Русифицированный объект
 const localeRu = {
     emptyText: 'Записи отсутствуют',
@@ -28,17 +30,9 @@ const downloadCSV = (array, name) => {
     link.click();
 };
 const convertArrayOfObjectsToCSV = (array, name) => {
-    let result, headerStr;
+    let result;
 
-    if (name === 'profession') {
-        headerStr = 'Наименование, Примечание';
-    }
-    if (name === 'department') {
-        headerStr = 'Наименование, Примечание, Подразделение';
-    }
-    if (name === 'person') {
-        headerStr = 'Таб №, ФИО, Подразделение, Профессия, Примечание';
-    }
+    let headerDataTable = ExportMapHelper(name);
 
     const columnDelimiter = ',';
     const lineDelimiter = '\n';
@@ -48,7 +42,7 @@ const convertArrayOfObjectsToCSV = (array, name) => {
     keys.splice(keys.length - 1, 1);
 
     result = '';
-    result += headerStr;
+    result += headerDataTable;
     result += lineDelimiter;
 
     array.forEach(item => {

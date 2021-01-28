@@ -1,3 +1,8 @@
+// Создание заголовка таблицы
+let headerProfessionTable = 'Наименование, Примечание';
+let headerDepartmentTable = 'Наименование, Примечание, Подразделение';
+let headerPersonTable = 'Таб №, ФИО, Подразделение, Профессия, Примечание';
+
 // Создание колонок для раздела "Профессии"
 const ProfessionColumns = [
     {
@@ -91,6 +96,10 @@ const PersonColumns = [
 ];
 
 export {
+    headerProfessionTable,
+    headerDepartmentTable,
+    headerPersonTable,
+
     ProfessionColumns,
     DepartmentColumns,
     PersonColumns

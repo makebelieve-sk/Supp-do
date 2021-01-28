@@ -41,7 +41,7 @@ router.post('/departments', async (req, res) => {
             }
         }
 
-        const newDepartment = new Department({name, notes, parent});
+        const newDepartment = new Department({parent, name, notes});
 
         await newDepartment.save();
 
@@ -62,7 +62,7 @@ router.post('/departments', async (req, res) => {
 router.put('/departments', async (req, res) => {
     try {
         const {name, notes, parent} = req.body.values;
-        const {_id} = req.body.editTab;
+        const {_id} = req.body.tabData;
         const department = await Department.findById({_id}).populate('parent');
 
         if (!department) {
@@ -75,9 +75,9 @@ router.put('/departments', async (req, res) => {
             }
         }
 
+        department.parent = parent;
         department.name = name;
         department.notes = notes;
-        department.parent = parent;
 
         await department.save();
 

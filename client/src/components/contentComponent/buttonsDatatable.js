@@ -3,24 +3,17 @@ import {useSelector} from "react-redux";
 import {Button, Row, Menu, Dropdown, Checkbox} from 'antd';
 import {PlusOutlined, FileExcelOutlined, PrinterOutlined, EditOutlined} from '@ant-design/icons';
 
-import {ProfessionTab} from "../tabs/professionTab";
-import {DepartmentTab} from "../tabs/departmentTab";
-import {PersonTab} from "../tabs/personTab";
-import {ProfessionColumns, DepartmentColumns, PersonColumns} from "../../datatable.options/datatable.columns";
+import {ColumnsMapHelper, RowMapHelper} from "../helpers/dataTableMap.helper";
 
 export const ButtonsComponent = ({add, specKey, onExport, checkedColumns, setCheckedColumns, setColumnsTable, initialColumns}) => {
+    // Получение колонок для таблицы
+    let columns = ColumnsMapHelper(specKey);
+
     // Получение табов из хранилища redux
     const tabs = useSelector(state => state.tabs);
+
     // Стейт для отображения выпадающего меню для колонок
     const [visible, setVisible] = useState(false);
-
-    let columns = ProfessionColumns;
-
-    if (specKey === 'department') {
-        columns = DepartmentColumns;
-    } else if (specKey === 'person') {
-        columns = PersonColumns;
-    }
 
     // Фукнция изменения видимости колонок
     const onChange = (e) => {
@@ -56,26 +49,24 @@ export const ButtonsComponent = ({add, specKey, onExport, checkedColumns, setChe
         setCheckedColumns(checkedColumnsTable);
     }
 
-    // Создание переменной для отображения выпадющего списка для колонок
-    let component = (
-        <>
-            <Menu>
-                <Menu.ItemGroup title="Колонки">
-                    {columns.map((column) => {
-                        return (
-                            <Menu.Item key={column.key + '-checkbox'}>
-                                <Checkbox
-                                    id={column.key}
-                                    onChange={onChange}
-                                    defaultChecked>{column.title}
-                                </Checkbox>
-                            </Menu.Item>
-                        )
-                    })}
-                </Menu.ItemGroup>
-            </Menu>
-        </>
-    );
+    // Создание переменной для отображения выпадающего списка для колонок
+    let component = <>
+        <Menu>
+            <Menu.ItemGroup title="Колонки">
+                {columns.map((column) => {
+                    return (
+                        <Menu.Item key={column.key + '-checkbox'}>
+                            <Checkbox
+                                id={column.key}
+                                onChange={onChange}
+                                defaultChecked>{column.title}
+                            </Checkbox>
+                        </Menu.Item>
+                    )
+                })}
+            </Menu.ItemGroup>
+        </Menu>
+    </>;
 
     // Функция для изменения стейта отображения выпадающего списка колонок
     const handleVisibleChange = flag => {
@@ -85,15 +76,7 @@ export const ButtonsComponent = ({add, specKey, onExport, checkedColumns, setChe
     return (
         <Row justify="end">
             <Button icon={<PlusOutlined/>} type="primary"
-                    onClick={() => {
-                        if (specKey === 'profession') {
-                            add('Создание профессии', ProfessionTab, 'newProfession', tabs);
-                        } else if (specKey === 'department') {
-                            add('Создание подразделения', DepartmentTab, 'newDepartment', tabs);
-                        } else if (specKey === 'person') {
-                            add('Создание записи о сотруднике', PersonTab, 'newPerson', tabs);
-                        }
-                    }}>Добавить
+                    onClick={() => RowMapHelper(specKey, add, tabs, null, null)}>Добавить
             </Button>
             <Button icon={<FileExcelOutlined/>} size="middle" style={{marginLeft: 10}}
                     onClick={e => onExport(e.target.value)}>Экспорт</Button>

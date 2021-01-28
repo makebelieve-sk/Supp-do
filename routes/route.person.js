@@ -2,7 +2,7 @@ const {Router} = require("express");
 const Person = require("../models/Person");
 const router = Router();
 
-router.get('/person/:id', async (req, res) => {
+router.get('/people/:id', async (req, res) => {
     try {
         const person = await Person.findById({_id: req.params.id}).populate('department').populate('profession');
 
@@ -16,7 +16,7 @@ router.get('/person/:id', async (req, res) => {
     }
 });
 
-router.get('/person', async (req, res) => {
+router.get('/people', async (req, res) => {
     try {
         const people = await Person.find({}).populate('department').populate('profession');
         res.json(people);
@@ -25,7 +25,7 @@ router.get('/person', async (req, res) => {
     }
 });
 
-router.post('/person', async (req, res) => {
+router.post('/people', async (req, res) => {
     try {
         const {name, notes, department, profession, tabNumber} = req.body;
 
@@ -51,10 +51,10 @@ router.post('/person', async (req, res) => {
     }
 });
 
-router.put('/person', async (req, res) => {
+router.put('/people', async (req, res) => {
     try {
         const {name, notes, department, profession, tabNumber} = req.body.values;
-        const {_id} = req.body.editTab;
+        const {_id} = req.body.tabData;
         const person = await Person.findById({_id}).populate('department').populate('profession');
 
         if (!person) {
@@ -75,7 +75,7 @@ router.put('/person', async (req, res) => {
     }
 });
 
-router.delete('/person', async (req, res) => {
+router.delete('/people', async (req, res) => {
     try {
         const {name} = req.body;
         const person = await Person.findOne({name});

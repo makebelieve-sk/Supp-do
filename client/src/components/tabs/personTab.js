@@ -16,38 +16,43 @@ import {DepartmentTab} from "./departmentTab";
 
 const {Meta} = Card;
 
-export const PersonTab = ({add, specKey, onRemove}) => {
-    const {request, loading, loadingDelete, error, clearError} = useHttp();
+export const PersonTab = ({add, specKey, onRemove, loadingData, tabData}) => {
+    // Получение функции создания запросов на сервер, состояний загрузки/загрузки при удалении элемента и ошибки,
+    // очищения ошибки
+    const {request, loadingDelete, error, clearError} = useHttp();
 
-    const {people, editTab, profession, departments, tabs} = useSelector((state) => ({
+    // Получение списков подразделений, профессий, вкладок и порсонала из хранилища redux
+    const {people, professions, departments, tabs} = useSelector((state) => ({
         people: state.people,
-        editTab: state.editTab,
-        profession: state.profession,
+        professions: state.professions,
         departments: state.departments,
         tabs: state.tabs
     }));
     const dispatch = useDispatch();
 
+    // Создание стейта для значений в выпадающих списках "Подразделения" и "Персонал", начальных значений
+    // и показа спиннера загрузки при сохранении
     const [selectDep, setSelectDep] = useState(null);
     const [selectProfession, setSelectProfession] = useState(null);
     const [departmentsToOptions, setDepartmentsToOptions] = useState([]);
     const [professionsToOptions, setProfessionsToOptions] = useState([]);
+    const [loadingSave, setLoadingSave] = useState(false);
 
     let initialDepartment = null;
     let initialProfession = null;
     let initialDepartmentName = '';
     let initialProfName = '';
 
-    // Установка выпадающих списков полей "Профессии" и "Подразделение"
+    // Инициализация хука useForm() от Form antd
     const [form] = Form.useForm();
 
     // Если вкладка редактирования, то устанавливаем начальные значения для выпадающих списков
-    if (specKey !== 'newPerson' && editTab && editTab.profession) {
-        initialDepartment = editTab.department;
-        initialProfession = editTab.profession;
+    if (tabData && tabData.profession) {
+        initialDepartment = tabData.department;
+        initialProfession = tabData.profession;
 
-        initialDepartmentName = editTab.department.name;
-        initialProfName = editTab.profession.name;
+        initialDepartmentName = tabData.department.name;
+        initialProfName = tabData.profession.name;
     }
 
     // Обновление выпадающих списков
@@ -85,7 +90,7 @@ export const PersonTab = ({add, specKey, onRemove}) => {
         }
 
         getData();
-    }, [request, departments, profession]);
+    }, [request, departments, professions]);
 
     // Установка начального значения выпадающего списка, если вкладка редактируется
     useEffect(() => {
@@ -101,60 +106,73 @@ export const PersonTab = ({add, specKey, onRemove}) => {
         clearError();
     }, [dispatch, error, request, clearError]);
 
-    let key = specKey === 'newPerson' ? 'newPerson' : 'updatePerson';
-    let title = specKey === 'newPerson' ? 'Создание записи о сотруднике' : 'Редактирование записи о сотруднике';
+    let title = !tabData ? 'Создание записи о сотруднике' : 'Редактирование записи о сотруднике';
 
-    // Функция нажатия на кнопку "Сохранить"
-    const onFinish = async (values) => {
+    // Функция сохранения записи
+    const onSave = async (values) => {
         try {
+            setLoadingSave(true);
+
             values.department = selectDep ? selectDep : initialDepartment;
             values.profession = selectProfession ? selectProfession : initialProfession;
 
-            let method = specKey === 'newPerson' ? 'POST' : 'PUT';
-            let body = specKey === 'newPerson' ? values : {editTab, values};
+            let method = !tabData ? 'POST' : 'PUT';
+            let body = !tabData ? values : {tabData, values};
 
-            const data = await request('/api/directory/person', method, body);
-            message.success(data.message);
+            const data = await request('/api/directory/people', method, body);
 
-            onRemove(key, 'remove');
+            if (data) {
+                setLoadingSave(false);
 
-            specKey === 'newPerson' ? dispatch(ActionCreator.createPerson(data.person)) :
-                people.forEach((pers, index) => {
-                    if (pers._id === data.person._id) {
-                        dispatch(ActionCreator.editPerson(index, data.person));
-                    }
-                });
-        } catch (e) {
-        }
-    };
-
-    // Функция нажатия на кнопку "Удалить"
-    const deleteHandler = async () => {
-        try {
-            if (editTab) {
-                const data = await request('/api/directory/person', 'DELETE', editTab);
                 message.success(data.message);
 
-                onRemove(key, 'remove');
+                // Удаление текущей вкладки
+                onRemove(specKey, 'remove');
 
-                people.forEach((pers, index) => {
-                    if (pers._id === editTab._id) {
-                        dispatch(ActionCreator.deletePerson(index));
-                    }
-                });
+                // Если это редактирование записи, то происходит изменение записи в хранилище redux,
+                // иначе происходит запись новой записи в хранилище redux
+                !tabData ? dispatch(ActionCreator.createPerson(data.person)) :
+                    people.forEach((pers, index) => {
+                        if (pers._id === data.person._id) {
+                            dispatch(ActionCreator.editPerson(index, data.person));
+                        }
+                    });
             }
         } catch (e) {
         }
     };
 
-    // Вывод сообщения валидации
+    // Функция удаления записи
+    const deleteHandler = async () => {
+        try {
+            if (tabData) {
+                const data = await request('/api/directory/people', 'DELETE', tabData);
+
+                if (data) {
+                    message.success(data.message);
+                    // Удаление текущей вкладки
+                    onRemove(specKey, 'remove');
+
+                    // Удаляем запись из хранилища redux
+                    people.forEach((pers, index) => {
+                        if (pers._id === tabData._id) {
+                            dispatch(ActionCreator.deletePerson(index));
+                        }
+                    });
+                }
+            }
+        } catch (e) {
+        }
+    };
+
+    // Вывод сообщения валидации формы
     const onFinishFailed = () => {
         message.error('Заполните обязательные поля');
     };
 
     // Функция нажатия на кнопку "Отмена"
     const cancelHandler = () => {
-        onRemove(key, 'remove');
+        onRemove(specKey, 'remove');
     }
 
     // Изменение значения в выпадающем списке "Подразделение", и сохранение этого значения в стейте
@@ -174,12 +192,12 @@ export const PersonTab = ({add, specKey, onRemove}) => {
 
     // Изменение значения в выпадающем списке "Персонал", и сохранение этого значения в стейте
     const handleChangeProfession = (value) => {
-        if (profession && profession.length > 0) {
-            let prof = profession.find((prf) => {
+        if (professions && professions.length > 0) {
+            let prof = professions.find((prf) => {
                 return prf.name === value;
             });
 
-            if (profession) {
+            if (professions) {
                 setSelectProfession(prof);
             }
         }
@@ -196,11 +214,11 @@ export const PersonTab = ({add, specKey, onRemove}) => {
                         description={
                             <Form labelCol={{span: 8}} wrapperCol={{span: 16}} style={{marginTop: '5%'}} form={form}
                                   name="control-ref"
-                                  onFinish={onFinish} onFinishFailed={onFinishFailed}>
+                                  onFinish={onSave} onFinishFailed={onFinishFailed}>
                                 <Form.Item
                                     label="ФИО"
                                     name="name"
-                                    initialValue={specKey === 'newPerson' ? '' : editTab.name}
+                                    initialValue={!tabData ? '' : tabData.name}
                                     rules={[{required: true, message: 'Введите ФИО сотрудника!',}]}
                                 >
                                     <Input maxLength={255} type="text"/>
@@ -221,7 +239,7 @@ export const PersonTab = ({add, specKey, onRemove}) => {
                                         <Col span={2}>
                                             <Button
                                                 style={{width: '100%'}}
-                                                onClick={() => add('Создание подразделения', DepartmentTab, 'newDepartment', tabs)}
+                                                onClick={() => add('Создание подразделения', DepartmentTab, 'newDepartment', tabs, null)}
                                                 icon={<PlusOutlined/>}
                                                 type="secondary"
                                             />
@@ -243,7 +261,7 @@ export const PersonTab = ({add, specKey, onRemove}) => {
                                         <Col span={2}>
                                             <Button
                                                 style={{width: '100%'}}
-                                                onClick={() => add('Создание профессии', ProfessionTab, 'newProfession', tabs)}
+                                                onClick={() => add('Создание профессии', ProfessionTab, 'newProfession', tabs, null)}
                                                 icon={<PlusOutlined/>}
                                                 type="secondary"
                                             />
@@ -254,7 +272,7 @@ export const PersonTab = ({add, specKey, onRemove}) => {
                                 <Form.Item
                                     name="tabNumber"
                                     label="Табельный номер"
-                                    initialValue={specKey === 'newPerson' ? '' : editTab.tabNumber}
+                                    initialValue={!tabData ? '' : tabData.tabNumber}
                                 >
                                     <Input maxLength={255} type="number" style={{textAlign: 'right'}}/>
                                 </Form.Item>
@@ -262,17 +280,17 @@ export const PersonTab = ({add, specKey, onRemove}) => {
                                 <Form.Item
                                     name="notes"
                                     label="Примечание"
-                                    initialValue={specKey === 'newPerson' ? '' : editTab.notes}
+                                    initialValue={!tabData ? '' : tabData.notes}
                                 >
                                     <Input maxLength={255} type="text"/>
                                 </Form.Item>
 
                                 <Row justify="end" style={{marginTop: 20}}>
-                                    <Button type="primary" htmlType="submit" loading={loading}
+                                    <Button type="primary" htmlType="submit" loading={loadingSave}
                                             style={{width: '9em'}} icon={<CheckOutlined/>}>
                                         Сохранить
                                     </Button>
-                                    {specKey === 'newProfession' ? null :
+                                    {!tabData ? null :
                                         <>
                                             <Button type="danger" onClick={deleteHandler} loading={loadingDelete}
                                                     style={{marginLeft: 10, width: '9em'}} icon={<DeleteOutlined/>}>
