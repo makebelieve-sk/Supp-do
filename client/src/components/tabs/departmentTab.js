@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {Button, Card, Form, Input, message, Row, Select, Skeleton} from 'antd';
+import {Button, Card, Form, Input, message, Row, Col, Select, Skeleton} from 'antd';
 import {useDispatch, useSelector} from "react-redux";
 
 import {useHttp} from "../../hooks/http.hook";
@@ -157,63 +157,65 @@ export const DepartmentTab = ({add, specKey, onRemove, loadingData, tabData}) =>
     };
 
     return (
-        <div className="container">
-            <Card style={{margin: '0 auto', width: '90%'}} bordered>
-                <Skeleton loading={false} active>
-                    <Meta
-                        title={title}
-                        description={
-                            <Form labelCol={{span: 8}} wrapperCol={{span: 16}} style={{marginTop: '5%'}} form={form} name="control-ref"
-                                  onFinish={onSave} onFinishFailed={onFinishFailed}>
-                                <Form.Item name="parent" label="Принадлежит">
-                                    <Select options={departmentsToOptions}
-                                            onChange={(newValue) => handleChange(newValue)}/>
-                                </Form.Item>
+        <Row className="container-tab" justify="center">
+            <Col sm={{ span: 24 }} md={{ span: 20 }} lg={{ span: 16 }} xl={{ span: 12 }}>
+                <Card className="card-style" bordered>
+                    <Skeleton loading={false} active>
+                        <Meta
+                            title={title}
+                            description={
+                                <Form labelCol={{span: 6}} wrapperCol={{span: 18}} style={{marginTop: '5%'}} form={form} name="control-ref"
+                                      onFinish={onSave} onFinishFailed={onFinishFailed}>
+                                    <Form.Item name="parent" label="Принадлежит">
+                                        <Select options={departmentsToOptions}
+                                                onChange={(newValue) => handleChange(newValue)}/>
+                                    </Form.Item>
 
-                                <Form.Item
-                                    label="Наименование"
-                                    name="name"
-                                    initialValue={!tabData ? '' : tabData.name}
-                                    rules={[{required: true, message: 'Введите название подразделения!'}]}
-                                >
-                                    <Input maxLength={255} type="text"/>
-                                </Form.Item>
+                                    <Form.Item
+                                        label="Наименование"
+                                        name="name"
+                                        initialValue={!tabData ? '' : tabData.name}
+                                        rules={[{required: true, message: 'Введите название подразделения!'}]}
+                                    >
+                                        <Input maxLength={255} type="text"/>
+                                    </Form.Item>
 
-                                <Form.Item
-                                    label="Примечание"
-                                    name="notes"
-                                    initialValue={!tabData ? '' : tabData.notes}
-                                >
-                                    <Input maxLength={255} type="text"/>
-                                </Form.Item>
+                                    <Form.Item
+                                        label="Примечание"
+                                        name="notes"
+                                        initialValue={!tabData ? '' : tabData.notes}
+                                    >
+                                        <Input maxLength={255} type="text"/>
+                                    </Form.Item>
 
-                                <Row justify="end" style={{marginTop: 20}}>
-                                    <Button type="primary" htmlType="submit" loading={loadingSave}
-                                            style={{width: '9em'}} icon={<CheckOutlined/>}>
-                                        Сохранить
-                                    </Button>
-                                    {!tabData ? null :
-                                        <>
-                                            <Button type="danger" onClick={deleteHandler} loading={loadingDelete}
-                                                    style={{marginLeft: 10, width: '9em'}} icon={<DeleteOutlined/>}>
-                                                Удалить
-                                            </Button>
-                                            <Button type="secondary" onClick={() => alert(1)}
-                                                    style={{marginLeft: 10, width: '9em'}} icon={<PrinterOutlined/>}>
-                                                Печать
-                                            </Button>
-                                        </>
-                                    }
-                                    <Button type="secondary" onClick={cancelHandler}
-                                            style={{marginLeft: 10, width: '9em'}} icon={<StopOutlined/>}>
-                                        Отмена
-                                    </Button>
-                                </Row>
-                            </Form>
-                        }
-                    />
-                </Skeleton>
-            </Card>
-        </div>
+                                    <Row justify="end" style={{marginTop: 20}} xs={{ gutter: [8,8] }}>
+                                        <Button className="button-style" type="primary" htmlType="submit" loading={loadingSave}
+                                                icon={<CheckOutlined/>}>
+                                            Сохранить
+                                        </Button>
+                                        {!tabData ? null :
+                                            <>
+                                                <Button className="button-style" type="danger" onClick={deleteHandler} loading={loadingDelete}
+                                                        icon={<DeleteOutlined/>}>
+                                                    Удалить
+                                                </Button>
+                                                <Button className="button-style" type="secondary" onClick={() => alert(1)}
+                                                        icon={<PrinterOutlined/>}>
+                                                    Печать
+                                                </Button>
+                                            </>
+                                        }
+                                        <Button className="button-style" type="secondary" onClick={cancelHandler}
+                                                icon={<StopOutlined/>}>
+                                            Отмена
+                                        </Button>
+                                    </Row>
+                                </Form>
+                            }
+                        />
+                    </Skeleton>
+                </Card>
+            </Col>
+        </Row>
     )
 }

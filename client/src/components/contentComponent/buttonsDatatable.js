@@ -74,20 +74,19 @@ export const ButtonsComponent = ({add, specKey, onExport, checkedColumns, setChe
     };
 
     return (
-        <Row justify="end">
-            <Button icon={<PlusOutlined/>} type="primary"
-                    onClick={() => RowMapHelper(specKey, add, tabs, null, null)}>Добавить
-            </Button>
-            <Button icon={<FileExcelOutlined/>} size="middle" style={{marginLeft: 10}}
+        <Row justify="center">
+            <Button className="button-style" icon={<PlusOutlined/>} type="primary"
+                    onClick={() => RowMapHelper(specKey, add, tabs, null, null)}>Добавить</Button>
+            <Button className="button-style" icon={<FileExcelOutlined/>} size="middle"
                     onClick={e => onExport(e.target.value)}>Экспорт</Button>
-            <Button icon={<PrinterOutlined/>} size="middle" style={{marginLeft: 10}}
+            <Button className="button-style" icon={<PrinterOutlined/>} size="middle"
                     onClick={() => alert(`Печать`)}>Печать</Button>
             <Dropdown
                 overlay={component}
                 onVisibleChange={handleVisibleChange}
                 visible={visible}
             >
-                <Button icon={<EditOutlined/>} size="middle" style={{marginLeft: 10}}>Колонки</Button>
+                <Button className="button-style" icon={<EditOutlined/>} size="middle">Колонки</Button>
             </Dropdown>
         </Row>
     );

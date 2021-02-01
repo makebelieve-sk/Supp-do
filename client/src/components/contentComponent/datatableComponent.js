@@ -79,7 +79,7 @@ export const DataTableComponent = ({add, specKey, loadingData}) => {
 
     return (
         <>
-            <Row justify="space-between" style={{width: '100%', marginBottom: 20, marginTop: 20}}>
+            <Row className="container-row-dto" justify="space-between">
                 <HeaderDatatable
                     filterText={filterText}
                     setFilterText={setFilterText}

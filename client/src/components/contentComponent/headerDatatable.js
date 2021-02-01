@@ -5,7 +5,7 @@ export const HeaderDatatable = ({filterText, setFilterText}) => {
     // Фукнция вызывается, когда изменяются переменные в массиве зависимостей
     return useMemo(() => {
         return (
-            <Row>
+            <Row style={{marginTop: 10}}>
                 <Input.Group compact>
                     <Input.Search defaultValue="" type="text" value={filterText}
                                   placeholder="Поиск"

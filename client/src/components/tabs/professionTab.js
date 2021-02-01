@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Skeleton, Card, Form, Input, Row, Button, message} from 'antd';
+import {Skeleton, Card, Form, Input, Row, Col, Button, message} from 'antd';
 import {useSelector, useDispatch} from "react-redux";
 import {CheckOutlined, DeleteOutlined, PrinterOutlined, StopOutlined} from '@ant-design/icons';
 
@@ -115,60 +115,62 @@ export const ProfessionTab = ({add, specKey, onRemove, loadingData, tabData}) =>
     }
 
     return (
-        <div className="container">
-            <Card style={{margin: '0 auto', width: '50%'}} bordered>
-                <Skeleton loading={loading} active>
-                    <Meta
-                        title={title}
-                        description={
-                            <Form style={{marginTop: '5%'}} form={form} name="control-ref"
-                                  onFinish={onSave} onFinishFailed={onFinishFailed}>
-                                <Form.Item
-                                    label="Профессия"
-                                    name="name"
-                                    initialValue={!tabData ? '' : tabData.name}
-                                    rules={[{required: true, message: 'Введите название профессии!'}]}
-                                >
-                                    <Input maxLength={255} type="text"/>
-                                </Form.Item>
+        <Row className="container-tab" justify="center">
+            <Col sm={{ span: 24 }} md={{ span: 20 }} lg={{ span: 16 }} xl={{ span: 12 }}>
+                <Card className="card-style" bordered>
+                    <Skeleton loading={loading} active>
+                        <Meta
+                            title={title}
+                            description={
+                                <Form style={{marginTop: '5%'}} form={form} name="control-ref"
+                                      onFinish={onSave} onFinishFailed={onFinishFailed}>
+                                    <Form.Item
+                                        label="Профессия"
+                                        name="name"
+                                        initialValue={!tabData ? '' : tabData.name}
+                                        rules={[{required: true, message: 'Введите название профессии!'}]}
+                                    >
+                                        <Input maxLength={255} type="text"/>
+                                    </Form.Item>
 
-                                <Form.Item
-                                    name="notes"
-                                    label="Примечание"
-                                    initialValue={!tabData ? '' : tabData.notes}
-                                >
-                                    <Input maxLength={255} type="text"/>
-                                </Form.Item>
+                                    <Form.Item
+                                        name="notes"
+                                        label="Примечание"
+                                        initialValue={!tabData ? '' : tabData.notes}
+                                    >
+                                        <Input maxLength={255} type="text"/>
+                                    </Form.Item>
 
-                                <Form.Item>
-                                    <Row justify="end" style={{ marginTop: 20}}>
-                                        <Button type="primary" htmlType="submit" loading={loadingSave}
-                                                style={{width: '9em'}} icon={<CheckOutlined />}>
-                                            Сохранить
-                                        </Button>
-                                        {!tabData ? null :
-                                            <>
-                                                <Button type="danger" onClick={deleteHandler} loading={loadingDelete}
-                                                        style={{marginLeft: 10, width: '9em'}} icon={<DeleteOutlined/>}>
-                                                    Удалить
-                                                </Button>
-                                                <Button type="secondary" onClick={() => alert(1)}
-                                                        style={{marginLeft: 10, width: '9em'}} icon={<PrinterOutlined />}>
-                                                    Печать
-                                                </Button>
-                                            </>
-                                        }
-                                        <Button type="secondary" onClick={cancelHandler}
-                                                style={{marginLeft: 10, width: '9em'}} icon={<StopOutlined />}>
-                                            Отмена
-                                        </Button>
-                                    </Row>
-                                </Form.Item>
-                            </Form>
-                        }
-                    />
-                </Skeleton>
-            </Card>
-        </div>
+                                    <Form.Item>
+                                        <Row justify="end" style={{ marginTop: 20}}>
+                                            <Button className="button-style" type="primary" htmlType="submit" loading={loadingSave}
+                                                    icon={<CheckOutlined />}>
+                                                Сохранить
+                                            </Button>
+                                            {!tabData ? null :
+                                                <>
+                                                    <Button className="button-style" type="danger" onClick={deleteHandler}
+                                                            loading={loadingDelete} icon={<DeleteOutlined/>}>
+                                                        Удалить
+                                                    </Button>
+                                                    <Button className="button-style" type="secondary" onClick={() => alert(1)}
+                                                            icon={<PrinterOutlined />}>
+                                                        Печать
+                                                    </Button>
+                                                </>
+                                            }
+                                            <Button className="button-style" type="secondary" onClick={cancelHandler}
+                                                    icon={<StopOutlined />}>
+                                                Отмена
+                                            </Button>
+                                        </Row>
+                                    </Form.Item>
+                                </Form>
+                            }
+                        />
+                    </Skeleton>
+                </Card>
+            </Col>
+        </Row>
     )
 }

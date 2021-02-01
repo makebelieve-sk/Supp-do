@@ -53,14 +53,31 @@
 /* установка стилей для body*/
 .content-component {
     margin: 24px 16px;
-    padding: 24px;
     min-height: 280px;
 }
-.container {
+.container-row-dto {
+    width: 100%;
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+.container-dto {
     width: 100%;
     margin: 0 auto;
     background-color: #ffffff;
     padding: 30px;
+}
+.container-tab {
+    background-color: #ffffff;
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+.card-style {
+    margin: 0 auto;
+    width: 100%;
+}
+.card-dto {
+    width: 100%;
+    margin-top: 16px;
 }
 
 /* установка стилей для корректного отображения табов*/
@@ -71,6 +88,13 @@
 }
 .ant-tabs-card > .ant-tabs-nav .ant-tabs-tab, .ant-tabs-card > div > .ant-tabs-nav .ant-tabs-tab {
     border: 0 !important;
+}
+
+/* единые стили для кнопок*/
+.button-style {
+    margin-left: 10px;
+    margin-top: 10px;
+    width: 9em;
 }
 
 /* установка стилей для таблицы*/
