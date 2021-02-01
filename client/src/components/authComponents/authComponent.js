@@ -16,7 +16,6 @@ export const AuthComponent = ({setRegForm, setChangePass}) => {
 
         if (data) {
             auth.login(data.token, data.userId, data.user);
-            console.log(data.user)
         }
     };
 

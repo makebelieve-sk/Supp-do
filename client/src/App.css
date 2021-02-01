@@ -1,16 +1,69 @@
-.header__wrapper {
-    height: 100vh;
-    max-height: 100%;
+/* установка минимальной высоты экрана*/
+#root {
+    min-height: 100vh;
+}
+.ant-layout {
+    min-height: 100vh;
+}
+
+/* установка стилей для боковой панели*/
+#components-layout-demo-custom-trigger .trigger {
+    font-size: 18px;
+    line-height: 64px;
+    padding: 0 24px;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+#components-layout-demo-custom-trigger .trigger:hover {
+    color: #1890ff;
+}
+
+#components-layout-demo-custom-trigger .logo {
+    height: 32px;
+    background: rgba(255, 255, 255, 0.3);
+    margin: 16px;
+}
+
+/* установка стилей для header*/
+.header-component {
+    padding: 0;
+    height: 64px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
 }
 .logo {
     height: 48px;
-    width: 15%;
     margin: 8px;
     color: #fff;
-    font-size: 24px;
+    font-size: 22px;
     text-align: center;
     line-height: 48px;
 }
+.logo-image {
+    height: 48px;
+    margin-right: 8px;
+    color: #fff;
+    font-size: 22px;
+    text-align: center;
+    line-height: 48px;
+}
+
+/* установка стилей для body*/
+.content-component {
+    margin: 24px 16px;
+    padding: 24px;
+    min-height: 280px;
+}
+.container {
+    width: 100%;
+    margin: 0 auto;
+    background-color: #ffffff;
+    padding: 30px;
+}
+
+/* установка стилей для корректного отображения табов*/
 .ant-tabs-top > .ant-tabs-nav, .ant-tabs-bottom > .ant-tabs-nav, .ant-tabs-top > div > .ant-tabs-nav, .ant-tabs-bottom > div > .ant-tabs-nav {
     margin: 0 !important;
     padding: 0 !important;
@@ -19,21 +72,43 @@
 .ant-tabs-card > .ant-tabs-nav .ant-tabs-tab, .ant-tabs-card > div > .ant-tabs-nav .ant-tabs-tab {
     border: 0 !important;
 }
+
+/* установка стилей для таблицы*/
 .ant-table-cell:hover {
     cursor: pointer;
-}
-.container {
-    width: 100%;
-    margin: 0 auto;
-    background-color: #ffffff;
-    padding: 30px;
 }
 .rdt_TableCol {
     text-align: center !important;
 }
-.cursor:hover {
-    cursor: pointer;
+
+/* установка цвета для выпадающего списка с действиями учетной записи пользователя*/
+.user {
+    margin-right: 48px;
 }
+.ant-dropdown-link {
+    color: #fff;
+}
+
+/* стилизация форм авторизации*/
+.login-form {
+    max-width: 400px;
+}
+.login-form-forgot {
+    float: right;
+}
+.ant-col-rtl .login-form-forgot {
+    float: left;
+}
+.login-form-button {
+    width: 100%;
+}
+
+/* отключении кнопки "ОК" в модальном окне "Помощи"*/
+.ant-modal-footer .ant-btn-primary {
+    display: none;
+}
+
+/* стили текста в подвале сайта*/
 .footer_text {
     -webkit-tap-highlight-color: transparent;
     --blue: #007bff;
@@ -68,36 +143,10 @@
     font-size: 1rem;
     font-weight: 400;
     line-height: 1.5;
-    text-align: left;
     box-sizing: border-box;
     color: #6c757d!important;
+    text-align: center;
 }
-.ant-modal-footer .ant-btn-primary {
-    display: none;
-}
-#root {
-    min-height: 100vh;
-}
-.ant-layout {
-    min-height: 100vh;
-}
-.ant-card {
-    margin-top: 0 !important;
-}
-.ant-card-bordered {
-    border-left: 0 !important;
-}
-
-/* стилизация форм авторизации*/
-.login-form {
-    max-width: 400px;
-}
-.login-form-forgot {
-    float: right;
-}
-.ant-col-rtl .login-form-forgot {
-    float: left;
-}
-.login-form-button {
-    width: 100%;
+.cursor:hover {
+    cursor: pointer;
 }

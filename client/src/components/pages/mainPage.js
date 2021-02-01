@@ -1,18 +1,20 @@
 import React, {useState, useEffect, useContext} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
-import {Layout, Menu, Button, Tabs, message, Row, Col, Modal} from 'antd';
+import {Layout, Menu, Button, Tabs, message, Row, Col, Modal, Dropdown, Avatar} from 'antd';
 import {
     MenuUnfoldOutlined,
     MenuFoldOutlined,
     UserOutlined,
     LaptopOutlined,
-    NotificationOutlined, QuestionCircleOutlined,
+    QuestionCircleOutlined,
+    DownOutlined,
 } from '@ant-design/icons';
 
 import ActionCreator from "../../redux/actionCreators";
 import {ContentTab} from "../helpers/contentTab";
 import {useHttp} from "../../hooks/http.hook";
 import {AuthContext} from "../../context/authContext";
+import logo from '../../assets/logo.png';
 
 const {Header, Sider, Content, Footer} = Layout;
 const {SubMenu} = Menu;
@@ -57,6 +59,10 @@ export const MainPage = () => {
                 const professions = await request('/api/directory/professions');
                 const departments = await request('/api/directory/departments');
                 const people = await request('/api/directory/people');
+
+                const testData = require("../../test.json");
+                dispatch(ActionCreator.testData(testData));
+                console.log(testData.length)
 
                 if (professions && professions.length > 0) {
                     dispatch(ActionCreator.getAllProfessions(professions));
@@ -139,11 +145,22 @@ export const MainPage = () => {
         setActiveKey(activeKey);
     };
 
+    // Компонент выпадающего списка действия с учетной записью пользователя
+    const dropdownMenu = <Menu>
+        <Menu.Item key="changePassword">Сменить пароль</Menu.Item>
+        <Menu.Item key="logout" onClick={() => {
+            auth.logout();
+        }}>Выйти</Menu.Item>
+    </Menu>;
+
     return (
         <Layout>
             <Sider trigger={null} collapsible collapsed={collapsed} width={300}>
-                <div className="logo"></div>
-                <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']}>
+                <div className="logo">
+                    <img src={logo} alt="Лого" className="logo-image" />
+                    {collapsed ? null : 'СУПП ДО'}
+                </div>
+                <Menu theme="dark" mode="inline">
                     <SubMenu key="directory" icon={<UserOutlined/>} title="Справочники">
                         <SubMenu title="Управление персоналом">
                             <Menu.Item key="profession" onClick={() => {
@@ -157,7 +174,9 @@ export const MainPage = () => {
                             }}>Персонал</Menu.Item>
                         </SubMenu>
                         <SubMenu title="Оборудование">
-                            <Menu.Item key="characteristics">Характеристики оборудования</Menu.Item>
+                            <Menu.Item key="characteristics" onClick={() => {
+                                add('Тест', ContentTab, 'testData', tabs, null);
+                            }}>Характеристики оборудования</Menu.Item>
                             <Menu.Item key="list">Перечень оборудования</Menu.Item>
                             <Menu.Item key="state">Состояние заявок</Menu.Item>
                         </SubMenu>
@@ -176,34 +195,25 @@ export const MainPage = () => {
                             <Menu.Item key="actions">Журнал действий пользователя</Menu.Item>
                         </SubMenu>
                     </SubMenu>
-                    <SubMenu key="user" icon={<NotificationOutlined/>} title="Пользователь">
-                        <Menu.Item key="changePassword">Сменить пароль</Menu.Item>
-                        <Menu.Item key="logout" onClick={() => {
-                            auth.logout();
-                        }}>Выйти</Menu.Item>
-                    </SubMenu>
                 </Menu>
             </Sider>
             <Layout className="site-layout">
-                <Header className="site-layout-background" style={{
-                    padding: 0,
-                    height: 64,
-                    display: 'flex',
-                    flexDirection: 'row',
-                    justifyContent: 'space-between'
-                }}>
-                    <div style={{width: '100%'}}>
+                <Header className="site-layout-background header-component">
+                    <div>
                         <Button type="primary" onClick={toggleCollapsed} style={{marginLeft: 15}}>
                             {collapsed ? <MenuUnfoldOutlined/> : <MenuFoldOutlined/>}
                         </Button>
                     </div>
                     <div className="logo">СУПП ДО</div>
+                    <div className="user">
+                        <Dropdown overlay={dropdownMenu} trigger={['click']}>
+                            <a className="ant-dropdown-link" href="/" onClick={e => e.preventDefault()}>
+                                <Avatar>{auth.user ? auth.user.login[0] : 'U'}</Avatar> {auth.user ? auth.user.login : ''} <DownOutlined />
+                            </a>
+                        </Dropdown>
+                    </div>
                 </Header>
-                <Content className="site-layout-background" style={{
-                        margin: '24px 16px',
-                        padding: 24,
-                        minHeight: 280,
-                    }}>
+                <Content className="site-layout-background content-component">
                     {tabs && tabs.length > 0 ?
                         <Tabs
                             hideAdd
@@ -228,7 +238,7 @@ export const MainPage = () => {
                 </Content>
                 <Footer>
                     <Row>
-                        <Col span={18} style={{textAlign: 'center'}} className="footer_text">
+                        <Col span={18} className="footer_text">
                             Система управления производственным процессом. Дефекты и отказы. 2020. Версия 1.0.0
                         </Col>
                         <Col span={6}>

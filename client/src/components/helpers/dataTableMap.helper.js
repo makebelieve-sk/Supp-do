@@ -2,10 +2,12 @@ import {
     headerProfessionTable,
     headerDepartmentTable,
     headerPersonTable,
+    testDataHeader,
 
     DepartmentColumns,
     PersonColumns,
-    ProfessionColumns
+    ProfessionColumns,
+    testData
 } from "../../datatable.options/datatable.columns";
 import {getProfession, getDepartment, getPerson} from "./rowFunctions.helper";
 import {message} from "antd";
@@ -33,6 +35,7 @@ const ColumnsMapHelper = (key) => {
         ['professions', ProfessionColumns],
         ['departments', DepartmentColumns],
         ['people', PersonColumns],
+        ['testData', testData],
     ]);
 
     if (columnSelector.has(key)) {
@@ -53,6 +56,7 @@ const ExportMapHelper = (key) => {
         ['professions', headerProfessionTable],
         ['departments', headerDepartmentTable],
         ['people', headerPersonTable],
+        ['testData', testDataHeader],
     ]);
 
     if (rowSelector.has(key)) {

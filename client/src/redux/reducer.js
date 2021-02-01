@@ -15,7 +15,8 @@ import {
     CREATE_PERSON,
     EDIT_PERSON,
     DELETE_PERSON,
-    SET_PREV_ACTIVE_TAB
+    SET_PREV_ACTIVE_TAB,
+    TEST_DATA
 } from "./actionsConstants";
 
 export default function reducer(state = initialState, action) {
@@ -106,6 +107,11 @@ export default function reducer(state = initialState, action) {
             return {
                 ...state,
                 prevActiveTab: action.payload
+            };
+        case TEST_DATA:
+            return {
+                ...state,
+                testData: action.payload
             };
         default:
             return state;

@@ -14,7 +14,8 @@ import {
     CREATE_PERSON,
     EDIT_PERSON,
     DELETE_PERSON,
-    SET_PREV_ACTIVE_TAB
+    SET_PREV_ACTIVE_TAB,
+    TEST_DATA
 } from "./actionsConstants";
 
 const ActionCreator = {
@@ -131,6 +132,12 @@ const ActionCreator = {
         return {
             type: SET_PREV_ACTIVE_TAB,
             payload: key
+        }
+    },
+    testData: (array) => {
+        return {
+            type: TEST_DATA,
+            payload: array
         }
     },
 }

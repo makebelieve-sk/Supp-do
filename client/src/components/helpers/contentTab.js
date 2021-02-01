@@ -12,22 +12,26 @@ export const ContentTab = ({add, specKey, onRemove, loadingData}) => {
     // Если вкладка "Подразделения", то в её содержимое добавляем вкладки "Таблица" и "Дерево", иначе возвращаем таблицу
     if (specKey === 'department') {
         component = (
-            <Card style={{width: '100%', marginTop: 16}}>
-                <Tabs defaultActiveKey="table">
-                    <TabPane tab="Таблица" key="table">
-                        <DataTableComponent add={add} specKey={specKey} loadingData={loadingData}/>
-                    </TabPane>
-                    <TabPane tab="Дерево" key="tree">
-                        <TreeComponent/>
-                    </TabPane>
-                </Tabs>
-            </Card>
+            <div className="container">
+                <Card style={{width: '100%', marginTop: 16}}>
+                    <Tabs defaultActiveKey="table">
+                        <TabPane tab="Таблица" key="table">
+                            <DataTableComponent add={add} specKey={specKey} loadingData={loadingData}/>
+                        </TabPane>
+                        <TabPane tab="Дерево" key="tree">
+                            <TreeComponent/>
+                        </TabPane>
+                    </Tabs>
+                </Card>
+            </div>
         )
     } else {
         component = (
-            <Card style={{width: '100%', marginTop: 16}}>
-                <DataTableComponent add={add} specKey={specKey} loadingData={loadingData}/>
-            </Card>
+            <div className="container">
+                <Card style={{width: '100%', marginTop: 16}}>
+                    <DataTableComponent add={add} specKey={specKey} loadingData={loadingData}/>
+                </Card>
+            </div>
         )
     }
 

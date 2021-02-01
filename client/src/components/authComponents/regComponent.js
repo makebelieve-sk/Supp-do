@@ -13,8 +13,6 @@ export const RegistrationComponent = () => {
 
         message.success(data.message);
         auth.login(data.token, data.userId, data.candidate);
-
-        console.log(data.candidate)
     };
 
     return (

@@ -116,7 +116,7 @@ export const ProfessionTab = ({add, specKey, onRemove, loadingData, tabData}) =>
 
     return (
         <div className="container">
-            <Card style={{margin: '0 auto', width: '90%'}} bordered>
+            <Card style={{margin: '0 auto', width: '50%'}} bordered>
                 <Skeleton loading={loading} active>
                     <Meta
                         title={title}

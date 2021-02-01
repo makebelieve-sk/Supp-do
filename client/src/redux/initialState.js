@@ -6,7 +6,8 @@ const initialState = {
     professions: [],
     departments: [],
     people: [],
-    editTab: null
+    editTab: null,
+    testData: null
 };
 
 export default initialState;
