@@ -16,7 +16,8 @@ import {
     EDIT_PERSON,
     DELETE_PERSON,
     SET_PREV_ACTIVE_TAB,
-    TEST_DATA
+    SET_LOADING_SKELETON,
+    TEST_DATA,
 } from "./actionsConstants";
 
 export default function reducer(state = initialState, action) {
@@ -29,7 +30,7 @@ export default function reducer(state = initialState, action) {
         case EDIT_TAB:
             return {
                 ...state,
-                editTab: action.payload
+                tabs: [ ...state.tabs.slice(0, action.index), action.payload, ...state.tabs.slice(action.index + 1) ]
             };
         case REMOVE_TAB:
             let index = action.payload;
@@ -108,11 +109,18 @@ export default function reducer(state = initialState, action) {
                 ...state,
                 prevActiveTab: action.payload
             };
+        case SET_LOADING_SKELETON:
+            return {
+                ...state,
+                loadingSkeleton: action.payload
+            };
+        // Для теста==========================================
         case TEST_DATA:
             return {
                 ...state,
                 testData: action.payload
             };
+        // ===================================================
         default:
             return state;
     }

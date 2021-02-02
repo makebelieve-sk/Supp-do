@@ -1,12 +1,5 @@
 import {ExportMapHelper} from "../components/helpers/dataTableMap.helper";
 
-// Русифицированный объект
-const localeRu = {
-    emptyText: 'Записи отсутствуют',
-    triggerDesc: 'Нажмите для сортировки',
-    triggerAsc: 'Нажмите для сортировки'
-};
-
 // Пагинация
 const pagination = {
     showSizeChanger: true,
@@ -71,7 +64,6 @@ const convertArrayOfObjectsToCSV = (array, name) => {
 };
 
 export {
-    localeRu,
     downloadCSV,
     pagination
 };

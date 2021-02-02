@@ -11,10 +11,13 @@ const {Meta} = Card;
 export const DepartmentTab = ({add, specKey, onRemove, loadingData, tabData}) => {
     // Получение функции создания запросов на сервер, состояний загрузки/загрузки при удалении элемента и ошибки,
     // очищения ошибки
-    const {request, loading, loadingDelete, error, clearError} = useHttp();
+    const {request, loadingDelete, error, clearError} = useHttp();
 
-    // Получение списка подразделений из хранилища redux
-    const departments = useSelector((state) => state.departments);
+    // Получение списка подразделений и загрузки записи из хранилища redux
+    const {departments, loadingSkeleton} = useSelector((state) => ({
+        departments: state.departments,
+        loadingSkeleton: state.loadingSkeleton
+    }));
     const dispatch = useDispatch();
 
     // Создание стейта для значений в выпадающем списке "Подразделения" и начального значения и
@@ -25,14 +28,20 @@ export const DepartmentTab = ({add, specKey, onRemove, loadingData, tabData}) =>
 
     let initialDepartment = null;
     let initialName = '';
+    let initialNotes = '';
+    let initialParent = '';
 
     // Инициализация хука useForm() от Form antd
     const [form] = Form.useForm();
 
     // Если вкладка редактирования, то устанавливаем начальные значения для выпадающих списков
-    if (tabData && tabData.parent) {
+    if (tabData) {
         initialDepartment = tabData;
         initialName = tabData.name;
+        initialNotes = tabData.notes;
+        if (tabData.parent) {
+            initialParent = tabData.parent.name
+        }
     }
 
     // Обновление выпадающих списков
@@ -60,8 +69,8 @@ export const DepartmentTab = ({add, specKey, onRemove, loadingData, tabData}) =>
 
     // Установка начального значения выпадающего списка, если вкладка редактируется
     useEffect(() => {
-        form.setFieldsValue({parent: initialName});
-    }, [form, initialName]);
+        form.setFieldsValue({name: initialName, notes: initialNotes, parent: initialParent});
+    }, [form, initialName, initialNotes, initialParent]);
 
     // При появлении ошибки, инициализируем окно вывода этой ошибки
     useEffect(() => {
@@ -158,14 +167,14 @@ export const DepartmentTab = ({add, specKey, onRemove, loadingData, tabData}) =>
 
     return (
         <Row className="container-tab" justify="center">
-            <Col sm={{ span: 24 }} md={{ span: 20 }} lg={{ span: 16 }} xl={{ span: 12 }}>
+            <Col sm={{span: 24}} md={{span: 20}} lg={{span: 16}} xl={{span: 12}}>
                 <Card className="card-style" bordered>
-                    <Skeleton loading={false} active>
+                    <Skeleton loading={loadingSkeleton} active>
                         <Meta
                             title={title}
                             description={
-                                <Form labelCol={{span: 6}} wrapperCol={{span: 18}} style={{marginTop: '5%'}} form={form} name="control-ref"
-                                      onFinish={onSave} onFinishFailed={onFinishFailed}>
+                                <Form labelCol={{span: 6}} wrapperCol={{span: 18}} style={{marginTop: '5%'}} form={form}
+                                      name="control-ref-department" onFinish={onSave} onFinishFailed={onFinishFailed}>
                                     <Form.Item name="parent" label="Принадлежит">
                                         <Select options={departmentsToOptions}
                                                 onChange={(newValue) => handleChange(newValue)}/>
@@ -188,18 +197,21 @@ export const DepartmentTab = ({add, specKey, onRemove, loadingData, tabData}) =>
                                         <Input maxLength={255} type="text"/>
                                     </Form.Item>
 
-                                    <Row justify="end" style={{marginTop: 20}} xs={{ gutter: [8,8] }}>
-                                        <Button className="button-style" type="primary" htmlType="submit" loading={loadingSave}
+                                    <Row justify="end" style={{marginTop: 20}} xs={{gutter: [8, 8]}}>
+                                        <Button className="button-style" type="primary" htmlType="submit"
+                                                loading={loadingSave}
                                                 icon={<CheckOutlined/>}>
                                             Сохранить
                                         </Button>
                                         {!tabData ? null :
                                             <>
-                                                <Button className="button-style" type="danger" onClick={deleteHandler} loading={loadingDelete}
+                                                <Button className="button-style" type="danger" onClick={deleteHandler}
+                                                        loading={loadingDelete}
                                                         icon={<DeleteOutlined/>}>
                                                     Удалить
                                                 </Button>
-                                                <Button className="button-style" type="secondary" onClick={() => alert(1)}
+                                                <Button className="button-style" type="secondary"
+                                                        onClick={() => alert(1)}
                                                         icon={<PrinterOutlined/>}>
                                                     Печать
                                                 </Button>

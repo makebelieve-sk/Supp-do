@@ -1,136 +1,81 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {useSelector} from 'react-redux';
-import {Tree, Input} from 'antd';
+import {Tree, Row} from 'antd';
 
 export const TreeComponent = () => {
     const departments = useSelector((state) => state.departments);
 
-    let i = 0;
-    let upperDepartments = [];
-    departments.forEach((department) => {
-        if (department.parent === null) {
-            i++;
-            upperDepartments.push(department);
-        }
+    // Сортируем массив по полю "Принадлежит"
+    departments.sort((a, b) => a.parent && b.parent && a.parent.name > b.parent.name ? 1 : -1);
+
+    // Находим записи, у которых указано, какому подразделению они принадлежат
+    let notNullParentDep = departments.filter(obj => {
+        return obj.parent;
     })
 
-    const {Search} = Input;
+    // Находим записи, у которых нет указанного подразделения (такие записи будут на самом верху)
+    let nullParentDep = departments.filter(obj => {
+        return !obj.parent;
+    })
 
-    const x = i;
-    const y = 1;
-    const z = departments.length;
-    const gData = [];
+    // Создаем массив
+    let treeData = [];
 
-    const generateData = (_level, _preKey, _tns) => {
-        const preKey = _preKey || '0';
-        const tns = _tns || gData;
-
-        const children = [];
-        for (let i = 0; i < x; i++) {
-            const key = `${preKey}-${i}`;
-            tns.push({title: key, key});
-            if (i < y) {
-                children.push(key);
-            }
-        }
-        if (_level < 0) {
-            return tns;
-        }
-        const level = _level - 1;
-        children.forEach((key, index) => {
-            tns[index].children = [];
-            return generateData(level, key, tns[index].children);
-        });
-    };
-    generateData(z);
-
-    const dataList = [];
-    const generateList = data => {
-        for (let i = 0; i < data.length; i++) {
-            const node = data[i];
-            const {key} = node;
-            dataList.push({key, title: key});
-            if (node.children) {
-                generateList(node.children);
-            }
-        }
-    };
-    generateList(gData);
-
-    const getParentKey = (key, tree) => {
-        let parentKey;
-        for (let i = 0; i < tree.length; i++) {
-            const node = tree[i];
-            if (node.children) {
-                if (node.children.some(item => item.key === key)) {
-                    parentKey = node.key;
-                } else if (getParentKey(key, node.children)) {
-                    parentKey = getParentKey(key, node.children);
-                }
-            }
-        }
-        return parentKey;
-    };
-
-    const [ expandedKeys, setExpandedKeys ] = useState([]);
-    const [ searchValue, setSearchValue ] = useState('');
-    const [ autoExpandParent, setAutoExpandParent ] = useState(true);
-
-    const onExpand = expandedKeys => {
-        setExpandedKeys(expandedKeys);
-        setAutoExpandParent(false);
-    };
-
-    const onChange = e => {
-        const {value} = e.target;
-        const expandedKeys = dataList
-            .map(item => {
-                if (item.title.indexOf(value) > -1) {
-                    return getParentKey(item.key, gData);
-                }
-                return null;
+    // Пушим в массив самые верхние записи
+    if (nullParentDep && nullParentDep.length > 0) {
+        nullParentDep.forEach(nullParent => {
+            treeData.push({
+                title: nullParent.name,
+                key: nullParent._id,
+                children: []
             })
-            .filter((item, i, self) => item && self.indexOf(item) === i);
+        })
+    }
 
-        setExpandedKeys(expandedKeys);
-        setSearchValue(value);
-        setAutoExpandParent(true);
-    };
+    // Инициализация функции рекурсии, если флаг есть, значит это первый заход в функцию, проходим внутрь 1 раз
+    // Если флага нет, значит заходим в рекурсию изнутри массива результатов, значит надо добавлять вложенности,
+    // значит создаем цикл
+    const rek = (childrenArr, flag) => {
+        if (flag) {
+            childrenArr.forEach(nullParent => {
+                notNullParentDep.forEach(notNullParent => {
+                    if (notNullParent.parent.name === nullParent.title) {
+                        nullParent.children.push({
+                            title: notNullParent.name,
+                            key: notNullParent._id,
+                            children: []
+                        });
+                    }
+                })
+            })
+            childrenArr.forEach(obj => {
+                rek(obj);
+            })
+        } else {
+            childrenArr.children.forEach(childObj => {
+                notNullParentDep.forEach(notNullParent => {
+                    if (notNullParent.parent.name === childObj.title) {
+                        childObj.children.push({
+                            title: notNullParent.name,
+                            key: notNullParent._id,
+                            children: []
+                        })
 
-    const loop = data =>
-        data.map(item => {
-            const index = item.title.indexOf(searchValue);
-            const beforeStr = item.title.substr(0, index);
-            const afterStr = item.title.substr(index + searchValue.length);
-            const title =
-                index > -1 ? (
-                    <span>
-                        {beforeStr}
-                        <span className="site-tree-search-value">{searchValue}</span>
-                        {afterStr}
-                    </span>
-                ) : (
-                    <span>{item.title}</span>
-                );
-            if (item.children) {
-                return {title, key: item.key, children: loop(item.children)};
-            }
+                        rek(childObj);
+                    }
+                })
+            })
+        }
+    }
 
-            return {
-                title,
-                key: item.key,
-            };
-        });
+    // Вызов функции рекурсии с начальными параметрами
+    if (treeData && treeData.length > 0) {
+        rek(treeData, true);
+    }
 
     return (
-        <div>
-            <Search style={{marginBottom: 8}} placeholder="Search" onChange={onChange}/>
-            <Tree
-                onExpand={onExpand}
-                expandedKeys={expandedKeys}
-                autoExpandParent={autoExpandParent}
-                treeData={loop(gData)}
-            />
-        </div>
+        <Row className="tree-wrapper">
+            <Tree treeData={treeData} />
+        </Row>
     );
 }

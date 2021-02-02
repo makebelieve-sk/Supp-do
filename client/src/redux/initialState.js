@@ -7,7 +7,10 @@ const initialState = {
     departments: [],
     people: [],
     editTab: null,
+    loadingSkeleton: false,
+    // Для теста==========================================
     testData: null
+    // ===================================================
 };
 
 export default initialState;

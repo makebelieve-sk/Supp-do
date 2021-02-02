@@ -57,21 +57,9 @@ export const MainPage = () => {
         async function getProfessions() {
             try {
                 const professions = await request('/api/directory/professions');
-                const departments = await request('/api/directory/departments');
-                const people = await request('/api/directory/people');
-
-                const testData = require("../../test.json");
-                dispatch(ActionCreator.testData(testData));
-                console.log(testData.length)
 
                 if (professions && professions.length > 0) {
                     dispatch(ActionCreator.getAllProfessions(professions));
-                }
-                if (departments && departments.length > 0) {
-                    dispatch(ActionCreator.getAllDepartments(departments));
-                }
-                if (people && people.length > 0) {
-                    dispatch(ActionCreator.getAllPeople(people));
                 }
             } catch (e) {}
         }
@@ -101,8 +89,8 @@ export const MainPage = () => {
         })
 
         if (index >= 0) {
+            dispatch(ActionCreator.editTab(index, tabObject));
             setActiveKey(key);
-            return null;
         } else {
             setActiveKey(key);
             dispatch(ActionCreator.addTab(tabObject));
@@ -163,18 +151,40 @@ export const MainPage = () => {
                 <Menu theme="dark" mode="inline">
                     <SubMenu key="directory" icon={<UserOutlined/>} title="Справочники">
                         <SubMenu title="Управление персоналом">
-                            <Menu.Item key="profession" onClick={() => {
-                                add('Профессии', ContentTab, 'professions', tabs, null);
+                            <Menu.Item key="profession" onClick={async () => {
+                                const professions = await request('/api/directory/professions');
+
+                                if (professions && professions.length > 0) {
+                                    dispatch(ActionCreator.getAllProfessions(professions));
+                                }
+
+                                add('Профессии', ContentTab, 'professions', tabs, null, loading);
                             }}>Профессии</Menu.Item>
-                            <Menu.Item key="departments" onClick={() => {
+                            <Menu.Item key="departments" onClick={async () => {
+                                const departments = await request('/api/directory/departments');
+
+                                if (departments && departments.length > 0) {
+                                    dispatch(ActionCreator.getAllDepartments(departments));
+                                }
+
                                 add('Подразделения', ContentTab, 'departments', tabs, null);
                             }}>Подразделения</Menu.Item>
-                            <Menu.Item key="people" onClick={() => {
+                            <Menu.Item key="people" onClick={async () => {
+                                const people = await request('/api/directory/people');
+
+                                if (people && people.length > 0) {
+                                    dispatch(ActionCreator.getAllPeople(people));
+                                }
+
                                 add('Персонал', ContentTab, 'people', tabs, null);
                             }}>Персонал</Menu.Item>
                         </SubMenu>
                         <SubMenu title="Оборудование">
                             <Menu.Item key="characteristics" onClick={() => {
+                                // Для теста==========================================
+                                const testData = require("../../test.json");
+                                dispatch(ActionCreator.testData(testData));
+                                // ===================================================
                                 add('Тест', ContentTab, 'testData', tabs, null);
                             }}>Характеристики оборудования</Menu.Item>
                             <Menu.Item key="list">Перечень оборудования</Menu.Item>

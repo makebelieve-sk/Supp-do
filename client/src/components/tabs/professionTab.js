@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Skeleton, Card, Form, Input, Row, Col, Button, message} from 'antd';
+import {Card, Form, Input, Row, Col, Button, message, Skeleton} from 'antd';
 import {useSelector, useDispatch} from "react-redux";
 import {CheckOutlined, DeleteOutlined, PrinterOutlined, StopOutlined} from '@ant-design/icons';
 
@@ -14,10 +14,13 @@ export const ProfessionTab = ({add, specKey, onRemove, loadingData, tabData}) =>
 
     // Получение функции создания запросов на сервер, состояний загрузки/загрузки при удалении элемента и ошибки,
     // очищения ошибки
-    const {request, loading, loadingDelete, error, clearError} = useHttp();
+    const {request, loadingDelete, error, clearError} = useHttp();
 
-    // Получение списка профессий из хранилища redux
-    const professions = useSelector((state) => state.professions);
+    // Получение списка профессий и загрузки записи из хранилища redux
+    const {professions, loadingSkeleton} = useSelector((state) => ({
+        professions: state.professions,
+        loadingSkeleton: state.loadingSkeleton
+    }));
     const dispatch = useDispatch();
 
     // Определение начальных значений для полей "Наименование" и "Примечание"
@@ -100,7 +103,8 @@ export const ProfessionTab = ({add, specKey, onRemove, loadingData, tabData}) =>
                     });
                 }
             }
-        } catch (e) {}
+        } catch (e) {
+        }
     };
 
     // Вывод сообщения валидации формы
@@ -116,13 +120,13 @@ export const ProfessionTab = ({add, specKey, onRemove, loadingData, tabData}) =>
 
     return (
         <Row className="container-tab" justify="center">
-            <Col sm={{ span: 24 }} md={{ span: 20 }} lg={{ span: 16 }} xl={{ span: 12 }}>
+            <Col sm={{span: 24}} md={{span: 20}} lg={{span: 16}} xl={{span: 12}}>
                 <Card className="card-style" bordered>
-                    <Skeleton loading={loading} active>
+                    <Skeleton loading={loadingSkeleton} active>
                         <Meta
                             title={title}
                             description={
-                                <Form style={{marginTop: '5%'}} form={form} name="control-ref"
+                                <Form style={{marginTop: '5%'}} form={form} name="control-ref-profession"
                                       onFinish={onSave} onFinishFailed={onFinishFailed}>
                                     <Form.Item
                                         label="Профессия"
@@ -142,9 +146,10 @@ export const ProfessionTab = ({add, specKey, onRemove, loadingData, tabData}) =>
                                     </Form.Item>
 
                                     <Form.Item>
-                                        <Row justify="end" style={{ marginTop: 20}}>
-                                            <Button className="button-style" type="primary" htmlType="submit" loading={loadingSave}
-                                                    icon={<CheckOutlined />}>
+                                        <Row justify="end" style={{marginTop: 20}}>
+                                            <Button className="button-style" type="primary" htmlType="submit"
+                                                    loading={loadingSave}
+                                                    icon={<CheckOutlined/>}>
                                                 Сохранить
                                             </Button>
                                             {!tabData ? null :
@@ -153,14 +158,15 @@ export const ProfessionTab = ({add, specKey, onRemove, loadingData, tabData}) =>
                                                             loading={loadingDelete} icon={<DeleteOutlined/>}>
                                                         Удалить
                                                     </Button>
-                                                    <Button className="button-style" type="secondary" onClick={() => alert(1)}
-                                                            icon={<PrinterOutlined />}>
+                                                    <Button className="button-style" type="secondary"
+                                                            onClick={() => alert(1)}
+                                                            icon={<PrinterOutlined/>}>
                                                         Печать
                                                     </Button>
                                                 </>
                                             }
                                             <Button className="button-style" type="secondary" onClick={cancelHandler}
-                                                    icon={<StopOutlined />}>
+                                                    icon={<StopOutlined/>}>
                                                 Отмена
                                             </Button>
                                         </Row>

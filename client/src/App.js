@@ -1,5 +1,7 @@
 import React from 'react';
 import {BrowserRouter as Router} from "react-router-dom";
+import { ConfigProvider } from 'antd';
+import ruRU from 'antd/lib/locale/ru_RU';
 import './App.css';
 
 import {useRoutes} from './hooks/routes.hook';
@@ -15,12 +17,14 @@ export const App = () => {
     const routes = useRoutes(isAuthenticated);
 
     return (
-        <AuthContext.Provider value={{
-            token, login, logout, userId, isAuthenticated, user
-        }}>
-            <Router>
-                {routes}
-            </Router>
-        </AuthContext.Provider>
+        <ConfigProvider locale={ruRU}>
+            <AuthContext.Provider value={{
+                token, login, logout, userId, isAuthenticated, user
+            }}>
+                <Router>
+                    {routes}
+                </Router>
+            </AuthContext.Provider>
+        </ConfigProvider>
     )
 };

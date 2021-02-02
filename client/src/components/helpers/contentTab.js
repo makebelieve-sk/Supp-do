@@ -10,7 +10,7 @@ export const ContentTab = ({add, specKey, onRemove, loadingData}) => {
     let component;
 
     // Если вкладка "Подразделения", то в её содержимое добавляем вкладки "Таблица" и "Дерево", иначе возвращаем таблицу
-    if (specKey === 'department') {
+    if (specKey === 'departments') {
         component = (
             <div className="container-dto">
                 <Card className="card-dto">

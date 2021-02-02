@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {useSelector} from 'react-redux';
 import {message, Row, Table} from "antd";
 
-import {downloadCSV, localeRu, pagination} from '../../datatable.options/datatable.options';
+import {downloadCSV, pagination} from '../../datatable.options/datatable.options';
 import {HeaderDatatable} from './headerDatatable';
 import {ButtonsComponent} from "./buttonsDatatable";
 import {useHttp} from "../../hooks/http.hook";
@@ -100,14 +100,15 @@ export const DataTableComponent = ({add, specKey, loadingData}) => {
                 dataSource={columnsTable && columnsTable.length === 0 ? null : Array.from(filteredItems)}
                 scroll={{x: 500}}
                 size="middle"
-                locale={localeRu}
                 bordered
                 pagination={pagination}
                 loading={loadingData || loading}
                 rowKey={(record) => {
+                    // Для теста==========================================
                     if (specKey === 'testData') {
                         return record.global_id;
                     }
+                    // ===================================================
                     return record._id.toString()
                 }}
                 onRow={(row) => ({

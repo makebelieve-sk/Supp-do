@@ -20,7 +20,11 @@ const DELETE_PERSON = 'DELETE_PERSON';
 
 const SET_PREV_ACTIVE_TAB = 'SET_PREV_ACTIVE_TAB';
 
+const SET_LOADING_SKELETON = 'SET_LOADING_SKELETON';
+
+// Для теста==========================================
 const TEST_DATA = 'TEST_DATA';
+// ===================================================
 
 export {
     ADD_TAB,
@@ -39,5 +43,6 @@ export {
     EDIT_PERSON,
     DELETE_PERSON,
     SET_PREV_ACTIVE_TAB,
+    SET_LOADING_SKELETON,
     TEST_DATA
 }

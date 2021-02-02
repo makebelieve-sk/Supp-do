@@ -105,6 +105,11 @@
     text-align: center !important;
 }
 
+/* установка стилей для дерева*/
+.tree-wrapper {
+    margin-top: 20px;
+}
+
 /* установка цвета для выпадающего списка с действиями учетной записи пользователя*/
 .user {
     margin-right: 48px;

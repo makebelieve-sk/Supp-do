@@ -15,6 +15,7 @@ import {
     EDIT_PERSON,
     DELETE_PERSON,
     SET_PREV_ACTIVE_TAB,
+    SET_LOADING_SKELETON,
     TEST_DATA
 } from "./actionsConstants";
 
@@ -27,9 +28,10 @@ const ActionCreator = {
         }
     },
     // Редактируемая вкладка
-    editTab: (row) => {
+    editTab: (index, row) => {
         return {
             type: EDIT_TAB,
+            index: index,
             payload: row
         }
     },
@@ -134,12 +136,20 @@ const ActionCreator = {
             payload: key
         }
     },
+    setLoadingSkeleton: (loading) => {
+        return {
+            type: SET_LOADING_SKELETON,
+            payload: loading
+        }
+    },
+    // Для теста==========================================
     testData: (array) => {
         return {
             type: TEST_DATA,
             payload: array
         }
     },
+    // ===================================================
 }
 
 export default ActionCreator;

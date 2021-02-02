@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Skeleton, Card, Form, Input, Row, Button, message, Select, Col} from 'antd';
+import {Card, Form, Input, Row, Button, message, Select, Col, Skeleton} from 'antd';
 import {useSelector, useDispatch} from "react-redux";
 
 import {useHttp} from "../../hooks/http.hook";
@@ -21,12 +21,13 @@ export const PersonTab = ({add, specKey, onRemove, loadingData, tabData}) => {
     // очищения ошибки
     const {request, loadingDelete, error, clearError} = useHttp();
 
-    // Получение списков подразделений, профессий, вкладок и порсонала из хранилища redux
-    const {people, professions, departments, tabs} = useSelector((state) => ({
+    // Получение списков подразделений, профессий, вкладок, порсонала и загрузки записи из хранилища redux
+    const {people, professions, departments, tabs, loadingSkeleton} = useSelector((state) => ({
         people: state.people,
         professions: state.professions,
         departments: state.departments,
-        tabs: state.tabs
+        tabs: state.tabs,
+        loadingSkeleton: state.loadingSkeleton
     }));
     const dispatch = useDispatch();
 
@@ -42,17 +43,26 @@ export const PersonTab = ({add, specKey, onRemove, loadingData, tabData}) => {
     let initialProfession = null;
     let initialDepartmentName = '';
     let initialProfName = '';
+    let initialName = '';
+    let initialNotes = '';
+    let initialTabNumber = '';
 
     // Инициализация хука useForm() от Form antd
     const [form] = Form.useForm();
 
     // Если вкладка редактирования, то устанавливаем начальные значения для выпадающих списков
-    if (tabData && tabData.profession) {
-        initialDepartment = tabData.department;
-        initialProfession = tabData.profession;
+    if (tabData) {
+        initialName = tabData.name;
+        initialNotes = tabData.notes;
+        initialTabNumber = tabData.tabNumber;
 
-        initialDepartmentName = tabData.department.name;
-        initialProfName = tabData.profession.name;
+        if (tabData.department && tabData.profession) {
+            initialDepartment = tabData.department;
+            initialProfession = tabData.profession;
+
+            initialDepartmentName = tabData.department.name;
+            initialProfName = tabData.profession.name;
+        }
     }
 
     // Обновление выпадающих списков
@@ -94,8 +104,8 @@ export const PersonTab = ({add, specKey, onRemove, loadingData, tabData}) => {
 
     // Установка начального значения выпадающего списка, если вкладка редактируется
     useEffect(() => {
-        form.setFieldsValue({department: initialDepartmentName, profession: initialProfName});
-    }, [form, initialDepartmentName, initialProfName]);
+        form.setFieldsValue({name: initialName, notes: initialNotes, tabNumber: initialTabNumber, department: initialDepartmentName, profession: initialProfName});
+    }, [form, initialName, initialNotes, initialTabNumber, initialDepartmentName, initialProfName]);
 
     // При появлении ошибки, инициализируем окно вывода этой ошибки
     useEffect(() => {
@@ -207,14 +217,14 @@ export const PersonTab = ({add, specKey, onRemove, loadingData, tabData}) => {
 
     return (
         <Row className="container-tab" justify="center">
-            <Col sm={{ span: 24 }} md={{ span: 20 }} lg={{ span: 16 }} xl={{ span: 12 }}>
+            <Col sm={{span: 24}} md={{span: 20}} lg={{span: 16}} xl={{span: 12}}>
                 <Card className="card-style" bordered>
-                    <Skeleton loading={false} active>
+                    <Skeleton loading={loadingSkeleton} active>
                         <Meta
                             title={title}
                             description={
                                 <Form labelCol={{span: 6}} wrapperCol={{span: 18}} style={{marginTop: '5%'}} form={form}
-                                      name="control-ref"
+                                      name="control-ref-person"
                                       onFinish={onSave} onFinishFailed={onFinishFailed}>
                                     <Form.Item
                                         label="ФИО"
@@ -227,7 +237,8 @@ export const PersonTab = ({add, specKey, onRemove, loadingData, tabData}) => {
 
                                     <Form.Item label="Подразделение">
                                         <Row gutter={8}>
-                                            <Col xs={{ span: 20 }} sm={{ span: 20 }} md={{ span: 22 }} lg={{ span: 22 }} xl={{ span: 22 }}>
+                                            <Col xs={{span: 20}} sm={{span: 20}} md={{span: 22}} lg={{span: 22}}
+                                                 xl={{span: 22}}>
                                                 <Form.Item
                                                     name="department"
                                                     noStyle
@@ -237,7 +248,8 @@ export const PersonTab = ({add, specKey, onRemove, loadingData, tabData}) => {
                                                             onChange={handleChangeDepartment}/>
                                                 </Form.Item>
                                             </Col>
-                                            <Col xs={{ span: 4 }} sm={{ span: 4 }} md={{ span: 2 }} lg={{ span: 2 }} xl={{ span: 2 }}>
+                                            <Col xs={{span: 4}} sm={{span: 4}} md={{span: 2}} lg={{span: 2}}
+                                                 xl={{span: 2}}>
                                                 <Button
                                                     style={{width: '100%'}}
                                                     onClick={() => add('Создание подразделения', DepartmentTab, 'newDepartment', tabs, null)}
@@ -250,16 +262,19 @@ export const PersonTab = ({add, specKey, onRemove, loadingData, tabData}) => {
 
                                     <Form.Item label="Профессия">
                                         <Row gutter={8}>
-                                            <Col xs={{ span: 20 }} sm={{ span: 20 }} md={{ span: 22 }} lg={{ span: 22 }} xl={{ span: 22 }}>
+                                            <Col xs={{span: 20}} sm={{span: 20}} md={{span: 22}} lg={{span: 22}}
+                                                 xl={{span: 22}}>
                                                 <Form.Item
                                                     name="profession"
                                                     noStyle
                                                     rules={[{required: true, message: 'Выберите сотрудника!'}]}
                                                 >
-                                                    <Select options={professionsToOptions} onChange={handleChangeProfession}/>
+                                                    <Select options={professionsToOptions}
+                                                            onChange={handleChangeProfession}/>
                                                 </Form.Item>
                                             </Col>
-                                            <Col xs={{ span: 4 }} sm={{ span: 4 }} md={{ span: 2 }} lg={{ span: 2 }} xl={{ span: 2 }}>
+                                            <Col xs={{span: 4}} sm={{span: 4}} md={{span: 2}} lg={{span: 2}}
+                                                 xl={{span: 2}}>
                                                 <Button
                                                     style={{width: '100%'}}
                                                     onClick={() => add('Создание профессии', ProfessionTab, 'newProfession', tabs, null)}
@@ -286,8 +301,9 @@ export const PersonTab = ({add, specKey, onRemove, loadingData, tabData}) => {
                                         <Input maxLength={255} type="text"/>
                                     </Form.Item>
 
-                                    <Row justify="end" style={{marginTop: 20}} xs={{ gutter: [8,8] }}>
-                                        <Button className="button-style" type="primary" htmlType="submit" loading={loadingSave}
+                                    <Row justify="end" style={{marginTop: 20}} xs={{gutter: [8, 8]}}>
+                                        <Button className="button-style" type="primary" htmlType="submit"
+                                                loading={loadingSave}
                                                 icon={<CheckOutlined/>}>
                                             Сохранить
                                         </Button>
@@ -297,7 +313,8 @@ export const PersonTab = ({add, specKey, onRemove, loadingData, tabData}) => {
                                                         loading={loadingDelete} icon={<DeleteOutlined/>}>
                                                     Удалить
                                                 </Button>
-                                                <Button className="button-style" type="secondary" onClick={() => alert(1)}
+                                                <Button className="button-style" type="secondary"
+                                                        onClick={() => alert(1)}
                                                         icon={<PrinterOutlined/>}>
                                                     Печать
                                                 </Button>
