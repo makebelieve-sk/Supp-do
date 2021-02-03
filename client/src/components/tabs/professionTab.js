@@ -37,8 +37,12 @@ export const ProfessionTab = ({add, specKey, onRemove, loadingData, tabData}) =>
 
     // Установка начальных значений полей "Наименование" и "Примечание", и если вкладка редактируется
     useEffect(() => {
-        form.setFieldsValue({name: initialName, notes: initialNotes});
-    }, [form, initialName, initialNotes]);
+        if (tabData) {
+            form.setFieldsValue({name: initialName, notes: initialNotes});
+        } else {
+            return null;
+        }
+    }, [form, initialName, initialNotes, tabData]);
 
     // При появлении ошибки, инициализируем окно вывода этой ошибки
     useEffect(() => {
@@ -126,7 +130,8 @@ export const ProfessionTab = ({add, specKey, onRemove, loadingData, tabData}) =>
                         <Meta
                             title={title}
                             description={
-                                <Form style={{marginTop: '5%'}} form={form} name="control-ref-profession"
+                                <Form style={{marginTop: '5%'}} form={form}
+                                      name={tabData ? `control-ref-profession-${tabData.name}` : "control-ref-profession"}
                                       onFinish={onSave} onFinishFailed={onFinishFailed}>
                                     <Form.Item
                                         label="Профессия"

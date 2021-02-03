@@ -10,10 +10,10 @@ import {
     DownOutlined,
 } from '@ant-design/icons';
 
-import ActionCreator from "../../redux/actionCreators";
-import {ContentTab} from "../helpers/contentTab";
 import {useHttp} from "../../hooks/http.hook";
+import ActionCreator from "../../redux/actionCreators";
 import {AuthContext} from "../../context/authContext";
+import {OpenSectionContentHelper} from "../helpers/sectionContentMap.helper";
 import logo from '../../assets/logo.png';
 
 const {Header, Sider, Content, Footer} = Layout;
@@ -79,6 +79,7 @@ export const MainPage = () => {
 
     // Функция добавления вкладки
     const add = (title, content, key, tabs, row) => {
+        console.log(title)
         let tabObject = {title, content, key, row};
         let index = -1;
 
@@ -151,42 +152,20 @@ export const MainPage = () => {
                 <Menu theme="dark" mode="inline">
                     <SubMenu key="directory" icon={<UserOutlined/>} title="Справочники">
                         <SubMenu title="Управление персоналом">
-                            <Menu.Item key="profession" onClick={async () => {
-                                const professions = await request('/api/directory/professions');
-
-                                if (professions && professions.length > 0) {
-                                    dispatch(ActionCreator.getAllProfessions(professions));
-                                }
-
-                                add('Профессии', ContentTab, 'professions', tabs, null, loading);
-                            }}>Профессии</Menu.Item>
-                            <Menu.Item key="departments" onClick={async () => {
-                                const departments = await request('/api/directory/departments');
-
-                                if (departments && departments.length > 0) {
-                                    dispatch(ActionCreator.getAllDepartments(departments));
-                                }
-
-                                add('Подразделения', ContentTab, 'departments', tabs, null);
-                            }}>Подразделения</Menu.Item>
-                            <Menu.Item key="people" onClick={async () => {
-                                const people = await request('/api/directory/people');
-
-                                if (people && people.length > 0) {
-                                    dispatch(ActionCreator.getAllPeople(people));
-                                }
-
-                                add('Персонал', ContentTab, 'people', tabs, null);
-                            }}>Персонал</Menu.Item>
+                            <Menu.Item key="profession"
+                                       onClick={() => OpenSectionContentHelper('professions', add, request, tabs)}
+                            >Профессии</Menu.Item>
+                            <Menu.Item key="departments"
+                                       onClick={() => OpenSectionContentHelper('departments', add, request, tabs)}
+                            >Подразделения</Menu.Item>
+                            <Menu.Item key="people"
+                                       onClick={() => OpenSectionContentHelper('people', add, request, tabs)}
+                            >Персонал</Menu.Item>
                         </SubMenu>
                         <SubMenu title="Оборудование">
-                            <Menu.Item key="characteristics" onClick={() => {
-                                // Для теста==========================================
-                                const testData = require("../../test.json");
-                                dispatch(ActionCreator.testData(testData));
-                                // ===================================================
-                                add('Тест', ContentTab, 'testData', tabs, null);
-                            }}>Характеристики оборудования</Menu.Item>
+                            <Menu.Item key="characteristics"
+                                       onClick={() => OpenSectionContentHelper('testData', add, request, tabs)}
+                            >Характеристики оборудования</Menu.Item>
                             <Menu.Item key="list">Перечень оборудования</Menu.Item>
                             <Menu.Item key="state">Состояние заявок</Menu.Item>
                         </SubMenu>

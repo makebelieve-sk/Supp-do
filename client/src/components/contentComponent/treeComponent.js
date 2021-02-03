@@ -2,6 +2,8 @@ import React from 'react';
 import {useSelector} from 'react-redux';
 import {Tree, Row} from 'antd';
 
+const { DirectoryTree } = Tree;
+
 export const TreeComponent = () => {
     const departments = useSelector((state) => state.departments);
 
@@ -35,8 +37,8 @@ export const TreeComponent = () => {
     // Инициализация функции рекурсии, если флаг есть, значит это первый заход в функцию, проходим внутрь 1 раз
     // Если флага нет, значит заходим в рекурсию изнутри массива результатов, значит надо добавлять вложенности,
     // значит создаем цикл
-    const rek = (childrenArr, flag) => {
-        if (flag) {
+    const createTree = (childrenArr, firstRun) => {
+        if (firstRun) {
             childrenArr.forEach(nullParent => {
                 notNullParentDep.forEach(notNullParent => {
                     if (notNullParent.parent.name === nullParent.title) {
@@ -49,7 +51,7 @@ export const TreeComponent = () => {
                 })
             })
             childrenArr.forEach(obj => {
-                rek(obj);
+                createTree(obj);
             })
         } else {
             childrenArr.children.forEach(childObj => {
@@ -61,7 +63,7 @@ export const TreeComponent = () => {
                             children: []
                         })
 
-                        rek(childObj);
+                        createTree(childObj);
                     }
                 })
             })
@@ -70,12 +72,19 @@ export const TreeComponent = () => {
 
     // Вызов функции рекурсии с начальными параметрами
     if (treeData && treeData.length > 0) {
-        rek(treeData, true);
+        createTree(treeData, true);
+    }
+
+    const onExpand = () => {
+        console.log('expand');
     }
 
     return (
         <Row className="tree-wrapper">
-            <Tree treeData={treeData} />
+            <DirectoryTree
+                treeData={treeData}
+                onExpand={onExpand}
+            />
         </Row>
     );
 }

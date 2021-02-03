@@ -26,7 +26,7 @@ export const DataTableComponent = ({add, specKey, loadingData}) => {
     });
 
     // Получение функции создания запросов на сервер
-    let {request, loading} = useHttp();
+    let {request} = useHttp();
 
     // Создание стейта для текстового поля, отфильтрованных колонок, выбранных колонок и начальных колонок
     const [filterText, setFilterText] = useState('');
@@ -102,7 +102,7 @@ export const DataTableComponent = ({add, specKey, loadingData}) => {
                 size="middle"
                 bordered
                 pagination={pagination}
-                loading={loadingData || loading}
+                loading={loadingData}
                 rowKey={(record) => {
                     // Для теста==========================================
                     if (specKey === 'testData') {

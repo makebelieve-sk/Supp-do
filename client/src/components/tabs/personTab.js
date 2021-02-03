@@ -104,8 +104,18 @@ export const PersonTab = ({add, specKey, onRemove, loadingData, tabData}) => {
 
     // Установка начального значения выпадающего списка, если вкладка редактируется
     useEffect(() => {
-        form.setFieldsValue({name: initialName, notes: initialNotes, tabNumber: initialTabNumber, department: initialDepartmentName, profession: initialProfName});
-    }, [form, initialName, initialNotes, initialTabNumber, initialDepartmentName, initialProfName]);
+        if (tabData) {
+            form.setFieldsValue({
+                name: initialName,
+                notes: initialNotes,
+                tabNumber: initialTabNumber,
+                department: initialDepartmentName,
+                profession: initialProfName
+            });
+        } else {
+            return null;
+        }
+    }, [form, initialName, initialNotes, initialTabNumber, initialDepartmentName, initialProfName, tabData]);
 
     // При появлении ошибки, инициализируем окно вывода этой ошибки
     useEffect(() => {
@@ -224,7 +234,7 @@ export const PersonTab = ({add, specKey, onRemove, loadingData, tabData}) => {
                             title={title}
                             description={
                                 <Form labelCol={{span: 6}} wrapperCol={{span: 18}} style={{marginTop: '5%'}} form={form}
-                                      name="control-ref-person"
+                                      name={tabData ? `control-ref-person-${tabData.name}` : "control-ref-person"}
                                       onFinish={onSave} onFinishFailed={onFinishFailed}>
                                     <Form.Item
                                         label="ФИО"

@@ -69,8 +69,12 @@ export const DepartmentTab = ({add, specKey, onRemove, loadingData, tabData}) =>
 
     // Установка начального значения выпадающего списка, если вкладка редактируется
     useEffect(() => {
-        form.setFieldsValue({name: initialName, notes: initialNotes, parent: initialParent});
-    }, [form, initialName, initialNotes, initialParent]);
+        if (tabData) {
+            form.setFieldsValue({name: initialName, notes: initialNotes, parent: initialParent});
+        } else {
+            return null;
+        }
+    }, [form, initialName, initialNotes, initialParent, tabData]);
 
     // При появлении ошибки, инициализируем окно вывода этой ошибки
     useEffect(() => {
@@ -174,7 +178,8 @@ export const DepartmentTab = ({add, specKey, onRemove, loadingData, tabData}) =>
                             title={title}
                             description={
                                 <Form labelCol={{span: 6}} wrapperCol={{span: 18}} style={{marginTop: '5%'}} form={form}
-                                      name="control-ref-department" onFinish={onSave} onFinishFailed={onFinishFailed}>
+                                      name={tabData ? `control-ref-department-${tabData.name}` : "control-ref-department"}
+                                      onFinish={onSave} onFinishFailed={onFinishFailed}>
                                     <Form.Item name="parent" label="Принадлежит">
                                         <Select options={departmentsToOptions}
                                                 onChange={(newValue) => handleChange(newValue)}/>
