@@ -2,88 +2,88 @@ import store from "../../redux/store";
 import ActionCreator from "../../redux/actionCreators";
 import {ContentTab} from "./contentTab";
 
-// Получение вкладки таблицы "Профессии"
+// РџРѕР»СѓС‡РµРЅРёРµ РІРєР»Р°РґРєРё С‚Р°Р±Р»РёС†С‹ "РџСЂРѕС„РµСЃСЃРёРё"
 const getContentProfession = async (add, request, tabs) => {
-    // Создаем пустую вкладку 'Профессии', для отображения загрузки
-    add('Профессии', ContentTab, 'professions', tabs);
+    // РЎРѕР·РґР°РµРј РїСѓСЃС‚СѓСЋ РІРєР»Р°РґРєСѓ 'РџСЂРѕС„РµСЃСЃРёРё', РґР»СЏ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ Р·Р°РіСЂСѓР·РєРё
+    add('РџСЂРѕС„РµСЃСЃРёРё', ContentTab, 'professions', tabs);
 
     const professions = await request('/api/directory/professions');
 
-    // Получаем текущие вкладки
+    // РџРѕР»СѓС‡Р°РµРј С‚РµРєСѓС‰РёРµ РІРєР»Р°РґРєРё
     const currentTabs = store.getState().tabs;
 
     if (professions && professions.length > 0) {
         store.dispatch(ActionCreator.getAllProfessions(professions));
 
-        add('Профессии', ContentTab, 'professions', currentTabs);
+        add('РџСЂРѕС„РµСЃСЃРёРё', ContentTab, 'professions', currentTabs);
     }
 };
 
-// Получение вкладки таблицы "Профессии"
+// РџРѕР»СѓС‡РµРЅРёРµ РІРєР»Р°РґРєРё С‚Р°Р±Р»РёС†С‹ "РџСЂРѕС„РµСЃСЃРёРё"
 const getContentDepartment = async (add, request, tabs) => {
-    // Создаем пустую вкладку 'Подразделения', для отображения загрузки
-    add('Подразделения', ContentTab, 'departments', tabs);
+    // РЎРѕР·РґР°РµРј РїСѓСЃС‚СѓСЋ РІРєР»Р°РґРєСѓ 'РџРѕРґСЂР°Р·РґРµР»РµРЅРёСЏ', РґР»СЏ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ Р·Р°РіСЂСѓР·РєРё
+    add('РџРѕРґСЂР°Р·РґРµР»РµРЅРёСЏ', ContentTab, 'departments', tabs);
 
     const departments = await request('/api/directory/departments');
 
-    // Получаем текущие вкладки
+    // РџРѕР»СѓС‡Р°РµРј С‚РµРєСѓС‰РёРµ РІРєР»Р°РґРєРё
     const currentTabs = store.getState().tabs;
 
     if (departments && departments.length > 0) {
         store.dispatch(ActionCreator.getAllDepartments(departments));
 
-        add('Подразделения', ContentTab, 'departments', currentTabs);
+        add('РџРѕРґСЂР°Р·РґРµР»РµРЅРёСЏ', ContentTab, 'departments', currentTabs);
     }
 };
 
-// Получение вкладки таблицы "Профессии"
+// РџРѕР»СѓС‡РµРЅРёРµ РІРєР»Р°РґРєРё С‚Р°Р±Р»РёС†С‹ "РџСЂРѕС„РµСЃСЃРёРё"
 const getContentPerson = async (add, request, tabs) => {
-    // Создаем пустую вкладку 'Персонал', для отображения загрузки
-    add('Персонал', ContentTab, 'people', tabs);
+    // РЎРѕР·РґР°РµРј РїСѓСЃС‚СѓСЋ РІРєР»Р°РґРєСѓ 'РџРµСЂСЃРѕРЅР°Р»', РґР»СЏ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ Р·Р°РіСЂСѓР·РєРё
+    add('РџРµСЂСЃРѕРЅР°Р»', ContentTab, 'people', tabs);
 
     const people = await request('/api/directory/people');
 
-    // Получаем текущие вкладки
+    // РџРѕР»СѓС‡Р°РµРј С‚РµРєСѓС‰РёРµ РІРєР»Р°РґРєРё
     const currentTabs = store.getState().tabs;
 
     if (people && people.length > 0) {
         store.dispatch(ActionCreator.getAllPeople(people));
 
-        add('Персонал', ContentTab, 'people', currentTabs);
+        add('РџРµСЂСЃРѕРЅР°Р»', ContentTab, 'people', currentTabs);
     }
 };
 
-// Получение вкладки таблицы "Тестовые данные"
+// РџРѕР»СѓС‡РµРЅРёРµ РІРєР»Р°РґРєРё С‚Р°Р±Р»РёС†С‹ "РўРµСЃС‚РѕРІС‹Рµ РґР°РЅРЅС‹Рµ"
 const getContentTestData = (add, request, tabs) => {
-    // Создаем пустую вкладку 'Тестовые данные', для отображения загрузки
-    add('Тестовые данные', ContentTab, 'testData', tabs);
+    // РЎРѕР·РґР°РµРј РїСѓСЃС‚СѓСЋ РІРєР»Р°РґРєСѓ 'РўРµСЃС‚РѕРІС‹Рµ РґР°РЅРЅС‹Рµ', РґР»СЏ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ Р·Р°РіСЂСѓР·РєРё
+    add('РўРµСЃС‚РѕРІС‹Рµ РґР°РЅРЅС‹Рµ', ContentTab, 'testData', tabs);
 
     const testData = require("../../test.json");
 
-    // Получаем текущие вкладки
+    // РџРѕР»СѓС‡Р°РµРј С‚РµРєСѓС‰РёРµ РІРєР»Р°РґРєРё
     const currentTabs = store.getState().tabs;
 
     if (testData && testData.length > 0) {
         store.dispatch(ActionCreator.testData(testData));
 
-        add('Тестовые данные', ContentTab, 'testData', currentTabs);
+        add('РўРµСЃС‚РѕРІС‹Рµ РґР°РЅРЅС‹Рµ', ContentTab, 'testData', currentTabs);
     }
 };
 
-// Получение вкладки таблицы "Состояние заявки"
+// РџРѕР»СѓС‡РµРЅРёРµ РІРєР»Р°РґРєРё С‚Р°Р±Р»РёС†С‹ "РЎРѕСЃС‚РѕСЏРЅРёРµ Р·Р°СЏРІРєРё"
 const getContentTaskStatus = async (add, request, tabs) => {
-    // Создаем пустую вкладку 'Персонал', для отображения загрузки
-    add('Состояние заявки', ContentTab, 'tasks', tabs);
+    // РЎРѕР·РґР°РµРј РїСѓСЃС‚СѓСЋ РІРєР»Р°РґРєСѓ 'РџРµСЂСЃРѕРЅР°Р»', РґР»СЏ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ Р·Р°РіСЂСѓР·РєРё
+    add('РЎРѕСЃС‚РѕСЏРЅРёРµ Р·Р°СЏРІРєРё', ContentTab, 'tasks', tabs);
 
     const tasks = await request('/api/directory/taskStatus');
 
-    // Получаем текущие вкладки
+    // РџРѕР»СѓС‡Р°РµРј С‚РµРєСѓС‰РёРµ РІРєР»Р°РґРєРё
     const currentTabs = store.getState().tabs;
 
     if (tasks && tasks.length > 0) {
         store.dispatch(ActionCreator.getAllTasks(tasks));
 
-        add('Состояние заявки', ContentTab, 'tasks', currentTabs);
+        add('РЎРѕСЃС‚РѕСЏРЅРёРµ Р·Р°СЏРІРєРё', ContentTab, 'tasks', currentTabs);
     }
 };
 

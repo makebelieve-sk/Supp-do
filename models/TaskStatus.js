@@ -1,6 +1,6 @@
 const {Schema, model} = require("mongoose");
 
-// Создаем модель Состояние заявок
+// РЎРѕР·РґР°РµРј РјРѕРґРµР»СЊ РЎРѕСЃС‚РѕСЏРЅРёРµ Р·Р°СЏРІРѕРє
 const schema = new Schema({
     name: { type: String, required: true, unique: true },
     color: { type: String },

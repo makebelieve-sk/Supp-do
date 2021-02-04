@@ -61,7 +61,7 @@ const ExportMapHelper = (key) => {
         ['departments', headerDepartmentTable],
         ['people', headerPersonTable],
         ['testData', testDataHeader],
-        ['testData', headerTasksTable],
+        ['tasks', headerTasksTable],
     ]);
 
     if (rowSelector.has(key)) {

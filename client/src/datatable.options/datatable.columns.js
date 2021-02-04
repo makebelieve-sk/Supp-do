@@ -1,3 +1,5 @@
+import React from 'react';
+
 // Создание заголовка таблицы
 let headerProfessionTable = 'Наименование, Примечание';
 let headerDepartmentTable = 'Наименование, Примечание, Подразделение';
@@ -165,6 +167,14 @@ const TasksColumns = [
         width: 100,
         sorter: (a, b) => a.name.length - b.name.length,
         sortDirections: ['descend', 'ascend'],
+        render(text, record) {
+            return {
+                props: {
+                    style: { background: record.color },
+                },
+                children: <div>{text}</div>,
+            };
+        },
     },
     {
         title: 'Примечание',
@@ -173,6 +183,14 @@ const TasksColumns = [
         width: 100,
         sorter: (a, b) => a.notes.length - b.notes.length,
         sortDirections: ['descend', 'ascend'],
+        render(text, record) {
+            return {
+                props: {
+                    style: { background: record.color },
+                },
+                children: <div>{text}</div>,
+            };
+        },
     },
     {
         title: 'Завершено',
@@ -181,6 +199,14 @@ const TasksColumns = [
         width: 100,
         sorter: (a, b) => a.isFinish.length - b.isFinish.length,
         sortDirections: ['descend', 'ascend'],
+        render(text, record) {
+            return {
+                props: {
+                    style: { background: record.color },
+                },
+                children: <div>{text}</div>,
+            };
+        },
     },
 ];
 

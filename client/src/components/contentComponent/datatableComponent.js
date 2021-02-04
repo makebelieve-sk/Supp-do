@@ -39,6 +39,7 @@ export const DataTableComponent = ({add, specKey, loadingData}) => {
     let filteredItems = new Set();
 
     if (data && data.length > 0) {
+        // Если поле isFinish = true, то устанавливаем иконку "Галочка"
         if (specKey === 'tasks') {
             data.forEach(task => {
                 if (task.isFinish) {

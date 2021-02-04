@@ -7,7 +7,7 @@ import {
 
 import {message} from "antd";
 
-// Создание мапы соответствия для функций открытия вкладок с таблицами
+// РЎРѕР·РґР°РЅРёРµ РјР°РїС‹ СЃРѕРѕС‚РІРµС‚СЃС‚РІРёСЏ РґР»СЏ С„СѓРЅРєС†РёР№ РѕС‚РєСЂС‹С‚РёСЏ РІРєР»Р°РґРѕРє СЃ С‚Р°Р±Р»РёС†Р°РјРё
 const OpenSectionContentHelper = (key, add, request, tabs) => {
     const sectionSelector = new Map([
         ['professions', getContentProfession],
@@ -20,7 +20,7 @@ const OpenSectionContentHelper = (key, add, request, tabs) => {
     if (sectionSelector.has(key)) {
         sectionSelector.get(key)(add, request, tabs);
     } else {
-        let errorText = 'Возникли неполадки с ключем вкладки, попробуйте снова'
+        let errorText = 'Р’РѕР·РЅРёРєР»Рё РЅРµРїРѕР»Р°РґРєРё СЃ РєР»СЋС‡РµРј РІРєР»Р°РґРєРё, РїРѕРїСЂРѕР±СѓР№С‚Рµ СЃРЅРѕРІР°'
         message.error(errorText);
     }
 };

@@ -7,12 +7,12 @@ router.get('/taskStatus/:id', async (req, res) => {
         const task = await TaskStatus.findById({_id: req.params.id});
 
         if (!task) {
-            return res.status(400).json({message: "Такой записи не существует"});
+            return res.status(400).json({message: "РўР°РєРѕР№ Р·Р°РїРёСЃРё РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚"});
         }
 
         res.status(201).json({task: task});
     } catch (e) {
-        res.status(500).json({message: "Ошибка при открытии записи о состоянии заявки, пожалуйста, попробуйте снова"})
+        res.status(500).json({message: "РћС€РёР±РєР° РїСЂРё РѕС‚РєСЂС‹С‚РёРё Р·Р°РїРёСЃРё Рѕ СЃРѕСЃС‚РѕСЏРЅРёРё Р·Р°СЏРІРєРё, РїРѕР¶Р°Р»СѓР№СЃС‚Р°, РїРѕРїСЂРѕР±СѓР№С‚Рµ СЃРЅРѕРІР°"})
     }
 });
 
@@ -21,7 +21,7 @@ router.get('/taskStatus', async (req, res) => {
         const tasks = await TaskStatus.find({});
         res.json(tasks);
     } catch (e) {
-        res.status(500).json({message: "Ошибка при получении всех записей о состоянии заявок, пожалуйста, попробуйте снова"})
+        res.status(500).json({message: "РћС€РёР±РєР° РїСЂРё РїРѕР»СѓС‡РµРЅРёРё РІСЃРµС… Р·Р°РїРёСЃРµР№ Рѕ СЃРѕСЃС‚РѕСЏРЅРёРё Р·Р°СЏРІРѕРє, РїРѕР¶Р°Р»СѓР№СЃС‚Р°, РїРѕРїСЂРѕР±СѓР№С‚Рµ СЃРЅРѕРІР°"})
     }
 });
 
@@ -31,7 +31,7 @@ router.post('/taskStatus', async (req, res) => {
         const task = await TaskStatus.findOne({name});
 
         if (task) {
-            return res.status(400).json({message: "Такая запись уже существует"});
+            return res.status(400).json({message: "РўР°РєР°СЏ Р·Р°РїРёСЃСЊ СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚"});
         }
 
         const newTask = new TaskStatus({name: name, color: color, notes: notes, isFinish: isFinish})
@@ -40,9 +40,9 @@ router.post('/taskStatus', async (req, res) => {
 
         const currentTask = await TaskStatus.findOne({ name });
 
-        res.status(201).json({message: "Запись о состоянии заявки создана", task: currentTask});
+        res.status(201).json({message: "Р—Р°РїРёСЃСЊ Рѕ СЃРѕСЃС‚РѕСЏРЅРёРё Р·Р°СЏРІРєРё СЃРѕР·РґР°РЅР°", task: currentTask});
     } catch (e) {
-        res.status(500).json({message: "Ошибка при создании записи о состоянии заявки, пожалуйста, попробуйте снова"})
+        res.status(500).json({message: "РћС€РёР±РєР° РїСЂРё СЃРѕР·РґР°РЅРёРё Р·Р°РїРёСЃРё Рѕ СЃРѕСЃС‚РѕСЏРЅРёРё Р·Р°СЏРІРєРё, РїРѕР¶Р°Р»СѓР№СЃС‚Р°, РїРѕРїСЂРѕР±СѓР№С‚Рµ СЃРЅРѕРІР°"})
     }
 });
 
@@ -53,7 +53,7 @@ router.put('/taskStatus', async (req, res) => {
         const task = await TaskStatus.findById({_id});
 
         if (!task) {
-            return res.status(400).json({message: "Такая запись не найдена"});
+            return res.status(400).json({message: "РўР°РєР°СЏ Р·Р°РїРёСЃСЊ РЅРµ РЅР°Р№РґРµРЅР°"});
         }
 
         task.name = name;
@@ -63,9 +63,9 @@ router.put('/taskStatus', async (req, res) => {
 
         await task.save();
 
-        res.status(201).json({message: "Запись о состоянии заявки изменена", task: task});
+        res.status(201).json({message: "Р—Р°РїРёСЃСЊ Рѕ СЃРѕСЃС‚РѕСЏРЅРёРё Р·Р°СЏРІРєРё РёР·РјРµРЅРµРЅР°", task: task});
     } catch (e) {
-        res.status(500).json({message: "Ошибка при редактировании записи о состоянии заявки, пожалуйста, попробуйте снова"})
+        res.status(500).json({message: "РћС€РёР±РєР° РїСЂРё СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёРё Р·Р°РїРёСЃРё Рѕ СЃРѕСЃС‚РѕСЏРЅРёРё Р·Р°СЏРІРєРё, РїРѕР¶Р°Р»СѓР№СЃС‚Р°, РїРѕРїСЂРѕР±СѓР№С‚Рµ СЃРЅРѕРІР°"})
     }
 });
 
@@ -75,14 +75,14 @@ router.delete('/taskStatus', async (req, res) => {
         const task = await TaskStatus.findOne({name});
 
         if (!task) {
-            return res.status(400).json({message: "Такая запись не найдена"});
+            return res.status(400).json({message: "РўР°РєР°СЏ Р·Р°РїРёСЃСЊ РЅРµ РЅР°Р№РґРµРЅР°"});
         }
 
         await task.delete();
 
-        res.status(201).json({message: "Запись о состоянии заявки успешно удалена"});
+        res.status(201).json({message: "Р—Р°РїРёСЃСЊ Рѕ СЃРѕСЃС‚РѕСЏРЅРёРё Р·Р°СЏРІРєРё СѓСЃРїРµС€РЅРѕ СѓРґР°Р»РµРЅР°"});
     } catch (e) {
-        res.status(500).json({message: "Ошибка при удалении записи о состоянии заявки, пожалуйста, попробуйте снова"})
+        res.status(500).json({message: "РћС€РёР±РєР° РїСЂРё СѓРґР°Р»РµРЅРёРё Р·Р°РїРёСЃРё Рѕ СЃРѕСЃС‚РѕСЏРЅРёРё Р·Р°СЏРІРєРё, РїРѕР¶Р°Р»СѓР№СЃС‚Р°, РїРѕРїСЂРѕР±СѓР№С‚Рµ СЃРЅРѕРІР°"})
     }
 });
 

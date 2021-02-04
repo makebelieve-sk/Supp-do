@@ -1,7 +1,14 @@
 import React, {useEffect, useState} from 'react';
-import {Card, Form, Input, Row, Col, Button, message, Skeleton, Checkbox} from 'antd';
+import {Card, Form, Input, Row, Col, Button, message, Skeleton, Checkbox, Dropdown} from 'antd';
 import {useSelector, useDispatch} from "react-redux";
-import {CheckOutlined, DeleteOutlined, PrinterOutlined, StopOutlined} from '@ant-design/icons';
+import { SketchPicker } from 'react-color';
+import {
+    CheckOutlined,
+    DeleteOutlined,
+    EditOutlined,
+    PrinterOutlined,
+    StopOutlined
+} from '@ant-design/icons';
 
 import {useHttp} from "../../hooks/http.hook";
 import ActionCreator from "../../redux/actionCreators";
@@ -9,24 +16,31 @@ import ActionCreator from "../../redux/actionCreators";
 const {Meta} = Card;
 
 export const TaskTab = ({add, specKey, onRemove, loadingData, tabData}) => {
-    // Установка спиннера загрузки при сохранении записи
+    // РЈСЃС‚Р°РЅРѕРІРєР° СЃРїРёРЅРЅРµСЂР° Р·Р°РіСЂСѓР·РєРё РїСЂРё СЃРѕС…СЂР°РЅРµРЅРёРё Р·Р°РїРёСЃРё
     const [loadingSave, setLoadingSave] = useState(false);
+    // РЎС‚РµР№С‚ РґР»СЏ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ РІС‹РїР°РґР°СЋС‰РµРіРѕ РјРµРЅСЋ РґР»СЏ РєРѕР»РѕРЅРѕРє
+    const [visible, setVisible] = useState(false);
 
-    // Получение функции создания запросов на сервер, состояний загрузки/загрузки при удалении элемента и ошибки,
-    // очищения ошибки
+    let initialColor = tabData ? tabData.color : '#FFFFFF';
+
+    // РЎС‚РµР№С‚ РґР»СЏ РїРѕР»СЏ "Р¦РІРµС‚"
+    const [color, setColor] = useState(initialColor);
+
+    // РџРѕР»СѓС‡РµРЅРёРµ С„СѓРЅРєС†РёРё СЃРѕР·РґР°РЅРёСЏ Р·Р°РїСЂРѕСЃРѕРІ РЅР° СЃРµСЂРІРµСЂ, СЃРѕСЃС‚РѕСЏРЅРёР№ Р·Р°РіСЂСѓР·РєРё/Р·Р°РіСЂСѓР·РєРё РїСЂРё СѓРґР°Р»РµРЅРёРё СЌР»РµРјРµРЅС‚Р° Рё РѕС€РёР±РєРё,
+    // РѕС‡РёС‰РµРЅРёСЏ РѕС€РёР±РєРё
     const {request, loadingDelete, error, clearError} = useHttp();
 
-    // Получение списка состояний заявок и загрузки записи из хранилища redux
+    // РџРѕР»СѓС‡РµРЅРёРµ СЃРїРёСЃРєР° СЃРѕСЃС‚РѕСЏРЅРёР№ Р·Р°СЏРІРѕРє Рё Р·Р°РіСЂСѓР·РєРё Р·Р°РїРёСЃРё РёР· С…СЂР°РЅРёР»РёС‰Р° redux
     const {tasks, loadingSkeleton} = useSelector((state) => ({
         tasks: state.tasks,
         loadingSkeleton: state.loadingSkeleton
     }));
     const dispatch = useDispatch();
 
-    // Определение начальных значений для полей "Наименование" и "Примечание"
-    let initialName, initialColor, initialNotes, initialIsFinish;
+    // РћРїСЂРµРґРµР»РµРЅРёРµ РЅР°С‡Р°Р»СЊРЅС‹С… Р·РЅР°С‡РµРЅРёР№ РґР»СЏ РїРѕР»РµР№ "РќР°РёРјРµРЅРѕРІР°РЅРёРµ" Рё "РџСЂРёРјРµС‡Р°РЅРёРµ"
+    let initialName, initialNotes, initialIsFinish;
 
-    // Если вкладка редактирования, то устанавливаем начальные значения для полей "Наименование", "Цвет" и "Примечание"
+    // Р•СЃР»Рё РІРєР»Р°РґРєР° СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ, С‚Рѕ СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј РЅР°С‡Р°Р»СЊРЅС‹Рµ Р·РЅР°С‡РµРЅРёСЏ РґР»СЏ РїРѕР»РµР№ "РќР°РёРјРµРЅРѕРІР°РЅРёРµ", "Р¦РІРµС‚" Рё "РџСЂРёРјРµС‡Р°РЅРёРµ"
     if (tabData) {
         initialName = tabData.name;
         initialColor = tabData.color;
@@ -34,19 +48,21 @@ export const TaskTab = ({add, specKey, onRemove, loadingData, tabData}) => {
         initialIsFinish = tabData.isFinish;
     }
 
-    // Инициализация хука useForm() от Form antd
+    // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ С…СѓРєР° useForm() РѕС‚ Form antd
     const [form] = Form.useForm();
 
-    // Установка начальных значений полей "Наименование", "Цвет" и "Примечание", и если вкладка редактируется
+    // РЈСЃС‚Р°РЅРѕРІРєР° РЅР°С‡Р°Р»СЊРЅС‹С… Р·РЅР°С‡РµРЅРёР№ РїРѕР»РµР№ "РќР°РёРјРµРЅРѕРІР°РЅРёРµ", "Р¦РІРµС‚" Рё "РџСЂРёРјРµС‡Р°РЅРёРµ", Рё РµСЃР»Рё РІРєР»Р°РґРєР° СЂРµРґР°РєС‚РёСЂСѓРµС‚СЃСЏ
+    // РўР°РєР¶Рµ СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј С‚РµРєСѓС‰РёР№ С†РІРµС‚ РІ СЃС‚РµР№С‚
     useEffect(() => {
         if (tabData) {
+            setColor(initialColor);
             form.setFieldsValue({name: initialName, color: initialColor, notes: initialNotes, isFinish: initialIsFinish});
         } else {
             return null;
         }
     }, [form, initialName, initialColor, initialNotes, initialIsFinish, tabData]);
 
-    // При появлении ошибки, инициализируем окно вывода этой ошибки
+    // РџСЂРё РїРѕСЏРІР»РµРЅРёРё РѕС€РёР±РєРё, РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј РѕРєРЅРѕ РІС‹РІРѕРґР° СЌС‚РѕР№ РѕС€РёР±РєРё
     useEffect(() => {
         if (error) {
             message.error(error);
@@ -55,9 +71,9 @@ export const TaskTab = ({add, specKey, onRemove, loadingData, tabData}) => {
         clearError();
     }, [dispatch, error, request, clearError]);
 
-    let title = specKey === 'newTask' ? 'Создание записи о состоянии заявки' : 'Редактирование записи о состоянии заявки';
+    let title = specKey === 'newTask' ? 'РЎРѕР·РґР°РЅРёРµ Р·Р°РїРёСЃРё Рѕ СЃРѕСЃС‚РѕСЏРЅРёРё Р·Р°СЏРІРєРё' : 'Р РµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ Р·Р°РїРёСЃРё Рѕ СЃРѕСЃС‚РѕСЏРЅРёРё Р·Р°СЏРІРєРё';
 
-    // Функция сохранения записи
+    // Р¤СѓРЅРєС†РёСЏ СЃРѕС…СЂР°РЅРµРЅРёСЏ Р·Р°РїРёСЃРё
     const onSave = async (values) => {
         try {
             setLoadingSave(true);
@@ -72,11 +88,11 @@ export const TaskTab = ({add, specKey, onRemove, loadingData, tabData}) => {
 
                 message.success(data.message);
 
-                // Удаление текущей вкладки
+                // РЈРґР°Р»РµРЅРёРµ С‚РµРєСѓС‰РµР№ РІРєР»Р°РґРєРё
                 onRemove(specKey, 'remove');
 
-                // Если это редактирование записи, то происходит изменение записи в хранилище redux,
-                // иначе происходит запись новой записи в хранилище redux
+                // Р•СЃР»Рё СЌС‚Рѕ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ Р·Р°РїРёСЃРё, С‚Рѕ РїСЂРѕРёСЃС…РѕРґРёС‚ РёР·РјРµРЅРµРЅРёРµ Р·Р°РїРёСЃРё РІ С…СЂР°РЅРёР»РёС‰Рµ redux,
+                // РёРЅР°С‡Рµ РїСЂРѕРёСЃС…РѕРґРёС‚ Р·Р°РїРёСЃСЊ РЅРѕРІРѕР№ Р·Р°РїРёСЃРё РІ С…СЂР°РЅРёР»РёС‰Рµ redux
                 !tabData ?
                     dispatch(ActionCreator.createTask(data.task)) :
                     tasks.forEach((task, index) => {
@@ -89,7 +105,7 @@ export const TaskTab = ({add, specKey, onRemove, loadingData, tabData}) => {
         }
     };
 
-    // Функция удаления записи
+    // Р¤СѓРЅРєС†РёСЏ СѓРґР°Р»РµРЅРёСЏ Р·Р°РїРёСЃРё
     const deleteHandler = async () => {
         try {
             if (tabData) {
@@ -98,10 +114,10 @@ export const TaskTab = ({add, specKey, onRemove, loadingData, tabData}) => {
                 if (data) {
                     message.success(data.message);
 
-                    // Удаление текущей вкладки
+                    // РЈРґР°Р»РµРЅРёРµ С‚РµРєСѓС‰РµР№ РІРєР»Р°РґРєРё
                     onRemove(specKey, 'remove');
 
-                    // Удаляем запись из хранилища redux
+                    // РЈРґР°Р»СЏРµРј Р·Р°РїРёСЃСЊ РёР· С…СЂР°РЅРёР»РёС‰Р° redux
                     tasks.forEach((task, index) => {
                         if (task._id === tabData._id) {
                             dispatch(ActionCreator.deleteTask(index));
@@ -113,16 +129,36 @@ export const TaskTab = ({add, specKey, onRemove, loadingData, tabData}) => {
         }
     };
 
-    // Вывод сообщения валидации формы
+    // Р’С‹РІРѕРґ СЃРѕРѕР±С‰РµРЅРёСЏ РІР°Р»РёРґР°С†РёРё С„РѕСЂРјС‹
     const onFinishFailed = () => {
-        message.error('Заполните обязательные поля');
+        message.error('Р—Р°РїРѕР»РЅРёС‚Рµ РѕР±СЏР·Р°С‚РµР»СЊРЅС‹Рµ РїРѕР»СЏ');
     };
 
-    // Функция нажатия на кнопку "Отмена"
+    // Р¤СѓРЅРєС†РёСЏ РЅР°Р¶Р°С‚РёСЏ РЅР° РєРЅРѕРїРєСѓ "РћС‚РјРµРЅР°"
     const cancelHandler = () => {
-        // Удаляем текущую вкладку
+        // РЈРґР°Р»СЏРµРј С‚РµРєСѓС‰СѓСЋ РІРєР»Р°РґРєСѓ
         onRemove(specKey, 'remove');
     }
+
+    // РЎРѕР·РґР°РЅРёРµ РїРµСЂРµРјРµРЅРЅРѕР№ РґР»СЏ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ РІС‹РїР°РґР°СЋС‰РµРіРѕ СЃРїРёСЃРєР° РґР»СЏ РєРѕР»РѕРЅРѕРє
+    let component = <>
+        <SketchPicker
+            color={color}
+            onChangeComplete={(newColor, event) => {
+                if (event.type === 'mousedown') {
+                    // РћР±РЅРѕРІР»СЏРµРј Р·РЅР°С‡РµРЅРёРµ РёРЅРїСѓС‚Р° С†РІРµС‚Р° СЃ РїРѕРјРѕС‰СЊСЋ С…СѓРєР° useForm
+                    form.setFieldsValue({color: newColor.hex.toUpperCase()});
+                    // РћР±РЅРѕРІР»СЏРµРј СЃС‚РµР№С‚ С†РІРµС‚Р°
+                    setColor(newColor.hex.toUpperCase());
+                }
+            }}
+        />
+    </>;
+
+    // Р¤СѓРЅРєС†РёСЏ РґР»СЏ РёР·РјРµРЅРµРЅРёСЏ СЃС‚РµР№С‚Р° РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ С†РІРµС‚РѕРІРѕРіРѕ РїРёРєРµСЂР°
+    const handleVisibleChange = flag => {
+        setVisible(flag);
+    };
 
     return (
         <Row className="container-tab" justify="center">
@@ -132,61 +168,82 @@ export const TaskTab = ({add, specKey, onRemove, loadingData, tabData}) => {
                         <Meta
                             title={title}
                             description={
-                                <Form style={{marginTop: '5%'}} form={form}
+                                <Form style={{marginTop: '5%'}} form={form} labelCol={{span: 6}}
                                       name={tabData ? `control-ref-task-${tabData.name}` : "control-ref-task"}
                                       onFinish={onSave} onFinishFailed={onFinishFailed}>
                                     <Form.Item
-                                        label="Наименование"
+                                        label="РќР°РёРјРµРЅРѕРІР°РЅРёРµ"
                                         name="name"
                                         initialValue={!tabData ? '' : tabData.name}
-                                        rules={[{required: true, message: 'Введите наименование записи!'}]}
+                                        rules={[{required: true, message: 'Р’РІРµРґРёС‚Рµ РЅР°РёРјРµРЅРѕРІР°РЅРёРµ Р·Р°РїРёСЃРё!'}]}
                                     >
                                         <Input maxLength={255} type="text"/>
                                     </Form.Item>
 
-                                    <Form.Item
-                                        name="color"
-                                        label="Цвет"
-                                        initialValue={!tabData ? '' : tabData.color}
-                                    >
-                                        <Input maxLength={255} type="text"/>
+                                    <Form.Item label="Р¦РІРµС‚">
+                                        <Row gutter={8}>
+                                            <Col xs={{span: 20}} sm={{span: 20}} md={{span: 22}} lg={{span: 22}}
+                                                 xl={{span: 22}}>
+                                                <Form.Item
+                                                    name="color"
+                                                    noStyle
+                                                    initialValue={color}
+                                                >
+                                                    <Input maxLength={255} type="text" disabled/>
+                                                </Form.Item>
+                                            </Col>
+                                            <Col xs={{span: 4}} sm={{span: 4}} md={{span: 2}} lg={{span: 2}}
+                                                 xl={{span: 2}}>
+                                                <Dropdown
+                                                    overlay={component}
+                                                    onVisibleChange={handleVisibleChange}
+                                                    visible={visible}
+                                                >
+                                                    <Button
+                                                        style={{width: '100%', backgroundColor: color}}
+                                                        icon={<EditOutlined/>}
+                                                        size="middle"
+                                                    />
+                                                </Dropdown>
+                                            </Col>
+                                        </Row>
                                     </Form.Item>
 
                                     <Form.Item
                                         name="notes"
-                                        label="Примечание"
+                                        label="РџСЂРёРјРµС‡Р°РЅРёРµ"
                                         initialValue={!tabData ? '' : tabData.notes}
                                     >
-                                        <Input maxLength={255} type="text"/>
+                                        <Input maxLength={255} type="text" />
                                     </Form.Item>
 
-                                    <Form.Item name="isFinish" valuePropName="checked">
-                                        <Checkbox>Завершено</Checkbox>
+                                    <Form.Item name="isFinish" valuePropName="checked" wrapperCol={{offset: 6}}>
+                                        <Checkbox>Р—Р°РІРµСЂС€РµРЅРѕ</Checkbox>
                                     </Form.Item>
 
                                     <Form.Item>
-                                        <Row justify="end" style={{marginTop: 20}}>
+                                        <Row justify="end" style={{marginTop: 20}} xs={{gutter: [8, 8]}}>
                                             <Button className="button-style" type="primary" htmlType="submit"
                                                     loading={loadingSave}
                                                     icon={<CheckOutlined/>}>
-                                                Сохранить
+                                                РЎРѕС…СЂР°РЅРёС‚СЊ
                                             </Button>
                                             {!tabData ? null :
                                                 <>
                                                     <Button className="button-style" type="danger" onClick={deleteHandler}
                                                             loading={loadingDelete} icon={<DeleteOutlined/>}>
-                                                        Удалить
+                                                        РЈРґР°Р»РёС‚СЊ
                                                     </Button>
                                                     <Button className="button-style" type="secondary"
                                                             onClick={() => alert(1)}
                                                             icon={<PrinterOutlined/>}>
-                                                        Печать
+                                                        РџРµС‡Р°С‚СЊ
                                                     </Button>
                                                 </>
                                             }
                                             <Button className="button-style" type="secondary" onClick={cancelHandler}
                                                     icon={<StopOutlined/>}>
-                                                Отмена
+                                                РћС‚РјРµРЅР°
                                             </Button>
                                         </Row>
                                     </Form.Item>
