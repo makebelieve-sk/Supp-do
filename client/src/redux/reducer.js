@@ -21,7 +21,10 @@ import {
     DELETE_TASK,
     SET_PREV_ACTIVE_TAB,
     SET_LOADING_SKELETON,
-    TEST_DATA,
+    CREATE_EQUIPMENT_PROPERTY,
+    EDIT_EQUIPMENT_PROPERTY,
+    DELETE_EQUIPMENT_PROPERTY,
+    GET_ALL_EQUIPMENT_PROPERTIES,
 } from "./actionsConstants";
 
 export default function reducer(state = initialState, action) {
@@ -61,6 +64,28 @@ export default function reducer(state = initialState, action) {
             return {
                 ...state,
                 tasks: action.payload
+            };
+        case CREATE_EQUIPMENT_PROPERTY:
+            return {
+                ...state,
+                equipmentProperties: [ ...state.equipmentProperties, action.payload ]
+            };
+        case EDIT_EQUIPMENT_PROPERTY:
+            return {
+                ...state,
+                equipmentProperties: [ ...state.equipmentProperties.slice(0, action.index), action.payload,
+                    ...state.equipmentProperties.slice(action.index + 1) ]
+            };
+        case DELETE_EQUIPMENT_PROPERTY:
+            return {
+                ...state,
+                equipmentProperties: [ ...state.equipmentProperties.slice(0, action.payload),
+                    ...state.equipmentProperties.slice(action.payload + 1) ]
+            };
+        case GET_ALL_EQUIPMENT_PROPERTIES:
+            return {
+                ...state,
+                equipmentProperties: action.payload
             };
         case CREATE_PROFESSION:
             return {
@@ -140,13 +165,6 @@ export default function reducer(state = initialState, action) {
                 ...state,
                 loadingSkeleton: action.payload
             };
-        // Для теста==========================================
-        case TEST_DATA:
-            return {
-                ...state,
-                testData: action.payload
-            };
-        // ===================================================
         default:
             return state;
     }

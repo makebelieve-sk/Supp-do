@@ -113,14 +113,7 @@ export const DataTableComponent = ({add, specKey, loadingData}) => {
                 bordered
                 pagination={pagination}
                 loading={loadingData}
-                rowKey={(record) => {
-                    // Для теста==========================================
-                    if (specKey === 'testData') {
-                        return record.global_id;
-                    }
-                    // ===================================================
-                    return record._id.toString()
-                }}
+                rowKey={(record) => record._id.toString()}
                 onRow={(row) => ({
                     onClick: () => {
                         // Открытие новой вкладки для редактирования записи

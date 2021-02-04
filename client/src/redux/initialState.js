@@ -7,11 +7,9 @@ const initialState = {
     departments: [],
     people: [],
     tasks: [],
+    equipmentProperties: [],
     editTab: null,
     loadingSkeleton: false,
-    // Для теста==========================================
-    testData: null
-    // ===================================================
 };
 
 export default initialState;

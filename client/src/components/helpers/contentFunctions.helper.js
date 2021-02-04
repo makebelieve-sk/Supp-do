@@ -53,23 +53,6 @@ const getContentPerson = async (add, request, tabs) => {
     }
 };
 
-// Получение вкладки таблицы "Тестовые данные"
-const getContentTestData = (add, request, tabs) => {
-    // Создаем пустую вкладку 'Тестовые данные', для отображения загрузки
-    add('Тестовые данные', ContentTab, 'testData', tabs);
-
-    const testData = require("../../test.json");
-
-    // Получаем текущие вкладки
-    const currentTabs = store.getState().tabs;
-
-    if (testData && testData.length > 0) {
-        store.dispatch(ActionCreator.testData(testData));
-
-        add('Тестовые данные', ContentTab, 'testData', currentTabs);
-    }
-};
-
 // Получение вкладки таблицы "Состояние заявки"
 const getContentTaskStatus = async (add, request, tabs) => {
     // Создаем пустую вкладку 'Персонал', для отображения загрузки
@@ -87,10 +70,27 @@ const getContentTaskStatus = async (add, request, tabs) => {
     }
 };
 
+// Размещение вкладки с таблицей "Характеристики оборудования"
+const getContentEquipmentProperty = async (add, request, tabs) => {
+    // Создаем пустую вкладку 'Характеристики оборудования', для отображения загрузки
+    add('Характеристики оборудования', ContentTab, 'equipmentProperties', tabs);
+
+    const items = await request('/api/directory/equipment-property');
+
+    // Получаем текущие вкладки
+    const currentTabs = store.getState().tabs;
+
+    if (items && items.length > 0) {
+        store.dispatch(ActionCreator.getAllEquipmentProperties(items));
+
+        add('Характеристики оборудования', ContentTab, 'equipmentProperties', currentTabs);
+    }
+};
+
 export {
     getContentProfession,
     getContentDepartment,
     getContentPerson,
-    getContentTestData,
-    getContentTaskStatus
+    getContentTaskStatus,
+    getContentEquipmentProperty
 }

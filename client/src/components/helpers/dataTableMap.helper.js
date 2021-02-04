@@ -1,77 +1,74 @@
+// Помощник для работы с DataTable
 import {
     headerProfessionTable,
     headerDepartmentTable,
     headerPersonTable,
-    testDataHeader,
     headerTasksTable,
+    headerEquipmentPropertyTable,
 
     DepartmentColumns,
     PersonColumns,
     ProfessionColumns,
-    testData,
     TasksColumns,
+    EquipmentPropertyColumns
 } from "../../datatable.options/datatable.columns";
-import {getProfession, getDepartment, getPerson, getTask} from "./rowFunctions.helper";
+import {getProfession, getDepartment, getPerson, getTask, getEquipmentProperty} from "./rowFunctions.helper";
 import {message} from "antd";
 
-// Создание мапы соответствия для функций открытия/редактирования вкладок
+// Карта соответсвия ключей и строк, колонок и заголовков экспорта
+const map = new Map([
+    ['professions', {getRow: getProfession, getColumns: ProfessionColumns, getExportHeaders: headerProfessionTable}],
+    ['departments', {getRow: getDepartment, getColumns: DepartmentColumns, getExportHeaders: headerDepartmentTable}],
+    ['people', {getRow: getPerson, getColumns: PersonColumns, getExportHeaders: headerPersonTable}],
+    ['tasks', {getRow: getTask, getColumns: TasksColumns, getExportHeaders: headerTasksTable}],
+    ['equipmentProperties', {getRow: getEquipmentProperty, getColumns: EquipmentPropertyColumns, getExportHeaders: headerEquipmentPropertyTable}],
+]);
+
+/**
+ * Создание мапы соответствия для функций открытия/редактирования вкладок
+ * @param key - ключ для поиска компонента, добавляемого во вкладку
+ * @param add - функция для созданя новой вкладки
+ * @param tabs - текущий массив вкладок
+ * @param request - функция запроса
+ * @param row - редактируемая строка
+ * @constructor
+ */
 const RowMapHelper = (key, add, tabs, request, row) => {
-    const rowSelector = new Map([
-        ['professions', getProfession],
-        ['departments', getDepartment],
-        ['people', getPerson],
-        ['tasks', getTask],
-    ]);
-
-    if (rowSelector.has(key)) {
-        rowSelector.get(key)(add, tabs, request, row);
+    if (map.has(key)) {
+        map.get(key).getRow(add, tabs, request, row);
     } else {
-        let errorText = 'Возникли неполадки с ключем вкладки, попробуйте снова'
-        message.error(errorText);
+        message.error(`Раздел с ключём ${key} не существует (создание строк)`).then(r => console.log(r));
     }
 };
 
-// Создание мапы соответствия для колонок таблицы
+/**
+ * Создание мапы соответствия передаваемого ключа и колонок таблицы
+ * @param key - ключ раздела
+ * @returns массив колонок
+ * @constructor
+ */
 const ColumnsMapHelper = (key) => {
-    let columns;
-    const columnSelector = new Map([
-        ['professions', ProfessionColumns],
-        ['departments', DepartmentColumns],
-        ['people', PersonColumns],
-        ['testData', testData],
-        ['tasks', TasksColumns],
-    ]);
-
-    if (columnSelector.has(key)) {
-        columns = columnSelector.get(key);
+    if (map.has(key)) {
+        return map.get(key).getColumns;
     } else {
-        let errorText = 'Возникли неполадки с ключем вкладки, попробуйте снова'
-        message.error(errorText);
+        message.error(`Раздел с ключём ${key} не существует (создание колонок)`)
+            .then(r => console.log(r));
     }
-
-    return columns;
 };
 
-// Создание мапы соответствия заголовков таблицы
+/**
+ * Создание мапы соответствия ключей и заголовков таблицы для экспорта
+ * @param key - ключ раздела
+ * @returns строку заголовка таблицы
+ * @constructor
+ */
 const ExportMapHelper = (key) => {
-    let headerDataTable = '';
-
-    const rowSelector = new Map([
-        ['professions', headerProfessionTable],
-        ['departments', headerDepartmentTable],
-        ['people', headerPersonTable],
-        ['testData', testDataHeader],
-        ['tasks', headerTasksTable],
-    ]);
-
-    if (rowSelector.has(key)) {
-        headerDataTable = rowSelector.get(key);
+    if (map.has(key)) {
+        return map.get(key).getExportHeaders;
     } else {
-        let errorText = 'Возникли неполадки с ключем вкладки, попробуйте снова'
-        message.error(errorText);
+        message.error(`Раздел с ключём ${key} не существует (создание заголовков экспорта)`)
+            .then(r => console.log(r));
     }
-
-    return headerDataTable;
 };
 
 export {

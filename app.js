@@ -6,11 +6,13 @@ const app = express();
 
 app.use(express.json({extended: true}));
 
+// Регистрируем маршруты
 app.use('/api/auth', require("./routes/route.auth"));
 app.use('/api/directory', require("./routes/route.profession"));
 app.use('/api/directory', require("./routes/route.department"));
 app.use('/api/directory', require("./routes/route.person"));
 app.use('/api/directory', require("./routes/route.taskStatus"));
+app.use('/api/directory', require("./routes/route.equipmentProperty"));
 
 const PORT = config.port || 5000;
 

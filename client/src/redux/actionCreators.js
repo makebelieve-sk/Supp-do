@@ -6,6 +6,7 @@ import {
     GET_ALL_DEPARTMENTS,
     GET_ALL_PEOPLE,
     GET_ALL_TASKS,
+    GET_ALL_EQUIPMENT_PROPERTIES,
     CREATE_PROFESSION,
     EDIT_PROFESSION,
     DELETE_PROFESSION,
@@ -18,9 +19,11 @@ import {
     CREATE_TASK,
     EDIT_TASK,
     DELETE_TASK,
+    CREATE_EQUIPMENT_PROPERTY,
+    EDIT_EQUIPMENT_PROPERTY,
+    DELETE_EQUIPMENT_PROPERTY,
     SET_PREV_ACTIVE_TAB,
-    SET_LOADING_SKELETON,
-    TEST_DATA,
+    SET_LOADING_SKELETON
 } from "./actionsConstants";
 
 const ActionCreator = {
@@ -72,6 +75,35 @@ const ActionCreator = {
         return {
             type: GET_ALL_TASKS,
             payload: tasks
+        }
+    },
+    // Добавление характеристики оборудования
+    createEquipmentProperty: (equipmentProperty) => {
+        return {
+            type: CREATE_EQUIPMENT_PROPERTY,
+            payload: equipmentProperty
+        }
+    },
+    // Изменение характеристики оборудования
+    editEquipmentProperty: (index, editTab) => {
+        return {
+            type: EDIT_EQUIPMENT_PROPERTY,
+            payload: editTab,
+            index: index
+        }
+    },
+    // Удаление характеристики оборудования
+    deleteEquipmentProperty: (index) => {
+        return {
+            type: DELETE_EQUIPMENT_PROPERTY,
+            payload: index
+        }
+    },
+    // Получение всех характеристик оборудования
+    getAllEquipmentProperties: (equipmentProperties) => {
+        return {
+            type: GET_ALL_EQUIPMENT_PROPERTIES,
+            payload: equipmentProperties
         }
     },
     // Добавление профессии
@@ -175,14 +207,6 @@ const ActionCreator = {
             payload: loading
         }
     },
-    // Для теста==========================================
-    testData: (array) => {
-        return {
-            type: TEST_DATA,
-            payload: array
-        }
-    },
-    // ===================================================
 }
 
 export default ActionCreator;

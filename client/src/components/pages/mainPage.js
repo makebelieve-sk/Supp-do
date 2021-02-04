@@ -1,3 +1,4 @@
+// Главная страница
 import React, {useState, useEffect, useContext} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
 import {Layout, Menu, Button, Tabs, message, Row, Col, Modal, Dropdown, Avatar} from 'antd';
@@ -162,8 +163,8 @@ export const MainPage = () => {
                             >Персонал</Menu.Item>
                         </SubMenu>
                         <SubMenu title="Оборудование">
-                            <Menu.Item key="characteristics"
-                                       onClick={() => OpenSectionContentHelper('testData', add, request, tabs)}
+                            <Menu.Item key="equipmentProperties"
+                                       onClick={() => OpenSectionContentHelper('equipmentProperties', add, request, tabs)}
                             >Характеристики оборудования</Menu.Item>
                             <Menu.Item key="list">Перечень оборудования</Menu.Item>
                             <Menu.Item key="tasks"

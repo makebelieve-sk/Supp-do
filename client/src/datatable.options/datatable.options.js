@@ -32,10 +32,7 @@ const convertArrayOfObjectsToCSV = (array, name) => {
     let keys = Object.keys(array[0]);
 
     keys.splice(0, 1);
-
-    if (name !== 'testData') {
-        keys.splice(keys.length - 1, 1);
-    }
+    keys.splice(keys.length - 1, 1);
 
     result = '';
     result += headerDataTable;

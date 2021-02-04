@@ -2,6 +2,7 @@ import {ProfessionTab} from "../tabs/professionTab";
 import {DepartmentTab} from "../tabs/departmentTab";
 import {PersonTab} from "../tabs/personTab";
 import {TaskTab} from "../tabs/taskTab";
+import {EquipmentPropertyTab} from "../tabs/EquipmentPropertyTab";
 import store from "../../redux/store";
 import ActionCreator from "../../redux/actionCreators";
 
@@ -111,6 +112,41 @@ const getTask = async (add, tabs, request, row) => {
     store.dispatch(ActionCreator.setLoadingSkeleton(false));
 };
 
+//
+/**
+ * Добавление и заполнение вкладки "Характеристики оборудования"
+ * @param add -  функция для созданя новой вкладки
+ * @param tabs - текущий массив вкладок
+ * @param request - функция запроса
+ * @param row - редактируемая вкладка
+ * @returns Функцию добавления вкладки
+ */
+const getEquipmentProperty = async (add, tabs, request, row) => {
+    // Устанавливаем загрузку скелетона при открытии записи
+    store.dispatch(ActionCreator.setLoadingSkeleton(true));
+
+    if (request === null && row === null) {
+        // Добавляем вкладку 'Создание записи о характеристике оборудования'
+        add('Создание записи о характеристике оборудования', EquipmentPropertyTab, 'newEquipmentProperty', tabs, row);
+    } else {
+        // Создаем пустую вкладку 'Редактирование записи о характеристике оборудования', для отображения загрузки
+        add('Редактирование записи о характеристике оборудования', EquipmentPropertyTab, 'updateEquipmentProperty', tabs);
+
+        // Получаем текущие вкладки
+        const currentTabs = store.getState().tabs;
+
+        // Отправляем запрос на получение выбранной записи о состоянии заявки
+        let data = await request('/api/directory/equipment-property/' + row._id);
+        if (data) {
+            // Изменяем вкладку 'Редактирование записи о характеристике оборудования', добавленную ранее
+            add('Редактирование записи о характеристике оборудования', EquipmentPropertyTab,
+                'updateEquipmentProperty', currentTabs, data.equipmentProperty);
+        }
+    }
+
+    store.dispatch(ActionCreator.setLoadingSkeleton(false));
+};
+
 export {
-    getProfession, getDepartment, getPerson, getTask
+    getProfession, getDepartment, getPerson, getTask, getEquipmentProperty
 }
