@@ -95,32 +95,4 @@ router.post(
     }
 });
 
-// router.put('/departments', async (req, res) => {
-//     try {
-//         const {name, notes, parent} = req.body.values;
-//         const {_id} = req.body.editTab;
-//         const department = await Department.findById({_id}).populate('parent');
-//
-//         if (!department) {
-//             return res.status(400).json({message: "Такое подразделение не найдено"});
-//         }
-//
-//         if (parent) {
-//             if (name === parent.name) {
-//                 return res.status(400).json({message: "Отдел не может принадлежать сам себе"});
-//             }
-//         }
-//
-//         department.name = name;
-//         department.notes = notes;
-//         department.parent = parent;
-//
-//         await department.save();
-//
-//         res.status(201).json({message: "Подразделение изменено", department: department});
-//     } catch (e) {
-//         res.status(500).json({message: "Ошибка при редактировании подразделения, пожалуйста, попробуйте снова"})
-//     }
-// });
-
 module.exports = router;

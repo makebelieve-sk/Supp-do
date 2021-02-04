@@ -70,9 +70,27 @@ const getContentTestData = (add, request, tabs) => {
     }
 };
 
+// Получение вкладки таблицы "Состояние заявки"
+const getContentTaskStatus = async (add, request, tabs) => {
+    // Создаем пустую вкладку 'Персонал', для отображения загрузки
+    add('Состояние заявки', ContentTab, 'tasks', tabs);
+
+    const tasks = await request('/api/directory/taskStatus');
+
+    // Получаем текущие вкладки
+    const currentTabs = store.getState().tabs;
+
+    if (tasks && tasks.length > 0) {
+        store.dispatch(ActionCreator.getAllTasks(tasks));
+
+        add('Состояние заявки', ContentTab, 'tasks', currentTabs);
+    }
+};
+
 export {
     getContentProfession,
     getContentDepartment,
     getContentPerson,
-    getContentTestData
+    getContentTestData,
+    getContentTaskStatus
 }

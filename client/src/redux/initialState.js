@@ -6,6 +6,7 @@ const initialState = {
     professions: [],
     departments: [],
     people: [],
+    tasks: [],
     editTab: null,
     loadingSkeleton: false,
     // Для теста==========================================

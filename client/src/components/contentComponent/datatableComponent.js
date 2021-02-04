@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {useSelector} from 'react-redux';
 import {message, Row, Table} from "antd";
+import {CheckOutlined} from '@ant-design/icons';
 
 import {downloadCSV, pagination} from '../../datatable.options/datatable.options';
 import {HeaderDatatable} from './headerDatatable';
@@ -38,6 +39,14 @@ export const DataTableComponent = ({add, specKey, loadingData}) => {
     let filteredItems = new Set();
 
     if (data && data.length > 0) {
+        if (specKey === 'tasks') {
+            data.forEach(task => {
+                if (task.isFinish) {
+                    task.isFinish = <CheckOutlined />;
+                }
+            })
+        }
+
         // Получаем ключи - столбцы таблицы
         dataKeys = Object.keys(data[0]);
 

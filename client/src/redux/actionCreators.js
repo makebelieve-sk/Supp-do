@@ -5,6 +5,7 @@ import {
     GET_ALL_PROFESSIONS,
     GET_ALL_DEPARTMENTS,
     GET_ALL_PEOPLE,
+    GET_ALL_TASKS,
     CREATE_PROFESSION,
     EDIT_PROFESSION,
     DELETE_PROFESSION,
@@ -14,9 +15,12 @@ import {
     CREATE_PERSON,
     EDIT_PERSON,
     DELETE_PERSON,
+    CREATE_TASK,
+    EDIT_TASK,
+    DELETE_TASK,
     SET_PREV_ACTIVE_TAB,
     SET_LOADING_SKELETON,
-    TEST_DATA
+    TEST_DATA,
 } from "./actionsConstants";
 
 const ActionCreator = {
@@ -61,6 +65,13 @@ const ActionCreator = {
         return {
             type: GET_ALL_PEOPLE,
             payload: people
+        }
+    },
+    // Добавление состояния заявок
+    getAllTasks: (tasks) => {
+        return {
+            type: GET_ALL_TASKS,
+            payload: tasks
         }
     },
     // Добавление профессии
@@ -126,6 +137,28 @@ const ActionCreator = {
     deletePerson: (index) => {
         return {
             type: DELETE_PERSON,
+            payload: index
+        }
+    },
+    // Добавление записи о состоянии заявки
+    createTask: (task) => {
+        return {
+            type: CREATE_TASK,
+            payload: task
+        }
+    },
+    // Изменение записи о состоянии заявки
+    editTask: (index, editTab) => {
+        return {
+            type: EDIT_TASK,
+            payload: editTab,
+            index: index
+        }
+    },
+    // Удаление записи о состоянии заявки
+    deleteTask: (index) => {
+        return {
+            type: DELETE_TASK,
             payload: index
         }
     },

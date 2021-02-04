@@ -1,7 +1,7 @@
 import {
     getContentDepartment,
     getContentPerson,
-    getContentProfession,
+    getContentProfession, getContentTaskStatus,
     getContentTestData
 } from "./contentFunctions.helper";
 
@@ -14,6 +14,7 @@ const OpenSectionContentHelper = (key, add, request, tabs) => {
         ['departments', getContentDepartment],
         ['people', getContentPerson],
         ['testData', getContentTestData],
+        ['tasks', getContentTaskStatus],
     ]);
 
     if (sectionSelector.has(key)) {

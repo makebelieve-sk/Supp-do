@@ -75,15 +75,10 @@ export const TreeComponent = () => {
         createTree(treeData, true);
     }
 
-    const onExpand = () => {
-        console.log('expand');
-    }
-
     return (
         <Row className="tree-wrapper">
             <DirectoryTree
                 treeData={treeData}
-                onExpand={onExpand}
             />
         </Row>
     );

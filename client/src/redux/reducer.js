@@ -6,6 +6,7 @@ import {
     GET_ALL_PROFESSIONS,
     GET_ALL_DEPARTMENTS,
     GET_ALL_PEOPLE,
+    GET_ALL_TASKS,
     CREATE_PROFESSION,
     EDIT_PROFESSION,
     DELETE_PROFESSION,
@@ -15,6 +16,9 @@ import {
     CREATE_PERSON,
     EDIT_PERSON,
     DELETE_PERSON,
+    CREATE_TASK,
+    EDIT_TASK,
+    DELETE_TASK,
     SET_PREV_ACTIVE_TAB,
     SET_LOADING_SKELETON,
     TEST_DATA,
@@ -52,6 +56,11 @@ export default function reducer(state = initialState, action) {
             return {
                 ...state,
                 people: action.payload
+            };
+        case GET_ALL_TASKS:
+            return {
+                ...state,
+                tasks: action.payload
             };
         case CREATE_PROFESSION:
             return {
@@ -103,6 +112,23 @@ export default function reducer(state = initialState, action) {
             return {
                 ...state,
                 people: [ ...state.people.slice(0, pI), ...state.people.slice(pI + 1) ]
+            };
+        case CREATE_TASK:
+            return {
+                ...state,
+                tasks: [ ...state.tasks, action.payload ]
+            };
+        case EDIT_TASK:
+            let jT = action.index;
+            return {
+                ...state,
+                tasks: [ ...state.tasks.slice(0, jT), action.payload, ...state.tasks.slice(jT + 1) ]
+            };
+        case DELETE_TASK:
+            let iT = action.payload;
+            return {
+                ...state,
+                tasks: [ ...state.tasks.slice(0, iT), ...state.tasks.slice(iT + 1) ]
             };
         case SET_PREV_ACTIVE_TAB:
             return {

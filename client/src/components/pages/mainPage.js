@@ -79,7 +79,6 @@ export const MainPage = () => {
 
     // Функция добавления вкладки
     const add = (title, content, key, tabs, row) => {
-        console.log(title)
         let tabObject = {title, content, key, row};
         let index = -1;
 
@@ -167,7 +166,9 @@ export const MainPage = () => {
                                        onClick={() => OpenSectionContentHelper('testData', add, request, tabs)}
                             >Характеристики оборудования</Menu.Item>
                             <Menu.Item key="list">Перечень оборудования</Menu.Item>
-                            <Menu.Item key="state">Состояние заявок</Menu.Item>
+                            <Menu.Item key="tasks"
+                                       onClick={() => OpenSectionContentHelper('tasks', add, request, tabs)}
+                            >Состояние заявок</Menu.Item>
                         </SubMenu>
                         <SubMenu title="Прочее">
                             <Menu.Item key="info">Информация о предприятии</Menu.Item>

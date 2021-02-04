@@ -3,13 +3,15 @@ import {
     headerDepartmentTable,
     headerPersonTable,
     testDataHeader,
+    headerTasksTable,
 
     DepartmentColumns,
     PersonColumns,
     ProfessionColumns,
-    testData
+    testData,
+    TasksColumns,
 } from "../../datatable.options/datatable.columns";
-import {getProfession, getDepartment, getPerson} from "./rowFunctions.helper";
+import {getProfession, getDepartment, getPerson, getTask} from "./rowFunctions.helper";
 import {message} from "antd";
 
 // Создание мапы соответствия для функций открытия/редактирования вкладок
@@ -18,6 +20,7 @@ const RowMapHelper = (key, add, tabs, request, row) => {
         ['professions', getProfession],
         ['departments', getDepartment],
         ['people', getPerson],
+        ['tasks', getTask],
     ]);
 
     if (rowSelector.has(key)) {
@@ -36,6 +39,7 @@ const ColumnsMapHelper = (key) => {
         ['departments', DepartmentColumns],
         ['people', PersonColumns],
         ['testData', testData],
+        ['tasks', TasksColumns],
     ]);
 
     if (columnSelector.has(key)) {
@@ -57,6 +61,7 @@ const ExportMapHelper = (key) => {
         ['departments', headerDepartmentTable],
         ['people', headerPersonTable],
         ['testData', testDataHeader],
+        ['testData', headerTasksTable],
     ]);
 
     if (rowSelector.has(key)) {
