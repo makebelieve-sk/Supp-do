@@ -1,88 +1,86 @@
+// Маршруты для состоянии заявок
 const {Router} = require("express");
 const TaskStatus = require("../models/TaskStatus");
 const router = Router();
 
+// Возвращает запись по коду
 router.get('/taskStatus/:id', async (req, res) => {
     try {
-        const task = await TaskStatus.findById({_id: req.params.id});
+        const item = await TaskStatus.findById({_id: req.params.id});
 
-        if (!task) {
-            return res.status(400).json({message: "Такой записи не существует"});
+        if (!item) {
+            return res.status(400).json({message: `Запись с кодом ${req.params.id} не существует`});
         }
 
-        res.status(201).json({task: task});
+        res.status(201).json({task: item});
     } catch (e) {
-        res.status(500).json({message: "Ошибка при открытии записи о состоянии заявки, пожалуйста, попробуйте снова"})
+        res.status(500).json({message: `Ошибка при открытии записи с кодом ${req.params.id}`})
     }
 });
 
+// Возвращает все записи
 router.get('/taskStatus', async (req, res) => {
     try {
-        const tasks = await TaskStatus.find({});
-        res.json(tasks);
+        const items = await TaskStatus.find({});
+        res.json(items);
     } catch (e) {
-        res.status(500).json({message: "Ошибка при получении всех записей о состоянии заявок, пожалуйста, попробуйте снова"})
+        res.status(500).json({message: "Ошибка при получении записей о состоянии заявок"})
     }
 });
 
+// Сохраняет новую запись
 router.post('/taskStatus', async (req, res) => {
     try {
         const {name, color, notes, isFinish} = req.body;
-        const task = await TaskStatus.findOne({name});
+        const item = await TaskStatus.findOne({name});
 
-        if (task) {
-            return res.status(400).json({message: "Такая запись уже существует"});
+        if (item) {
+            return res.status(400).json({message: `Запись с именем ${name} уже существует`});
         }
 
-        const newTask = new TaskStatus({name: name, color: color, notes: notes, isFinish: isFinish})
+        const newItem = new TaskStatus({name: name, color: color, notes: notes, isFinish: isFinish})
 
-        await newTask.save();
+        let savedItem = await newItem.save();
 
-        const currentTask = await TaskStatus.findOne({ name });
-
-        res.status(201).json({message: "Запись о состоянии заявки создана", task: currentTask});
+        res.status(201).json({message: "Запись о состоянии заявки сохранена", task: savedItem});
     } catch (e) {
-        res.status(500).json({message: "Ошибка при создании записи о состоянии заявки, пожалуйста, попробуйте снова"})
+        res.status(500).json({message: "Ошибка при создании записи"})
     }
 });
 
+// Изменяет запись
 router.put('/taskStatus', async (req, res) => {
     try {
-        const {name, color, notes, isFinish} = req.body.values;
-        const {_id} = req.body.tabData;
-        const task = await TaskStatus.findById({_id});
+        const {_id, name, color, notes, isFinish} = req.body;
+        const item = await TaskStatus.findById({_id});
 
-        if (!task) {
-            return res.status(400).json({message: "Такая запись не найдена"});
+        if (!item) {
+            return res.status(400).json({message: `Запись с кодом ${_id} не найдена`});
         }
 
-        task.name = name;
-        task.color = color;
-        task.notes = notes;
-        task.isFinish = isFinish;
+        item.name = name;
+        item.color = color;
+        item.notes = notes;
+        item.isFinish = isFinish;
 
-        await task.save();
+        await item.save();
 
-        res.status(201).json({message: "Запись о состоянии заявки изменена", task: task});
+        res.status(201).json({message: "Запись о состоянии заявки сохранена", task: item});
     } catch (e) {
-        res.status(500).json({message: "Ошибка при редактировании записи о состоянии заявки, пожалуйста, попробуйте снова"})
+        res.status(500).json({message: "Ошибка при обновлении записи о состоянии заявки"})
     }
 });
 
-router.delete('/taskStatus', async (req, res) => {
+// Удаляет запись
+router.delete('/taskStatus/:id', async (req, res) => {
+    const id = req.params.id;
+
     try {
-        const {name, notes} = req.body;
-        const task = await TaskStatus.findOne({name});
-
-        if (!task) {
-            return res.status(400).json({message: "Такая запись не найдена"});
-        }
-
-        await task.delete();
+        await TaskStatus.deleteOne({_id: id});
 
         res.status(201).json({message: "Запись о состоянии заявки успешно удалена"});
     } catch (e) {
-        res.status(500).json({message: "Ошибка при удалении записи о состоянии заявки, пожалуйста, попробуйте снова"})
+        res.status(500).json({message: `Ошибка при удалении записи с кодом ${id}`})
     }
 });
 

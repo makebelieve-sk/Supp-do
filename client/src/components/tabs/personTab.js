@@ -1,9 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {Card, Form, Input, Row, Button, message, Select, Col, Skeleton} from 'antd';
 import {useSelector, useDispatch} from "react-redux";
-
-import {useHttp} from "../../hooks/http.hook";
-import ActionCreator from "../../redux/actionCreators";
 import {
     CheckOutlined,
     DeleteOutlined,
@@ -11,22 +8,20 @@ import {
     PrinterOutlined,
     StopOutlined
 } from "@ant-design/icons";
-import {ProfessionTab} from "./professionTab";
-import {DepartmentTab} from "./departmentTab";
+
+import ActionCreator from "../../redux/actionCreators";
+import {request} from "../helpers/request.helper";
+import {RowMapHelper} from "../helpers/dataTableMap.helper";
 
 const {Meta} = Card;
 
-export const PersonTab = ({add, specKey, onRemove, loadingData, tabData}) => {
-    // Получение функции создания запросов на сервер, состояний загрузки/загрузки при удалении элемента и ошибки,
-    // очищения ошибки
-    const {request, loadingDelete, error, clearError} = useHttp();
-
+export const PersonTab = ({specKey, onRemove}) => {
     // Получение списков подразделений, профессий, вкладок, порсонала и загрузки записи из хранилища redux
-    const {people, professions, departments, tabs, loadingSkeleton} = useSelector((state) => ({
-        people: state.people,
+    const {people, professions, departments, rowData, loadingSkeleton} = useSelector((state) => ({
         professions: state.professions,
         departments: state.departments,
-        tabs: state.tabs,
+        people: state.people,
+        rowData: state.rowDataPerson,
         loadingSkeleton: state.loadingSkeleton
     }));
     const dispatch = useDispatch();
@@ -43,25 +38,24 @@ export const PersonTab = ({add, specKey, onRemove, loadingData, tabData}) => {
     let initialProfession = null;
     let initialDepartmentName = '';
     let initialProfName = '';
-    let initialName = '';
-    let initialNotes = '';
-    let initialTabNumber = '';
+    let initialName, initialNotes, initialTabNumber, initialId;
 
     // Инициализация хука useForm() от Form antd
     const [form] = Form.useForm();
 
     // Если вкладка редактирования, то устанавливаем начальные значения для выпадающих списков
-    if (tabData) {
-        initialName = tabData.name;
-        initialNotes = tabData.notes;
-        initialTabNumber = tabData.tabNumber;
+    if (rowData) {
+        initialName = rowData.name;
+        initialNotes = rowData.notes;
+        initialTabNumber = rowData.tabNumber;
+        initialId = rowData._id;
 
-        if (tabData.department && tabData.profession) {
-            initialDepartment = tabData.department;
-            initialProfession = tabData.profession;
+        if (rowData.department && rowData.profession) {
+            initialDepartment = rowData.department;
+            initialProfession = rowData.profession;
 
-            initialDepartmentName = tabData.department.name;
-            initialProfName = tabData.profession.name;
+            initialDepartmentName = rowData.department.name;
+            initialProfName = rowData.profession.name;
         }
     }
 
@@ -100,33 +94,25 @@ export const PersonTab = ({add, specKey, onRemove, loadingData, tabData}) => {
         }
 
         getData();
-    }, [request, departments, professions]);
+    }, [departments, professions]);
 
     // Установка начального значения выпадающего списка, если вкладка редактируется
     useEffect(() => {
-        if (tabData) {
+        if (rowData) {
             form.setFieldsValue({
                 name: initialName,
                 notes: initialNotes,
                 tabNumber: initialTabNumber,
                 department: initialDepartmentName,
-                profession: initialProfName
+                profession: initialProfName,
+                _id: initialId
             });
         } else {
             return null;
         }
-    }, [form, initialName, initialNotes, initialTabNumber, initialDepartmentName, initialProfName, tabData]);
+    }, [form, initialName, initialNotes, initialTabNumber, initialDepartmentName, initialProfName, initialId, rowData]);
 
-    // При появлении ошибки, инициализируем окно вывода этой ошибки
-    useEffect(() => {
-        if (error) {
-            message.error(error);
-        }
-
-        clearError();
-    }, [dispatch, error, request, clearError]);
-
-    let title = !tabData ? 'Создание записи о сотруднике' : 'Редактирование записи о сотруднике';
+    let title = !rowData ? 'Создание записи о сотруднике' : 'Редактирование записи о сотруднике';
 
     // Функция сохранения записи
     const onSave = async (values) => {
@@ -136,10 +122,9 @@ export const PersonTab = ({add, specKey, onRemove, loadingData, tabData}) => {
             values.department = selectDep ? selectDep : initialDepartment;
             values.profession = selectProfession ? selectProfession : initialProfession;
 
-            let method = !tabData ? 'POST' : 'PUT';
-            let body = !tabData ? values : {tabData, values};
+            let method = !rowData ? 'POST' : 'PUT';
 
-            const data = await request('/api/directory/people', method, body);
+            const data = await request('/api/directory/people', method, values);
 
             if (data) {
                 setLoadingSave(false);
@@ -151,7 +136,7 @@ export const PersonTab = ({add, specKey, onRemove, loadingData, tabData}) => {
 
                 // Если это редактирование записи, то происходит изменение записи в хранилище redux,
                 // иначе происходит запись новой записи в хранилище redux
-                !tabData ? dispatch(ActionCreator.createPerson(data.person)) :
+                !rowData ? dispatch(ActionCreator.createPerson(data.person)) :
                     people.forEach((pers, index) => {
                         if (pers._id === data.person._id) {
                             dispatch(ActionCreator.editPerson(index, data.person));
@@ -165,8 +150,8 @@ export const PersonTab = ({add, specKey, onRemove, loadingData, tabData}) => {
     // Функция удаления записи
     const deleteHandler = async () => {
         try {
-            if (tabData) {
-                const data = await request('/api/directory/people', 'DELETE', tabData);
+            if (rowData) {
+                const data = await request('/api/directory/people/' + rowData._id, 'DELETE', rowData);
 
                 if (data) {
                     message.success(data.message);
@@ -175,7 +160,7 @@ export const PersonTab = ({add, specKey, onRemove, loadingData, tabData}) => {
 
                     // Удаляем запись из хранилища redux
                     people.forEach((pers, index) => {
-                        if (pers._id === tabData._id) {
+                        if (pers._id === rowData._id) {
                             dispatch(ActionCreator.deletePerson(index));
                         }
                     });
@@ -233,13 +218,14 @@ export const PersonTab = ({add, specKey, onRemove, loadingData, tabData}) => {
                         <Meta
                             title={title}
                             description={
-                                <Form labelCol={{span: 6}} wrapperCol={{span: 18}} style={{marginTop: '5%'}} form={form}
-                                      name={tabData ? `control-ref-person-${tabData.name}` : "control-ref-person"}
+                                <Form labelCol={{span: 6}} wrapperCol={{span: 18}} style={{marginTop: '5%'}}
+                                      form={form} name={rowData ? `control-ref-person-${rowData.name}` :
+                                    "control-ref-person"}
                                       onFinish={onSave} onFinishFailed={onFinishFailed}>
                                     <Form.Item
                                         label="ФИО"
                                         name="name"
-                                        initialValue={!tabData ? '' : tabData.name}
+                                        initialValue={!rowData ? '' : rowData.name}
                                         rules={[{required: true, message: 'Введите ФИО сотрудника!',}]}
                                     >
                                         <Input maxLength={255} type="text"/>
@@ -262,7 +248,7 @@ export const PersonTab = ({add, specKey, onRemove, loadingData, tabData}) => {
                                                  xl={{span: 2}}>
                                                 <Button
                                                     style={{width: '100%'}}
-                                                    onClick={() => add('Создание подразделения', DepartmentTab, 'newDepartment', tabs, null)}
+                                                    onClick={() => RowMapHelper('departments', null)}
                                                     icon={<PlusOutlined/>}
                                                     type="secondary"
                                                 />
@@ -287,7 +273,7 @@ export const PersonTab = ({add, specKey, onRemove, loadingData, tabData}) => {
                                                  xl={{span: 2}}>
                                                 <Button
                                                     style={{width: '100%'}}
-                                                    onClick={() => add('Создание профессии', ProfessionTab, 'newProfession', tabs, null)}
+                                                    onClick={() => RowMapHelper('professions', null)}
                                                     icon={<PlusOutlined/>}
                                                     type="secondary"
                                                 />
@@ -298,7 +284,7 @@ export const PersonTab = ({add, specKey, onRemove, loadingData, tabData}) => {
                                     <Form.Item
                                         name="tabNumber"
                                         label="Таб. номер"
-                                        initialValue={!tabData ? '' : tabData.tabNumber}
+                                        initialValue={!rowData ? '' : rowData.tabNumber}
                                     >
                                         <Input maxLength={255} type="number" style={{textAlign: 'right'}}/>
                                     </Form.Item>
@@ -306,9 +292,16 @@ export const PersonTab = ({add, specKey, onRemove, loadingData, tabData}) => {
                                     <Form.Item
                                         name="notes"
                                         label="Примечание"
-                                        initialValue={!tabData ? '' : tabData.notes}
+                                        initialValue={!rowData ? '' : rowData.notes}
                                     >
                                         <Input maxLength={255} type="text"/>
+                                    </Form.Item>
+
+                                    <Form.Item
+                                        name="_id"
+                                        hidden={true}
+                                    >
+                                        <Input/>
                                     </Form.Item>
 
                                     <Row justify="end" style={{marginTop: 20}} xs={{gutter: [8, 8]}}>
@@ -317,10 +310,10 @@ export const PersonTab = ({add, specKey, onRemove, loadingData, tabData}) => {
                                                 icon={<CheckOutlined/>}>
                                             Сохранить
                                         </Button>
-                                        {!tabData ? null :
+                                        {!rowData ? null :
                                             <>
                                                 <Button className="button-style" type="danger" onClick={deleteHandler}
-                                                        loading={loadingDelete} icon={<DeleteOutlined/>}>
+                                                        icon={<DeleteOutlined/>}>
                                                     Удалить
                                                 </Button>
                                                 <Button className="button-style" type="secondary"

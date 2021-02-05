@@ -1,4 +1,4 @@
-// Помощник для работы с DataTable
+// Помощник для работы с DataTable (записи, колонки, экспорт)
 import {
     headerProfessionTable,
     headerDepartmentTable,
@@ -15,7 +15,7 @@ import {
 import {getProfession, getDepartment, getPerson, getTask, getEquipmentProperty} from "./rowFunctions.helper";
 import {message} from "antd";
 
-// Карта соответсвия ключей и строк, колонок и заголовков экспорта
+// Карта соответствия ключей и строк, колонок и заголовков экспорта
 const map = new Map([
     ['professions', {getRow: getProfession, getColumns: ProfessionColumns, getExportHeaders: headerProfessionTable}],
     ['departments', {getRow: getDepartment, getColumns: DepartmentColumns, getExportHeaders: headerDepartmentTable}],
@@ -27,17 +27,15 @@ const map = new Map([
 /**
  * Создание мапы соответствия для функций открытия/редактирования вкладок
  * @param key - ключ для поиска компонента, добавляемого во вкладку
- * @param add - функция для созданя новой вкладки
- * @param tabs - текущий массив вкладок
- * @param request - функция запроса
- * @param row - редактируемая строка
+ * @param rowData - редактируемая строка
  * @constructor
  */
-const RowMapHelper = (key, add, tabs, request, row) => {
+const RowMapHelper = (key, rowData) => {
     if (map.has(key)) {
-        map.get(key).getRow(add, tabs, request, row);
+        map.get(key).getRow(rowData).then(r => console.log(''));
     } else {
-        message.error(`Раздел с ключём ${key} не существует (создание строк)`).then(r => console.log(r));
+        message.error(`Раздел с ключём ${key} не существует (открытие вкладки создания/редактирования записи)`)
+            .then(r => console.log(r));
     }
 };
 

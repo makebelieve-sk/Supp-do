@@ -1,11 +1,11 @@
 import React, {useContext} from 'react';
 import {Button, Card, Col, Form, Input, message, Row} from "antd";
 import {LockOutlined, UserOutlined} from "@ant-design/icons";
-import {useHttp} from "../../hooks/http.hook";
+
 import {AuthContext} from "../../context/authContext";
+import {request} from "../helpers/request.helper";
 
 export const RegistrationComponent = () => {
-    const {request, loading} = useHttp();
     const auth = useContext(AuthContext);
 
     const onFinish = async (values) => {
@@ -76,7 +76,7 @@ export const RegistrationComponent = () => {
                                             placeholder="Подтвердите пароль"/>
                         </Form.Item>
                         <Form.Item>
-                            <Button loading={loading} type="primary" htmlType="submit" className="login-form-button">
+                            <Button type="primary" htmlType="submit" className="login-form-button">
                                 Зарегистрироваться
                             </Button>
                         </Form.Item>

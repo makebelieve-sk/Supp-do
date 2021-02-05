@@ -10,42 +10,40 @@ import {
     StopOutlined
 } from '@ant-design/icons';
 
-import {useHttp} from "../../hooks/http.hook";
 import ActionCreator from "../../redux/actionCreators";
+import {request} from "../helpers/request.helper";
 
 const {Meta} = Card;
 
-export const TaskTab = ({add, specKey, onRemove, loadingData, tabData}) => {
+export const TaskTab = ({specKey, onRemove}) => {
     // Установка спиннера загрузки при сохранении записи
     const [loadingSave, setLoadingSave] = useState(false);
     // Стейт для отображения выпадающего меню для колонок
     const [visible, setVisible] = useState(false);
 
-    let initialColor = tabData ? tabData.color : '#FFFFFF';
-
-    // Стейт для поля "Цвет"
-    const [color, setColor] = useState(initialColor);
-
-    // Получение функции создания запросов на сервер, состояний загрузки/загрузки при удалении элемента и ошибки,
-    // очищения ошибки
-    const {request, loadingDelete, error, clearError} = useHttp();
-
     // Получение списка состояний заявок и загрузки записи из хранилища redux
-    const {tasks, loadingSkeleton} = useSelector((state) => ({
+    const {tasks, rowData, loadingSkeleton} = useSelector((state) => ({
         tasks: state.tasks,
+        rowData: state.rowDataTask,
         loadingSkeleton: state.loadingSkeleton
     }));
     const dispatch = useDispatch();
 
+    let initialColor = rowData ? rowData.color : '#FFFFFF';
+
+    // Стейт для поля "Цвет"
+    const [color, setColor] = useState(initialColor);
+
     // Определение начальных значений для полей "Наименование" и "Примечание"
-    let initialName, initialNotes, initialIsFinish;
+    let initialName, initialNotes, initialIsFinish, initialId;
 
     // Если вкладка редактирования, то устанавливаем начальные значения для полей "Наименование", "Цвет" и "Примечание"
-    if (tabData) {
-        initialName = tabData.name;
-        initialColor = tabData.color;
-        initialNotes = tabData.notes;
-        initialIsFinish = tabData.isFinish;
+    if (rowData) {
+        initialName = rowData.name;
+        initialColor = rowData.color;
+        initialNotes = rowData.notes;
+        initialIsFinish = rowData.isFinish;
+        initialId = rowData._id;
     }
 
     // Инициализация хука useForm() от Form antd
@@ -54,22 +52,19 @@ export const TaskTab = ({add, specKey, onRemove, loadingData, tabData}) => {
     // Установка начальных значений полей "Наименование", "Цвет" и "Примечание", и если вкладка редактируется
     // Также устанавливаем текущий цвет в стейт
     useEffect(() => {
-        if (tabData) {
+        if (rowData) {
             setColor(initialColor);
-            form.setFieldsValue({name: initialName, color: initialColor, notes: initialNotes, isFinish: initialIsFinish});
+            form.setFieldsValue({
+                name: initialName,
+                color: initialColor,
+                notes: initialNotes,
+                isFinish: initialIsFinish,
+                _id: initialId
+            });
         } else {
             return null;
         }
-    }, [form, initialName, initialColor, initialNotes, initialIsFinish, tabData]);
-
-    // При появлении ошибки, инициализируем окно вывода этой ошибки
-    useEffect(() => {
-        if (error) {
-            message.error(error);
-        }
-
-        clearError();
-    }, [dispatch, error, request, clearError]);
+    }, [form, initialName, initialColor, initialNotes, initialIsFinish, initialId, rowData]);
 
     let title = specKey === 'newTask' ? 'Создание записи о состоянии заявки' : 'Редактирование записи о состоянии заявки';
 
@@ -78,10 +73,9 @@ export const TaskTab = ({add, specKey, onRemove, loadingData, tabData}) => {
         try {
             setLoadingSave(true);
 
-            let method = !tabData ? 'POST' : 'PUT';
-            let body = !tabData ? values : {tabData, values};
+            let method = !rowData ? 'POST' : 'PUT';
 
-            const data = await request('/api/directory/taskStatus', method, body);
+            const data = await request('/api/directory/taskStatus', method, values);
 
             if (data) {
                 setLoadingSave(false);
@@ -93,7 +87,7 @@ export const TaskTab = ({add, specKey, onRemove, loadingData, tabData}) => {
 
                 // Если это редактирование записи, то происходит изменение записи в хранилище redux,
                 // иначе происходит запись новой записи в хранилище redux
-                !tabData ?
+                !rowData ?
                     dispatch(ActionCreator.createTask(data.task)) :
                     tasks.forEach((task, index) => {
                         if (task._id === data.task._id) {
@@ -108,8 +102,8 @@ export const TaskTab = ({add, specKey, onRemove, loadingData, tabData}) => {
     // Функция удаления записи
     const deleteHandler = async () => {
         try {
-            if (tabData) {
-                const data = await request('/api/directory/taskStatus', 'DELETE', tabData);
+            if (rowData) {
+                const data = await request('/api/directory/taskStatus/' + rowData._id, 'DELETE', rowData);
 
                 if (data) {
                     message.success(data.message);
@@ -119,7 +113,7 @@ export const TaskTab = ({add, specKey, onRemove, loadingData, tabData}) => {
 
                     // Удаляем запись из хранилища redux
                     tasks.forEach((task, index) => {
-                        if (task._id === tabData._id) {
+                        if (task._id === rowData._id) {
                             dispatch(ActionCreator.deleteTask(index));
                         }
                     });
@@ -169,12 +163,12 @@ export const TaskTab = ({add, specKey, onRemove, loadingData, tabData}) => {
                             title={title}
                             description={
                                 <Form style={{marginTop: '5%'}} form={form} labelCol={{span: 6}}
-                                      name={tabData ? `control-ref-task-${tabData.name}` : "control-ref-task"}
+                                      name={rowData ? `control-ref-task-${rowData.name}` : "control-ref-task"}
                                       onFinish={onSave} onFinishFailed={onFinishFailed}>
                                     <Form.Item
                                         label="Наименование"
                                         name="name"
-                                        initialValue={!tabData ? '' : tabData.name}
+                                        initialValue={!rowData ? '' : rowData.name}
                                         rules={[{required: true, message: 'Введите наименование записи!'}]}
                                     >
                                         <Input maxLength={255} type="text"/>
@@ -212,13 +206,20 @@ export const TaskTab = ({add, specKey, onRemove, loadingData, tabData}) => {
                                     <Form.Item
                                         name="notes"
                                         label="Примечание"
-                                        initialValue={!tabData ? '' : tabData.notes}
+                                        initialValue={!rowData ? '' : rowData.notes}
                                     >
                                         <Input maxLength={255} type="text" />
                                     </Form.Item>
 
                                     <Form.Item name="isFinish" valuePropName="checked" wrapperCol={{offset: 6}}>
                                         <Checkbox>Завершено</Checkbox>
+                                    </Form.Item>
+
+                                    <Form.Item
+                                        name="_id"
+                                        hidden={true}
+                                    >
+                                        <Input/>
                                     </Form.Item>
 
                                     <Form.Item>
@@ -228,10 +229,10 @@ export const TaskTab = ({add, specKey, onRemove, loadingData, tabData}) => {
                                                     icon={<CheckOutlined/>}>
                                                 Сохранить
                                             </Button>
-                                            {!tabData ? null :
+                                            {!rowData ? null :
                                                 <>
                                                     <Button className="button-style" type="danger" onClick={deleteHandler}
-                                                            loading={loadingDelete} icon={<DeleteOutlined/>}>
+                                                            icon={<DeleteOutlined/>}>
                                                         Удалить
                                                     </Button>
                                                     <Button className="button-style" type="secondary"

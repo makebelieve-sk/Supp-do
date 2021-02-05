@@ -3,11 +3,10 @@ import {Button, Card, Checkbox, Col, Form, Input, Row} from "antd";
 import {LockOutlined, UserOutlined} from "@ant-design/icons";
 import {Link} from "react-router-dom";
 
-import {useHttp} from "../../hooks/http.hook";
 import {AuthContext} from "../../context/authContext";
+import {request} from "../helpers/request.helper";
 
 export const AuthComponent = ({setRegForm, setChangePass}) => {
-    const {request, loading} = useHttp();
     const auth = useContext(AuthContext);
 
     // Функция входа пользователя
@@ -71,7 +70,7 @@ export const AuthComponent = ({setRegForm, setChangePass}) => {
                         </Form.Item>
 
                         <Form.Item>
-                            <Button loading={loading} type="primary" htmlType="submit" className="login-form-button">
+                            <Button type="primary" htmlType="submit" className="login-form-button">
                                 Войти
                             </Button>
                             Или <Link to="/registration" onClick={() => {

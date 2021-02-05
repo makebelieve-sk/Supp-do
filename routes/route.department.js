@@ -1,38 +1,42 @@
+// Маршруты для подразделений
 const {Router} = require("express");
 const Department = require("../models/Department");
 const router = Router();
 
+// Возвращает запись по коду
 router.get('/departments/:id', async (req, res) => {
     try {
-        const department = await Department.findById({_id: req.params.id}).populate('parent');
+        const item = await Department.findById({_id: req.params.id}).populate('parent');
 
-        if (!department) {
-            return res.status(400).json({message: "Такое подразделение не существует"});
+        if (!item) {
+            return res.status(400).json({message: `Подразделение с кодом ${req.params.id} не существует`});
         }
 
-        res.status(201).json({department: department});
+        res.status(201).json({department: item});
     } catch (e) {
-        res.status(500).json({message: "Ошибка при открытии записи, пожалуйста, попробуйте снова"})
+        res.status(500).json({message: `Ошибка при открытии записи с кодом ${req.params.id}`})
     }
 });
 
+// Возвращает все записи
 router.get('/departments', async (req, res) => {
     try {
-        const departments = await Department.find({}).populate('parent');
-        res.json(departments);
+        const items = await Department.find({}).populate('parent');
+        res.json(items);
     } catch (e) {
-        res.status(500).json({message: "Ошибка при получении всех записей о подразделениях, пожалуйста, попробуйте снова"})
+        res.status(500).json({message: "Ошибка при получении записей о подразделениях"})
     }
 });
 
+// Сохраняет новую запись
 router.post('/departments', async (req, res) => {
     try {
         const {name, notes, parent} = req.body;
 
-        const department = await Department.findOne({name});
+        const item = await Department.findOne({name});
 
-        if (department) {
-            return res.status(400).json({message: "Такое подразделение уже существует"});
+        if (item) {
+            return res.status(400).json({message: `Подразделение с именем ${name} уже существует`});
         }
 
         if (parent) {
@@ -41,32 +45,32 @@ router.post('/departments', async (req, res) => {
             }
         }
 
-        const newDepartment = new Department({parent, name, notes});
+        const newItem = new Department({parent, name, notes});
 
-        await newDepartment.save();
+        await newItem.save();
 
         let currentDepartment;
 
         if (!parent) {
-            currentDepartment = await Department.findOne({ name });
+            currentDepartment = await Department.findOne({name});
         } else {
             currentDepartment = await Department.findOne({name}).populate('parent');
         }
 
-        res.status(201).json({message: "Подразделение создано", department: currentDepartment});
+        res.status(201).json({message: "Подразделение сохранено", department: currentDepartment});
     } catch (e) {
-        res.status(500).json({message: "Ошибка при создании подразделения, пожалуйста, попробуйте снова"})
+        res.status(500).json({message: "Ошибка при создании записи"})
     }
 });
 
+// Изменяет запись
 router.put('/departments', async (req, res) => {
     try {
-        const {name, notes, parent} = req.body.values;
-        const {_id} = req.body.tabData;
-        const department = await Department.findById({_id}).populate('parent');
+        const {_id, name, notes, parent} = req.body;
+        const item = await Department.findById({_id}).populate('parent');
 
-        if (!department) {
-            return res.status(400).json({message: "Такое подразделение не найдено"});
+        if (!item) {
+            return res.status(400).json({message: `Подразделение с кодом ${_id} не найдено`});
         }
 
         if (parent) {
@@ -75,32 +79,28 @@ router.put('/departments', async (req, res) => {
             }
         }
 
-        department.parent = parent;
-        department.name = name;
-        department.notes = notes;
+        item.parent = parent;
+        item.name = name;
+        item.notes = notes;
 
-        await department.save();
+        await item.save();
 
-        res.status(201).json({message: "Подразделение изменено", department: department});
+        res.status(201).json({message: "Подразделение сохранено", department: item});
     } catch (e) {
-        res.status(500).json({message: "Ошибка при редактировании подразделения, пожалуйста, попробуйте снова"})
+        res.status(500).json({message: "Ошибка при обновлении  подразделения"})
     }
 });
 
-router.delete('/departments', async (req, res) => {
+// Удаляет запись
+router.delete('/departments/:id', async (req, res) => {
+    const id = req.params.id;
+
     try {
-        const {name} = req.body;
-        const department = await Department.findOne({name});
-
-        if (!department) {
-            return res.status(400).json({message: "Такое подразделение не найдено"});
-        }
-
-        await department.delete();
+        await Department.deleteOne({_id: id});
 
         res.status(201).json({message: "Подразделение успешно удалено"});
     } catch (e) {
-        res.status(500).json({message: "Ошибка при удалении подразделения, пожалуйста, попробуйте снова"})
+        res.status(500).json({message: `Ошибка при удалении подразделения с кодом ${id}`})
     }
 });
 

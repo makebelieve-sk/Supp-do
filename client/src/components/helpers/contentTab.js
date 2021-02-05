@@ -1,23 +1,25 @@
 import React from 'react';
 import {Card, Skeleton, Tabs} from 'antd';
+import {useSelector} from 'react-redux';
 
 import {DataTableComponent} from '../contentComponent/datatableComponent';
 import {TreeComponent} from "../contentComponent/treeComponent";
 
 const {TabPane} = Tabs;
 
-export const ContentTab = ({add, specKey, onRemove, loadingData}) => {
+export const ContentTab = ({specKey}) => {
     let component;
+    const loadingSkeleton = useSelector(state => state.loadingSkeleton);
 
     // Если вкладка "Подразделения", то в её содержимое добавляем вкладки "Таблица" и "Дерево", иначе возвращаем таблицу
     if (specKey === 'departments') {
         component = (
             <div className="container-dto">
-                <Skeleton loading={loadingData} active>
+                <Skeleton loading={loadingSkeleton} active>
                     <Card className="card-dto">
                         <Tabs defaultActiveKey="table">
                             <TabPane tab="Таблица" key="table">
-                                <DataTableComponent add={add} specKey={specKey} loadingData={loadingData}/>
+                                <DataTableComponent specKey={specKey}/>
                             </TabPane>
                             <TabPane tab="Дерево" key="tree">
                                 <TreeComponent/>
@@ -30,9 +32,9 @@ export const ContentTab = ({add, specKey, onRemove, loadingData}) => {
     } else {
         component = (
             <div className="container-dto">
-                <Skeleton loading={loadingData} active>
+                <Skeleton loading={loadingSkeleton} active>
                     <Card className="card-dto">
-                        <DataTableComponent add={add} specKey={specKey} loadingData={loadingData}/>
+                        <DataTableComponent specKey={specKey}/>
                     </Card>
                 </Skeleton>
             </div>

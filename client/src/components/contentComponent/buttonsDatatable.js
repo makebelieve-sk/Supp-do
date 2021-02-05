@@ -5,7 +5,7 @@ import {PlusOutlined, FileExcelOutlined, PrinterOutlined, EditOutlined} from '@a
 
 import {ColumnsMapHelper, RowMapHelper} from "../helpers/dataTableMap.helper";
 
-export const ButtonsComponent = ({add, specKey, onExport, checkedColumns, setCheckedColumns, setColumnsTable, initialColumns}) => {
+export const ButtonsComponent = ({specKey, onExport, checkedColumns, setCheckedColumns, setColumnsTable, initialColumns}) => {
     // Получение колонок для таблицы
     let columns = ColumnsMapHelper(specKey);
 
@@ -76,7 +76,7 @@ export const ButtonsComponent = ({add, specKey, onExport, checkedColumns, setChe
     return (
         <Row justify="center">
             <Button className="button-style" icon={<PlusOutlined/>} type="primary"
-                    onClick={() => RowMapHelper(specKey, add, tabs, null, null)}>Добавить</Button>
+                    onClick={() => RowMapHelper(specKey, null)}>Добавить</Button>
             <Button className="button-style" icon={<FileExcelOutlined/>} size="middle"
                     onClick={e => onExport(e.target.value)}>Экспорт</Button>
             <Button className="button-style" icon={<PrinterOutlined/>} size="middle"

@@ -1,43 +1,47 @@
+// Маршруты для персонала
 const {Router} = require("express");
 const Person = require("../models/Person");
 const router = Router();
 
+// Возвращает запись по коду
 router.get('/people/:id', async (req, res) => {
     try {
-        const person = await Person.findById({_id: req.params.id}).populate('department').populate('profession');
+        const item = await Person.findById({_id: req.params.id}).populate('department').populate('profession');
 
-        if (!person) {
-            return res.status(400).json({message: "Такая запись о сотруднике не существует"});
+        if (!item) {
+            return res.status(400).json({message: `Запись с кодом ${req.params.id} не существует`});
         }
 
-        res.status(201).json({person: person});
+        res.status(201).json({person: item});
     } catch (e) {
-        res.status(500).json({message: "Ошибка при открытии записи, пожалуйста, попробуйте снова"})
+        res.status(500).json({message: `Ошибка при открытии записи с кодом ${req.params.id}`})
     }
 });
 
+// Возвращает все записи
 router.get('/people', async (req, res) => {
     try {
-        const people = await Person.find({}).populate('department').populate('profession');
-        res.json(people);
+        const items = await Person.find({}).populate('department').populate('profession');
+        res.json(items);
     } catch (e) {
-        res.status(500).json({message: "Ошибка при получении всех записей о сотрудниках, пожалуйста, попробуйте снова"})
+        res.status(500).json({message: "Ошибка при получении записей о сотрудниках"})
     }
 });
 
+// Сохраняет новую запись
 router.post('/people', async (req, res) => {
     try {
         const {name, notes, department, profession, tabNumber} = req.body;
 
-        const person = await Person.findOne({name});
+        const item = await Person.findOne({name});
 
-        if (person) {
-            return res.status(400).json({message: "Такая запись о сотруднике уже существует"});
+        if (item) {
+            return res.status(400).json({message: `Запись о сотруднике с именем ${name} уже существует`});
         }
 
-        const newPerson = new Person({tabNumber, name, department, profession, notes});
+        const newItem = new Person({tabNumber, name, department, profession, notes});
 
-        await newPerson.save();
+        await newItem.save();
 
         const currentPerson = await Person.findOne({name}).populate('department').populate('profession');
 
@@ -45,50 +49,46 @@ router.post('/people', async (req, res) => {
             return res.status(400).json({message: "Заполните обязательные поля"});
         }
 
-        res.status(201).json({message: "Запись о сотруднике создана", person: currentPerson});
+        res.status(201).json({message: "Запись о сотруднике сохранена", person: currentPerson});
     } catch (e) {
-        res.status(500).json({message: "Ошибка при создании записи о сотруднике, пожалуйста, попробуйте снова"})
+        res.status(500).json({message: "Ошибка при создании записи"})
     }
 });
 
+// Изменяет запись
 router.put('/people', async (req, res) => {
     try {
-        const {name, notes, department, profession, tabNumber} = req.body.values;
-        const {_id} = req.body.tabData;
-        const person = await Person.findById({_id}).populate('department').populate('profession');
+        const {_id, name, notes, department, profession, tabNumber} = req.body;
+        const item = await Person.findById({_id}).populate('department').populate('profession');
 
-        if (!person) {
-            return res.status(400).json({message: "Такая запись не найдена"});
+        if (!item) {
+            return res.status(400).json({message: `Запись о сотруднике с кодом ${_id} не найдена`});
         }
 
-        person.tabNumber = tabNumber;
-        person.name = name;
-        person.department = department;
-        person.profession = profession;
-        person.notes = notes;
+        item.tabNumber = tabNumber;
+        item.name = name;
+        item.department = department;
+        item.profession = profession;
+        item.notes = notes;
 
-        await person.save();
+        await item.save();
 
-        res.status(201).json({message: "Запись о сотруднике успешно изменена", person: person});
+        res.status(201).json({message: "Запись о сотруднике успешно изменена", person: item});
     } catch (e) {
-        res.status(500).json({message: "Ошибка при редактировании записи о сотруднике, пожалуйста, попробуйте снова"})
+        res.status(500).json({message: "Ошибка при обновлении записи о сотруднике"})
     }
 });
 
-router.delete('/people', async (req, res) => {
+// Удаляет запись
+router.delete('/people/:id', async (req, res) => {
+    const id = req.params.id;
+
     try {
-        const {name} = req.body;
-        const person = await Person.findOne({name});
-
-        if (!person) {
-            return res.status(400).json({message: "Такая запись не найдена"});
-        }
-
-        await person.delete();
+        await Person.deleteOne({_id: id});
 
         res.status(201).json({message: "Запись о сотруднике успешно удалена"});
     } catch (e) {
-        res.status(500).json({message: "Ошибка при удалении записи о сотруднике, пожалуйста, попробуйте снова"})
+        res.status(500).json({message: `Ошибка при удалении записи с кодом ${id}`})
     }
 });
 

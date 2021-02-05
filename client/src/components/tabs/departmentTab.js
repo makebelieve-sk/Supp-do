@@ -2,20 +2,17 @@ import React, {useState, useEffect} from 'react';
 import {Button, Card, Form, Input, message, Row, Col, Select, Skeleton} from 'antd';
 import {useDispatch, useSelector} from "react-redux";
 
-import {useHttp} from "../../hooks/http.hook";
 import ActionCreator from "../../redux/actionCreators";
 import {CheckOutlined, DeleteOutlined, PrinterOutlined, StopOutlined} from "@ant-design/icons";
+import {request} from "../helpers/request.helper";
 
 const {Meta} = Card;
 
-export const DepartmentTab = ({add, specKey, onRemove, loadingData, tabData}) => {
-    // Получение функции создания запросов на сервер, состояний загрузки/загрузки при удалении элемента и ошибки,
-    // очищения ошибки
-    const {request, loadingDelete, error, clearError} = useHttp();
-
+export const DepartmentTab = ({specKey, onRemove}) => {
     // Получение списка подразделений и загрузки записи из хранилища redux
-    const {departments, loadingSkeleton} = useSelector((state) => ({
+    const {departments, rowData, loadingSkeleton} = useSelector((state) => ({
         departments: state.departments,
+        rowData: state.rowDataDepartment,
         loadingSkeleton: state.loadingSkeleton
     }));
     const dispatch = useDispatch();
@@ -27,20 +24,21 @@ export const DepartmentTab = ({add, specKey, onRemove, loadingData, tabData}) =>
     const [loadingSave, setLoadingSave] = useState(false);
 
     let initialDepartment = null;
-    let initialName = '';
-    let initialNotes = '';
+    let initialName, initialNotes, initialId;
     let initialParent = '';
 
     // Инициализация хука useForm() от Form antd
     const [form] = Form.useForm();
 
     // Если вкладка редактирования, то устанавливаем начальные значения для выпадающих списков
-    if (tabData) {
-        initialDepartment = tabData;
-        initialName = tabData.name;
-        initialNotes = tabData.notes;
-        if (tabData.parent) {
-            initialParent = tabData.parent.name
+    if (rowData) {
+        initialDepartment = rowData.parent;
+        initialName = rowData.name;
+        initialNotes = rowData.notes;
+        initialId = rowData._id;
+
+        if (rowData.parent) {
+            initialParent = rowData.parent.name
         }
     }
 
@@ -65,27 +63,18 @@ export const DepartmentTab = ({add, specKey, onRemove, loadingData, tabData}) =>
         }
 
         getDepartments();
-    }, [request, departments]);
+    }, [departments]);
 
     // Установка начального значения выпадающего списка, если вкладка редактируется
     useEffect(() => {
-        if (tabData) {
-            form.setFieldsValue({name: initialName, notes: initialNotes, parent: initialParent});
+        if (rowData) {
+            form.setFieldsValue({name: initialName, notes: initialNotes, _id: initialId, parent: initialParent});
         } else {
             return null;
         }
-    }, [form, initialName, initialNotes, initialParent, tabData]);
+    }, [form, initialName, initialNotes, initialParent, initialId, rowData]);
 
-    // При появлении ошибки, инициализируем окно вывода этой ошибки
-    useEffect(() => {
-        if (error) {
-            message.error(error);
-        }
-
-        clearError();
-    }, [dispatch, error, request, clearError]);
-
-    let title = !tabData ? 'Создание подразделения' : 'Редактирование подразделения';
+    let title = !rowData ? 'Создание подразделения' : 'Редактирование подразделения';
 
     // Функция сохранения записи
     const onSave = async (values) => {
@@ -94,10 +83,9 @@ export const DepartmentTab = ({add, specKey, onRemove, loadingData, tabData}) =>
 
             values.parent = selectDep ? selectDep : initialDepartment;
 
-            let method = !tabData ? 'POST' : 'PUT';
-            let body = !tabData ? values : {tabData, values};
+            let method = !rowData ? 'POST' : 'PUT';
 
-            const data = await request('/api/directory/departments', method, body);
+            const data = await request('/api/directory/departments', method, values);
 
             if (data) {
                 setLoadingSave(false);
@@ -109,7 +97,7 @@ export const DepartmentTab = ({add, specKey, onRemove, loadingData, tabData}) =>
 
                 // Если это редактирование записи, то происходит изменение записи в хранилище redux,
                 // иначе происходит запись новой записи в хранилище redux
-                !tabData ? dispatch(ActionCreator.createDepartment(data.department)) :
+                !rowData ? dispatch(ActionCreator.createDepartment(data.department)) :
                     departments.forEach((department, index) => {
                         if (department._id === data.department._id) {
                             dispatch(ActionCreator.editDepartment(index, data.department));
@@ -123,8 +111,8 @@ export const DepartmentTab = ({add, specKey, onRemove, loadingData, tabData}) =>
     // Функция удаления записи
     const deleteHandler = async () => {
         try {
-            if (tabData) {
-                const data = await request('/api/directory/departments', 'DELETE', tabData);
+            if (rowData) {
+                const data = await request('/api/directory/departments/' + rowData._id, 'DELETE', rowData);
 
                 if (data) {
                     message.success(data.message);
@@ -134,7 +122,7 @@ export const DepartmentTab = ({add, specKey, onRemove, loadingData, tabData}) =>
 
                     // Удаляем запись из хранилища redux
                     departments.forEach((department, index) => {
-                        if (department._id === tabData._id) {
+                        if (department._id === rowData._id) {
                             dispatch(ActionCreator.deleteDepartment(index));
                         }
                     });
@@ -178,7 +166,8 @@ export const DepartmentTab = ({add, specKey, onRemove, loadingData, tabData}) =>
                             title={title}
                             description={
                                 <Form labelCol={{span: 6}} wrapperCol={{span: 18}} style={{marginTop: '5%'}} form={form}
-                                      name={tabData ? `control-ref-department-${tabData.name}` : "control-ref-department"}
+                                      name={rowData ? `control-ref-department-${rowData.name}` :
+                                          "control-ref-department"}
                                       onFinish={onSave} onFinishFailed={onFinishFailed}>
                                     <Form.Item name="parent" label="Принадлежит">
                                         <Select options={departmentsToOptions}
@@ -188,7 +177,7 @@ export const DepartmentTab = ({add, specKey, onRemove, loadingData, tabData}) =>
                                     <Form.Item
                                         label="Наименование"
                                         name="name"
-                                        initialValue={!tabData ? '' : tabData.name}
+                                        initialValue={!rowData ? '' : rowData.name}
                                         rules={[{required: true, message: 'Введите название подразделения!'}]}
                                     >
                                         <Input maxLength={255} type="text"/>
@@ -197,9 +186,16 @@ export const DepartmentTab = ({add, specKey, onRemove, loadingData, tabData}) =>
                                     <Form.Item
                                         label="Примечание"
                                         name="notes"
-                                        initialValue={!tabData ? '' : tabData.notes}
+                                        initialValue={!rowData ? '' : rowData.notes}
                                     >
                                         <Input maxLength={255} type="text"/>
+                                    </Form.Item>
+
+                                    <Form.Item
+                                        name="_id"
+                                        hidden={true}
+                                    >
+                                        <Input/>
                                     </Form.Item>
 
                                     <Row justify="end" style={{marginTop: 20}} xs={{gutter: [8, 8]}}>
@@ -208,10 +204,9 @@ export const DepartmentTab = ({add, specKey, onRemove, loadingData, tabData}) =>
                                                 icon={<CheckOutlined/>}>
                                             Сохранить
                                         </Button>
-                                        {!tabData ? null :
+                                        {!rowData ? null :
                                             <>
                                                 <Button className="button-style" type="danger" onClick={deleteHandler}
-                                                        loading={loadingDelete}
                                                         icon={<DeleteOutlined/>}>
                                                     Удалить
                                                 </Button>

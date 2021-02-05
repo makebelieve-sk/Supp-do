@@ -6,28 +6,23 @@ import {CheckOutlined} from '@ant-design/icons';
 import {downloadCSV, pagination} from '../../datatable.options/datatable.options';
 import {HeaderDatatable} from './headerDatatable';
 import {ButtonsComponent} from "./buttonsDatatable";
-import {useHttp} from "../../hooks/http.hook";
 import {ColumnsMapHelper, RowMapHelper} from "../helpers/dataTableMap.helper";
 
-export const DataTableComponent = ({add, specKey, loadingData}) => {
+export const DataTableComponent = ({specKey}) => {
     // Получение колонок для таблицы
     const columns = ColumnsMapHelper(specKey);
 
     // Получение массива данных для заполнения таблицы, и получение текущих открытых вкладок
-    let {data, tabs} = useSelector(state => {
+    let {data} = useSelector(state => {
         if (state[specKey]) {
             return {
-                data: state[specKey],
-                tabs: state.tabs
+                data: state[specKey]
             }
         } else {
             let messageErrorText = 'Произошла ошибка при заполнении таблицы, пожалуйста, попробуйте снова';
-            message.error(messageErrorText);
+            message.error(messageErrorText).then(r => console.log(r));
         }
     });
-
-    // Получение функции создания запросов на сервер
-    let {request} = useHttp();
 
     // Создание стейта для текстового поля, отфильтрованных колонок, выбранных колонок и начальных колонок
     const [filterText, setFilterText] = useState('');
@@ -83,9 +78,8 @@ export const DataTableComponent = ({add, specKey, loadingData}) => {
     }
 
     // Экспорт данных
-    const onExport = () => {
-        return data && data.length > 0 ? downloadCSV(data, specKey) : message.error('Записи в таблице отсутствуют');
-    };
+    const onExport = () => data && data.length > 0 ?
+        downloadCSV(data, specKey) : message.error('Записи в таблице отсутствуют');
 
     return (
         <>
@@ -95,7 +89,6 @@ export const DataTableComponent = ({add, specKey, loadingData}) => {
                     setFilterText={setFilterText}
                 />
                 <ButtonsComponent
-                    add={add}
                     specKey={specKey}
                     onExport={onExport}
                     checkedColumns={checkedColumns}
@@ -112,12 +105,11 @@ export const DataTableComponent = ({add, specKey, loadingData}) => {
                 size="middle"
                 bordered
                 pagination={pagination}
-                loading={loadingData}
                 rowKey={(record) => record._id.toString()}
-                onRow={(row) => ({
+                onRow={(rowData) => ({
                     onClick: () => {
                         // Открытие новой вкладки для редактирования записи
-                        RowMapHelper(specKey, add, tabs, request, row);
+                        RowMapHelper(specKey, rowData);
                     }
                 })}
             />
