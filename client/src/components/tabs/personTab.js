@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {Card, Form, Input, Row, Button, message, Select, Col, Skeleton} from 'antd';
 import {useSelector, useDispatch} from "react-redux";
 import {
@@ -9,116 +9,51 @@ import {
     StopOutlined
 } from "@ant-design/icons";
 
-import ActionCreator from "../../redux/actionCreators";
 import {request} from "../helpers/request.helper";
 import {RowMapHelper} from "../helpers/dataTableMap.helper";
+import {ActionCreator} from "../../redux/combineActions";
 
 const {Meta} = Card;
 
 export const PersonTab = ({specKey, onRemove}) => {
     // Получение списков подразделений, профессий, вкладок, порсонала и загрузки записи из хранилища redux
     const {people, professions, departments, rowData, loadingSkeleton} = useSelector((state) => ({
-        professions: state.professions,
-        departments: state.departments,
-        people: state.people,
-        rowData: state.rowDataPerson,
-        loadingSkeleton: state.loadingSkeleton
+        professions: state.reducerProfession.professions,
+        departments: state.reducerDepartment.departments,
+        people: state.reducerPerson.people,
+        rowData: state.reducerPerson.rowDataPerson,
+        loadingSkeleton: state.reducerLoading.loadingSkeleton
     }));
     const dispatch = useDispatch();
 
     // Создание стейта для значений в выпадающих списках "Подразделения" и "Персонал", начальных значений
-    // и показа спиннера загрузки при сохранении
+    // показ спиннера загрузки при сохранении, показ спиннера загрузки при обновлении выпадающи списков
     const [selectDep, setSelectDep] = useState(null);
     const [selectProfession, setSelectProfession] = useState(null);
     const [departmentsToOptions, setDepartmentsToOptions] = useState([]);
     const [professionsToOptions, setProfessionsToOptions] = useState([]);
-    const [loadingSave, setLoadingSave] = useState(false);
+    const [loadingSelectDep, setLoadingSelectDep] = useState(false);
+    const [loadingSelectProf, setLoadingSelectProf] = useState(false);
 
     let initialDepartment = null;
     let initialProfession = null;
-    let initialDepartmentName = '';
-    let initialProfName = '';
-    let initialName, initialNotes, initialTabNumber, initialId;
 
     // Инициализация хука useForm() от Form antd
     const [form] = Form.useForm();
 
     // Если вкладка редактирования, то устанавливаем начальные значения для выпадающих списков
     if (rowData) {
-        initialName = rowData.name;
-        initialNotes = rowData.notes;
-        initialTabNumber = rowData.tabNumber;
-        initialId = rowData._id;
-
         if (rowData.department && rowData.profession) {
             initialDepartment = rowData.department;
             initialProfession = rowData.profession;
-
-            initialDepartmentName = rowData.department.name;
-            initialProfName = rowData.profession.name;
         }
     }
 
-    // Обновление выпадающих списков
-    useEffect(() => {
-        const getData = async () => {
-            const dataDepartments = await request('/api/directory/departments');
-            const dataProfessions = await request('/api/directory/professions');
-
-            let departmentsToOptions = [{label: 'Не выбрано', value: ''}];
-            let professionsToOptions = [{label: 'Не выбрано', value: ''}];
-
-            if (dataDepartments) {
-                dataDepartments.forEach((department) => {
-                    let object = {
-                        label: department.name,
-                        value: department.name
-                    }
-
-                    departmentsToOptions.push(object);
-                })
-            }
-            if (dataProfessions) {
-                dataProfessions.forEach((prof) => {
-                    let object = {
-                        label: prof.name,
-                        value: prof.name
-                    }
-
-                    professionsToOptions.push(object);
-                })
-            }
-
-            setDepartmentsToOptions(departmentsToOptions);
-            setProfessionsToOptions(professionsToOptions);
-        }
-
-        getData();
-    }, [departments, professions]);
-
-    // Установка начального значения выпадающего списка, если вкладка редактируется
-    useEffect(() => {
-        if (rowData) {
-            form.setFieldsValue({
-                name: initialName,
-                notes: initialNotes,
-                tabNumber: initialTabNumber,
-                department: initialDepartmentName,
-                profession: initialProfName,
-                _id: initialId
-            });
-        } else {
-            return null;
-        }
-    }, [form, initialName, initialNotes, initialTabNumber, initialDepartmentName, initialProfName, initialId, rowData]);
-
-    let title = !rowData ? 'Создание записи о сотруднике' : 'Редактирование записи о сотруднике';
+    let title = rowData ? 'Редактирование записи о сотруднике' : 'Создание записи о сотруднике';
 
     // Функция сохранения записи
     const onSave = async (values) => {
         try {
-            setLoadingSave(true);
-
             values.department = selectDep ? selectDep : initialDepartment;
             values.profession = selectProfession ? selectProfession : initialProfession;
 
@@ -127,8 +62,6 @@ export const PersonTab = ({specKey, onRemove}) => {
             const data = await request('/api/directory/people', method, values);
 
             if (data) {
-                setLoadingSave(false);
-
                 message.success(data.message);
 
                 // Удаление текущей вкладки
@@ -136,15 +69,15 @@ export const PersonTab = ({specKey, onRemove}) => {
 
                 // Если это редактирование записи, то происходит изменение записи в хранилище redux,
                 // иначе происходит запись новой записи в хранилище redux
-                !rowData ? dispatch(ActionCreator.createPerson(data.person)) :
+                rowData ?
                     people.forEach((pers, index) => {
                         if (pers._id === data.person._id) {
-                            dispatch(ActionCreator.editPerson(index, data.person));
+                            dispatch(ActionCreator.ActionCreatorPerson.editPerson(index, data.person));
                         }
-                    });
+                    }) :
+                    dispatch(ActionCreator.ActionCreatorPerson.createPerson(data.person));
             }
-        } catch (e) {
-        }
+        } catch (e) {}
     };
 
     // Функция удаления записи
@@ -161,18 +94,17 @@ export const PersonTab = ({specKey, onRemove}) => {
                     // Удаляем запись из хранилища redux
                     people.forEach((pers, index) => {
                         if (pers._id === rowData._id) {
-                            dispatch(ActionCreator.deletePerson(index));
+                            dispatch(ActionCreator.ActionCreatorPerson.deletePerson(index));
                         }
                     });
                 }
             }
-        } catch (e) {
-        }
+        } catch (e) {}
     };
 
     // Вывод сообщения валидации формы
     const onFinishFailed = () => {
-        message.error('Заполните обязательные поля');
+        message.error('Заполните обязательные поля').then(r => console.log(r));
     };
 
     // Функция нажатия на кнопку "Отмена"
@@ -210,6 +142,61 @@ export const PersonTab = ({specKey, onRemove}) => {
         form.setFieldsValue({profession: value});
     };
 
+    // Обновление выпадающего списка "Подразделения"
+    const dropDownRenderDepartments = async (open) => {
+        if (open) {
+            setLoadingSelectDep(true);
+
+            const dataDepartments = await request('/api/directory/departments');
+
+            dispatch(ActionCreator.ActionCreatorDepartment.getAllDepartments(dataDepartments));
+
+            let departmentsToOptions = [{label: 'Не выбрано', value: ''}];
+
+            if (dataDepartments) {
+                dataDepartments.forEach((department) => {
+                    let object = {
+                        label: department.name,
+                        value: department.name
+                    }
+
+                    departmentsToOptions.push(object);
+                })
+            }
+
+            setLoadingSelectDep(false);
+
+            setDepartmentsToOptions(departmentsToOptions);
+        }
+    }
+
+    // Обновление выпадающего списка "Профессии"
+    const dropDownRenderProfessions = async (open) => {
+        if (open) {
+            setLoadingSelectProf(true);
+
+            const dataProfessions = await request('/api/directory/professions');
+
+            dispatch(ActionCreator.ActionCreatorProfession.getAllProfessions(dataProfessions));
+
+            let professionsToOptions = [{label: 'Не выбрано', value: ''}];
+            if (dataProfessions) {
+                dataProfessions.forEach((prof) => {
+                    let object = {
+                        label: prof.name,
+                        value: prof.name
+                    }
+
+                    professionsToOptions.push(object);
+                })
+            }
+
+            setLoadingSelectProf(false);
+
+            setProfessionsToOptions(professionsToOptions);
+        }
+    }
+
     return (
         <Row className="container-tab" justify="center">
             <Col sm={{span: 24}} md={{span: 20}} lg={{span: 16}} xl={{span: 12}}>
@@ -238,10 +225,15 @@ export const PersonTab = ({specKey, onRemove}) => {
                                                 <Form.Item
                                                     name="department"
                                                     noStyle
+                                                    initialValue={rowData && rowData.department ? rowData.department.name : "Не выбрано"}
                                                     rules={[{required: true, message: 'Выберите подразделение!'}]}
                                                 >
-                                                    <Select options={departmentsToOptions}
-                                                            onChange={handleChangeDepartment}/>
+                                                    <Select
+                                                        options={departmentsToOptions}
+                                                        onDropdownVisibleChange={(open) => dropDownRenderDepartments(open)}
+                                                        loading={loadingSelectDep}
+                                                        onChange={handleChangeDepartment}
+                                                    />
                                                 </Form.Item>
                                             </Col>
                                             <Col xs={{span: 4}} sm={{span: 4}} md={{span: 2}} lg={{span: 2}}
@@ -263,10 +255,15 @@ export const PersonTab = ({specKey, onRemove}) => {
                                                 <Form.Item
                                                     name="profession"
                                                     noStyle
+                                                    initialValue={rowData && rowData.profession ? rowData.profession.name : "Не выбрано"}
                                                     rules={[{required: true, message: 'Выберите сотрудника!'}]}
                                                 >
-                                                    <Select options={professionsToOptions}
-                                                            onChange={handleChangeProfession}/>
+                                                    <Select
+                                                        options={professionsToOptions}
+                                                        onDropdownVisibleChange={(open) => dropDownRenderProfessions(open)}
+                                                        loading={loadingSelectProf}
+                                                        onChange={handleChangeProfession}
+                                                    />
                                                 </Form.Item>
                                             </Col>
                                             <Col xs={{span: 4}} sm={{span: 4}} md={{span: 2}} lg={{span: 2}}
@@ -300,13 +297,13 @@ export const PersonTab = ({specKey, onRemove}) => {
                                     <Form.Item
                                         name="_id"
                                         hidden={true}
+                                        initialValue={!rowData ? '' : rowData._id}
                                     >
                                         <Input/>
                                     </Form.Item>
 
                                     <Row justify="end" style={{marginTop: 20}} xs={{gutter: [8, 8]}}>
                                         <Button className="button-style" type="primary" htmlType="submit"
-                                                loading={loadingSave}
                                                 icon={<CheckOutlined/>}>
                                             Сохранить
                                         </Button>

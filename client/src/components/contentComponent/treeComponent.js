@@ -5,7 +5,7 @@ import {Tree, Row} from 'antd';
 const { DirectoryTree } = Tree;
 
 export const TreeComponent = () => {
-    const departments = useSelector((state) => state.departments);
+    const departments = useSelector((state) => state.reducerDepartment.departments);
 
     // Сортируем массив по полю "Принадлежит"
     departments.sort((a, b) => a.parent && b.parent && a.parent.name > b.parent.name ? 1 : -1);

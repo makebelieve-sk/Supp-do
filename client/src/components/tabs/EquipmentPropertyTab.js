@@ -1,47 +1,25 @@
 // Вкладка раздела Характеристики оборудования
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import {Card, Form, Input, Row, Col, Button, message, Skeleton} from 'antd';
 import {useSelector, useDispatch} from "react-redux";
 import {CheckOutlined, DeleteOutlined, PrinterOutlined, StopOutlined} from '@ant-design/icons';
 
-import ActionCreator from "../../redux/actionCreators";
 import {request} from "../helpers/request.helper";
+import {ActionCreator} from "../../redux/combineActions";
 
 const {Meta} = Card;
 
 export const EquipmentPropertyTab = ({specKey, onRemove}) => {
-    // Установка спиннера загрузки при сохранении записи
-    const [loadingSave, setLoadingSave] = useState(false);
-
     // Получение списка характеристик оборудования и загрузки записи из хранилища redux
     const {equipmentProperties, rowData, loadingSkeleton} = useSelector((state) => ({
-        equipmentProperties: state.equipmentProperties,
-        rowData: state.rowDataEquipmentProperty,
-        loadingSkeleton: state.loadingSkeleton
+        equipmentProperties: state.reducerEquipmentProperty.equipmentProperties,
+        rowData: state.reducerEquipmentProperty.rowDataEquipmentProperty,
+        loadingSkeleton: state.reducerLoading.loadingSkeleton
     }));
     const dispatch = useDispatch();
 
-    // Определение начальных значений для полей "Наименование" и "Примечание"
-    let initialName, initialNotes, initialId;
-
-    // Если вкладка редактирования, то устанавливаем начальные значения для полей "Наименование" и "Примечание"
-    if (rowData) {
-        initialName = rowData.name;
-        initialNotes = rowData.notes;
-        initialId = rowData._id;
-    }
-
     // Инициализация хука useForm() от Form antd
     const [form] = Form.useForm();
-
-    // Установка начальных значений полей "Наименование" и "Примечание", и если вкладка редактируется
-    useEffect(() => {
-        if (rowData) {
-            form.setFieldsValue({name: initialName, notes: initialNotes, _id: initialId});
-        } else {
-            return null;
-        }
-    }, [form, initialName, initialNotes, initialId, rowData]);
 
     // Заголовок вкладки
     let title = specKey === 'newEquipmentProperty' ? 'Создание характеристики оборудования' : 'Редактирование характеристики оборудования';
@@ -49,15 +27,11 @@ export const EquipmentPropertyTab = ({specKey, onRemove}) => {
     // Функция сохранения записи
     const onSave = async (values) => {
         try {
-            setLoadingSave(true);
-
             let method = !rowData ? 'POST' : 'PUT';
 
             const data = await request('/api/directory/equipment-property', method, values);
 
             if (data) {
-                setLoadingSave(false);
-
                 message.success(data.message);
 
                 // Удаление текущей вкладки
@@ -66,10 +40,10 @@ export const EquipmentPropertyTab = ({specKey, onRemove}) => {
                 // Если это редактирование записи, то происходит изменение записи в хранилище redux,
                 // иначе происходит запись новой записи в хранилище redux
                 !rowData ?
-                    dispatch(ActionCreator.createEquipmentProperty(data.equipmentProperty)) :
+                    dispatch(ActionCreator.ActionCreatorEquipmentProperty.createEquipmentProperty(data.equipmentProperty)) :
                     equipmentProperties.forEach((equipmentProp, index) => {
                         if (equipmentProp._id === data.equipmentProperty._id) {
-                            dispatch(ActionCreator.editEquipmentProperty(index, data.equipmentProperty));
+                            dispatch(ActionCreator.ActionCreatorEquipmentProperty.editEquipmentProperty(index, data.equipmentProperty));
                         }
                     });
             }
@@ -92,7 +66,7 @@ export const EquipmentPropertyTab = ({specKey, onRemove}) => {
                     // Удаляем запись из хранилища redux
                     equipmentProperties.forEach((equipmentProp, index) => {
                         if (equipmentProp._id === rowData._id) {
-                            dispatch(ActionCreator.deleteEquipmentProperty(index));
+                            dispatch(ActionCreator.ActionCreatorEquipmentProperty.deleteEquipmentProperty(index));
                         }
                     });
                 }
@@ -144,6 +118,7 @@ export const EquipmentPropertyTab = ({specKey, onRemove}) => {
                                     <Form.Item
                                         name="_id"
                                         hidden={true}
+                                        initialValue={!rowData ? '' : rowData._id}
                                     >
                                         <Input/>
                                     </Form.Item>
@@ -151,7 +126,6 @@ export const EquipmentPropertyTab = ({specKey, onRemove}) => {
                                     <Form.Item>
                                         <Row justify="end" style={{marginTop: 20}}>
                                             <Button className="button-style" type="primary" htmlType="submit"
-                                                    loading={loadingSave}
                                                     icon={<CheckOutlined/>}>
                                                 Сохранить
                                             </Button>

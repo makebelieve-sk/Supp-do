@@ -1,10 +1,9 @@
 // Помощник для создания вкладки раздела
 import store from "../../redux/store";
-import ActionCreator from "../../redux/actionCreators";
 import {ContentTab} from "./contentTab";
 import {request} from "./request.helper";
 import {getEmptyTabWithLoading} from "./getEmptyTab.helper";
-
+import {ActionCreator} from "../../redux/combineActions";
 
 /**
  * Создание вкладки раздела
@@ -16,7 +15,7 @@ import {getEmptyTabWithLoading} from "./getEmptyTab.helper";
  */
 export const OpenTabSectionHelper = async (title, key, url, dispatchAction) => {
     // Устанавливаем показ спиннера загрузки при открытии вкладки
-    store.dispatch(ActionCreator.setLoadingSkeleton(true));
+    store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(true));
 
     // Вызываем пустую вкладку для показа спиннера загрузки
     getEmptyTabWithLoading(title, ContentTab, key);
@@ -30,5 +29,5 @@ export const OpenTabSectionHelper = async (title, key, url, dispatchAction) => {
     }
 
     // Останавливаем показ спиннера загрузки при открытии вкладки
-    store.dispatch(ActionCreator.setLoadingSkeleton(false));
+    store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(false));
 };

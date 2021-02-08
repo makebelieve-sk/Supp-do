@@ -1,5 +1,4 @@
 import React, {useState} from 'react';
-import {useSelector} from "react-redux";
 import {Button, Row, Menu, Dropdown, Checkbox} from 'antd';
 import {PlusOutlined, FileExcelOutlined, PrinterOutlined, EditOutlined} from '@ant-design/icons';
 
@@ -8,9 +7,6 @@ import {ColumnsMapHelper, RowMapHelper} from "../helpers/dataTableMap.helper";
 export const ButtonsComponent = ({specKey, onExport, checkedColumns, setCheckedColumns, setColumnsTable, initialColumns}) => {
     // Получение колонок для таблицы
     let columns = ColumnsMapHelper(specKey);
-
-    // Получение табов из хранилища redux
-    const tabs = useSelector(state => state.tabs);
 
     // Стейт для отображения выпадающего меню для колонок
     const [visible, setVisible] = useState(false);

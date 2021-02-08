@@ -13,16 +13,15 @@ export const DataTableComponent = ({specKey}) => {
     const columns = ColumnsMapHelper(specKey);
 
     // Получение массива данных для заполнения таблицы, и получение текущих открытых вкладок
-    let {data} = useSelector(state => {
-        if (state[specKey]) {
-            return {
-                data: state[specKey]
-            }
-        } else {
-            let messageErrorText = 'Произошла ошибка при заполнении таблицы, пожалуйста, попробуйте снова';
-            message.error(messageErrorText).then(r => console.log(r));
-        }
-    });
+    const stateObject = useSelector(state => ({
+        professions: state.reducerProfession.professions,
+        departments: state.reducerDepartment.departments,
+        people: state.reducerPerson.people,
+        tasks: state.reducerTask.tasks,
+        equipmentProperties: state.reducerEquipmentProperty.equipmentProperties
+    }));
+
+    let data = stateObject[specKey];
 
     // Создание стейта для текстового поля, отфильтрованных колонок, выбранных колонок и начальных колонок
     const [filterText, setFilterText] = useState('');

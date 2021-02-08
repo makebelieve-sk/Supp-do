@@ -1,0 +1,13 @@
+const ADD_TAB = 'ADD_TAB';
+const EDIT_TAB = 'EDIT_TAB';
+const REMOVE_TAB = 'REMOVE_TAB';
+const SET_ACTIVE_KEY = 'SET_ACTIVE_KEY';
+const SET_PREV_ACTIVE_TAB = 'SET_PREV_ACTIVE_TAB';
+
+export {
+    ADD_TAB,
+    EDIT_TAB,
+    REMOVE_TAB,
+    SET_ACTIVE_KEY,
+    SET_PREV_ACTIVE_TAB,
+}

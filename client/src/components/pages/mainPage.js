@@ -11,7 +11,8 @@ import {
     DownOutlined,
 } from '@ant-design/icons';
 
-import ActionCreator from "../../redux/actionCreators";
+import {ActionCreator} from "../../redux/combineActions";
+
 import {AuthContext} from "../../context/authContext";
 import {OpenTabSectionHelper} from "../helpers/openTabSection.helper";
 import {request} from "../helpers/request.helper";
@@ -23,11 +24,7 @@ const {TabPane} = Tabs;
 
 export const MainPage = () => {
     // Получаем вкладки из хранилища(текущие, активную и последнюю)
-    const {tabs, activeKey, prevActiveTab} = useSelector(state => ({
-        tabs: state.tabs,
-        activeKey: state.activeKey,
-        prevActiveTab: state.prevActiveTab
-    }));
+    const {tabs, activeKey, prevActiveTab} = useSelector(state => state.reducerTab);
     const dispatch = useDispatch();
 
     // Получение контекста авторизации (токен, id пользователя, пользователь, функции входа/выхода, флаг авторизации)
@@ -44,7 +41,7 @@ export const MainPage = () => {
                 const professions = await request('/api/directory/professions');
 
                 if (professions && professions.length > 0) {
-                    dispatch(ActionCreator.getAllProfessions(professions));
+                    dispatch(ActionCreator.ActionCreatorProfession.getAllProfessions(professions));
                 }
             } catch (e) {}
         }
@@ -70,19 +67,19 @@ export const MainPage = () => {
             const panes = tabs.filter(pane => pane.key !== targetKey);
             if (panes.length && activeKey === targetKey) {
                 if (panes[lastIndex] && lastIndex >= 0) {
-                    dispatch(ActionCreator.setActiveKey(panes[lastIndex].key));
+                    dispatch(ActionCreator.ActionCreatorTab.setActiveKey(panes[lastIndex].key));
                 } else {
-                    dispatch(ActionCreator.setActiveKey(panes[0].key));
+                    dispatch(ActionCreator.ActionCreatorTab.setActiveKey(panes[0].key));
                 }
             }
 
-            dispatch(ActionCreator.removeTab(index));
+            dispatch(ActionCreator.ActionCreatorTab.removeTab(index));
         }
     };
 
     // Изменяем активную вкладку
     const onChange = activeKey => {
-        dispatch(ActionCreator.setActiveKey(activeKey));
+        dispatch(ActionCreator.ActionCreatorTab.setActiveKey(activeKey));
     };
 
     // Компонент выпадающего списка, содержит действия для управления учетной записью пользователя
@@ -103,12 +100,12 @@ export const MainPage = () => {
                 <Menu theme="dark" mode="inline">
                     <SubMenu key="directory" icon={<UserOutlined/>} title="Справочники">
                         <SubMenu title="Управление персоналом">
-                            <Menu.Item key="profession"
+                            <Menu.Item key="professions"
                                        onClick={() => OpenTabSectionHelper(
                                            'Профессии',
                                            'professions',
                                            'professions',
-                                           ActionCreator.getAllProfessions
+                                           ActionCreator.ActionCreatorProfession.getAllProfessions
                                        )}
                             >Профессии</Menu.Item>
                             <Menu.Item key="departments"
@@ -116,7 +113,7 @@ export const MainPage = () => {
                                            'Подразделения',
                                            'departments',
                                            'departments',
-                                           ActionCreator.getAllDepartments
+                                           ActionCreator.ActionCreatorDepartment.getAllDepartments
                                        )}
                             >Подразделения</Menu.Item>
                             <Menu.Item key="people"
@@ -124,7 +121,7 @@ export const MainPage = () => {
                                            'Персонал',
                                            'people',
                                            'people',
-                                           ActionCreator.getAllPeople
+                                           ActionCreator.ActionCreatorPerson.getAllPeople
                                        )}
                             >Персонал</Menu.Item>
                         </SubMenu>
@@ -134,7 +131,7 @@ export const MainPage = () => {
                                            'Характеристики оборудования',
                                            'equipmentProperties',
                                            'equipment-property',
-                                           ActionCreator.getAllEquipmentProperties
+                                           ActionCreator.ActionCreatorEquipmentProperty.getAllEquipmentProperties
                                        )}
                             >Характеристики оборудования</Menu.Item>
                             <Menu.Item key="list">Перечень оборудования</Menu.Item>
@@ -143,7 +140,7 @@ export const MainPage = () => {
                                            'Состояние заявки',
                                            'tasks',
                                            'taskStatus',
-                                           ActionCreator.getAllTasks
+                                           ActionCreator.ActionCreatorTask.getAllTasks
                                        )}
                             >Состояние заявок</Menu.Item>
                         </SubMenu>
@@ -175,8 +172,7 @@ export const MainPage = () => {
                     <div className="user">
                         <Dropdown overlay={dropdownMenu} trigger={['click']}>
                             <a className="ant-dropdown-link" href="/" onClick={e => e.preventDefault()}>
-                                <Avatar>{auth.user ? auth.user.login[0] : 'U'}</Avatar> {auth.user ? auth.user.login : ''}
-                                <DownOutlined/>
+                                <Avatar>{auth.user ? auth.user.login[0] : 'U'} </Avatar> {auth.user ? auth.user.login : ''} <DownOutlined/>
                             </a>
                         </Dropdown>
                     </div>

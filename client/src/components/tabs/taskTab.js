@@ -10,22 +10,20 @@ import {
     StopOutlined
 } from '@ant-design/icons';
 
-import ActionCreator from "../../redux/actionCreators";
 import {request} from "../helpers/request.helper";
+import {ActionCreator} from "../../redux/combineActions";
 
 const {Meta} = Card;
 
 export const TaskTab = ({specKey, onRemove}) => {
-    // Установка спиннера загрузки при сохранении записи
-    const [loadingSave, setLoadingSave] = useState(false);
     // Стейт для отображения выпадающего меню для колонок
     const [visible, setVisible] = useState(false);
 
     // Получение списка состояний заявок и загрузки записи из хранилища redux
     const {tasks, rowData, loadingSkeleton} = useSelector((state) => ({
-        tasks: state.tasks,
-        rowData: state.rowDataTask,
-        loadingSkeleton: state.loadingSkeleton
+        tasks: state.reducerTask.tasks,
+        rowData: state.reducerTask.rowDataTask,
+        loadingSkeleton: state.reducerLoading.loadingSkeleton
     }));
     const dispatch = useDispatch();
 
@@ -34,16 +32,9 @@ export const TaskTab = ({specKey, onRemove}) => {
     // Стейт для поля "Цвет"
     const [color, setColor] = useState(initialColor);
 
-    // Определение начальных значений для полей "Наименование" и "Примечание"
-    let initialName, initialNotes, initialIsFinish, initialId;
-
     // Если вкладка редактирования, то устанавливаем начальные значения для полей "Наименование", "Цвет" и "Примечание"
     if (rowData) {
-        initialName = rowData.name;
         initialColor = rowData.color;
-        initialNotes = rowData.notes;
-        initialIsFinish = rowData.isFinish;
-        initialId = rowData._id;
     }
 
     // Инициализация хука useForm() от Form antd
@@ -52,34 +43,19 @@ export const TaskTab = ({specKey, onRemove}) => {
     // Установка начальных значений полей "Наименование", "Цвет" и "Примечание", и если вкладка редактируется
     // Также устанавливаем текущий цвет в стейт
     useEffect(() => {
-        if (rowData) {
-            setColor(initialColor);
-            form.setFieldsValue({
-                name: initialName,
-                color: initialColor,
-                notes: initialNotes,
-                isFinish: initialIsFinish,
-                _id: initialId
-            });
-        } else {
-            return null;
-        }
-    }, [form, initialName, initialColor, initialNotes, initialIsFinish, initialId, rowData]);
+        setColor(initialColor);
+    }, [initialColor]);
 
     let title = specKey === 'newTask' ? 'Создание записи о состоянии заявки' : 'Редактирование записи о состоянии заявки';
 
     // Функция сохранения записи
     const onSave = async (values) => {
         try {
-            setLoadingSave(true);
-
             let method = !rowData ? 'POST' : 'PUT';
 
             const data = await request('/api/directory/taskStatus', method, values);
 
             if (data) {
-                setLoadingSave(false);
-
                 message.success(data.message);
 
                 // Удаление текущей вкладки
@@ -88,15 +64,14 @@ export const TaskTab = ({specKey, onRemove}) => {
                 // Если это редактирование записи, то происходит изменение записи в хранилище redux,
                 // иначе происходит запись новой записи в хранилище redux
                 !rowData ?
-                    dispatch(ActionCreator.createTask(data.task)) :
+                    dispatch(ActionCreator.ActionCreatorTask.createTask(data.task)) :
                     tasks.forEach((task, index) => {
                         if (task._id === data.task._id) {
-                            dispatch(ActionCreator.editTask(index, data.task));
+                            dispatch(ActionCreator.ActionCreatorTask.editTask(index, data.task));
                         }
                     });
             }
-        } catch (e) {
-        }
+        } catch (e) {}
     };
 
     // Функция удаления записи
@@ -114,7 +89,7 @@ export const TaskTab = ({specKey, onRemove}) => {
                     // Удаляем запись из хранилища redux
                     tasks.forEach((task, index) => {
                         if (task._id === rowData._id) {
-                            dispatch(ActionCreator.deleteTask(index));
+                            dispatch(ActionCreator.ActionCreatorTask.deleteTask(index));
                         }
                     });
                 }
@@ -218,6 +193,7 @@ export const TaskTab = ({specKey, onRemove}) => {
                                     <Form.Item
                                         name="_id"
                                         hidden={true}
+                                        initialValue={!rowData ? '' : rowData._id}
                                     >
                                         <Input/>
                                     </Form.Item>
@@ -225,7 +201,6 @@ export const TaskTab = ({specKey, onRemove}) => {
                                     <Form.Item>
                                         <Row justify="end" style={{marginTop: 20}} xs={{gutter: [8, 8]}}>
                                             <Button className="button-style" type="primary" htmlType="submit"
-                                                    loading={loadingSave}
                                                     icon={<CheckOutlined/>}>
                                                 Сохранить
                                             </Button>

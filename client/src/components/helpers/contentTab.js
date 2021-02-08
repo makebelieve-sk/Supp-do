@@ -9,7 +9,7 @@ const {TabPane} = Tabs;
 
 export const ContentTab = ({specKey}) => {
     let component;
-    const loadingSkeleton = useSelector(state => state.loadingSkeleton);
+    const loadingSkeleton = useSelector(state => state.reducerLoading.loadingSkeleton);
 
     // Если вкладка "Подразделения", то в её содержимое добавляем вкладки "Таблица" и "Дерево", иначе возвращаем таблицу
     if (specKey === 'departments') {

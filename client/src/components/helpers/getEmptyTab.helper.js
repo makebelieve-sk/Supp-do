@@ -1,5 +1,5 @@
 import store from "../../redux/store";
-import ActionCreator from "../../redux/actionCreators";
+import {ActionCreator} from "../../redux/combineActions";
 
 /**
  * Создает новую вкладку раздела с отображением спиннера загрузки
@@ -9,8 +9,8 @@ import ActionCreator from "../../redux/actionCreators";
  */
 export const getEmptyTabWithLoading = (title, content, key) => {
     // Получаем текущие вкладки и акивную вкладку из redux
-    const tabs = store.getState().tabs;
-    const activeKey = store.getState().activeKey;
+    const tabs = store.getState().reducerTab.tabs;
+    const activeKey = store.getState().reducerTab.activeKey;
 
     let tabObject = {
         title: title,
@@ -27,16 +27,16 @@ export const getEmptyTabWithLoading = (title, content, key) => {
     let indexOf = tabs.indexOf(findTab);
 
     if (findTab && indexOf >= 0) {
-        store.dispatch(ActionCreator.editTab(indexOf, findTab));
+        store.dispatch(ActionCreator.ActionCreatorTab.editTab(indexOf, findTab));
     } else {
-        store.dispatch(ActionCreator.addTab(tabObject));
+        store.dispatch(ActionCreator.ActionCreatorTab.addTab(tabObject));
     }
 
     // Сохраняем предыдущую вкладку в хранилище
     if (activeKey) {
-        store.dispatch(ActionCreator.setPrevActiveTab(activeKey));
+        store.dispatch(ActionCreator.ActionCreatorTab.setPrevActiveTab(activeKey));
     }
 
     // Устанавливаем ключ активной вкладки в хранилище
-    store.dispatch(ActionCreator.setActiveKey(key));
+    store.dispatch(ActionCreator.ActionCreatorTab.setActiveKey(key));
 }

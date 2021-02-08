@@ -32,7 +32,7 @@ const map = new Map([
  */
 const RowMapHelper = (key, rowData) => {
     if (map.has(key)) {
-        map.get(key).getRow(rowData).then(r => console.log(''));
+        map.get(key).getRow(rowData).then(r => null);
     } else {
         message.error(`Раздел с ключём ${key} не существует (открытие вкладки создания/редактирования записи)`)
             .then(r => console.log(r));
