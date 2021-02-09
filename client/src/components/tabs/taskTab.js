@@ -1,17 +1,12 @@
+// Вкладка "Состояние заявок"
 import React, {useEffect, useState} from 'react';
-import {Card, Form, Input, Row, Col, Button, message, Skeleton, Checkbox, Dropdown} from 'antd';
-import {useSelector, useDispatch} from "react-redux";
-import { SketchPicker } from 'react-color';
-import {
-    CheckOutlined,
-    DeleteOutlined,
-    EditOutlined,
-    PrinterOutlined,
-    StopOutlined
-} from '@ant-design/icons';
+import {useSelector} from "react-redux";
+import {SketchPicker} from 'react-color';
+import {Card, Form, Input, Row, Col, Button, Skeleton, Checkbox, Dropdown} from 'antd';
+import {CheckOutlined, EditOutlined, StopOutlined} from '@ant-design/icons';
 
-import {request} from "../helpers/request.helper";
 import {ActionCreator} from "../../redux/combineActions";
+import {checkTypeTab, onCancel, onDelete, onFailed, onSave} from "../helpers/rowTabs.helper";
 
 const {Meta} = Card;
 
@@ -19,25 +14,24 @@ export const TaskTab = ({specKey, onRemove}) => {
     // Стейт для отображения выпадающего меню для колонок
     const [visible, setVisible] = useState(false);
 
+    // Инициализация стейта для показа спиннера загрузки при сохранении и удалении записи
+    const [loadingSave, setLoadingSave] = useState(false);
+    const [loadingDelete, setLoadingDelete] = useState(false);
+
     // Получение списка состояний заявок и загрузки записи из хранилища redux
     const {tasks, rowData, loadingSkeleton} = useSelector((state) => ({
         tasks: state.reducerTask.tasks,
         rowData: state.reducerTask.rowDataTask,
         loadingSkeleton: state.reducerLoading.loadingSkeleton
     }));
-    const dispatch = useDispatch();
 
+    // Установка цвета
     let initialColor = rowData ? rowData.color : '#FFFFFF';
 
     // Стейт для поля "Цвет"
     const [color, setColor] = useState(initialColor);
 
-    // Если вкладка редактирования, то устанавливаем начальные значения для полей "Наименование", "Цвет" и "Примечание"
-    if (rowData) {
-        initialColor = rowData.color;
-    }
-
-    // Инициализация хука useForm() от Form antd
+    // Инициализация хука от Form antd
     const [form] = Form.useForm();
 
     // Установка начальных значений полей "Наименование", "Цвет" и "Примечание", и если вкладка редактируется
@@ -46,71 +40,30 @@ export const TaskTab = ({specKey, onRemove}) => {
         setColor(initialColor);
     }, [initialColor]);
 
-    let title = specKey === 'newTask' ? 'Создание записи о состоянии заявки' : 'Редактирование записи о состоянии заявки';
+    // Создание заголовка раздела и имени формы
+    const title = rowData ? 'Создание записи о состоянии заявки' : 'Редактирование записи о состоянии заявки';
+    const name = rowData ? `control-ref-task-${rowData.name}` : "control-ref-task";
 
-    // Функция сохранения записи
-    const onSave = async (values) => {
-        try {
-            let method = !rowData ? 'POST' : 'PUT';
+    // Обработка нажатия на кнопку "Сохранить"
+    const saveHandler = (values) => onSave(
+        "taskStatus", values, setLoadingSave, ActionCreator.ActionCreatorTask.editTask,
+        ActionCreator.ActionCreatorTask.createTask, tasks, onRemove, specKey, rowData
+    ).then(null);
 
-            const data = await request('/api/directory/taskStatus', method, values);
+    // Обработка нажатия на кнопку "Удалить"
+    const deleteHandler = () => onDelete(
+        "taskStatus", setLoadingDelete, ActionCreator.ActionCreatorTask.deleteTask,
+        tasks, onRemove, specKey, rowData
+    ).then(null);
 
-            if (data) {
-                message.success(data.message);
+    // Обработка нажатия на кнопку "Отмена"
+    const cancelHandler = () => onCancel(onRemove, specKey);
 
-                // Удаление текущей вкладки
-                onRemove(specKey, 'remove');
+    // Инициализация кнопок, появляющихся при редактировании записи
+    const editButtonsComponent = checkTypeTab(rowData, deleteHandler, loadingDelete);
 
-                // Если это редактирование записи, то происходит изменение записи в хранилище redux,
-                // иначе происходит запись новой записи в хранилище redux
-                !rowData ?
-                    dispatch(ActionCreator.ActionCreatorTask.createTask(data.task)) :
-                    tasks.forEach((task, index) => {
-                        if (task._id === data.task._id) {
-                            dispatch(ActionCreator.ActionCreatorTask.editTask(index, data.task));
-                        }
-                    });
-            }
-        } catch (e) {}
-    };
-
-    // Функция удаления записи
-    const deleteHandler = async () => {
-        try {
-            if (rowData) {
-                const data = await request('/api/directory/taskStatus/' + rowData._id, 'DELETE', rowData);
-
-                if (data) {
-                    message.success(data.message);
-
-                    // Удаление текущей вкладки
-                    onRemove(specKey, 'remove');
-
-                    // Удаляем запись из хранилища redux
-                    tasks.forEach((task, index) => {
-                        if (task._id === rowData._id) {
-                            dispatch(ActionCreator.ActionCreatorTask.deleteTask(index));
-                        }
-                    });
-                }
-            }
-        } catch (e) {
-        }
-    };
-
-    // Вывод сообщения валидации формы
-    const onFinishFailed = () => {
-        message.error('Заполните обязательные поля');
-    };
-
-    // Функция нажатия на кнопку "Отмена"
-    const cancelHandler = () => {
-        // Удаляем текущую вкладку
-        onRemove(specKey, 'remove');
-    }
-
-    // Создание переменной для отображения выпадающего списка для колонок
-    let component = <>
+    // Создание компонента цветового пикера
+    let colorPickerComponent = <>
         <SketchPicker
             color={color}
             onChangeComplete={(newColor, event) => {
@@ -137,9 +90,14 @@ export const TaskTab = ({specKey, onRemove}) => {
                         <Meta
                             title={title}
                             description={
-                                <Form style={{marginTop: '5%'}} form={form} labelCol={{span: 6}}
-                                      name={rowData ? `control-ref-task-${rowData.name}` : "control-ref-task"}
-                                      onFinish={onSave} onFinishFailed={onFinishFailed}>
+                                <Form
+                                    style={{marginTop: '5%'}}
+                                    form={form}
+                                    labelCol={{span: 6}}
+                                    name={name}
+                                    onFinish={saveHandler}
+                                    onFinishFailed={onFailed}
+                                >
                                     <Form.Item
                                         label="Наименование"
                                         name="name"
@@ -151,8 +109,7 @@ export const TaskTab = ({specKey, onRemove}) => {
 
                                     <Form.Item label="Цвет">
                                         <Row gutter={8}>
-                                            <Col xs={{span: 20}} sm={{span: 20}} md={{span: 22}} lg={{span: 22}}
-                                                 xl={{span: 22}}>
+                                            <Col xs={{span: 20}} sm={{span: 20}} md={{span: 22}} lg={{span: 22}} xl={{span: 22}}>
                                                 <Form.Item
                                                     name="color"
                                                     noStyle
@@ -161,10 +118,9 @@ export const TaskTab = ({specKey, onRemove}) => {
                                                     <Input maxLength={255} type="text" disabled/>
                                                 </Form.Item>
                                             </Col>
-                                            <Col xs={{span: 4}} sm={{span: 4}} md={{span: 2}} lg={{span: 2}}
-                                                 xl={{span: 2}}>
+                                            <Col xs={{span: 4}} sm={{span: 4}} md={{span: 2}} lg={{span: 2}} xl={{span: 2}}>
                                                 <Dropdown
-                                                    overlay={component}
+                                                    overlay={colorPickerComponent}
                                                     onVisibleChange={handleVisibleChange}
                                                     visible={visible}
                                                 >
@@ -178,47 +134,38 @@ export const TaskTab = ({specKey, onRemove}) => {
                                         </Row>
                                     </Form.Item>
 
-                                    <Form.Item
-                                        name="notes"
-                                        label="Примечание"
-                                        initialValue={!rowData ? '' : rowData.notes}
-                                    >
-                                        <Input maxLength={255} type="text" />
+                                    <Form.Item name="notes" label="Примечание" initialValue={!rowData ? '' : rowData.notes}>
+                                        <Input maxLength={255} type="text"/>
                                     </Form.Item>
 
                                     <Form.Item name="isFinish" valuePropName="checked" wrapperCol={{offset: 6}}>
                                         <Checkbox>Завершено</Checkbox>
                                     </Form.Item>
 
-                                    <Form.Item
-                                        name="_id"
-                                        hidden={true}
-                                        initialValue={!rowData ? '' : rowData._id}
-                                    >
+                                    <Form.Item name="_id" hidden={true} initialValue={!rowData ? '' : rowData._id}>
                                         <Input/>
                                     </Form.Item>
 
                                     <Form.Item>
                                         <Row justify="end" style={{marginTop: 20}} xs={{gutter: [8, 8]}}>
-                                            <Button className="button-style" type="primary" htmlType="submit"
-                                                    icon={<CheckOutlined/>}>
+                                            <Button
+                                                className="button-style"
+                                                type="primary"
+                                                htmlType="submit"
+                                                loading={loadingSave}
+                                                icon={<CheckOutlined/>}
+                                            >
                                                 Сохранить
                                             </Button>
-                                            {!rowData ? null :
-                                                <>
-                                                    <Button className="button-style" type="danger" onClick={deleteHandler}
-                                                            icon={<DeleteOutlined/>}>
-                                                        Удалить
-                                                    </Button>
-                                                    <Button className="button-style" type="secondary"
-                                                            onClick={() => alert(1)}
-                                                            icon={<PrinterOutlined/>}>
-                                                        Печать
-                                                    </Button>
-                                                </>
-                                            }
-                                            <Button className="button-style" type="secondary" onClick={cancelHandler}
-                                                    icon={<StopOutlined/>}>
+
+                                            {editButtonsComponent}
+
+                                            <Button
+                                                className="button-style"
+                                                type="secondary"
+                                                onClick={cancelHandler}
+                                                icon={<StopOutlined/>}
+                                            >
                                                 Отмена
                                             </Button>
                                         </Row>

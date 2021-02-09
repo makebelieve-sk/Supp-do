@@ -5,14 +5,25 @@ import {
     headerPersonTable,
     headerTasksTable,
     headerEquipmentPropertyTable,
+    headerEquipmentTable,
 
     DepartmentColumns,
     PersonColumns,
     ProfessionColumns,
     TasksColumns,
-    EquipmentPropertyColumns
+    EquipmentPropertyColumns,
+    EquipmentColumns,
 } from "../../datatable.options/datatable.columns";
-import {getProfession, getDepartment, getPerson, getTask, getEquipmentProperty} from "./rowFunctions.helper";
+
+import {
+    getProfession,
+    getDepartment,
+    getPerson,
+    getTask,
+    getEquipmentProperty,
+    getEquipment
+} from "./rowFunctions.helper";
+
 import {message} from "antd";
 
 // Карта соответствия ключей и строк, колонок и заголовков экспорта
@@ -22,6 +33,7 @@ const map = new Map([
     ['people', {getRow: getPerson, getColumns: PersonColumns, getExportHeaders: headerPersonTable}],
     ['tasks', {getRow: getTask, getColumns: TasksColumns, getExportHeaders: headerTasksTable}],
     ['equipmentProperties', {getRow: getEquipmentProperty, getColumns: EquipmentPropertyColumns, getExportHeaders: headerEquipmentPropertyTable}],
+    ['equipment', {getRow: getEquipment, getColumns: EquipmentColumns, getExportHeaders: headerEquipmentTable}],
 ]);
 
 /**

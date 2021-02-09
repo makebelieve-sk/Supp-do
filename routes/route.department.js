@@ -57,7 +57,7 @@ router.post('/departments', async (req, res) => {
             currentDepartment = await Department.findOne({name}).populate('parent');
         }
 
-        res.status(201).json({message: "Подразделение сохранено", department: currentDepartment});
+        res.status(201).json({message: "Подразделение сохранено", item: currentDepartment});
     } catch (e) {
         res.status(500).json({message: "Ошибка при создании записи"})
     }
@@ -85,7 +85,9 @@ router.put('/departments', async (req, res) => {
 
         await item.save();
 
-        res.status(201).json({message: "Подразделение сохранено", department: item});
+        let savedItem = await Department.findById({_id}).populate("parent");
+
+        res.status(201).json({message: "Подразделение сохранено", item: savedItem});
     } catch (e) {
         res.status(500).json({message: "Ошибка при обновлении  подразделения"})
     }

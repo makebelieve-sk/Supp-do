@@ -1,85 +1,85 @@
-// Вкладка "Подразделения"
 import React, {useState} from 'react';
-import {useSelector} from "react-redux";
 import {Button, Card, Form, Input, Row, Col, Select, Skeleton} from 'antd';
-import {CheckOutlined, StopOutlined} from "@ant-design/icons";
+import {useSelector} from "react-redux";
 
+import {CheckOutlined, StopOutlined} from "@ant-design/icons";
 import {ActionCreator} from "../../redux/combineActions";
 import {
     checkTypeTab,
     onCancel,
-    onDelete,
-    onFailed,
-    onSave,
     onChange,
-    onDropDownRender
+    onDelete,
+    onDropDownRender,
+    onFailed,
+    onSave
 } from "../helpers/rowTabs.helper";
 
 const {Meta} = Card;
 
-export const DepartmentTab = ({specKey, onRemove}) => {
-    // Получение списка подразделений и загрузки записи из хранилища redux
-    const {departments, rowData, loadingSkeleton} = useSelector((state) => ({
-        departments: state.reducerDepartment.departments,
-        rowData: state.reducerDepartment.rowDataDepartment,
-        loadingSkeleton: state.reducerLoading.loadingSkeleton
-    }));
-
-    // Инициализация стейта для показа спиннера загрузки при сохранении/редактировании/удалении записи и обновлении
+export const EquipmentTab = ({specKey, onRemove}) => {
+    // Инициализация стейта для показа спиннера загрузки при сохранении/удалении записи и обновлении
     // выпадающего списка
     const [loadingSave, setLoadingSave] = useState(false);
     const [loadingDelete, setLoadingDelete] = useState(false);
-    const [loadingSelectDep, setLoadingSelectDep] = useState(false);
+    const [loadingSelectEquipment, setLoadingSelectEquipment] = useState(false);
 
-    // Инициализация начлаьного значения в выпадающем списке
-    let initialDepartment = null;
+    // Получение списка подразделений и загрузки записи из хранилища redux
+    const {equipment, rowData, loadingSkeleton} = useSelector((state) => ({
+        equipment: state.reducerEquipment.equipment,
+        rowData: state.reducerEquipment.rowDataEquipment,
+        loadingSkeleton: state.reducerEquipment.loadingSkeleton
+    }));
+
+    // Создание стейта для значений в выпадающем списке "Перечень оборудования" и начального значения и
+    // установка спиннера загрузки при сохранении записи
+    const [selectEquipment, setSelectEquipment] = useState(null);
+    const [equipmentToOptions, setEquipmentToOptions] = useState([]);
+
+    let initialEquipment = null;
 
     // Если вкладка редактирования, то устанавливаем начальные значения для выпадающих списков
     if (rowData) {
-        initialDepartment = rowData.parent;
+        initialEquipment = rowData.parent;
     }
-
-    // Создание стейта для значений в выпадающем списке "Подразделения" и начального значения
-    const [selectDep, setSelectDep] = useState(null);
-    const [departmentsToOptions, setDepartmentsToOptions] = useState([]);
 
     // Инициализация хука useForm() от Form antd
     const [form] = Form.useForm();
 
     // Создание заголовка раздела и имени формы
-    const title = rowData ? 'Редактирование подразделения' : 'Создание подразделения';
-    const name = rowData ? `control-ref-department-${rowData.name}` : "control-ref-department";
+    const title = rowData ? 'Редактирование оборудования' : 'Создание оборудования';
+    const name = rowData ? `control-ref-equipment-${rowData.name}` : "control-ref-equipment";
 
     // Обработка нажатия на кнопку "Сохранить"
     const saveHandler = (values) => {
-        values.parent = selectDep === "Не выбрано" ? null : selectDep ? selectDep : initialDepartment;
+        values.parent = selectEquipment === "Не выбрано" ? null : selectEquipment ? selectEquipment : initialEquipment;
 
         onSave(
-            "departments", values, setLoadingSave, ActionCreator.ActionCreatorDepartment.editDepartment,
-            ActionCreator.ActionCreatorDepartment.createDepartment, departments, onRemove, specKey, rowData
+            "equipment", values, setLoadingSave, ActionCreator.ActionCreatorEquipment.editEquipment,
+            ActionCreator.ActionCreatorEquipment.createEquipment, equipment, onRemove, specKey, rowData
         ).then(null);
     }
 
     // Обработка нажатия на кнопку "Удалить"
     const deleteHandler = () => onDelete(
-        "departments", setLoadingDelete, ActionCreator.ActionCreatorDepartment.deleteDepartment,
-        departments, onRemove, specKey, rowData
+        "equipment", setLoadingDelete, ActionCreator.ActionCreatorEquipment.deleteEquipment,
+        equipment, onRemove, specKey, rowData
     ).then(null);
 
     // Обработка нажатия на кнопку "Отмена"
     const cancelHandler = () => onCancel(onRemove, specKey);
 
     // Изменение значения в выпадающем списке "Подразделение", и сохранение этого значения в стейте
-    const changeHandler = (value) => onChange(form, value, setSelectDep, departments);
+    const changeHandler = (value) => onChange(form, value, setSelectEquipment, equipment);
 
     // Обновление выпадающего списка "Подразделения"
     const dropDownRenderHandler = (open) => onDropDownRender(
-            open, setLoadingSelectDep, "departments", ActionCreator.ActionCreatorDepartment.getAllDepartments,
-            setDepartmentsToOptions);
+        open, setLoadingSelectEquipment, "equipment", ActionCreator.ActionCreatorEquipment.getAllEquipment,
+        setEquipmentToOptions);
 
     // Инициализация кнопок, появляющихся при редактировании записи
     const editButtonsComponent = checkTypeTab(rowData, deleteHandler, loadingDelete);
 
+    console.log(rowData)
     return (
         <Row className="container-tab" justify="center">
             <Col sm={{span: 24}} md={{span: 20}} lg={{span: 16}} xl={{span: 12}}>
@@ -89,7 +89,9 @@ export const DepartmentTab = ({specKey, onRemove}) => {
                             title={title}
                             description={
                                 <Form
-                                    labelCol={{span: 6}} wrapperCol={{span: 18}} style={{marginTop: '5%'}}
+                                    labelCol={{span: 6}}
+                                    wrapperCol={{span: 18}}
+                                    style={{marginTop: '5%'}}
                                     form={form}
                                     name={name}
                                     onFinish={saveHandler}
@@ -101,9 +103,9 @@ export const DepartmentTab = ({specKey, onRemove}) => {
                                         label="Принадлежит"
                                     >
                                         <Select
-                                            options={departmentsToOptions}
+                                            options={equipmentToOptions}
                                             onDropdownVisibleChange={dropDownRenderHandler}
-                                            loading={loadingSelectDep}
+                                            loading={loadingSelectEquipment}
                                             onChange={changeHandler}
                                         />
                                     </Form.Item>
@@ -111,17 +113,25 @@ export const DepartmentTab = ({specKey, onRemove}) => {
                                     <Form.Item
                                         label="Наименование"
                                         name="name"
-                                        initialValue={!rowData ? '' : rowData.name}
-                                        rules={[{required: true, message: 'Введите название подразделения!'}]}
+                                        initialValue={rowData ? rowData.name : ""}
+                                        rules={[{required: true, message: "Введите название подразделения!"}]}
                                     >
                                         <Input maxLength={255} type="text"/>
                                     </Form.Item>
 
-                                    <Form.Item label="Примечание" name="notes" initialValue={!rowData ? '' : rowData.notes}>
+                                    <Form.Item
+                                        label="Примечание"
+                                        name="notes"
+                                        initialValue={rowData ? rowData.notes : ""}
+                                    >
                                         <Input maxLength={255} type="text"/>
                                     </Form.Item>
 
-                                    <Form.Item name="_id" hidden={true} initialValue={!rowData ? '' : rowData._id}>
+                                    <Form.Item
+                                        name="_id"
+                                        hidden={true}
+                                        initialValue={rowData ? rowData._id : ""}
+                                    >
                                         <Input/>
                                     </Form.Item>
 

@@ -42,7 +42,7 @@ router.post('/taskStatus', async (req, res) => {
 
         let savedItem = await newItem.save();
 
-        res.status(201).json({message: "Запись о состоянии заявки сохранена", task: savedItem});
+        res.status(201).json({message: "Запись о состоянии заявки сохранена", item: savedItem});
     } catch (e) {
         res.status(500).json({message: "Ошибка при создании записи"})
     }
@@ -65,7 +65,7 @@ router.put('/taskStatus', async (req, res) => {
 
         await item.save();
 
-        res.status(201).json({message: "Запись о состоянии заявки сохранена", task: item});
+        res.status(201).json({message: "Запись о состоянии заявки сохранена", item: item});
     } catch (e) {
         res.status(500).json({message: "Ошибка при обновлении записи о состоянии заявки"})
     }

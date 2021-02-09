@@ -43,7 +43,7 @@ router.post('/equipment-property', async (req, res) => {
 
         let savedItem = await newItem.save();
 
-        res.status(201).json({message: "Характеристика сохранена", equipmentProperty: savedItem});
+        res.status(201).json({message: "Характеристика сохранена", item: savedItem});
     } catch (e) {
         res.status(500).json({message: "Ошибка при создании записи"})
     }
@@ -64,7 +64,7 @@ router.put('/equipment-property', async (req, res) => {
 
         await item.save();
 
-        res.status(201).json({message: "Характеристика сохранена", equipmentProperty: item});
+        res.status(201).json({message: "Характеристика сохранена", item: item});
     } catch (e) {
         res.status(500).json({message: "Ошибка при обновлении характеристики оборудования"})
     }

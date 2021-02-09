@@ -18,7 +18,8 @@ export const DataTableComponent = ({specKey}) => {
         departments: state.reducerDepartment.departments,
         people: state.reducerPerson.people,
         tasks: state.reducerTask.tasks,
-        equipmentProperties: state.reducerEquipmentProperty.equipmentProperties
+        equipmentProperties: state.reducerEquipmentProperty.equipmentProperties,
+        equipment: state.reducerEquipment.equipment
     }));
 
     let data = stateObject[specKey];
@@ -52,6 +53,10 @@ export const DataTableComponent = ({specKey}) => {
             if (dataKeys && dataKeys.length > 0) {
                 dataKeys.forEach(key => {
                     if (item[key]) {
+                        if (Array.isArray(item[key])) {
+                            return null;
+                        }
+
                         if (typeof item[key] === "number") {
                             item[key] = item[key] + '';
                             if (item[key].toLowerCase().includes(filterText.toLowerCase())) {

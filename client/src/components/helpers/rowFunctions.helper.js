@@ -3,6 +3,7 @@ import {DepartmentTab} from "../tabs/departmentTab";
 import {PersonTab} from "../tabs/personTab";
 import {TaskTab} from "../tabs/taskTab";
 import {EquipmentPropertyTab} from "../tabs/EquipmentPropertyTab";
+import {EquipmentTab} from "../tabs/equipmentTab";
 
 import store from "../../redux/store";
 import {ActionCreator} from "../../redux/combineActions";
@@ -190,6 +191,42 @@ const getEquipmentProperty = async (rowData) => {
     store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(false));
 };
 
+/**
+ * Добавление и заполнение вкладки "Перечень оборудования"
+ * @param rowData - редактируемая строка
+ * @constructor
+ */
+const getEquipment = async (rowData) => {
+    // Устанавливаем показ спиннера загрузки при открытии вкладки с записью
+    store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(true));
+
+    if (rowData === null) {
+        // Вызываем пустую вкладку новой записи для показа спиннера загрузки
+        getEmptyTabWithLoading(
+            'Создание записи об объекте оборудования', EquipmentTab, 'newEquipment'
+        );
+
+        // Обнуляем данные в редактируемой строчке
+        store.dispatch(ActionCreator.ActionCreatorEquipment.setRowDataEquipment(null));
+    } else {
+        // Вызываем пустую вкладку редактируемой записи для показа спиннера загрузки
+        getEmptyTabWithLoading(
+            'Редактирование записи об объекте оборудования', EquipmentTab, 'updateEquipment'
+        );
+
+        // Получаем данные для записи
+        let data = await request('/api/directory/equipment/' + rowData._id);
+
+        // Если есть данные о записи, то записываем полученные данные в хранилище
+        if (data) {
+            store.dispatch(ActionCreator.ActionCreatorEquipment.setRowDataEquipment(data.equipment));
+        }
+    }
+
+    // Останавливаем показ спиннера загрузки при открытии вкладки с записью
+    store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(false));
+};
+
 export {
-    getProfession, getDepartment, getPerson, getTask, getEquipmentProperty
+    getProfession, getDepartment, getPerson, getTask, getEquipmentProperty, getEquipment
 }

@@ -1,10 +1,11 @@
+// Вкладка "Профессии"
 import React, {useState} from 'react';
-import {Card, Form, Input, Row, Col, Button, message, Skeleton} from 'antd';
-import {useSelector, useDispatch} from "react-redux";
-import {CheckOutlined, DeleteOutlined, PrinterOutlined, StopOutlined} from '@ant-design/icons';
+import {useSelector} from "react-redux";
+import {Card, Form, Input, Row, Col, Button, Skeleton} from 'antd';
+import {CheckOutlined, StopOutlined} from '@ant-design/icons';
 
-import {request} from "../helpers/request.helper";
 import {ActionCreator} from "../../redux/combineActions";
+import {checkTypeTab, onSave, onDelete, onFailed, onCancel} from "../helpers/rowTabs.helper";
 
 const {Meta} = Card;
 
@@ -19,81 +20,31 @@ export const ProfessionTab = ({specKey, onRemove}) => {
         rowData: state.reducerProfession.rowDataProfession,
         loadingSkeleton: state.reducerLoading.loadingSkeleton
     }));
-    const dispatch = useDispatch();
 
     // Инициализация хука useForm() от Form antd
     const [form] = Form.useForm();
 
-    // Создание заголовка раздела
-    let title = rowData ? 'Редактирование профессии' : 'Создание профессии';
+    // Инициализация заголовка раздела и имени формы
+    const title = rowData ? 'Редактирование профессии' : 'Создание профессии';
+    const name = rowData ? `control-ref-profession-${rowData.name}` : "control-ref-profession";
 
-    // Функция сохранения записи
-    const onSave = async (values) => {
-        try {
-            setLoadingSave(true);
+    // Обработка нажатия на кнопку "Сохранить"
+    const saveHandler = (values) => onSave(
+        "professions", values, setLoadingSave, ActionCreator.ActionCreatorProfession.editProfession,
+        ActionCreator.ActionCreatorProfession.createProfession, professions, onRemove, specKey, rowData
+    ).then(null);
 
-            let method = rowData ? 'PUT' : 'POST';
+    // Обработка нажатия на кнопку "Удалить"
+    const deleteHandler = () => onDelete(
+        "professions", setLoadingDelete, ActionCreator.ActionCreatorProfession.deleteProfession,
+        professions, onRemove, specKey, rowData
+    ).then(null);
 
-            const data = await request('/api/directory/professions', method, values);
+    // Обработка нажатия на кнопку "Отмена"
+    const cancelHandler = () => onCancel(onRemove, specKey);
 
-            setLoadingSave(false);
-
-            if (data) {
-                message.success(data.message);
-
-                // Удаление текущей вкладки
-                onRemove(specKey, 'remove');
-
-                // Если это редактирование записи, то происходит изменение записи в хранилище redux,
-                // иначе происходит запись новой записи в хранилище redux
-                rowData ?
-                    professions.forEach((prof, index) => {
-                        if (prof._id === data.profession._id) {
-                            dispatch(ActionCreator.ActionCreatorProfession.editProfession(index, data.profession));
-                        }
-                    }) :
-                    dispatch(ActionCreator.ActionCreatorProfession.createProfession(data.profession));
-            }
-        } catch (e) {}
-    };
-
-    // Функция удаления записи
-    const deleteHandler = async () => {
-        try {
-            if (rowData) {
-                setLoadingDelete(true);
-
-                const data = await request('/api/directory/professions/' + rowData._id, 'DELETE', rowData);
-
-                setLoadingDelete(false);
-
-                if (data) {
-                    message.success(data.message);
-
-                    // Удаление текущей вкладки
-                    onRemove(specKey, 'remove');
-
-                    // Удаляем запись из хранилища redux
-                    professions.forEach((prof, index) => {
-                        if (prof._id === rowData._id) {
-                            dispatch(ActionCreator.ActionCreatorProfession.deleteProfession(index));
-                        }
-                    });
-                }
-            }
-        } catch (e) {}
-    };
-
-    // Вывод сообщения валидации формы
-    const onFinishFailed = () => {
-        message.error('Заполните обязательные поля').then(r => console.log(r));
-    };
-
-    // Функция нажатия на кнопку "Отмена"
-    const cancelHandler = () => {
-        // Удаляем текущую вкладку
-        onRemove(specKey, 'remove');
-    }
+    // Инициализация кнопок, появляющихся при редактировании записи
+    const editButtonsComponent = checkTypeTab(rowData, deleteHandler, loadingDelete);
 
     return (
         <Row className="container-tab" justify="center">
@@ -103,10 +54,13 @@ export const ProfessionTab = ({specKey, onRemove}) => {
                         <Meta
                             title={title}
                             description={
-                                <Form style={{marginTop: '5%'}} form={form}
-                                      name={rowData ? `control-ref-profession-${rowData.name}` :
-                                          "control-ref-profession"}
-                                      onFinish={onSave} onFinishFailed={onFinishFailed}>
+                                <Form
+                                    style={{marginTop: '5%'}}
+                                    form={form}
+                                    name={name}
+                                    onFinishFailed={onFailed}
+                                    onFinish={saveHandler}
+                                >
                                     <Form.Item
                                         label="Профессия"
                                         name="name"
@@ -116,43 +70,34 @@ export const ProfessionTab = ({specKey, onRemove}) => {
                                         <Input maxLength={255} type="text"/>
                                     </Form.Item>
 
-                                    <Form.Item
-                                        name="notes"
-                                        label="Примечание"
-                                        initialValue={!rowData ? '' : rowData.notes}
-                                    >
+                                    <Form.Item name="notes" label="Примечание" initialValue={!rowData ? '' : rowData.notes}>
                                         <Input maxLength={255} type="text"/>
                                     </Form.Item>
 
-                                    <Form.Item
-                                        name="_id"
-                                        hidden={true}
-                                        initialValue={!rowData ? '' : rowData._id}
-                                    >
+                                    <Form.Item name="_id" hidden={true} initialValue={!rowData ? '' : rowData._id}>
                                         <Input/>
                                     </Form.Item>
 
                                     <Form.Item>
                                         <Row justify="end" style={{marginTop: 20}}>
-                                            <Button className="button-style" type="primary" htmlType="submit"
-                                                    loading={loadingSave} icon={<CheckOutlined/>}>
+                                            <Button
+                                                className="button-style"
+                                                type="primary"
+                                                htmlType="submit"
+                                                loading={loadingSave}
+                                                icon={<CheckOutlined/>}
+                                            >
                                                 Сохранить
                                             </Button>
-                                            {!rowData ? null :
-                                                <>
-                                                    <Button className="button-style" type="danger" onClick={deleteHandler}
-                                                            loading={loadingDelete} icon={<DeleteOutlined/>}>
-                                                        Удалить
-                                                    </Button>
-                                                    <Button className="button-style" type="secondary"
-                                                            onClick={() => alert(1)}
-                                                            icon={<PrinterOutlined/>}>
-                                                        Печать
-                                                    </Button>
-                                                </>
-                                            }
-                                            <Button className="button-style" type="secondary" onClick={cancelHandler}
-                                                    icon={<StopOutlined/>}>
+
+                                            {editButtonsComponent}
+
+                                            <Button
+                                                className="button-style"
+                                                type="secondary"
+                                                onClick={cancelHandler}
+                                                icon={<StopOutlined/>}
+                                            >
                                                 Отмена
                                             </Button>
                                         </Row>

@@ -65,6 +65,7 @@ export const MainPage = () => {
             });
 
             const panes = tabs.filter(pane => pane.key !== targetKey);
+
             if (panes.length && activeKey === targetKey) {
                 if (panes[lastIndex] && lastIndex >= 0) {
                     dispatch(ActionCreator.ActionCreatorTab.setActiveKey(panes[lastIndex].key));
@@ -134,7 +135,14 @@ export const MainPage = () => {
                                            ActionCreator.ActionCreatorEquipmentProperty.getAllEquipmentProperties
                                        )}
                             >Характеристики оборудования</Menu.Item>
-                            <Menu.Item key="list">Перечень оборудования</Menu.Item>
+                            <Menu.Item key="equipment"
+                                       onClick={() => OpenTabSectionHelper(
+                                           'Перечень оборудования',
+                                           'equipment',
+                                           'equipment',
+                                           ActionCreator.ActionCreatorEquipment.getAllEquipment
+                                       )}
+                            >Перечень оборудования</Menu.Item>
                             <Menu.Item key="tasks"
                                        onClick={() => OpenTabSectionHelper(
                                            'Состояние заявки',

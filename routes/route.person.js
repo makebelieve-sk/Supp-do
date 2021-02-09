@@ -49,7 +49,7 @@ router.post('/people', async (req, res) => {
             return res.status(400).json({message: "Заполните обязательные поля"});
         }
 
-        res.status(201).json({message: "Запись о сотруднике сохранена", person: currentPerson});
+        res.status(201).json({message: "Запись о сотруднике сохранена", item: currentPerson});
     } catch (e) {
         res.status(500).json({message: "Ошибка при создании записи"})
     }
@@ -73,7 +73,9 @@ router.put('/people', async (req, res) => {
 
         await item.save();
 
-        res.status(201).json({message: "Запись о сотруднике успешно изменена", person: item});
+        let savedItem = await Person.findById({_id}).populate('department').populate('profession');
+
+        res.status(201).json({message: "Запись о сотруднике успешно изменена", item: savedItem});
     } catch (e) {
         res.status(500).json({message: "Ошибка при обновлении записи о сотруднике"})
     }

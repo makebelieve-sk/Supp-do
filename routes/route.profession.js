@@ -42,7 +42,7 @@ router.post('/professions', async (req, res) => {
 
         let savedItem = await newItem.save();
 
-        res.status(201).json({message: "Профессия сохранена", profession: savedItem});
+        res.status(201).json({message: "Профессия сохранена", item: savedItem});
     } catch (e) {
         res.status(500).json({message: "Ошибка при создании записи"})
     }
@@ -63,7 +63,7 @@ router.put('/professions', async (req, res) => {
 
         await item.save();
 
-        res.status(201).json({message: "Профессия сохранена", profession: item});
+        res.status(201).json({message: "Профессия сохранена", item: item});
     } catch (e) {
         res.status(500).json({message: "Ошибка при обновлении профессии"})
     }

@@ -5,6 +5,7 @@ import ActionCreatorTask from "./taskSection/task.actions";
 import ActionCreatorEquipmentProperty from "./equipmentPropertySection/equipmentProperty.actions";
 import ActionCreatorTab from "./tab/tab.actions";
 import ActionCreatorLoading from "./loading/loading.actions";
+import ActionCreatorEquipment from "./equipmentSection/equipment.actions";
 
 export const ActionCreator = {
     ActionCreatorProfession,
@@ -14,4 +15,5 @@ export const ActionCreator = {
     ActionCreatorEquipmentProperty,
     ActionCreatorTab,
     ActionCreatorLoading,
+    ActionCreatorEquipment
 }

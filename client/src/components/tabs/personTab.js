@@ -1,17 +1,20 @@
+// Вкладка "Персонал"
 import React, {useState} from 'react';
-import {Card, Form, Input, Row, Button, message, Select, Col, Skeleton} from 'antd';
-import {useSelector, useDispatch} from "react-redux";
-import {
-    CheckOutlined,
-    DeleteOutlined,
-    PlusOutlined,
-    PrinterOutlined,
-    StopOutlined
-} from "@ant-design/icons";
+import {Card, Form, Input, Row, Button, Select, Col, Skeleton} from 'antd';
+import {useSelector} from "react-redux";
+import {CheckOutlined, PlusOutlined, StopOutlined} from "@ant-design/icons";
 
-import {request} from "../helpers/request.helper";
 import {RowMapHelper} from "../helpers/dataTableMap.helper";
 import {ActionCreator} from "../../redux/combineActions";
+import {
+    checkTypeTab,
+    onSave,
+    onDelete,
+    onFailed,
+    onCancel,
+    onChange,
+    onDropDownRender
+} from "../helpers/rowTabs.helper";
 
 const {Meta} = Card;
 
@@ -24,178 +27,112 @@ export const PersonTab = ({specKey, onRemove}) => {
         rowData: state.reducerPerson.rowDataPerson,
         loadingSkeleton: state.reducerLoading.loadingSkeleton
     }));
-    const dispatch = useDispatch();
 
     // Создание стейта для значений в выпадающих списках "Подразделения" и "Персонал", начальных значений
     // показ спиннера загрузки при сохранении, показ спиннера загрузки при обновлении выпадающи списков
-    const [selectDep, setSelectDep] = useState(null);
-    const [selectProfession, setSelectProfession] = useState(null);
     const [departmentsToOptions, setDepartmentsToOptions] = useState([]);
     const [professionsToOptions, setProfessionsToOptions] = useState([]);
+
+    // Инициализация стейта для показа спиннера загрузки в выпадающих меню
     const [loadingSelectDep, setLoadingSelectDep] = useState(false);
     const [loadingSelectProf, setLoadingSelectProf] = useState(false);
 
-    let initialDepartment = null;
-    let initialProfession = null;
+    // Инициализация стейта для показа спиннера загрузки при сохранении и удалении записи
+    const [loadingSave, setLoadingSave] = useState(false);
+    const [loadingDelete, setLoadingDelete] = useState(false);
 
-    // Инициализация хука useForm() от Form antd
-    const [form] = Form.useForm();
+    // Инициализация первоначальных значений в в выпадающих списках
+    let initialDepartment = null, initialProfession = null;
 
     // Если вкладка редактирования, то устанавливаем начальные значения для выпадающих списков
     if (rowData) {
         if (rowData.department && rowData.profession) {
             initialDepartment = rowData.department;
             initialProfession = rowData.profession;
+        } else if (rowData.department) {
+            initialDepartment = rowData.department;
+        } else if (rowData.profession) {
+            initialProfession = rowData.profession;
         }
     }
 
-    let title = rowData ? 'Редактирование записи о сотруднике' : 'Создание записи о сотруднике';
+    // Инициализация выбранного элемента из выпадающих списков
+    const [selectDep, setSelectDep] = useState(null);
+    const [selectProfession, setSelectProfession] = useState(null);
 
-    // Функция сохранения записи
-    const onSave = async (values) => {
-        try {
-            values.department = selectDep ? selectDep : initialDepartment;
-            values.profession = selectProfession ? selectProfession : initialProfession;
+    // Инициализация хука useForm() от Form antd
+    const [form] = Form.useForm();
 
-            let method = !rowData ? 'POST' : 'PUT';
+    // Создание заголовка раздела и имени формы
+    const title = rowData ? 'Редактирование записи о сотруднике' : 'Создание записи о сотруднике';
+    const name = rowData ? `control-ref-person-${rowData.name}` : "control-ref-person";
 
-            const data = await request('/api/directory/people', method, values);
+    // Обработка нажатия на кнопку "Сохранить"
+    const saveHandler = (values) => {
+        values.department = selectDep === "Не выбрано" ? null : selectDep ? selectDep : initialDepartment;
+        values.profession = selectProfession === "Не выбрано" ? null : selectProfession ? selectProfession : initialProfession;
 
-            if (data) {
-                message.success(data.message);
-
-                // Удаление текущей вкладки
-                onRemove(specKey, 'remove');
-
-                // Если это редактирование записи, то происходит изменение записи в хранилище redux,
-                // иначе происходит запись новой записи в хранилище redux
-                rowData ?
-                    people.forEach((pers, index) => {
-                        if (pers._id === data.person._id) {
-                            dispatch(ActionCreator.ActionCreatorPerson.editPerson(index, data.person));
-                        }
-                    }) :
-                    dispatch(ActionCreator.ActionCreatorPerson.createPerson(data.person));
-            }
-        } catch (e) {}
-    };
-
-    // Функция удаления записи
-    const deleteHandler = async () => {
-        try {
-            if (rowData) {
-                const data = await request('/api/directory/people/' + rowData._id, 'DELETE', rowData);
-
-                if (data) {
-                    message.success(data.message);
-                    // Удаление текущей вкладки
-                    onRemove(specKey, 'remove');
-
-                    // Удаляем запись из хранилища redux
-                    people.forEach((pers, index) => {
-                        if (pers._id === rowData._id) {
-                            dispatch(ActionCreator.ActionCreatorPerson.deletePerson(index));
-                        }
-                    });
-                }
-            }
-        } catch (e) {}
-    };
-
-    // Вывод сообщения валидации формы
-    const onFinishFailed = () => {
-        message.error('Заполните обязательные поля').then(r => console.log(r));
-    };
-
-    // Функция нажатия на кнопку "Отмена"
-    const cancelHandler = () => {
-        onRemove(specKey, 'remove');
+        onSave(
+            "people", values, setLoadingSave, ActionCreator.ActionCreatorPerson.editPerson,
+            ActionCreator.ActionCreatorPerson.createPerson, people, onRemove, specKey, rowData
+        ).then(null);
     }
+
+    // Обработка нажатия на кнопку "Удалить"
+    const deleteHandler = () => onDelete(
+        "people", setLoadingDelete, ActionCreator.ActionCreatorPerson.deletePerson,
+        people, onRemove, specKey, rowData
+    ).then(null);
+
+    // Обработка нажатия на кнопку "Отмена"
+    const cancelHandler = () => onCancel(onRemove, specKey);
 
     // Изменение значения в выпадающем списке "Подразделение", и сохранение этого значения в стейте
-    const handleChangeDepartment = (value) => {
-        if (departments && departments.length > 0) {
-            let department = departments.find((department) => {
-                return department.name === value;
-            });
+    const changeHandler = (value, dataStore) => {
+        const setSelect = dataStore === departments ? setSelectDep : setSelectProfession;
 
-            if (department) {
-                setSelectDep(department);
-            }
-        }
-
-        form.setFieldsValue({department: value});
+        onChange(form, value, setSelect, dataStore);
     };
 
-    // Изменение значения в выпадающем списке "Персонал", и сохранение этого значения в стейте
-    const handleChangeProfession = (value) => {
+    // Изменение значения в выпадающем списке "Профессия"
+    const changeHandlerProfession = (value) => {
+        // form.setFieldsValue({profession: value});
+
+        if (value === "Не выбрано") {
+            setSelectProfession(value);
+            return null;
+        }
+
         if (professions && professions.length > 0) {
-            let prof = professions.find((prf) => {
-                return prf.name === value;
+            let foundProfession = professions.find((prof) => {
+                return prof.name === value;
             });
 
-            if (professions) {
-                setSelectProfession(prof);
+            if (foundProfession) {
+                setSelectProfession(foundProfession);
             }
         }
-
-        form.setFieldsValue({profession: value});
     };
 
-    // Обновление выпадающего списка "Подразделения"
-    const dropDownRenderDepartments = async (open) => {
-        if (open) {
-            setLoadingSelectDep(true);
+    // Обновление выпадающего списка
+    const dropDownRenderHandler = (open, dataStore) => {
+        let setLoading = setLoadingSelectProf,
+            key = "professions",
+            dispatchAction = ActionCreator.ActionCreatorProfession.getAllProfessions,
+            setSelectToOptions = setProfessionsToOptions;
 
-            const dataDepartments = await request('/api/directory/departments');
-
-            dispatch(ActionCreator.ActionCreatorDepartment.getAllDepartments(dataDepartments));
-
-            let departmentsToOptions = [{label: 'Не выбрано', value: ''}];
-
-            if (dataDepartments) {
-                dataDepartments.forEach((department) => {
-                    let object = {
-                        label: department.name,
-                        value: department.name
-                    }
-
-                    departmentsToOptions.push(object);
-                })
-            }
-
-            setLoadingSelectDep(false);
-
-            setDepartmentsToOptions(departmentsToOptions);
+        if (dataStore === departments) {
+            setLoading = setLoadingSelectDep;
+            key = "departments";
+            dispatchAction = ActionCreator.ActionCreatorDepartment.getAllDepartments;
+            setSelectToOptions = setDepartmentsToOptions;
         }
+
+        onDropDownRender(open, setLoading, key, dispatchAction, setSelectToOptions).then(null);
     }
 
-    // Обновление выпадающего списка "Профессии"
-    const dropDownRenderProfessions = async (open) => {
-        if (open) {
-            setLoadingSelectProf(true);
-
-            const dataProfessions = await request('/api/directory/professions');
-
-            dispatch(ActionCreator.ActionCreatorProfession.getAllProfessions(dataProfessions));
-
-            let professionsToOptions = [{label: 'Не выбрано', value: ''}];
-            if (dataProfessions) {
-                dataProfessions.forEach((prof) => {
-                    let object = {
-                        label: prof.name,
-                        value: prof.name
-                    }
-
-                    professionsToOptions.push(object);
-                })
-            }
-
-            setLoadingSelectProf(false);
-
-            setProfessionsToOptions(professionsToOptions);
-        }
-    }
+    // Инициализация кнопок, появляющихся при редактировании записи
+    const editButtonsComponent = checkTypeTab(rowData, deleteHandler, loadingDelete);
 
     return (
         <Row className="container-tab" justify="center">
@@ -205,10 +142,13 @@ export const PersonTab = ({specKey, onRemove}) => {
                         <Meta
                             title={title}
                             description={
-                                <Form labelCol={{span: 6}} wrapperCol={{span: 18}} style={{marginTop: '5%'}}
-                                      form={form} name={rowData ? `control-ref-person-${rowData.name}` :
-                                    "control-ref-person"}
-                                      onFinish={onSave} onFinishFailed={onFinishFailed}>
+                                <Form
+                                    labelCol={{span: 6}} wrapperCol={{span: 18}} style={{marginTop: '5%'}}
+                                    form={form}
+                                    name={name}
+                                    onFinish={saveHandler}
+                                    onFinishFailed={onFailed}
+                                >
                                     <Form.Item
                                         label="ФИО"
                                         name="name"
@@ -220,8 +160,7 @@ export const PersonTab = ({specKey, onRemove}) => {
 
                                     <Form.Item label="Подразделение">
                                         <Row gutter={8}>
-                                            <Col xs={{span: 20}} sm={{span: 20}} md={{span: 22}} lg={{span: 22}}
-                                                 xl={{span: 22}}>
+                                            <Col xs={{span: 20}} sm={{span: 20}} md={{span: 22}} lg={{span: 22}} xl={{span: 22}}>
                                                 <Form.Item
                                                     name="department"
                                                     noStyle
@@ -230,14 +169,13 @@ export const PersonTab = ({specKey, onRemove}) => {
                                                 >
                                                     <Select
                                                         options={departmentsToOptions}
-                                                        onDropdownVisibleChange={(open) => dropDownRenderDepartments(open)}
+                                                        onDropdownVisibleChange={(open) => dropDownRenderHandler(open, departments)}
                                                         loading={loadingSelectDep}
-                                                        onChange={handleChangeDepartment}
+                                                        onChange={(value) => changeHandler(value, departments)}
                                                     />
                                                 </Form.Item>
                                             </Col>
-                                            <Col xs={{span: 4}} sm={{span: 4}} md={{span: 2}} lg={{span: 2}}
-                                                 xl={{span: 2}}>
+                                            <Col xs={{span: 4}} sm={{span: 4}} md={{span: 2}} lg={{span: 2}} xl={{span: 2}}>
                                                 <Button
                                                     style={{width: '100%'}}
                                                     onClick={() => RowMapHelper('departments', null)}
@@ -250,8 +188,7 @@ export const PersonTab = ({specKey, onRemove}) => {
 
                                     <Form.Item label="Профессия">
                                         <Row gutter={8}>
-                                            <Col xs={{span: 20}} sm={{span: 20}} md={{span: 22}} lg={{span: 22}}
-                                                 xl={{span: 22}}>
+                                            <Col xs={{span: 20}} sm={{span: 20}} md={{span: 22}} lg={{span: 22}} xl={{span: 22}}>
                                                 <Form.Item
                                                     name="profession"
                                                     noStyle
@@ -260,14 +197,13 @@ export const PersonTab = ({specKey, onRemove}) => {
                                                 >
                                                     <Select
                                                         options={professionsToOptions}
-                                                        onDropdownVisibleChange={(open) => dropDownRenderProfessions(open)}
+                                                        onDropdownVisibleChange={(open) => dropDownRenderHandler(open, professions)}
                                                         loading={loadingSelectProf}
-                                                        onChange={handleChangeProfession}
+                                                        onChange={changeHandlerProfession}
                                                     />
                                                 </Form.Item>
                                             </Col>
-                                            <Col xs={{span: 4}} sm={{span: 4}} md={{span: 2}} lg={{span: 2}}
-                                                 xl={{span: 2}}>
+                                            <Col xs={{span: 4}} sm={{span: 4}} md={{span: 2}} lg={{span: 2}} xl={{span: 2}}>
                                                 <Button
                                                     style={{width: '100%'}}
                                                     onClick={() => RowMapHelper('professions', null)}
@@ -278,50 +214,37 @@ export const PersonTab = ({specKey, onRemove}) => {
                                         </Row>
                                     </Form.Item>
 
-                                    <Form.Item
-                                        name="tabNumber"
-                                        label="Таб. номер"
-                                        initialValue={!rowData ? '' : rowData.tabNumber}
-                                    >
+                                    <Form.Item name="tabNumber" label="Таб. номер" initialValue={!rowData ? '' : rowData.tabNumber}>
                                         <Input maxLength={255} type="number" style={{textAlign: 'right'}}/>
                                     </Form.Item>
 
-                                    <Form.Item
-                                        name="notes"
-                                        label="Примечание"
-                                        initialValue={!rowData ? '' : rowData.notes}
-                                    >
+                                    <Form.Item name="notes" label="Примечание" initialValue={!rowData ? '' : rowData.notes}>
                                         <Input maxLength={255} type="text"/>
                                     </Form.Item>
 
-                                    <Form.Item
-                                        name="_id"
-                                        hidden={true}
-                                        initialValue={!rowData ? '' : rowData._id}
-                                    >
+                                    <Form.Item name="_id" hidden={true} initialValue={!rowData ? '' : rowData._id}>
                                         <Input/>
                                     </Form.Item>
 
                                     <Row justify="end" style={{marginTop: 20}} xs={{gutter: [8, 8]}}>
-                                        <Button className="button-style" type="primary" htmlType="submit"
-                                                icon={<CheckOutlined/>}>
+                                        <Button
+                                            className="button-style"
+                                            type="primary"
+                                            htmlType="submit"
+                                            loading={loadingSave}
+                                            icon={<CheckOutlined/>}
+                                        >
                                             Сохранить
                                         </Button>
-                                        {!rowData ? null :
-                                            <>
-                                                <Button className="button-style" type="danger" onClick={deleteHandler}
-                                                        icon={<DeleteOutlined/>}>
-                                                    Удалить
-                                                </Button>
-                                                <Button className="button-style" type="secondary"
-                                                        onClick={() => alert(1)}
-                                                        icon={<PrinterOutlined/>}>
-                                                    Печать
-                                                </Button>
-                                            </>
-                                        }
-                                        <Button className="button-style" type="secondary" onClick={cancelHandler}
-                                                icon={<StopOutlined/>}>
+
+                                        {editButtonsComponent}
+
+                                        <Button
+                                            className="button-style"
+                                            type="secondary"
+                                            onClick={cancelHandler}
+                                            icon={<StopOutlined/>}
+                                        >
                                             Отмена
                                         </Button>
                                     </Row>

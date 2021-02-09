@@ -13,6 +13,7 @@ app.use('/api/directory', require("./routes/route.department"));
 app.use('/api/directory', require("./routes/route.person"));
 app.use('/api/directory', require("./routes/route.taskStatus"));
 app.use('/api/directory', require("./routes/route.equipmentProperty"));
+app.use('/api/directory', require("./routes/route.equipment"));
 
 const PORT = config.port || 5000;
 

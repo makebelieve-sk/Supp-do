@@ -1,3 +1,4 @@
+// Создание reducer`а для состояний загрузок
 import initialState from "./loading.state";
 import {
     SET_LOADING_SKELETON

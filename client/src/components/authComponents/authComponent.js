@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useState, useContext} from 'react';
 import {Button, Card, Checkbox, Col, Form, Input, Row} from "antd";
 import {LockOutlined, UserOutlined} from "@ant-design/icons";
 import {Link} from "react-router-dom";
@@ -7,14 +7,25 @@ import {AuthContext} from "../../context/authContext";
 import {request} from "../helpers/request.helper";
 
 export const AuthComponent = ({setRegForm, setChangePass}) => {
+    const [loadingLogin, setLoadingLogin] = useState(false);
+
     const auth = useContext(AuthContext);
 
     // Функция входа пользователя
     const login = async (values) => {
-        const data = await request('/api/auth/login', 'POST', values);
+        try {
+            setLoadingLogin(true);
 
-        if (data) {
-            auth.login(data.token, data.userId, data.user);
+            const data = await request('/api/auth/login', 'POST', values);
+
+            setLoadingLogin(false);
+
+            if (data) {
+                auth.login(data.token, data.userId, data.user);
+            }
+        } catch (e) {
+            // При ошибке от сервера, останавливаем спиннер загрузки
+            setLoadingLogin(false);
         }
     };
 
@@ -70,7 +81,7 @@ export const AuthComponent = ({setRegForm, setChangePass}) => {
                         </Form.Item>
 
                         <Form.Item>
-                            <Button type="primary" htmlType="submit" className="login-form-button">
+                            <Button loading={loadingLogin} type="primary" htmlType="submit" className="login-form-button">
                                 Войти
                             </Button>
                             Или <Link to="/registration" onClick={() => {

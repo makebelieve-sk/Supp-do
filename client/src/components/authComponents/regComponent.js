@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useState, useContext} from 'react';
 import {Button, Card, Col, Form, Input, message, Row} from "antd";
 import {LockOutlined, UserOutlined} from "@ant-design/icons";
 
@@ -6,13 +6,26 @@ import {AuthContext} from "../../context/authContext";
 import {request} from "../helpers/request.helper";
 
 export const RegistrationComponent = () => {
+    const [loadingReg, setLoadingReg] = useState(false);
+
     const auth = useContext(AuthContext);
 
     const onFinish = async (values) => {
-        const data = await request('/api/auth/register', 'POST', values);
+        try {
+            setLoadingReg(true);
 
-        message.success(data.message);
-        auth.login(data.token, data.userId, data.candidate);
+            const data = await request('/api/auth/register', 'POST', values);
+
+            setLoadingReg(false);
+
+            if (data) {
+                message.success(data.message);
+                auth.login(data.token, data.userId, data.candidate);
+            }
+        } catch(e) {
+            // При ошибке от сервера, останавливаем спиннер загрузки
+            setLoadingReg(false);
+        }
     };
 
     return (
@@ -76,7 +89,7 @@ export const RegistrationComponent = () => {
                                             placeholder="Подтвердите пароль"/>
                         </Form.Item>
                         <Form.Item>
-                            <Button type="primary" htmlType="submit" className="login-form-button">
+                            <Button loading={loadingReg} type="primary" htmlType="submit" className="login-form-button">
                                 Зарегистрироваться
                             </Button>
                         </Form.Item>

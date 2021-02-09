@@ -1,11 +1,12 @@
 import React from 'react';
 
 // Создание заголовка таблицы
-let headerProfessionTable = 'Наименование, Примечание';
-let headerDepartmentTable = 'Наименование, Примечание, Подразделение';
-let headerPersonTable = 'Таб №, ФИО, Подразделение, Профессия, Примечание';
-let headerTasksTable = 'Наименование, Примечание, Завершено';
-let headerEquipmentPropertyTable = 'Наименование, Примечание';
+const headerProfessionTable = 'Наименование, Примечание';
+const headerDepartmentTable = 'Наименование, Примечание, Подразделение';
+const headerPersonTable = 'Таб №, ФИО, Подразделение, Профессия, Примечание';
+const headerTasksTable = 'Наименование, Примечание, Завершено';
+const headerEquipmentPropertyTable = 'Наименование, Примечание';
+const headerEquipmentTable = 'Принадлежит, Наименование, Примечание';
 
 // Создание колонок для раздела "Профессии"
 const ProfessionColumns = [
@@ -183,16 +184,50 @@ const EquipmentPropertyColumns = [
     }
 ];
 
+// Создание колонок для раздела "Перечень оборудования"
+const EquipmentColumns = [
+    {
+        title: 'Принадлежит',
+        dataIndex: ['parent', 'name'],
+        key: 'parent',
+        width: 100,
+        sorter: (a, b) => {
+            if (a.parent && b.parent) {
+                return a.parent.name.length - b.parent.name.length
+            }
+        },
+        sortDirections: ['descend', 'ascend'],
+    },
+    {
+        title: 'Наименование',
+        dataIndex: 'name',
+        key: 'name',
+        width: 100,
+        sorter: (a, b) => a.name.length - b.name.length,
+        sortDirections: ['descend', 'ascend'],
+    },
+    {
+        title: 'Примечание',
+        dataIndex: 'notes',
+        key: 'notes',
+        width: 100,
+        sorter: (a, b) => a.notes.length - b.notes.length,
+        sortDirections: ['descend', 'ascend'],
+    }
+];
+
 export {
     headerProfessionTable,
     headerDepartmentTable,
     headerPersonTable,
     headerTasksTable,
     headerEquipmentPropertyTable,
+    headerEquipmentTable,
 
     ProfessionColumns,
     DepartmentColumns,
     PersonColumns,
     TasksColumns,
-    EquipmentPropertyColumns
+    EquipmentPropertyColumns,
+    EquipmentColumns
 };
