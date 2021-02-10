@@ -9,10 +9,34 @@ const {TabPane} = Tabs;
 
 export const ContentTab = ({specKey}) => {
     let component;
-    const loadingSkeleton = useSelector(state => state.reducerLoading.loadingSkeleton);
+    const {loadingSkeleton, departments, equipment} = useSelector(state => ({
+        loadingSkeleton: state.reducerLoading.loadingSkeleton,
+        departments: state.reducerDepartment.departments,
+        equipment: state.reducerEquipment.equipment
+    }));
 
     // Если вкладка "Подразделения", то в её содержимое добавляем вкладки "Таблица" и "Дерево", иначе возвращаем таблицу
-    if (specKey === 'departments') {
+    if (specKey === 'equipment') {
+        component = (
+            <div className="container-dto">
+                <Skeleton loading={loadingSkeleton} active>
+                    <Card className="card-dto">
+                        <Tabs defaultActiveKey="table">
+                            <TabPane tab="Таблица" key="table">
+                                <DataTableComponent specKey={specKey}/>
+                            </TabPane>
+                            <TabPane tab="!!" key="!!">Хело ворд!
+                                {/*<!!/>*/}
+                            </TabPane>
+                            <TabPane tab="Дерево" key="tree">
+                                <TreeComponent dataStore={equipment}/>
+                            </TabPane>
+                        </Tabs>
+                    </Card>
+                </Skeleton>
+            </div>
+        )
+    } else if (specKey === 'departments') {
         component = (
             <div className="container-dto">
                 <Skeleton loading={loadingSkeleton} active>
@@ -22,7 +46,7 @@ export const ContentTab = ({specKey}) => {
                                 <DataTableComponent specKey={specKey}/>
                             </TabPane>
                             <TabPane tab="Дерево" key="tree">
-                                <TreeComponent/>
+                                <TreeComponent dataStore={departments}/>
                             </TabPane>
                         </Tabs>
                     </Card>

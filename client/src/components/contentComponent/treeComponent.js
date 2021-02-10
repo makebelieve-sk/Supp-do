@@ -1,22 +1,19 @@
 import React from 'react';
-import {useSelector} from 'react-redux';
 import {Tree, Row} from 'antd';
 
 const { DirectoryTree } = Tree;
 
-export const TreeComponent = () => {
-    const departments = useSelector((state) => state.reducerDepartment.departments);
-
-    // Сортируем массив по полю "Принадлежит"
-    departments.sort((a, b) => a.parent && b.parent && a.parent.name > b.parent.name ? 1 : -1);
+export const TreeComponent = ({dataStore}) => {
+    // Сортируем массив по полю "parent"
+    dataStore.sort((a, b) => a.parent && b.parent && a.parent.name > b.parent.name ? 1 : -1);
 
     // Находим записи, у которых указано, какому подразделению они принадлежат
-    let notNullParentDep = departments.filter(obj => {
+    let notNullParentData = dataStore.filter(obj => {
         return obj.parent;
     })
 
     // Находим записи, у которых нет указанного подразделения (такие записи будут на самом верху)
-    let nullParentDep = departments.filter(obj => {
+    let nullParentData = dataStore.filter(obj => {
         return !obj.parent;
     })
 
@@ -24,8 +21,8 @@ export const TreeComponent = () => {
     let treeData = [];
 
     // Пушим в массив самые верхние записи
-    if (nullParentDep && nullParentDep.length > 0) {
-        nullParentDep.forEach(nullParent => {
+    if (nullParentData && nullParentData.length > 0) {
+        nullParentData.forEach(nullParent => {
             treeData.push({
                 title: nullParent.name,
                 key: nullParent._id,
@@ -40,7 +37,7 @@ export const TreeComponent = () => {
     const createTree = (childrenArr, firstRun) => {
         if (firstRun) {
             childrenArr.forEach(nullParent => {
-                notNullParentDep.forEach(notNullParent => {
+                notNullParentData.forEach(notNullParent => {
                     if (notNullParent.parent.name === nullParent.title) {
                         nullParent.children.push({
                             title: notNullParent.name,
@@ -55,7 +52,7 @@ export const TreeComponent = () => {
             })
         } else {
             childrenArr.children.forEach(childObj => {
-                notNullParentDep.forEach(notNullParent => {
+                notNullParentData.forEach(notNullParent => {
                     if (notNullParent.parent.name === childObj.title) {
                         childObj.children.push({
                             title: notNullParent.name,

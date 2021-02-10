@@ -27,7 +27,7 @@ export const EquipmentTab = ({specKey, onRemove}) => {
     const {equipment, rowData, loadingSkeleton} = useSelector((state) => ({
         equipment: state.reducerEquipment.equipment,
         rowData: state.reducerEquipment.rowDataEquipment,
-        loadingSkeleton: state.reducerEquipment.loadingSkeleton
+        loadingSkeleton: state.reducerLoading.loadingSkeleton
     }));
 
     // Создание стейта для значений в выпадающем списке "Перечень оборудования" и начального значения и
@@ -35,15 +35,15 @@ export const EquipmentTab = ({specKey, onRemove}) => {
     const [selectEquipment, setSelectEquipment] = useState(null);
     const [equipmentToOptions, setEquipmentToOptions] = useState([]);
 
+    // Инициализация хука useForm() от Form antd
+    const [form] = Form.useForm();
+
     let initialEquipment = null;
 
     // Если вкладка редактирования, то устанавливаем начальные значения для выпадающих списков
     if (rowData) {
         initialEquipment = rowData.parent;
     }
-
-    // Инициализация хука useForm() от Form antd
-    const [form] = Form.useForm();
 
     // Создание заголовка раздела и имени формы
     const title = rowData ? 'Редактирование оборудования' : 'Создание оборудования';
@@ -79,7 +79,6 @@ export const EquipmentTab = ({specKey, onRemove}) => {
     // Инициализация кнопок, появляющихся при редактировании записи
     const editButtonsComponent = checkTypeTab(rowData, deleteHandler, loadingDelete);
 
-    console.log(rowData)
     return (
         <Row className="container-tab" justify="center">
             <Col sm={{span: 24}} md={{span: 20}} lg={{span: 16}} xl={{span: 12}}>
