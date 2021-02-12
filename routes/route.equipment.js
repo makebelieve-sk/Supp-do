@@ -8,7 +8,7 @@ router.get('/equipment/:id', async (req, res) => {
     const id = req.params.id;
 
     try {
-        const item = await Equipment.findById({_id: id}).populate('parent').populate("properties");
+        const item = await Equipment.findById({_id: id}).populate('parent').populate('properties.equipmentProperty');
 
         if (!item) {
             return res.status(400).json({message: `Запись с кодом ${id} не существует`});
@@ -35,17 +35,17 @@ router.post('/equipment', async (req, res) => {
     try {
         const {name, notes, parent, properties} = req.body;
 
-        const newItem = new Equipment({parent, name, notes, properties});
-
         if (parent) {
             if (name === parent.name) {
                 return res.status(400).json({message: "Объект не может принадлежать сам себе"});
             }
         }
+        console.log(parent)
+        const newItem = new Equipment({parent: parent, name: name, notes: notes, properties: properties});
 
         await newItem.save();
 
-        let currentEquipment = await Equipment.findOne({name}).populate('parent').populate("properties");
+        let currentEquipment = await Equipment.findOne({name}).populate('parent').populate('properties.equipmentProperty');
 
         res.status(201).json({message: "Подразделение сохранено", item: currentEquipment});
     } catch (e) {
@@ -76,7 +76,7 @@ router.put('/equipment', async (req, res) => {
 
         await item.save();
 
-        let savedItem = await Equipment.findById({_id}).populate('parent').populate("properties");
+        let savedItem = await Equipment.findById({_id}).populate('parent').populate('properties.equipmentProperty');
 
         res.status(201).json({message: "Запись сохранена", item: savedItem});
     } catch (e) {

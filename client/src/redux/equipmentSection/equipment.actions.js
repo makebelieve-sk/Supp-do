@@ -3,7 +3,11 @@ import {
     EDIT_EQUIPMENT,
     DELETE_EQUIPMENT,
     GET_ALL_EQUIPMENT,
-    SET_ROW_DATA_EQUIPMENT
+    SET_ROW_DATA_EQUIPMENT,
+    ADD_SELECT_ROW,
+    EDIT_SELECT_ROW,
+    DELETE_SELECT_ROW,
+    GET_ALL_SELECT_ROWS
 } from "./equipment.constants";
 
 const ActionCreatorEquipment = {
@@ -42,7 +46,36 @@ const ActionCreatorEquipment = {
             type: SET_ROW_DATA_EQUIPMENT,
             payload: rowData
         }
-    }
+    },
+    // Добавление строки во вкладку "Характеристики"
+    addSelectRow: (selectRow) => {
+        return {
+            type: ADD_SELECT_ROW,
+            payload: selectRow
+        }
+    },
+    // Изменение строки во вкладке "Характеристики"
+    editSelectRow: (selectRow, index) => {
+        return {
+            type: EDIT_SELECT_ROW,
+            payload: selectRow,
+            index: index
+        }
+    },
+    // Удаление строки во вкладке "Характеристики"
+    deleteSelectRow: (index) => {
+        return {
+            type: DELETE_SELECT_ROW,
+            payload: index
+        }
+    },
+    // Получение всех строк во вкладке "Характеристики"
+    getAllSelectRows: (rows) => {
+        return {
+            type: GET_ALL_SELECT_ROWS,
+            payload: rows
+        }
+    },
 }
 
 export default ActionCreatorEquipment;

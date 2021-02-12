@@ -25,9 +25,6 @@ export const ContentTab = ({specKey}) => {
                             <TabPane tab="Таблица" key="table">
                                 <DataTableComponent specKey={specKey}/>
                             </TabPane>
-                            <TabPane tab="!!" key="!!">Хело ворд!
-                                {/*<!!/>*/}
-                            </TabPane>
                             <TabPane tab="Дерево" key="tree">
                                 <TreeComponent dataStore={equipment}/>
                             </TabPane>

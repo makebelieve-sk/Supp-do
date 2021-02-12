@@ -48,13 +48,19 @@ const onSave = async (url, values, setLoadingSave, dispatchActionEdit, dispatchA
 
             // Если это редактирование записи, то происходит изменение записи в хранилище redux,
             // иначе происходит запись новой записи в хранилище redux
-            rowData ?
-                dataStore.forEach((prof, index) => {
-                    if (prof._id === data.item._id) {
-                        store.dispatch(dispatchActionEdit(index, data.item));
-                    }
-                }) :
+            if (rowData) {
+                let foundItem = dataStore.find(item => {
+                    return item._id === data.item._id;
+                });
+
+                let indexOf = dataStore.indexOf(foundItem);
+
+                if (foundItem && indexOf >= 0) {
+                    store.dispatch(dispatchActionEdit(indexOf, data.item));
+                }
+            } else {
                 store.dispatch(dispatchActionCreate(data.item));
+            }
 
             // Удаление текущей вкладки
             onRemove(specKey, "remove");
@@ -79,14 +85,20 @@ const onDelete = async (url, setLoadingDelete, dispatchActionDelete, dataStore, 
             if (data) {
                 // Вывод сообщения
                 message.success(data.message);
+
+                // Удаляем запись из хранилища redux
+                let foundItem = dataStore.find(item => {
+                    return item._id === rowData._id;
+                });
+
+                let indexOf = dataStore.indexOf(foundItem);
+
+                if (foundItem && indexOf >= 0) {
+                    store.dispatch(dispatchActionDelete(indexOf));
+                }
+
                 // Удаление текущей вкладки
                 onRemove(specKey, 'remove');
-                // Удаляем запись из хранилища redux
-                dataStore.forEach((prof, index) => {
-                    if (prof._id === rowData._id) {
-                        store.dispatch(dispatchActionDelete(index));
-                    }
-                });
             }
         }
     } catch (e) {
@@ -103,15 +115,13 @@ const onCancel = (onRemove, specKey) => onRemove(specKey, 'remove');
 
 // Изменение значения в выпадающем списке
 const onChange = (form, value, setSelect, dataStore) => {
-    // form.setFieldsValue({parent: value});
-
     if (value === "Не выбрано") {
         setSelect(value);
         return null;
     }
 
     if (dataStore && dataStore.length > 0) {
-        let foundItem = dataStore.find((item) => {
+        let foundItem = dataStore.find(item => {
             return item.name === value;
         });
 

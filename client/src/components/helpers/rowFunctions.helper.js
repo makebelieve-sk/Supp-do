@@ -207,7 +207,14 @@ const getEquipment = async (rowData) => {
         );
 
         // Обнуляем данные в редактируемой строчке
+        // и устанавливаем начальное значение массиву строк во вкладке "Характеристики"
         store.dispatch(ActionCreator.ActionCreatorEquipment.setRowDataEquipment(null));
+        store.dispatch(ActionCreator.ActionCreatorEquipment.getAllSelectRows([{
+            equipmentProperty: "Не выбрано",
+            value: "",
+            id: Math.random(),
+            _id: null
+        }]));
     } else {
         // Вызываем пустую вкладку редактируемой записи для показа спиннера загрузки
         getEmptyTabWithLoading(
@@ -218,8 +225,10 @@ const getEquipment = async (rowData) => {
         let data = await request('/api/directory/equipment/' + rowData._id);
 
         // Если есть данные о записи, то записываем полученные данные в хранилище
+        // и устанавливаем массив строк во вкладке "Характеристики"
         if (data) {
             store.dispatch(ActionCreator.ActionCreatorEquipment.setRowDataEquipment(data.equipment));
+            store.dispatch(ActionCreator.ActionCreatorEquipment.getAllSelectRows(data.equipment.properties));
         }
     }
 

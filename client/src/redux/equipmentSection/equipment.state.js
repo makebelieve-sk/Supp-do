@@ -1,8 +1,10 @@
 const initialState = {
-    // Спимсок с перечнем оборудования
+    // Список с перечнем оборудования
     equipment: [],
     // Редактируемая запись
-    rowDataEquipment: null
+    rowDataEquipment: null,
+    // Массив строчек вкладки "Характеристики"
+    selectsArray: []
 };
 
 export default initialState;
