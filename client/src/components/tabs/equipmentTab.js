@@ -58,6 +58,7 @@ export const EquipmentTab = ({specKey, onRemove}) => {
 
     // Обработка нажатия на кнопку "Сохранить"
     const saveHandler = (values) => {
+        console.log(values);
         let clonSelectsArray = selectsArray;
         let clonValues = {};
 
@@ -188,18 +189,29 @@ export const EquipmentTab = ({specKey, onRemove}) => {
     const props = {
         name: 'file',
         multiple: true,
-        action: 'https://www.mocky.io/v2/5cc8019d300000980a055e76',
+        action: "/upload",
+        data: {
+            equipmentId: rowData ? rowData._id : null
+        },
         onChange(info) {
+            info.file.url = "/upload/" + info.file.name;
+
             const {status} = info.file;
             if (status !== 'uploading') {
                 console.log(info.file, info.fileList);
             }
             if (status === 'done') {
-                message.success(`${info.file.name} file uploaded successfully.`).then(null);
+                message.success(`Файл ${info.file.name} успешно загружен.`).then(null);
             } else if (status === 'error') {
-                message.error(`${info.file.name} file upload failed.`).then(r => console.log(r));
+                message.error(`Возникла ошибка при загрузке файла ${info.file.name}.`).then(r => console.log(r));
             }
         },
+        showUploadList: {
+            showDownloadIcon: true,
+            downloadIcon: 'download ',
+            showRemoveIcon: true,
+        },
+        fileList: rowData && rowData.files && rowData.files.length ? rowData.files : null
     };
 
     return (

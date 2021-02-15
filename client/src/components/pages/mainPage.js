@@ -36,17 +36,17 @@ export const MainPage = () => {
 
     // Загрузка главного раздела "Журнал дефектов и отказов"
     useEffect(() => {
-        async function getProfessions() {
+        async function getItems() {
             try {
-                const professions = await request('/api/directory/professions');
+                const items = await request('/api/directory/equipment');
 
-                if (professions && professions.length > 0) {
-                    dispatch(ActionCreator.ActionCreatorProfession.getAllProfessions(professions));
+                if (items && items.length > 0) {
+                    dispatch(ActionCreator.ActionCreatorEquipment.getAllEquipment(items));
                 }
             } catch (e) {}
         }
 
-        getProfessions();
+        getItems();
     }, [dispatch]);
 
     // Фукнция удаления вкладки

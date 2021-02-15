@@ -1,8 +1,8 @@
 import {ContentTab} from "../../components/helpers/contentTab";
 
 const initialState = {
-    tabs: [{title: 'Профессии', content: ContentTab, key: 'professions'}],
-    activeKey: 'professions',
+    tabs: [{title: 'Оборудование', content: ContentTab, key: 'equipment'}],
+    activeKey: 'equipment',
     prevActiveTab: null
 };
 

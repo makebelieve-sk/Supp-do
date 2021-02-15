@@ -228,7 +228,17 @@ const getEquipment = async (rowData) => {
         // и устанавливаем массив строк во вкладке "Характеристики"
         if (data) {
             store.dispatch(ActionCreator.ActionCreatorEquipment.setRowDataEquipment(data.equipment));
-            store.dispatch(ActionCreator.ActionCreatorEquipment.getAllSelectRows(data.equipment.properties));
+
+            if (data.equipment.properties.length) {
+                store.dispatch(ActionCreator.ActionCreatorEquipment.getAllSelectRows(data.equipment.properties));
+            } else {
+                store.dispatch(ActionCreator.ActionCreatorEquipment.getAllSelectRows([{
+                    equipmentProperty: "Не выбрано",
+                    value: "",
+                    id: Math.random(),
+                    _id: null
+                }]));
+            }
         }
     }
 

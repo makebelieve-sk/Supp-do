@@ -7,12 +7,17 @@ import {RegistrationComponent} from "../components/authComponents/regComponent";
 import {ChangePasswordComponent} from "../components/authComponents/changePassword";
 
 export const useRoutes = (isAuthenticated) => {
+    const reload = ()=> {
+        console.log('reload...')
+        window.location.reload();
+    }
     if (isAuthenticated) {
         return (
             <Switch>
                 <Route path="/" exact>
                     <MainPage/>
                 </Route>
+                <Route path="/static" onEnter={reload}/>
                 <Redirect to="/"/>
             </Switch>
         )
