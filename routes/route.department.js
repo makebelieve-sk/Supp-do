@@ -102,7 +102,7 @@ router.delete('/departments/:id', async (req, res) => {
 
         res.status(201).json({message: "Подразделение успешно удалено"});
     } catch (e) {
-        res.status(500).json({message: `Ошибка при удалении подразделения с кодом ${id}`})
+        res.status(500).json({message: `Ошибка при удалении подразделения с кодом ${id}`});
     }
 });
 

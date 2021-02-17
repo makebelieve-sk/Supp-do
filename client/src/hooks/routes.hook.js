@@ -7,34 +7,35 @@ import {RegistrationComponent} from "../components/authComponents/regComponent";
 import {ChangePasswordComponent} from "../components/authComponents/changePassword";
 
 export const useRoutes = (isAuthenticated) => {
-    const reload = ()=> {
-        console.log('reload...')
-        window.location.reload();
-    }
     if (isAuthenticated) {
         return (
             <Switch>
                 <Route path="/" exact>
                     <MainPage/>
                 </Route>
-                <Route path="/static" onEnter={reload}/>
-                <Redirect to="/"/>
+                <Route path="/public/:fileName" render={() => {
+                    // Меняем порт для корректной загрузки
+                    window.location.port = 5000;
+                    // Закрываем вкладку после 100мс
+                    setTimeout(() => window.close(), 100);
+                }}/>
+                <Redirect to="/" exact/>
             </Switch>
         )
     }
 
     return (
         <Switch>
-            <Route path="/authorization">
+            <Route path="/authorization" exact>
                 <AuthPage/>
             </Route>
-            <Route path="/registration">
+            <Route path="/registration" exact>
                 <RegistrationComponent/>
             </Route>
-            <Route path="/change-password">
+            <Route path="/change-password" exact>
                 <ChangePasswordComponent/>
             </Route>
-            <Redirect to="/authorization"/>
+            {/*<Redirect to="/authorization" exact/>*/}
         </Switch>
     )
 }

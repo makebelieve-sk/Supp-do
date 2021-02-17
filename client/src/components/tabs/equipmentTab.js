@@ -12,18 +12,20 @@ import {
     onFailed,
     onSave
 } from "../helpers/rowTabs.helper";
+import {request} from "../helpers/request.helper";
 
 const {Meta} = Card;
 const {TabPane} = Tabs;
 const {Dragger} = Upload;
 
 export const EquipmentTab = ({specKey, onRemove}) => {
-    // Инициализация стейта для показа спиннера загрузки при сохранении/удалении записи и обновлении
-    // выпадающего списка
+    // Инициализация стейта для показа спиннера загрузки при сохранении/удалении записи, обновлении
+    // выпадающего списка и списка файлов
     const [loadingSave, setLoadingSave] = useState(false);
     const [loadingDelete, setLoadingDelete] = useState(false);
     const [loadingSelectEquipment, setLoadingSelectEquipment] = useState(false);
     const [loadingSelectCharacteristics, setLoadingSelectCharacteristics] = useState(false);
+    const [fileList, setFileList] = useState(null);
 
     // Получение списка подразделений и загрузки записи из хранилища redux
     const {equipment, rowData, loadingSkeleton, equipmentProperties, selectsArray} = useSelector((state) => ({
@@ -58,7 +60,6 @@ export const EquipmentTab = ({specKey, onRemove}) => {
 
     // Обработка нажатия на кнопку "Сохранить"
     const saveHandler = (values) => {
-        console.log(values);
         let clonSelectsArray = selectsArray;
         let clonValues = {};
 
@@ -71,6 +72,7 @@ export const EquipmentTab = ({specKey, onRemove}) => {
         delete clonValues["notes"];
         delete clonValues["_id"];
         delete clonValues["parent"];
+        delete clonValues["files"];
 
         for (let key in clonValues) {
             if (key.slice(0, 5) === "label") {
@@ -113,7 +115,8 @@ export const EquipmentTab = ({specKey, onRemove}) => {
             notes: values.notes,
             _id: values._id,
             parent: selectEquipment === "Не выбрано" ? null : selectEquipment ? selectEquipment : initialEquipment,
-            properties: rightSelectsArray
+            properties: rightSelectsArray,
+            files: values.files
         };
 
         onSave(
@@ -123,13 +126,33 @@ export const EquipmentTab = ({specKey, onRemove}) => {
     }
 
     // Обработка нажатия на кнопку "Удалить"
-    const deleteHandler = () => onDelete(
-        "equipment", setLoadingDelete, ActionCreator.ActionCreatorEquipment.deleteEquipment,
-        equipment, onRemove, specKey, rowData
-    ).then(null);
+    const deleteHandler = async () => {
+        try {
+            const data = await request("/files/delete/" + rowData._id, "DELETE");
+
+            if (data) {
+                onDelete(
+                    "equipment", setLoadingDelete, ActionCreator.ActionCreatorEquipment.deleteEquipment,
+                    equipment, onRemove, specKey, rowData
+                ).then(null);
+            }
+        } catch (e) {
+            message.error("Возникла ошибка при удалении файлов записи, пожалуйста, удалите файлы вручную");
+        }
+    }
 
     // Обработка нажатия на кнопку "Отмена"
-    const cancelHandler = () => onCancel(onRemove, specKey);
+    const cancelHandler = async () => {
+        try {
+            const data = await request("/files/cancel", "DELETE");
+
+            if (data) {
+                onCancel(onRemove, specKey);
+            }
+        } catch (e) {
+            message.error("Возникла ошибка при удалении файлов записи, пожалуйста, удалите файлы вручную");
+        }
+    }
 
     // Изменение значения в выпадающем списке "Подразделение", и сохранение этого значения в стейте
     const changeHandler = (value) => onChange(form, value, setSelectEquipment, equipment);
@@ -186,32 +209,47 @@ export const EquipmentTab = ({specKey, onRemove}) => {
         dispatch(ActionCreator.ActionCreatorEquipment.editSelectRow(selectRow, index));
     }
 
+    // Настройки компонента "Upload"
     const props = {
         name: 'file',
         multiple: true,
-        action: "/upload",
+        action: "/files/upload",
         data: {
-            equipmentId: rowData ? rowData._id : null
+            equipmentId: rowData ? rowData._id : -1,
         },
-        onChange(info) {
-            info.file.url = "/upload/" + info.file.name;
-
-            const {status} = info.file;
-            if (status !== 'uploading') {
-                console.log(info.file, info.fileList);
-            }
-            if (status === 'done') {
-                message.success(`Файл ${info.file.name} успешно загружен.`).then(null);
-            } else if (status === 'error') {
-                message.error(`Возникла ошибка при загрузке файла ${info.file.name}.`).then(r => console.log(r));
-            }
-        },
+        defaultFileList: rowData && rowData.files && rowData.files.length ? rowData.files : null,
+        fileList: fileList,
         showUploadList: {
             showDownloadIcon: true,
             downloadIcon: 'download ',
             showRemoveIcon: true,
         },
-        fileList: rowData && rowData.files && rowData.files.length ? rowData.files : null
+        onChange(info) {
+            info.file.url = "public/" + info.file.name;
+
+            const {status} = info.file;
+
+            if (status === 'done') {
+                message.success(`Файл ${info.file.name} успешно загружен.`).then(null);
+            } else if (status === 'error') {
+                message.error(`Возникла ошибка при загрузке файла ${info.file.name}.`).then(r => console.log(r));
+            }
+
+            setFileList(info.fileList);
+        },
+        async onRemove(file) {
+            const id = rowData ? rowData._id : -1;
+
+            try {
+                const data = await request("/files/" + id, "DELETE", file);
+
+                if (data) {
+                    message.success(data.message);
+                }
+            } catch (e) {
+                message.error("Возникла ошибка при удалении файла " + file.name);
+            }
+        }
     };
 
     return (

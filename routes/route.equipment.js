@@ -1,6 +1,7 @@
 // Маршруты для "Перечень оборудования"
 const {Router} = require("express");
 const Equipment = require("../models/Equipment");
+const File = require("../models/File");
 const router = Router();
 
 // Возвращает запись по коду
@@ -40,6 +41,8 @@ router.get("/equipment", async (req, res) => {
 // Сохраняет новую запись
 router.post('/equipment', async (req, res) => {
     try {
+        let resFileArr = [];
+
         const {name, notes, parent, properties, files} = req.body;
 
         if (parent) {
@@ -47,12 +50,27 @@ router.post('/equipment', async (req, res) => {
                 return res.status(400).json({message: "Объект не может принадлежать сам себе"});
             }
         }
-        console.log(files)
-        const newItem = new Equipment({parent: parent, name: name, notes: notes, properties: properties, files: files});
+
+        for (const file of files.fileList) {
+            const findFile = await File.findOne({name: file.name});
+
+            findFile.uid = `${findFile._id}-${findFile.name}`;
+
+            await findFile.save();
+
+            resFileArr.push(findFile);
+        }
+
+        const newItem = new Equipment({
+            parent: parent, name: name, notes: notes, properties: properties, files: resFileArr
+        });
 
         await newItem.save();
 
-        let currentEquipment = await Equipment.findOne({name}).populate('parent').populate('properties.equipmentProperty');
+        let currentEquipment = await Equipment.findOne({name})
+            .populate("parent")
+            .populate("properties.equipmentProperty")
+            .populate("files");
 
         res.status(201).json({message: "Подразделение сохранено", item: currentEquipment});
     } catch (e) {
@@ -83,7 +101,10 @@ router.put('/equipment', async (req, res) => {
 
         await item.save();
 
-        let savedItem = await Equipment.findById({_id}).populate('parent').populate('properties.equipmentProperty');
+        let savedItem = await Equipment.findById({_id})
+            .populate("parent")
+            .populate("properties.equipmentProperty")
+            .populate("files");
 
         res.status(201).json({message: "Запись сохранена", item: savedItem});
     } catch (e) {
