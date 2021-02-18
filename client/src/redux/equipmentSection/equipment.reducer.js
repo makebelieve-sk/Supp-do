@@ -8,7 +8,10 @@ import {
     ADD_SELECT_ROW,
     EDIT_SELECT_ROW,
     DELETE_SELECT_ROW,
-    GET_ALL_SELECT_ROWS
+    GET_ALL_SELECT_ROWS,
+    ADD_FILE,
+    DELETE_FILE,
+    GET_ALL_FILES
 } from "./equipment.constants";
 
 export default function reducerEquipment(state = initialState, action) {
@@ -61,6 +64,22 @@ export default function reducerEquipment(state = initialState, action) {
             return {
                 ...state,
                 selectsArray: action.payload
+            };
+        case ADD_FILE:
+            return {
+                ...state,
+                files: [...state.files, action.payload]
+            };
+        case DELETE_FILE:
+            return {
+                ...state,
+                files: [ ...state.files.slice(0, action.payload),
+                    ...state.files.slice(action.payload + 1) ]
+            };
+        case GET_ALL_FILES:
+            return {
+                ...state,
+                files: action.payload
             };
         default:
             return state;

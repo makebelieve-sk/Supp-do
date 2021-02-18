@@ -6,7 +6,7 @@ import {CheckOutlined, StopOutlined} from "@ant-design/icons";
 
 import {ActionCreator} from "../../redux/combineActions";
 import {
-    checkTypeTab,
+    CheckTypeTab,
     onCancel,
     onDelete,
     onFailed,
@@ -28,7 +28,6 @@ export const DepartmentTab = ({specKey, onRemove}) => {
     // Инициализация стейта для показа спиннера загрузки при сохранении/редактировании/удалении записи и обновлении
     // выпадающего списка
     const [loadingSave, setLoadingSave] = useState(false);
-    const [loadingDelete, setLoadingDelete] = useState(false);
     const [loadingSelectDep, setLoadingSelectDep] = useState(false);
 
     // Инициализация начлаьного значения в выпадающем списке
@@ -61,9 +60,9 @@ export const DepartmentTab = ({specKey, onRemove}) => {
     }
 
     // Обработка нажатия на кнопку "Удалить"
-    const deleteHandler = () => onDelete(
+    const deleteHandler = (setLoadingDelete, setVisiblePopConfirm) => onDelete(
         "departments", setLoadingDelete, ActionCreator.ActionCreatorDepartment.deleteDepartment,
-        departments, onRemove, specKey, rowData
+        departments, onRemove, specKey, rowData, setVisiblePopConfirm
     ).then(null);
 
     // Обработка нажатия на кнопку "Отмена"
@@ -78,7 +77,7 @@ export const DepartmentTab = ({specKey, onRemove}) => {
             setDepartmentsToOptions);
 
     // Инициализация кнопок, появляющихся при редактировании записи
-    const editButtonsComponent = checkTypeTab(rowData, deleteHandler, loadingDelete);
+    const editButtonsComponent = CheckTypeTab(rowData, deleteHandler);
 
     return (
         <Row className="container-tab" justify="center">

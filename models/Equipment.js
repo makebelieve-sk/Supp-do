@@ -19,9 +19,7 @@ const schema = new Schema({
             }
         }
     ],
-    files: [
-        { type: Types.ObjectId, ref: "File" }
-    ]
+    files: [{ type: Types.ObjectId, ref: "File" }]
 })
 
 module.exports = model('Equipment', schema);

@@ -1,35 +1,44 @@
-// Маршруты для "Перечень оборудования"
+// Маршруты для "Журнала дефектов и отказов"
 const {Router} = require("express");
 const Equipment = require("../models/Equipment");
 const File = require("../models/File");
+const LogDO = require("../models/LogDO.model");
 const router = Router();
 
 // Возвращает запись по коду
-router.get('/equipment/:id', async (req, res) => {
+router.get('/log-do/:id', async (req, res) => {
     const id = req.params.id;
 
     try {
-        const item = await Equipment.findById({_id: id})
-            .populate('parent')
-            .populate('properties.equipmentProperty')
+        const item = await LogDO.findById({_id: id})
+            .populate('applicant')
+            .populate("equipment")
+            .populate("department")
+            .populate("responsible")
+            .populate("state")
+            .populate("acceptTask")
             .populate("files");
 
         if (!item) {
             return res.status(400).json({message: `Запись с кодом ${id} не существует`});
         }
 
-        res.status(201).json({equipment: item});
+        res.status(201).json({logDO: item});
     } catch (e) {
         res.status(500).json({message: `Ошибка при открытии записи с кодом ${id}`})
     }
 });
 
 // Возвращает все записи
-router.get("/equipment", async (req, res) => {
+router.get("/log-do", async (req, res) => {
     try {
-        const items = await Equipment.find({})
-            .populate('parent')
-            .populate("properties")
+        const items = await LogDO.find({})
+            .populate('applicant')
+            .populate("equipment")
+            .populate("department")
+            .populate("responsible")
+            .populate("state")
+            .populate("acceptTask")
             .populate("files");
 
         res.json(items);
@@ -38,6 +47,7 @@ router.get("/equipment", async (req, res) => {
     }
 });
 
+//===================================================================================================================
 // Сохраняет новую запись
 router.post('/equipment', async (req, res) => {
     try {
@@ -131,13 +141,14 @@ router.put('/equipment', async (req, res) => {
         res.status(500).json({message: "Ошибка при обновлении записи"})
     }
 });
+//===================================================================================================================
 
 // Удаляет запись
-router.delete('/equipment/:id', async (req, res) => {
+router.delete('/log-do/:id', async (req, res) => {
     const id = req.params.id;
 
     try {
-        await Equipment.deleteOne({_id: id});
+        await LogDO.deleteOne({_id: id});
 
         res.status(201).json({message: "Запись успешно удалена"});
     } catch (e) {

@@ -4,7 +4,9 @@ const initialState = {
     // Редактируемая запись
     rowDataEquipment: null,
     // Массив строчек вкладки "Характеристики"
-    selectsArray: []
+    selectsArray: [],
+    // Массив файлов
+    files: []
 };
 
 export default initialState;

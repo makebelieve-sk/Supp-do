@@ -1,24 +1,35 @@
 // Помощник по созданию вкладки записи
-import React from "react";
-import {Button, message} from "antd";
-import {DeleteOutlined, PrinterOutlined} from "@ant-design/icons";
+import React, {useState} from "react";
+import {Button, message, Popconfirm} from "antd";
+import {DeleteOutlined, PrinterOutlined, QuestionCircleOutlined} from "@ant-design/icons";
 
 import {request} from "./request.helper";
 import store from "../../redux/store";
 
 // Инициализация кнопок, появляющихся при редактировании записи
-const checkTypeTab = (rowData, deleteHandler, loadingDelete) => {
+const CheckTypeTab = (rowData, deleteHandler) => {
+    const [loadingDelete, setLoadingDelete] = useState(false);
+    const [visiblePopConfirm, setVisiblePopConfirm] = useState(false);
+
     return rowData ?
         <>
-            <Button
-                className="button-style"
-                type="danger"
-                onClick={deleteHandler}
-                loading={loadingDelete}
-                icon={<DeleteOutlined/>}
+            <Popconfirm
+                title="Вы уверены, что хотите удалить запись?"
+                okText="Удалить"
+                visible={visiblePopConfirm}
+                onConfirm={() => deleteHandler(setLoadingDelete, setVisiblePopConfirm)}
+                okButtonProps={{ loading: loadingDelete }}
+                icon={<QuestionCircleOutlined style={{color: 'red'}}/>}
             >
-                Удалить
-            </Button>
+                <Button
+                    className="button-style"
+                    type="danger"
+                    icon={<DeleteOutlined/>}
+                    onClick={() => setVisiblePopConfirm(true)}
+                >
+                    Удалить
+                </Button>
+            </Popconfirm>
             <Button
                 className="button-style"
                 type="secondary"
@@ -72,15 +83,16 @@ const onSave = async (url, values, setLoadingSave, dispatchActionEdit, dispatchA
 };
 
 // Удаление записи
-const onDelete = async (url, setLoadingDelete, dispatchActionDelete, dataStore, onRemove, specKey, rowData) => {
+const onDelete = async (url, setLoadingDelete, dispatchActionDelete, dataStore, onRemove, specKey, rowData, setVisiblePopConfirm) => {
     try {
         if (rowData) {
             // Устанавливаем спиннер
             setLoadingDelete(true);
             // Получаем данные от сервера
             const data = await request(`/api/directory/${url}/` + rowData._id, "DELETE", rowData);
-            // Останавливаем спиннер
+            // Останавливаем спиннер, и скрываем всплывающее окно
             setLoadingDelete(false);
+            setVisiblePopConfirm(false);
 
             if (data) {
                 // Вывод сообщения
@@ -158,13 +170,13 @@ const onDropDownRender = async (open, setLoading, url, dispatchAction, setSelect
 
             setSelectToOptions(valuesToOptions);
         }
-    } catch(e) {
+    } catch (e) {
         setLoading(false);
     }
 }
 
 export {
-    checkTypeTab,
+    CheckTypeTab,
     onSave,
     onDelete,
     onFailed,

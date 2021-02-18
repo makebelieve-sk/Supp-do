@@ -6,6 +6,7 @@ import {
     headerTasksTable,
     headerEquipmentPropertyTable,
     headerEquipmentTable,
+    headerLogDOTable,
 
     DepartmentColumns,
     PersonColumns,
@@ -13,6 +14,7 @@ import {
     TasksColumns,
     EquipmentPropertyColumns,
     EquipmentColumns,
+    LogDOColumns,
 } from "../../datatable.options/datatable.columns";
 
 import {
@@ -21,7 +23,8 @@ import {
     getPerson,
     getTask,
     getEquipmentProperty,
-    getEquipment
+    getEquipment,
+    getLogDO
 } from "./rowFunctions.helper";
 
 import {message} from "antd";
@@ -34,6 +37,7 @@ const map = new Map([
     ['tasks', {getRow: getTask, getColumns: TasksColumns, getExportHeaders: headerTasksTable}],
     ['equipmentProperties', {getRow: getEquipmentProperty, getColumns: EquipmentPropertyColumns, getExportHeaders: headerEquipmentPropertyTable}],
     ['equipment', {getRow: getEquipment, getColumns: EquipmentColumns, getExportHeaders: headerEquipmentTable}],
+    ['logDO', {getRow: getLogDO, getColumns: LogDOColumns, getExportHeaders: headerLogDOTable}],
 ]);
 
 /**
@@ -44,7 +48,7 @@ const map = new Map([
  */
 const RowMapHelper = (key, rowData) => {
     if (map.has(key)) {
-        map.get(key).getRow(rowData).then(r => null);
+        map.get(key).getRow(rowData).then(null);
     } else {
         message.error(`Раздел с ключём ${key} не существует (открытие вкладки создания/редактирования записи)`)
             .then(r => console.log(r));

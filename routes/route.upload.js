@@ -9,34 +9,15 @@ const fs = require('fs');
 router.post("/upload", async (req, res) => {
     const originalFileName = req.files.file.name;
 
-    const _id = req.body.equipmentId;
-    let item = null;
-
     try {
-        if (_id && _id.length > 2) {
-            item = await Equipment.findById({_id}).populate("files");
+        let file = new File({
+            name: originalFileName,
+            url: `public/${originalFileName}`,
+            status: "done",
+            uid: `-1-${originalFileName}`
+        });
 
-            if (item) {
-                let file = new File({
-                    name: originalFileName,
-                    url: `public/${originalFileName}`,
-                    status: "done",
-                    uid: `-1-${originalFileName}`
-                });
-                file = await file.save();
-                item.files.push(file);
-                await item.save();
-            }
-        } else {
-            let file = new File({
-                name: originalFileName,
-                url: `public/${originalFileName}`,
-                status: "done",
-                uid: `-1-${originalFileName}`
-            });
-
-            await file.save();
-        }
+        await file.save();
 
         await req.files.file.mv(`public/${originalFileName}`);
 
@@ -46,16 +27,54 @@ router.post("/upload", async (req, res) => {
     }
 });
 
-// Удаляет файл при клике на него из списка и при клике на кнопку "Удалить"
+// Удаляет файлы записи при клике на кнопку "Удалить"
 router.delete("/delete/:id", async (req, res) => {
     const id = req.params.id;
     let item = null;
 
     try {
-        if (Object.keys(req.body).length) {
-            const {_id, uid, url, name} = req.body;
+        item = await Equipment.findById({_id: id}).populate("files");
 
-            if (id && id.length > 2) {
+        for (const file of item.files) {
+            await File.deleteOne({_id: file._id});
+
+            await fs.unlink(file.url, (err) => {
+                if (err) console.log(err)
+            });
+        }
+
+        let notSavedFiles = await File.find({});
+
+        for (const file of notSavedFiles) {
+            if (file.uid.slice(0, 3) === "-1-") {
+                await File.deleteOne({_id: file._id});
+
+                await fs.unlink(file.url, (err) => {
+                    if (err) console.log(err)
+                });
+            }
+        }
+
+        res.status(201).json({message: "Файлы успешно удалены"});
+    } catch (e) {
+        res.status(500).json({message: `Ошибка при удалении записи с кодом ${id}`});
+    }
+});
+
+// Удаляет файл при клике на него
+router.delete("/delete-file/:id", async (req, res) => {
+    const id = req.params.id;
+    let item = null;
+
+    try {
+        const {_id, uid, url, name} = req.body;
+
+        if (id === "-1") {
+            await File.deleteOne({name: name});
+        } else {
+            if (uid.slice(0, 3) === "-1-") {
+                await File.deleteOne({name: name});
+            } else {
                 item = await Equipment.findById({_id: id}).populate("files");
 
                 let foundFile = item.files.find(file => file.uid === uid);
@@ -65,24 +84,12 @@ router.delete("/delete/:id", async (req, res) => {
                 await item.save();
 
                 await File.deleteOne({_id: _id});
-            } else {
-                await File.deleteOne({name: name});
-            }
-
-            await fs.unlink(url, (err) => {
-                if (err) console.log(err)
-            });
-        } else {
-            item = await Equipment.findById({_id: id}).populate("files");
-
-            for (const file of item.files) {
-                await File.deleteOne({_id: file._id});
-
-                await fs.unlink(file.url, (err) => {
-                    if (err) console.log(err)
-                });
             }
         }
+
+        await fs.unlink(url, (err) => {
+            if (err) console.log(err)
+        });
 
         res.status(201).json({message: "Файл успешно удалён"});
     } catch (e) {

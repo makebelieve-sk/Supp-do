@@ -5,14 +5,13 @@ import {Card, Form, Input, Row, Col, Button, Skeleton} from 'antd';
 import {CheckOutlined, StopOutlined} from '@ant-design/icons';
 
 import {ActionCreator} from "../../redux/combineActions";
-import {checkTypeTab, onSave, onDelete, onFailed, onCancel} from "../helpers/rowTabs.helper";
+import {CheckTypeTab, onSave, onDelete, onFailed, onCancel} from "../helpers/rowTabs.helper";
 
 const {Meta} = Card;
 
 export const ProfessionTab = ({specKey, onRemove}) => {
     // Инициализация стейта для показа спиннера загрузки при сохранении и удалении записи
     const [loadingSave, setLoadingSave] = useState(false);
-    const [loadingDelete, setLoadingDelete] = useState(false);
 
     // Получение списка профессий и загрузки записи из хранилища redux
     const {professions, rowData, loadingSkeleton} = useSelector((state) => ({
@@ -35,16 +34,16 @@ export const ProfessionTab = ({specKey, onRemove}) => {
     ).then(null);
 
     // Обработка нажатия на кнопку "Удалить"
-    const deleteHandler = () => onDelete(
+    const deleteHandler = (setLoadingDelete, setVisiblePopConfirm) => onDelete(
         "professions", setLoadingDelete, ActionCreator.ActionCreatorProfession.deleteProfession,
-        professions, onRemove, specKey, rowData
+        professions, onRemove, specKey, rowData, setVisiblePopConfirm
     ).then(null);
 
     // Обработка нажатия на кнопку "Отмена"
     const cancelHandler = () => onCancel(onRemove, specKey);
 
     // Инициализация кнопок, появляющихся при редактировании записи
-    const editButtonsComponent = checkTypeTab(rowData, deleteHandler, loadingDelete);
+    const editButtonsComponent = CheckTypeTab(rowData, deleteHandler);
 
     return (
         <Row className="container-tab" justify="center">

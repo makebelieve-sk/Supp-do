@@ -25,7 +25,7 @@ const {Meta} = Card;
 const {TabPane} = Tabs;
 const {Dragger} = Upload;
 
-export const EquipmentTab = ({specKey, onRemove}) => {
+export const LogDOTab = ({specKey, onRemove}) => {
     // Инициализация стейта для показа спиннера загрузки при сохранении/удалении записи, обновлении
     // выпадающего списка и списка файлов
     const [loadingSave, setLoadingSave] = useState(false);
@@ -35,13 +35,14 @@ export const EquipmentTab = ({specKey, onRemove}) => {
     const [loadingCancel, setLoadingCancel] = useState(false);
 
     // Получение списка подразделений и загрузки записи из хранилища redux
-    const {equipment, rowData, loadingSkeleton, equipmentProperties, selectsArray, files} = useSelector((state) => ({
+    const {equipment, rowData, loadingSkeleton, equipmentProperties, selectsArray, files, logDO} = useSelector((state) => ({
         equipment: state.reducerEquipment.equipment,
         rowData: state.reducerEquipment.rowDataEquipment,
         loadingSkeleton: state.reducerLoading.loadingSkeleton,
         equipmentProperties: state.reducerEquipmentProperty.equipmentProperties,
         selectsArray: state.reducerEquipment.selectsArray,
-        files: state.reducerEquipment.files
+        files: state.reducerEquipment.files,
+        logDO: state.reducerLogDO.logDO
     }));
     const dispatch = useDispatch();
 
@@ -63,8 +64,8 @@ export const EquipmentTab = ({specKey, onRemove}) => {
     }
 
     // Создание заголовка раздела и имени формы
-    const title = rowData ? 'Редактирование оборудования' : 'Создание оборудования';
-    const name = rowData ? `control-ref-equipment-${rowData.name}` : "control-ref-equipment";
+    const title = rowData ? 'Редактирование записи' : 'Создание записи';
+    const name = rowData ? `control-ref-logdo-${rowData.name}` : "control-ref-logdo";
 
     // Обработка нажатия на кнопку "Сохранить"
     const saveHandler = (values) => {

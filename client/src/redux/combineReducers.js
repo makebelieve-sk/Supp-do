@@ -8,6 +8,7 @@ import reducerEquipmentProperty from "./equipmentPropertySection/equipmentProper
 import reducerTab from "./tab/tab.reducer";
 import reducerLoading from "./loading/loading.reducer";
 import reducerEquipment from "./equipmentSection/equipment.reducer";
+import reducerLogDO from "./logDOSection/logDO.reducer";
 
 export const reducer = combineReducers({
     reducerProfession,
@@ -18,4 +19,5 @@ export const reducer = combineReducers({
     reducerTab,
     reducerLoading,
     reducerEquipment,
+    reducerLogDO
 });

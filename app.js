@@ -8,6 +8,7 @@ const app = express();
 app.use(express.json({extended: true}));
 
 // Регистрируем маршруты
+app.use('/api', require("./routes/route.logDO"));
 app.use('/api/auth', require("./routes/route.auth"));
 app.use('/api/directory', require("./routes/route.profession"));
 app.use('/api/directory', require("./routes/route.department"));

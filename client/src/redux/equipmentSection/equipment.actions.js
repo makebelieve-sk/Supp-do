@@ -7,7 +7,10 @@ import {
     ADD_SELECT_ROW,
     EDIT_SELECT_ROW,
     DELETE_SELECT_ROW,
-    GET_ALL_SELECT_ROWS
+    GET_ALL_SELECT_ROWS,
+    ADD_FILE,
+    DELETE_FILE,
+    GET_ALL_FILES
 } from "./equipment.constants";
 
 const ActionCreatorEquipment = {
@@ -74,6 +77,27 @@ const ActionCreatorEquipment = {
         return {
             type: GET_ALL_SELECT_ROWS,
             payload: rows
+        }
+    },
+    // Добавление файла во вкладку "Файлы"
+    addFile: (file) => {
+        return {
+            type: ADD_FILE,
+            payload: file
+        }
+    },
+    // Удаление файла во вкладке "Файлы"
+    deleteFile: (index) => {
+        return {
+            type: DELETE_FILE,
+            payload: index
+        }
+    },
+    // Получение всех файлов во вкладке "Файлы"
+    getAllFiles: (files) => {
+        return {
+            type: GET_ALL_FILES,
+            payload: files
         }
     },
 }

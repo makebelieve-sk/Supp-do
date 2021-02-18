@@ -7,7 +7,7 @@ import {CheckOutlined, PlusOutlined, StopOutlined} from "@ant-design/icons";
 import {RowMapHelper} from "../helpers/dataTableMap.helper";
 import {ActionCreator} from "../../redux/combineActions";
 import {
-    checkTypeTab,
+    CheckTypeTab,
     onSave,
     onDelete,
     onFailed,
@@ -37,9 +37,8 @@ export const PersonTab = ({specKey, onRemove}) => {
     const [loadingSelectDep, setLoadingSelectDep] = useState(false);
     const [loadingSelectProf, setLoadingSelectProf] = useState(false);
 
-    // Инициализация стейта для показа спиннера загрузки при сохранении и удалении записи
+    // Инициализация стейта для показа спиннера загрузки при сохранении
     const [loadingSave, setLoadingSave] = useState(false);
-    const [loadingDelete, setLoadingDelete] = useState(false);
 
     // Инициализация первоначальных значений в в выпадающих списках
     let initialDepartment = null, initialProfession = null;
@@ -79,9 +78,9 @@ export const PersonTab = ({specKey, onRemove}) => {
     }
 
     // Обработка нажатия на кнопку "Удалить"
-    const deleteHandler = () => onDelete(
+    const deleteHandler = (setLoadingDelete, setVisiblePopConfirm) => onDelete(
         "people", setLoadingDelete, ActionCreator.ActionCreatorPerson.deletePerson,
-        people, onRemove, specKey, rowData
+        people, onRemove, specKey, rowData, setVisiblePopConfirm
     ).then(null);
 
     // Обработка нажатия на кнопку "Отмена"
@@ -96,8 +95,6 @@ export const PersonTab = ({specKey, onRemove}) => {
 
     // Изменение значения в выпадающем списке "Профессия"
     const changeHandlerProfession = (value) => {
-        // form.setFieldsValue({profession: value});
-
         if (value === "Не выбрано") {
             setSelectProfession(value);
             return null;
@@ -132,7 +129,7 @@ export const PersonTab = ({specKey, onRemove}) => {
     }
 
     // Инициализация кнопок, появляющихся при редактировании записи
-    const editButtonsComponent = checkTypeTab(rowData, deleteHandler, loadingDelete);
+    const editButtonsComponent = CheckTypeTab(rowData, deleteHandler);
 
     return (
         <Row className="container-tab" justify="center">

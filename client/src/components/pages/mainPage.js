@@ -38,12 +38,13 @@ export const MainPage = () => {
     useEffect(() => {
         async function getItems() {
             try {
-                const items = await request('/api/directory/equipment');
+                const items = await request('/api/log-do');
 
                 if (items && items.length > 0) {
-                    dispatch(ActionCreator.ActionCreatorEquipment.getAllEquipment(items));
+                    dispatch(ActionCreator.ActionCreatorLogDO.getAllLogDO(items));
                 }
-            } catch (e) {}
+            } catch (e) {
+            }
         }
 
         getItems();
@@ -153,7 +154,14 @@ export const MainPage = () => {
                             >Состояние заявок</Menu.Item>
                         </SubMenu>
                         <SubMenu title="Прочее">
-                            <Menu.Item key="info">Информация о предприятии</Menu.Item>
+                            <Menu.Item key="info"
+                                       onClick={() => OpenTabSectionHelper(
+                                           'Журнал Дефектов и отказов',
+                                           'logDO',
+                                           'log-do',
+                                           ActionCreator.ActionCreatorLogDO.getAllLogDO
+                                       )}
+                            >Информация о предприятии</Menu.Item>
                         </SubMenu>
                     </SubMenu>
                     <SubMenu key="admin" icon={<LaptopOutlined/>} title="Администрирование">
@@ -180,7 +188,8 @@ export const MainPage = () => {
                     <div className="user">
                         <Dropdown overlay={dropdownMenu} trigger={['click']}>
                             <a className="ant-dropdown-link" href="/" onClick={e => e.preventDefault()}>
-                                <Avatar>{auth.user ? auth.user.login[0] : 'U'} </Avatar> {auth.user ? auth.user.login : ''} <DownOutlined/>
+                                <Avatar>{auth.user ? auth.user.login[0] : 'U'} </Avatar> {auth.user ? auth.user.login : ''}
+                                <DownOutlined/>
                             </a>
                         </Dropdown>
                     </div>

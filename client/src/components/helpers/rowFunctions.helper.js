@@ -4,6 +4,7 @@ import {PersonTab} from "../tabs/personTab";
 import {TaskTab} from "../tabs/taskTab";
 import {EquipmentPropertyTab} from "../tabs/EquipmentPropertyTab";
 import {EquipmentTab} from "../tabs/equipmentTab";
+import {LogDOTab} from "../tabs/logDOTab";
 
 import store from "../../redux/store";
 import {ActionCreator} from "../../redux/combineActions";
@@ -206,7 +207,8 @@ const getEquipment = async (rowData) => {
             'Создание записи об объекте оборудования', EquipmentTab, 'newEquipment'
         );
 
-        // Обнуляем данные в редактируемой строчке
+        // Обнуляем данные в редактируемой строчке,
+        // получаем все файлы
         // и устанавливаем начальное значение массиву строк во вкладке "Характеристики"
         store.dispatch(ActionCreator.ActionCreatorEquipment.setRowDataEquipment(null));
         store.dispatch(ActionCreator.ActionCreatorEquipment.getAllSelectRows([{
@@ -215,6 +217,7 @@ const getEquipment = async (rowData) => {
             id: Math.random(),
             _id: null
         }]));
+        store.dispatch(ActionCreator.ActionCreatorEquipment.getAllFiles([]));
     } else {
         // Вызываем пустую вкладку редактируемой записи для показа спиннера загрузки
         getEmptyTabWithLoading(
@@ -228,6 +231,7 @@ const getEquipment = async (rowData) => {
         // и устанавливаем массив строк во вкладке "Характеристики"
         if (data) {
             store.dispatch(ActionCreator.ActionCreatorEquipment.setRowDataEquipment(data.equipment));
+            store.dispatch(ActionCreator.ActionCreatorEquipment.getAllFiles(data.equipment.files));
 
             if (data.equipment.properties.length) {
                 store.dispatch(ActionCreator.ActionCreatorEquipment.getAllSelectRows(data.equipment.properties));
@@ -246,6 +250,45 @@ const getEquipment = async (rowData) => {
     store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(false));
 };
 
+/**
+ * Добавление и заполнение вкладки "Перечень оборудования"
+ * @param rowData - редактируемая строка
+ * @constructor
+ */
+const getLogDO = async (rowData) => {
+    // Устанавливаем показ спиннера загрузки при открытии вкладки с записью
+    store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(true));
+
+    if (rowData === null) {
+        // Вызываем пустую вкладку новой записи для показа спиннера загрузки
+        getEmptyTabWithLoading(
+            'Создание записи в журнале дефектов и отказов', LogDOTab, 'newLogDO'
+        );
+
+        // Обнуляем данные в редактируемой строчке, получаем все файлы
+        store.dispatch(ActionCreator.ActionCreatorLogDO.setRowDataLogDO(null));
+        store.dispatch(ActionCreator.ActionCreatorLogDO.getAllFiles([]));
+    } else {
+        // Вызываем пустую вкладку редактируемой записи для показа спиннера загрузки
+        getEmptyTabWithLoading(
+            'Редактирование записи в журнале дефектов и отказов', LogDOTab, 'updateLogDO'
+        );
+
+        // Получаем данные для записи
+        let data = await request('/api/log-do/' + rowData._id);
+
+        // Если есть данные о записи, то записываем полученные данные в хранилище
+        // и устанавливаем массив строк во вкладке "Характеристики"
+        if (data) {
+            store.dispatch(ActionCreator.ActionCreatorLogDO.setRowDataLogDO(data.logDO));
+            store.dispatch(ActionCreator.ActionCreatorLogDO.getAllFiles(data.logDO.files));
+        }
+    }
+
+    // Останавливаем показ спиннера загрузки при открытии вкладки с записью
+    store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(false));
+};
+
 export {
-    getProfession, getDepartment, getPerson, getTask, getEquipmentProperty, getEquipment
+    getProfession, getDepartment, getPerson, getTask, getEquipmentProperty, getEquipment, getLogDO
 }

@@ -19,7 +19,8 @@ export const DataTableComponent = ({specKey}) => {
         people: state.reducerPerson.people,
         tasks: state.reducerTask.tasks,
         equipmentProperties: state.reducerEquipmentProperty.equipmentProperties,
-        equipment: state.reducerEquipment.equipment
+        equipment: state.reducerEquipment.equipment,
+        logDO: state.reducerLogDO.logDO
     }));
 
     let data = stateObject[specKey];

@@ -6,7 +6,7 @@ import {Card, Form, Input, Row, Col, Button, Skeleton, Checkbox, Dropdown} from 
 import {CheckOutlined, EditOutlined, StopOutlined} from '@ant-design/icons';
 
 import {ActionCreator} from "../../redux/combineActions";
-import {checkTypeTab, onCancel, onDelete, onFailed, onSave} from "../helpers/rowTabs.helper";
+import {CheckTypeTab, onCancel, onDelete, onFailed, onSave} from "../helpers/rowTabs.helper";
 
 const {Meta} = Card;
 
@@ -16,7 +16,6 @@ export const TaskTab = ({specKey, onRemove}) => {
 
     // Инициализация стейта для показа спиннера загрузки при сохранении и удалении записи
     const [loadingSave, setLoadingSave] = useState(false);
-    const [loadingDelete, setLoadingDelete] = useState(false);
 
     // Получение списка состояний заявок и загрузки записи из хранилища redux
     const {tasks, rowData, loadingSkeleton} = useSelector((state) => ({
@@ -51,16 +50,16 @@ export const TaskTab = ({specKey, onRemove}) => {
     ).then(null);
 
     // Обработка нажатия на кнопку "Удалить"
-    const deleteHandler = () => onDelete(
+    const deleteHandler = (setLoadingDelete, setVisiblePopConfirm) => onDelete(
         "taskStatus", setLoadingDelete, ActionCreator.ActionCreatorTask.deleteTask,
-        tasks, onRemove, specKey, rowData
+        tasks, onRemove, specKey, rowData, setVisiblePopConfirm
     ).then(null);
 
     // Обработка нажатия на кнопку "Отмена"
     const cancelHandler = () => onCancel(onRemove, specKey);
 
     // Инициализация кнопок, появляющихся при редактировании записи
-    const editButtonsComponent = checkTypeTab(rowData, deleteHandler, loadingDelete);
+    const editButtonsComponent = CheckTypeTab(rowData, deleteHandler);
 
     // Создание компонента цветового пикера
     let colorPickerComponent = <>

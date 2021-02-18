@@ -6,6 +6,7 @@ import ActionCreatorEquipmentProperty from "./equipmentPropertySection/equipment
 import ActionCreatorTab from "./tab/tab.actions";
 import ActionCreatorLoading from "./loading/loading.actions";
 import ActionCreatorEquipment from "./equipmentSection/equipment.actions";
+import ActionCreatorLogDO from "./logDOSection/logDO.actions";
 
 export const ActionCreator = {
     ActionCreatorProfession,
@@ -15,5 +16,6 @@ export const ActionCreator = {
     ActionCreatorEquipmentProperty,
     ActionCreatorTab,
     ActionCreatorLoading,
-    ActionCreatorEquipment
+    ActionCreatorEquipment,
+    ActionCreatorLogDO
 }

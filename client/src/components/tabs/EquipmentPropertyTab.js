@@ -5,14 +5,14 @@ import {useSelector} from "react-redux";
 import {CheckOutlined, StopOutlined} from '@ant-design/icons';
 
 import {ActionCreator} from "../../redux/combineActions";
-import {checkTypeTab, onCancel, onDelete, onFailed, onSave} from "../helpers/rowTabs.helper";
+import {CheckTypeTab, onCancel, onDelete, onFailed, onSave} from "../helpers/rowTabs.helper";
 
 const {Meta} = Card;
 
 export const EquipmentPropertyTab = ({specKey, onRemove}) => {
     // Инициализация стейта для показа спиннера загрузки при сохранении и удалении записи
     const [loadingSave, setLoadingSave] = useState(false);
-    const [loadingDelete, setLoadingDelete] = useState(false);
+    // const [loadingDelete, setLoadingDelete] = useState(false);
 
     // Получение списка характеристик оборудования и загрузки записи из хранилища redux
     const {equipmentProperties, rowData, loadingSkeleton} = useSelector((state) => ({
@@ -35,16 +35,16 @@ export const EquipmentPropertyTab = ({specKey, onRemove}) => {
     ).then(null);
 
     // Обработка нажатия на кнопку "Удалить"
-    const deleteHandler = () => onDelete(
+    const deleteHandler = (setLoadingDelete, setVisiblePopConfirm) => onDelete(
         "equipment-property", setLoadingDelete, ActionCreator.ActionCreatorEquipmentProperty.deleteEquipmentProperty,
-        equipmentProperties, onRemove, specKey, rowData
+        equipmentProperties, onRemove, specKey, rowData, setVisiblePopConfirm
     ).then(null);
 
     // Обработка нажатия на кнопку "Отмена"
     const cancelHandler = () => onCancel(onRemove, specKey);
 
     // Инициализация кнопок, появляющихся при редактировании записи
-    const editButtonsComponent = checkTypeTab(rowData, deleteHandler, loadingDelete);
+    const editButtonsComponent = CheckTypeTab(rowData, deleteHandler);
 
     return (
         <Row className="container-tab" justify="center">
