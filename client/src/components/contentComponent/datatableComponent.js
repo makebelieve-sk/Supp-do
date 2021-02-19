@@ -1,12 +1,17 @@
 import React, {useState} from 'react';
 import {useSelector} from 'react-redux';
-import {message, Row, Table} from "antd";
+import {message, Row, Table, DatePicker} from "antd";
 import {CheckOutlined} from '@ant-design/icons';
 
 import {downloadCSV, pagination} from '../../datatable.options/datatable.options';
 import {HeaderDatatable} from './headerDatatable';
 import {ButtonsComponent} from "./buttonsDatatable";
 import {ColumnsMapHelper, RowMapHelper} from "../helpers/dataTableMap.helper";
+import moment from "moment";
+
+const { RangePicker } = DatePicker;
+
+const dateFormat = "DD.MM.YYYY HH:mm";
 
 export const DataTableComponent = ({specKey}) => {
     // Получение колонок для таблицы
@@ -86,8 +91,31 @@ export const DataTableComponent = ({specKey}) => {
     const onExport = () => data && data.length > 0 ?
         downloadCSV(data, specKey) : message.error('Записи в таблице отсутствуют');
 
+    // Изменение времени в датапикере
+    const onChange = (value, dateString) => {
+        console.log('Selected Time: ', value);
+        console.log('Formatted Selected Time: ', dateString);
+        // здесь пойдут запросы на сервер с отформатированной датой "dateString"
+    }
+
+    // Нажатие на кнопку "ОК" в дата пикере
+    const onOk = (value) => {
+        console.log('onOk: ', value);
+    }
+
     return (
         <>
+            {
+                specKey === "logDO" ? <Row justify="start">
+                    <RangePicker
+                        showTime={{ format: 'HH:mm' }}
+                        format={dateFormat}
+                        onChange={onChange}
+                        onOk={onOk}
+                        defaultValue={moment()}
+                    />
+                </Row> : null
+            }
             <Row className="container-row-dto" justify="space-between">
                 <HeaderDatatable
                     filterText={filterText}

@@ -1,12 +1,12 @@
 import React, {useState} from 'react';
-import {Button, Card, Form, Input, Row, Col, Select, Skeleton, Tabs, message, Upload, Popconfirm} from 'antd';
+import {Button, Card, Form, Input, Row, Col, Select, Skeleton, Tabs, message, Upload, Popconfirm, DatePicker, Checkbox } from 'antd';
 import {
     CheckOutlined,
-    DeleteOutlined,
-    InboxOutlined,
+    // DeleteOutlined,
+    // InboxOutlined,
     StopOutlined,
-    QuestionCircleOutlined,
-    CloudDownloadOutlined
+    // QuestionCircleOutlined,
+    // CloudDownloadOutlined
 } from "@ant-design/icons";
 import {useSelector, useDispatch} from "react-redux";
 
@@ -20,135 +20,136 @@ import {
     onSave
 } from "../helpers/rowTabs.helper";
 import {request} from "../helpers/request.helper";
+import moment from "moment";
 
 const {Meta} = Card;
 const {TabPane} = Tabs;
-const {Dragger} = Upload;
+// const {Dragger} = Upload;
+// const { RangePicker } = DatePicker;
+const { TextArea } = Input;
+
+const dateFormat = "DD.MM.YYYY HH:mm";
 
 export const LogDOTab = ({specKey, onRemove}) => {
     // Инициализация стейта для показа спиннера загрузки при сохранении/удалении записи, обновлении
     // выпадающего списка и списка файлов
     const [loadingSave, setLoadingSave] = useState(false);
-    const [loadingSelectEquipment, setLoadingSelectEquipment] = useState(false);
-    const [loadingSelectCharacteristics, setLoadingSelectCharacteristics] = useState(false);
-    const [loadingDeleteFile, setLoadingDeleteFile] = useState(false);
+    // const [loadingSelectCharacteristics, setLoadingSelectCharacteristics] = useState(false);
+    // const [loadingDeleteFile, setLoadingDeleteFile] = useState(false);
     const [loadingCancel, setLoadingCancel] = useState(false);
 
+    const [loadingSelectDep, setLoadingSelectDep] = useState(false);
+    const [loadingSelectPeople, setLoadingSelectPeople] = useState(false);
+    const [loadingSelectEquipment, setLoadingSelectEquipment] = useState(false);
+    const [loadingSelectResponsible, setLoadingSelectResponsible] = useState(false);
+    const [loadingSelectState, setLoadingSelectState] = useState(false);
+    const [loadingSelectAcceptTask, setLoadingSelectAcceptTask] = useState(false);
+
     // Получение списка подразделений и загрузки записи из хранилища redux
-    const {equipment, rowData, loadingSkeleton, equipmentProperties, selectsArray, files, logDO} = useSelector((state) => ({
-        equipment: state.reducerEquipment.equipment,
-        rowData: state.reducerEquipment.rowDataEquipment,
+    const {loadingSkeleton, logDO, rowData, departments, people, equipment, tasks, equipmentProperties, files} = useSelector((state) => ({
         loadingSkeleton: state.reducerLoading.loadingSkeleton,
+        logDO: state.reducerLogDO.logDO,
+        rowData: state.reducerLogDO.rowDataLogDO,
+        departments: state.reducerDepartment.departments,
+        people: state.reducerPerson.people,
+        equipment: state.reducerEquipment.equipment,
+        tasks: state.reducerTask.tasks,
         equipmentProperties: state.reducerEquipmentProperty.equipmentProperties,
-        selectsArray: state.reducerEquipment.selectsArray,
         files: state.reducerEquipment.files,
-        logDO: state.reducerLogDO.logDO
     }));
-    const dispatch = useDispatch();
+    // const dispatch = useDispatch();
 
     // Создание стейта для значений в выпадающем списке "Перечень оборудования" и начального значения и
     // установка спиннера загрузки при сохранении записи
     const [selectEquipment, setSelectEquipment] = useState(null);
+
+    const [departmentsToOptions, setDepartmentsToOptions] = useState([]);
+    const [peopleToOptions, setPeopleToOptions] = useState([]);
     const [equipmentToOptions, setEquipmentToOptions] = useState([]);
-    const [equipmentPropertyToOptions, setEquipmentPropertyToOptions] = useState([]);
+    const [responsibleToOptions, setResponsibleToOptions] = useState([]);
+    const [stateToOptions, setStateToOptions] = useState([]);
+    const [acceptTaskToOptions, setAcceptTaskToOptions] = useState([]);
+
+    // Инициализация выбранного элемента из выпадающих списков
+    const [selectDep, setSelectDep] = useState(null);
+    const [selectPeople, setSelectPeople] = useState(null);
+    const [selectResponsible, setSelectResponsible] = useState(null);
+    const [selectState, setSelectState] = useState(null);
+    const [selectAcceptTask, setSelectAcceptTask] = useState(null);
 
     // Инициализация хука useForm() от Form antd
     const [form] = Form.useForm();
 
     // Инициализация начлаьного значения в выпадающем списке
-    let initialEquipment = null;
+    let initialApplicant = null, initialEquipment = null, initialDepartment = null, initialResponsible = null,
+        initialState = null, initialAcceptTask = null;
 
     // Если вкладка редактирования, то устанавливаем начальные значения для выпадающих списков
     if (rowData) {
-        initialEquipment = rowData.parent;
+        initialApplicant = rowData.applicant;
+        initialEquipment = rowData.equipment;
+        initialDepartment = rowData.department;
+        initialResponsible = rowData.responsible;
+        initialState = rowData.state;
+        initialAcceptTask = rowData.acceptTask;
     }
 
     // Создание заголовка раздела и имени формы
     const title = rowData ? 'Редактирование записи' : 'Создание записи';
-    const name = rowData ? `control-ref-logdo-${rowData.name}` : "control-ref-logdo";
+    const name = rowData ? `control-ref-log-do-${rowData.name}` : "control-ref-log-do";
+
+    // Функция создания номера записи
+    const getNumberLog = (numberLog) => {
+        if (numberLog.toString().length < 4) {
+            return getNumberLog(`0${numberLog}`);
+        } else {
+            localStorage.setItem("numberLog", numberLog);
+            return numberLog;
+        }
+    }
 
     // Обработка нажатия на кнопку "Сохранить"
     const saveHandler = (values) => {
-        let clonSelectsArray = selectsArray;
-        let clonValues = {};
+        let numberLog = localStorage.getItem("numberLog");
 
-        // Находим поля value из values
-        for (let key in values) {
-            clonValues[key] = values[key];
+        if (!numberLog) {
+            numberLog = 0;
         }
 
-        delete clonValues["name"];
-        delete clonValues["notes"];
-        delete clonValues["_id"];
-        delete clonValues["parent"];
-        delete clonValues["files"];
+        values.numberLog = getNumberLog(++numberLog) + "/" + moment().get("year");
+        values.date = values.date.format(dateFormat);
+        values.applicant = selectPeople === "Не выбрано" ? null : selectPeople ? selectPeople : initialApplicant;
+        values.equipment = selectEquipment === "Не выбрано" ? null : selectEquipment ? selectEquipment : initialEquipment;
+        values.department = selectDep === "Не выбрано" ? null : selectDep ? selectDep : initialDepartment;
+        values.responsible = selectResponsible === "Не выбрано" ? null : selectResponsible ? selectResponsible : initialResponsible;
+        values.state = selectState === "Не выбрано" ? null : selectState ? selectState : initialState;
+        // values.dateDone = values.dateDone.format(dateFormat);
+        values.acceptTask = selectAcceptTask === "Не выбрано" ? null : selectAcceptTask ? selectAcceptTask : initialAcceptTask;
+        values.files = [];
 
-        for (let key in clonValues) {
-            if (key.slice(0, 5) === "label") {
-                delete clonValues[key];
-            }
-        }
-
-        let entriesArr = Object.entries(clonValues);
-
-        // Переприсваиваем значение value
-        entriesArr.forEach(arr => {
-            let rowId = arr[0].split("-")[2];
-
-            clonSelectsArray.forEach(select => {
-                if (select.id === rowId * 1) {
-                    select.value = arr[1];
-                }
-            })
-        })
-
-        // Находим и переприсваиваем equipmentProperty
-        clonSelectsArray.forEach(select => {
-            let foundEquipmentProperty = equipmentProperties.find(property => {
-                return property.name === select.equipmentProperty;
-            });
-
-            if (foundEquipmentProperty) {
-                select.equipmentProperty = foundEquipmentProperty;
-            }
-        });
-
-        // Фильтруем неподходящие значения поля equipmentProperty
-        let rightSelectsArray = clonSelectsArray.filter(select => {
-            return select.equipmentProperty !== "Не выбрано" && select.equipmentProperty;
-        });
-
-        // Создаем конечный объект, который отправляется на сервер
-        let objectSendToServer = {
-            name: values.name,
-            notes: values.notes,
-            _id: values._id,
-            parent: selectEquipment === "Не выбрано" ? null : selectEquipment ? selectEquipment : initialEquipment,
-            properties: rightSelectsArray,
-            files: files
-        };
+        console.log("В методе onSave, отправляем на сервер: ", values);
 
         onSave(
-            "equipment", objectSendToServer, setLoadingSave, ActionCreator.ActionCreatorEquipment.editEquipment,
-            ActionCreator.ActionCreatorEquipment.createEquipment, equipment, onRemove, specKey, rowData
+            "log-do", values, setLoadingSave, ActionCreator.ActionCreatorLogDO.editLogDO,
+            ActionCreator.ActionCreatorLogDO.createLogDO, logDO, onRemove, specKey, rowData
         ).then(null);
     }
 
     // Обработка нажатия на кнопку "Удалить"
     const deleteHandler = async (setLoadingDelete, setVisiblePopConfirm) => {
-        try {
-            setLoadingDelete(true);
-            const data = await request("/files/delete/" + rowData._id, "DELETE");
-
-            if (data) {
+        // try {
+            // setLoadingDelete(true);
+            // const data = await request("/files/delete/" + rowData._id, "DELETE");
+            //
+            // if (data) {
                 onDelete(
-                    "equipment", setLoadingDelete, ActionCreator.ActionCreatorEquipment.deleteEquipment,
-                    equipment, onRemove, specKey, rowData, setVisiblePopConfirm
+                    "log-do", setLoadingDelete, ActionCreator.ActionCreatorLogDO.deleteLogDO,
+                    logDO, onRemove, specKey, rowData, setVisiblePopConfirm
                 ).then(null);
-            }
-        } catch (e) {
-            message.error("Возникла ошибка при удалении файлов записи, пожалуйста, удалите файлы вручную");
-        }
+        //     }
+        // } catch (e) {
+        //     message.error("Возникла ошибка при удалении файлов записи, пожалуйста, удалите файлы вручную");
+        // }
     }
 
     // Обработка нажатия на кнопку "Отмена"
@@ -167,155 +168,183 @@ export const LogDOTab = ({specKey, onRemove}) => {
         }
     }
 
-    // Изменение значения в выпадающем списке "Подразделение", и сохранение этого значения в стейте
-    const changeHandler = (value) => onChange(form, value, setSelectEquipment, equipment);
+    // Изменение значения в выпадающих списках, и сохранение этого значения в стейте
+    const changeHandler = (value, dataStore) => {
+        const setSelect = dataStore === departments ? setSelectDep : dataStore === people ?
+            setSelectPeople : dataStore === equipment ? setSelectEquipment : dataStore === "responsible" ?
+                setSelectResponsible : dataStore === tasks ? setSelectState : setSelectAcceptTask;
 
-    // Обновление выпадающего списка "Подразделения"
-    const dropDownRenderHandler = (open) => onDropDownRender(
-        open, setLoadingSelectEquipment, "equipment", ActionCreator.ActionCreatorEquipment.getAllEquipment,
-        setEquipmentToOptions);
+        if (dataStore === "responsible" || dataStore === "acceptTask") {
+            dataStore = people;
+        }
 
-    // Обновление выпадающего списка во вкладке "Характеристики"
-    const dropDownRenderHandlerProperty = (open) => onDropDownRender(
-        open, setLoadingSelectCharacteristics, "equipment-property",
-        ActionCreator.ActionCreatorEquipmentProperty.getAllEquipmentProperties, setEquipmentPropertyToOptions);
+        onChange(form, value, setSelect, dataStore);
+    }
+
+    // Обновление выпадающего списка
+    const dropDownRenderHandler = (open, dataStore) => {
+        let setLoading = setLoadingSelectDep,
+            key = "departments",
+            dispatchAction = ActionCreator.ActionCreatorDepartment.getAllDepartments,
+            setSelectToOptions = setDepartmentsToOptions;
+
+        if (dataStore === people) {
+            setLoading = setLoadingSelectPeople;
+            key = "people";
+            dispatchAction = ActionCreator.ActionCreatorPerson.getAllPeople;
+            setSelectToOptions = setPeopleToOptions;
+        }
+
+        if (dataStore === equipment) {
+            setLoading = setLoadingSelectEquipment;
+            key = "equipment";
+            dispatchAction = ActionCreator.ActionCreatorEquipment.getAllEquipment;
+            setSelectToOptions = setEquipmentToOptions;
+        }
+
+        if (dataStore === "responsible") {
+            setLoading = setLoadingSelectResponsible;
+            key = "people";
+            dispatchAction = ActionCreator.ActionCreatorPerson.getAllPeople;
+            setSelectToOptions = setResponsibleToOptions;
+        }
+
+        if (dataStore === tasks) {
+            setLoading = setLoadingSelectState;
+            key = "taskStatus";
+            dispatchAction = ActionCreator.ActionCreatorTask.getAllTasks;
+            setSelectToOptions = setStateToOptions;
+        }
+
+        if (dataStore === "acceptTask") {
+            setLoading = setLoadingSelectAcceptTask;
+            key = "people";
+            dispatchAction = ActionCreator.ActionCreatorPerson.getAllPeople;
+            setSelectToOptions = setAcceptTaskToOptions;
+        }
+
+        onDropDownRender(open, setLoading, key, dispatchAction, setSelectToOptions).then(null);
+    }
 
     // Инициализация кнопок, появляющихся при редактировании записи
     const editButtonsComponent = CheckTypeTab(rowData, deleteHandler);
 
-    // Добавление строки во вкладке "Характеристики"
-    const addRowProperty = (index) => {
-        if (index === selectsArray.length - 1) {
-            dispatch(ActionCreator.ActionCreatorEquipment.addSelectRow({
-                equipmentProperty: "Не выбрано",
-                value: "",
-                id: Math.random()
-            }));
-        }
-    };
-
-    // Удаление строки во вкладке "Характеристики"
-    const deleteRowProperty = (index) => {
-        if (selectsArray.length === 1) {
-            return null;
-        }
-
-        dispatch(ActionCreator.ActionCreatorEquipment.deleteSelectRow(index));
-    };
-
-    // Изменение строки во вкладке "Характеристики"
-    const changeRowPropertyHandler = (value, index) => {
-        let selectRow;
-
-        selectRow = value === "Не выбрано" ?
-            {
-                equipmentProperty: null,
-                value: null,
-                id: selectsArray[index].id
-            } :
-            {
-                equipmentProperty: value,
-                value: selectsArray[index].value,
-                id: selectsArray[index].id
-            }
-
-        dispatch(ActionCreator.ActionCreatorEquipment.editSelectRow(selectRow, index));
-    }
-
     // Удаляет файл из redux`а, из базы данных и с диска
-    const removeFile = async (deletedFile) => {
-        setLoadingDeleteFile(true);
-
-        let findFile = files.find(file => {
-            return JSON.stringify(file) === JSON.stringify(deletedFile);
-        });
-
-        let indexOf = files.indexOf(findFile);
-
-        if (findFile && indexOf >= 0) {
-            dispatch(ActionCreator.ActionCreatorEquipment.deleteFile(indexOf));
-
-            const id = rowData ? rowData._id : -1;
-
-            try {
-                const data = await request("/files/delete-file/" + id, "DELETE", deletedFile);
-
-                if (data) {
-                    message.success(data.message);
-                }
-            } catch (e) {
-                message.error("Возникла ошибка при удалении файла " + deletedFile.name);
-            }
-        } else {
-            message.error(`Файл ${deletedFile.name} не найден`);
-        }
-
-        setLoadingDeleteFile(false);
-    }
+    // const removeFile = async (deletedFile) => {
+    //     setLoadingDeleteFile(true);
+    //
+    //     let findFile = files.find(file => {
+    //         return JSON.stringify(file) === JSON.stringify(deletedFile);
+    //     });
+    //
+    //     let indexOf = files.indexOf(findFile);
+    //
+    //     if (findFile && indexOf >= 0) {
+    //         dispatch(ActionCreator.ActionCreatorEquipment.deleteFile(indexOf));
+    //
+    //         const id = rowData ? rowData._id : -1;
+    //
+    //         try {
+    //             const data = await request("/files/delete-file/" + id, "DELETE", deletedFile);
+    //
+    //             if (data) {
+    //                 message.success(data.message);
+    //             }
+    //         } catch (e) {
+    //             message.error("Возникла ошибка при удалении файла " + deletedFile.name);
+    //         }
+    //     } else {
+    //         message.error(`Файл ${deletedFile.name} не найден`);
+    //     }
+    //
+    //     setLoadingDeleteFile(false);
+    // }
 
     // Настройки компонента "Upload"
-    const props = {
-        name: 'file',
-        multiple: true,
-        action: "/files/upload",
-        data: {
-            equipmentId: rowData ? rowData._id : -1,
-        },
-        defaultFileList: files,
-        fileList: files,
-        showUploadList: {
-            showDownloadIcon: true,
-            downloadIcon: <CloudDownloadOutlined/>,
-            showRemoveIcon: true,
-            removeIcon: (file) => {
-                return <Popconfirm
-                    title="Вы уверены, что хотите удалить файл?"
-                    okText="Удалить"
-                    onConfirm={() => removeFile(file)}
-                    okButtonProps={{loading: loadingDeleteFile}}
-                    icon={<QuestionCircleOutlined style={{color: 'red'}}/>}
-                >
-                    <DeleteOutlined/>
-                </Popconfirm>
-            }
-        },
-        onChange(info) {
-            const {status} = info.file;
+    // const props = {
+    //     name: 'file',
+    //     multiple: true,
+    //     action: "/files/upload",
+    //     data: {
+    //         equipmentId: rowData ? rowData._id : -1,
+    //     },
+    //     defaultFileList: files,
+    //     fileList: files,
+    //     showUploadList: {
+    //         showDownloadIcon: true,
+    //         downloadIcon: <CloudDownloadOutlined/>,
+    //         showRemoveIcon: true,
+    //         removeIcon: (file) => {
+    //             return <Popconfirm
+    //                 title="Вы уверены, что хотите удалить файл?"
+    //                 okText="Удалить"
+    //                 onConfirm={() => removeFile(file)}
+    //                 okButtonProps={{loading: loadingDeleteFile}}
+    //                 icon={<QuestionCircleOutlined style={{color: 'red'}}/>}
+    //             >
+    //                 <DeleteOutlined/>
+    //             </Popconfirm>
+    //         }
+    //     },
+    //     onChange(info) {
+    //         const {status} = info.file;
+    //
+    //         if (status === 'done') {
+    //             message.success(`Файл ${info.file.name} успешно загружен.`).then(null);
+    //         } else if (status === 'error') {
+    //             message.error(`Возникла ошибка при загрузке файла ${info.file.name}.`).then(r => console.log(r));
+    //         }
+    //
+    //         // Создаем объект файла
+    //         let newFileList = info.fileList.map(file => {
+    //             return {
+    //                 name: file.name,
+    //                 url: `public/${file.name}`,
+    //                 status: "done",
+    //                 uid: `-1-${file.name}`
+    //             }
+    //         });
+    //
+    //         dispatch(ActionCreator.ActionCreatorEquipment.getAllFiles(newFileList));
+    //     },
+    //     async onRemove(file) {
+    //         return new Promise((resolve, reject) => {
+    //             return <Popconfirm
+    //                 onConfirm={() => {
+    //                     resolve(true);
+    //                     removeFile(file);
+    //                 }}
+    //                 onCancel={() => {
+    //                     reject(true);
+    //                 }}
+    //             >
+    //                 <DeleteOutlined/>
+    //             </Popconfirm>
+    //         });
+    //     }
+    // };
 
-            if (status === 'done') {
-                message.success(`Файл ${info.file.name} успешно загружен.`).then(null);
-            } else if (status === 'error') {
-                message.error(`Возникла ошибка при загрузке файла ${info.file.name}.`).then(r => console.log(r));
-            }
+    // Изменение времени в датапикере
+    const changeDateHandler = (value, dateString) => {
+        console.log('Selected Time: ', value);
+        console.log('Formatted Selected Time: ', dateString);
+    }
 
-            // Создаем объект файла
-            let newFileList = info.fileList.map(file => {
-                return {
-                    name: file.name,
-                    url: `public/${file.name}`,
-                    status: "done",
-                    uid: `-1-${file.name}`
-                }
-            });
+    // Нажатие на кнопку "ОК" в дата пикере
+    const onOk = (value) => {
+        console.log('onOk: ', value);
+    }
 
-            dispatch(ActionCreator.ActionCreatorEquipment.getAllFiles(newFileList));
-        },
-        async onRemove(file) {
-            return new Promise((resolve, reject) => {
-                return <Popconfirm
-                    onConfirm={() => {
-                        resolve(true);
-                        removeFile(file);
-                    }}
-                    onCancel={() => {
-                        reject(true);
-                    }}
-                >
-                    <DeleteOutlined/>
-                </Popconfirm>
-            });
-        }
-    };
+    // Изменение времени в датапикере
+    // const changeDateDoneHandler = (value, dateString) => {
+    //     console.log('Selected Time: ', value);
+    //     console.log('Formatted Selected Time: ', dateString);
+    // }
+
+    // Нажатие на кнопку "ОК" в дата пикере
+    // const onOkDone = (value) => {
+    //     console.log('onOk: ', value);
+    // }
 
     return (
         <Row className="container-tab" justify="center">
@@ -334,114 +363,176 @@ export const LogDOTab = ({specKey, onRemove}) => {
                                         name={name}
                                         onFinish={saveHandler}
                                         onFinishFailed={onFailed}
+                                        initialValues={{
+                                            _id: rowData ? rowData._id : "",
+                                            numberLog: rowData ? rowData.numberLog : "",
+                                            date: moment(),
+                                            applicant: rowData && rowData.applicant ? rowData.applicant.name : "Не выбрано",
+                                            equipment: rowData && rowData.equipment ? rowData.equipment.name : "Не выбрано",
+                                            notes: rowData ? rowData.notes : "",
+                                            sendEmail: rowData ? rowData.sendEmail : false,
+                                            department: rowData && rowData.department ? rowData.department.name : "Не выбрано",
+                                            responsible: rowData && rowData.responsible ? rowData.responsible.name : "Не выбрано",
+                                            task: rowData ? rowData.task : "",
+                                            state: rowData && rowData.state ? rowData.state.name : "Не выбрано",
+                                            // dateDone: rowData && rowData.dateDone ? rowData.dateDone : moment(),
+                                            content: rowData ? rowData.content : "",
+                                            acceptTask: rowData && rowData.acceptTask ? rowData.acceptTask.name : "Не выбрано",
+                                        }}
                                     >
                                         <Tabs defaultActiveKey="name">
-                                            <TabPane tab="Наименование" key="name" style={{paddingTop: '5%'}}>
+                                            <TabPane tab="Заявка" key="request" style={{paddingTop: '5%'}}>
                                                 <Form.Item
-                                                    name="parent"
-                                                    initialValue={rowData && rowData.parent ? rowData.parent.name : "Не выбрано"}
-                                                    label="Принадлежит"
+                                                    label="Дата заявки"
+                                                    name="date"
+                                                    rules={[{required: true, message: "Введите дату заявки!"}]}
                                                 >
-                                                    <Select
-                                                        options={equipmentToOptions}
-                                                        onDropdownVisibleChange={dropDownRenderHandler}
-                                                        loading={loadingSelectEquipment}
-                                                        onChange={changeHandler}
+                                                    <DatePicker
+                                                        showTime={{ format: "HH:mm" }}
+                                                        format={dateFormat}
+                                                        onChange={changeDateHandler}
+                                                        onOk={onOk}
+                                                        // value={rowData ? rowData.date : moment()}
                                                     />
                                                 </Form.Item>
 
                                                 <Form.Item
-                                                    label="Наименование"
-                                                    name="name"
-                                                    initialValue={rowData ? rowData.name : ""}
-                                                    rules={[{
-                                                        required: true,
-                                                        message: "Введите название подразделения!"
-                                                    }]}
+                                                    label="Заявитель"
+                                                    name="applicant"
+                                                    rules={[{required: true, message: "Выберите заявителя!"}]}
                                                 >
-                                                    <Input maxLength={255} type="text"/>
+                                                    <Select
+                                                        options={peopleToOptions}
+                                                        onDropdownVisibleChange={(open) => dropDownRenderHandler(open, people)}
+                                                        loading={loadingSelectPeople}
+                                                        onChange={(value) => changeHandler(value, people)}
+                                                    />
                                                 </Form.Item>
 
                                                 <Form.Item
-                                                    label="Примечание"
+                                                    label="Оборудование"
+                                                    name="equipment"
+                                                    rules={[{required: true, message: "Выберите оборудование!"}]}
+                                                >
+                                                    <Select
+                                                        options={equipmentToOptions}
+                                                        onDropdownVisibleChange={(open) => dropDownRenderHandler(open, equipment)}
+                                                        loading={loadingSelectEquipment}
+                                                        onChange={(value) => changeHandler(value, equipment)}
+                                                    />
+                                                </Form.Item>
+
+                                                <Form.Item
+                                                    label="Описание"
                                                     name="notes"
-                                                    initialValue={rowData ? rowData.notes : ""}
+                                                    rules={[{required: true, message: 'Введите описание заявки!'}]}
                                                 >
-                                                    <Input maxLength={255} type="text"/>
+                                                    <TextArea rows={4} />
                                                 </Form.Item>
 
                                                 <Form.Item
-                                                    name="_id"
-                                                    hidden={true}
-                                                    initialValue={rowData ? rowData._id : ""}
+                                                    label=""
+                                                    name="sendEmail"
+                                                    valuePropName="checked"
                                                 >
+                                                    <Checkbox>Уведомить исполнителей по электронной почте</Checkbox>
+                                                </Form.Item>
+
+                                                <Form.Item name="_id" hidden={true}>
+                                                    <Input/>
+                                                </Form.Item>
+
+                                                <Form.Item name="numberLog" hidden={true}>
                                                     <Input/>
                                                 </Form.Item>
                                             </TabPane>
-                                            <TabPane tab="Характеристики" key="characteristics"
+                                            <TabPane tab="Выполнение" key="done"
                                                      style={{paddingTop: '5%'}}>
-                                                {
-                                                    selectsArray && selectsArray.length ?
-                                                        selectsArray.map((label, index) => (
-                                                            <Form.Item
-                                                                key={`${label.equipmentProperty}-${label.id}`}
-                                                                wrapperCol={{span: 24}}
-                                                            >
-                                                                <Row gutter={8}>
-                                                                    <Col span={11}>
-                                                                        <Form.Item
-                                                                            name={`label-${label.equipmentProperty}-${label.id}`}
-                                                                            noStyle
-                                                                            initialValue={label.equipmentProperty === "Не выбрано" ?
-                                                                                "Не выбрано" : label.equipmentProperty ? label.equipmentProperty.name ?
-                                                                                    label.equipmentProperty.name : label.equipmentProperty : "Не выбрано"}
-                                                                        >
-                                                                            <Select
-                                                                                onClick={() => addRowProperty(index)}
-                                                                                options={equipmentPropertyToOptions}
-                                                                                onDropdownVisibleChange={dropDownRenderHandlerProperty}
-                                                                                loading={loadingSelectCharacteristics}
-                                                                                onChange={(value) => changeRowPropertyHandler(value, index)}
-                                                                            />
-                                                                        </Form.Item>
-                                                                    </Col>
-                                                                    <Col span={11}>
-                                                                        <Form.Item
-                                                                            name={`value-${label.value}1-${label.id}`}
-                                                                            initialValue={label.value}
-                                                                        >
-                                                                            <Input
-                                                                                onClick={() => addRowProperty(index)}
-                                                                                maxLength={255}
-                                                                                type="text"
-                                                                            />
-                                                                        </Form.Item>
-                                                                    </Col>
-                                                                    <Col span={2}>
-                                                                        <Button
-                                                                            onClick={() => deleteRowProperty(index)}
-                                                                            icon={<DeleteOutlined/>}
-                                                                            type="danger"
-                                                                        />
-                                                                    </Col>
-                                                                </Row>
-                                                            </Form.Item>
-                                                        )) : "Список характеристик пуст"
-                                                }
+                                                <Form.Item
+                                                    label="Подразделение"
+                                                    name="department"
+                                                >
+                                                    <Select
+                                                        options={departmentsToOptions}
+                                                        onDropdownVisibleChange={(open) => dropDownRenderHandler(open, departments)}
+                                                        loading={loadingSelectDep}
+                                                        onChange={(value) => changeHandler(value, departments)}
+                                                    />
+                                                </Form.Item>
+
+                                                <Form.Item
+                                                    label="Ответственный"
+                                                    name="responsible"
+                                                >
+                                                    <Select
+                                                        options={responsibleToOptions}
+                                                        onDropdownVisibleChange={(open) => dropDownRenderHandler(open, "responsible")}
+                                                        loading={loadingSelectResponsible}
+                                                        onChange={(value) => changeHandler(value, "responsible")}
+                                                    />
+                                                </Form.Item>
+
+                                                <Form.Item
+                                                    label="Задание"
+                                                    name="task"
+                                                >
+                                                    <TextArea rows={4} />
+                                                </Form.Item>
+
+                                                <Form.Item
+                                                    label="Состояние"
+                                                    name="state"
+                                                >
+                                                    <Select
+                                                        options={stateToOptions}
+                                                        onDropdownVisibleChange={(open) => dropDownRenderHandler(open, tasks)}
+                                                        loading={loadingSelectState}
+                                                        onChange={(value) => changeHandler(value, tasks)}
+                                                    />
+                                                </Form.Item>
+
+                                                <Form.Item
+                                                    label="Дата выполнения"
+                                                    name="dateDone"
+                                                >
+                                                    <DatePicker
+                                                        showTime={{ format: "HH:mm" }}
+                                                        format={dateFormat}
+                                                    />
+                                                </Form.Item>
+
+                                                <Form.Item
+                                                    label="Содержание работ"
+                                                    name="content"
+                                                >
+                                                    <TextArea rows={4} />
+                                                </Form.Item>
+
+                                                <Form.Item
+                                                    label="Работа принята"
+                                                    name="acceptTask"
+                                                >
+                                                    <Select
+                                                        options={acceptTaskToOptions}
+                                                        onDropdownVisibleChange={(open) => dropDownRenderHandler(open, "acceptTask")}
+                                                        loading={loadingSelectAcceptTask}
+                                                        onChange={(value) => changeHandler(value, "acceptTask")}
+                                                    />
+                                                </Form.Item>
                                             </TabPane>
                                             <TabPane tab="Файлы" key="files" style={{paddingTop: '5%'}}>
-                                                <Form.Item name="files" wrapperCol={{span: 24}}>
-                                                    <Dragger {...props}>
-                                                        <p className="ant-upload-drag-icon">
-                                                            <InboxOutlined/>
-                                                        </p>
-                                                        <p className="ant-upload-text">Щелкните или перетащите файл
-                                                            в эту область, чтобы загрузить</p>
-                                                        <p className="ant-upload-hint">
-                                                            Поддержка одиночной или массовой загрузки.
-                                                        </p>
-                                                    </Dragger>
-                                                </Form.Item>
+                                            {/*    <Form.Item name="files" wrapperCol={{span: 24}}>*/}
+                                            {/*        <Dragger {...props}>*/}
+                                            {/*            <p className="ant-upload-drag-icon">*/}
+                                            {/*                <InboxOutlined/>*/}
+                                            {/*            </p>*/}
+                                            {/*            <p className="ant-upload-text">Щелкните или перетащите файл*/}
+                                            {/*                в эту область, чтобы загрузить</p>*/}
+                                            {/*            <p className="ant-upload-hint">*/}
+                                            {/*                Поддержка одиночной или массовой загрузки.*/}
+                                            {/*            </p>*/}
+                                            {/*        </Dragger>*/}
+                                            {/*    </Form.Item>*/}
                                             </TabPane>
                                         </Tabs>
 

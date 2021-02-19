@@ -5,21 +5,42 @@ const Equipment = require("../models/Equipment");
 const File = require("../models/File");
 const fs = require('fs');
 
-// Сохраняет/изменяет файл
+// Сохраняет файл
 router.post("/upload", async (req, res) => {
     const originalFileName = req.files.file.name;
+    const fileName = `${originalFileName}-${Date.now()}`;
 
     try {
+        const files = await File.find({});
+        const equipmentId = req.body.equipmentId;
+
+        // Если два одинаковых файла добавляются в запись
+        for (let file of files) {
+            if (file.uid.slice(0, 3) === "-1-" && file.name === originalFileName) {
+                return res.status(201).json({message: "Такой файл уже существует в этой записи."});
+            }
+        }
+
+        // Существующий файл добавляется в уже существующую запись
+        if (equipmentId !== "-1") {
+            const equipment = await Equipment.findOne({_id: equipmentId}).populate("files");
+            for (let file of equipment.files) {
+                if (file.name === originalFileName) {
+                    return res.status(201).json({message: "Такой файл уже существует в этой записи."});
+                }
+            }
+        }
+
         let file = new File({
             name: originalFileName,
-            url: `public/${originalFileName}`,
+            url: `public/${fileName}`,
             status: "done",
             uid: `-1-${originalFileName}`
         });
 
         await file.save();
 
-        await req.files.file.mv(`public/${originalFileName}`);
+        await req.files.file.mv(file.url);
 
         res.end(req.files.file.name);
     } catch (e) {
@@ -67,13 +88,25 @@ router.delete("/delete-file/:id", async (req, res) => {
     let item = null;
 
     try {
-        const {_id, uid, url, name} = req.body;
+        const {_id, uid, url} = req.body;
 
         if (id === "-1") {
-            await File.deleteOne({name: name});
+            const file = await File.findOne({uid});
+
+            await File.deleteOne({_id: file._id});
+
+            await fs.unlink(file.url, (err) => {
+                if (err) console.log(err)
+            });
         } else {
             if (uid.slice(0, 3) === "-1-") {
-                await File.deleteOne({name: name});
+                const file = await File.findOne({uid});
+
+                await File.deleteOne({_id: file._id});
+
+                await fs.unlink(file.url, (err) => {
+                    if (err) console.log(err)
+                });
             } else {
                 item = await Equipment.findById({_id: id}).populate("files");
 
@@ -84,12 +117,12 @@ router.delete("/delete-file/:id", async (req, res) => {
                 await item.save();
 
                 await File.deleteOne({_id: _id});
+
+                await fs.unlink(url, (err) => {
+                    if (err) console.log(err)
+                });
             }
         }
-
-        await fs.unlink(url, (err) => {
-            if (err) console.log(err)
-        });
 
         res.status(201).json({message: "Файл успешно удалён"});
     } catch (e) {
@@ -100,7 +133,7 @@ router.delete("/delete-file/:id", async (req, res) => {
 // Удаляет файл при клике на кнопку "Отмена" при редактировании или создании записи
 router.delete("/cancel", async (req, res) => {
     try {
-        const files = await File.find({}).populate("files");
+        const files = await File.find({});
 
         for (const file of files) {
             if (file.uid.slice(0, 3) === "-1-") {

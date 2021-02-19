@@ -188,9 +188,9 @@ const EquipmentPropertyColumns = [
 // Создание колонок для раздела "Перечень оборудования"
 const EquipmentColumns = [
     {
-        title: 'Принадлежит',
-        dataIndex: ['parent', 'name'],
-        key: 'parent',
+        title: "Принадлежит",
+        dataIndex: ["parent", "name"],
+        key: "parent",
         width: 100,
         sorter: (a, b) => {
             if (a.parent && b.parent) {
@@ -220,20 +220,20 @@ const EquipmentColumns = [
 // Создание колонок для раздела "Журнал дефектов и отказов"
 const LogDOColumns = [
     {
-        title: '№',
-        dataIndex: 'number',
-        key: 'number',
+        title: "№",
+        dataIndex: "numberLog",
+        key: "numberLog",
         width: 100,
-        sorter: (a, b) => a.number > b.number,
-        sortDirections: ['descend', 'ascend'],
+        sorter: (a, b) => a.numberLog > b.numberLog,
+        sortDirections: ["descend", "ascend"],
     },
     {
-        title: 'Дата заявки',
-        dataIndex: 'date',
-        key: 'date',
+        title: "Дата заявки",
+        dataIndex: "date",
+        key: "date",
         width: 100,
         sorter: (a, b) => a.date > b.date,
-        sortDirections: ['descend', 'ascend'],
+        sortDirections: ["descend", "ascend"],
     },
     {
         title: "Оборудование",
@@ -256,88 +256,88 @@ const LogDOColumns = [
         sortDirections: ['descend', 'ascend'],
     },
     {
-        title: 'Заявитель',
-        dataIndex: 'applicant',
-        key: 'applicant',
+        title: "Заявитель",
+        dataIndex: ["applicant", "name"],
+        key: "applicant",
         width: 100,
         sorter: (a, b) => {
             if (a.applicant && b.applicant) {
                 return a.applicant.name.length - b.applicant.name.length;
             }
         },
-        sortDirections: ['descend', 'ascend'],
+        sortDirections: ["descend", "ascend"],
     },
     {
-        title: 'Ответственный',
-        dataIndex: 'responsible',
-        key: 'responsible',
+        title: "Ответственный",
+        dataIndex: ["responsible", "name"],
+        key: "responsible",
         width: 100,
         sorter: (a, b) => {
             if (a.responsible && b.responsible) {
                 return a.responsible.name.length - b.responsible.name.length;
             }
         },
-        sortDirections: ['descend', 'ascend'],
+        sortDirections: ["descend", "ascend"],
     },
     {
-        title: 'Подразделение',
-        dataIndex: 'department',
-        key: 'department',
+        title: "Подразделение",
+        dataIndex: ["department", "name"],
+        key: "department",
         width: 100,
         sorter: (a, b) => {
             if (a.department && b.department) {
                 return a.department.name.length - b.department.name.length;
             }
         },
-        sortDirections: ['descend', 'ascend'],
+        sortDirections: ["descend", "ascend"],
     },
     {
-        title: 'Задание',
-        dataIndex: 'task',
-        key: 'task',
+        title: "Задание",
+        dataIndex: "task",
+        key: "task",
         width: 100,
         sorter: (a, b) => a.task.length - b.task.length,
-        sortDirections: ['descend', 'ascend'],
+        sortDirections: ["descend", "ascend"],
     },
     {
-        title: 'Состояние',
-        dataIndex: 'state',
-        key: 'state',
+        title: "Состояние",
+        dataIndex: ["state", "name"],
+        key: "state",
         width: 100,
         sorter: (a, b) => {
             if (a.state && b.state) {
                 return a.state.name.length - b.state.name.length;
             }
         },
-        sortDirections: ['descend', 'ascend'],
+        sortDirections: ["descend", "ascend"],
     },
     {
-        title: 'Дата выполнения',
-        dataIndex: 'dateDone',
-        key: 'dateDone',
+        title: "Дата выполнения",
+        dataIndex: "dateDone",
+        key: "dateDone",
         width: 100,
         sorter: (a, b) => a.dateDone.length - b.dateDone.length,
-        sortDirections: ['descend', 'ascend'],
+        sortDirections: ["descend", "ascend"],
     },
     {
-        title: 'Содержание работ',
-        dataIndex: 'content',
-        key: 'content',
+        title: "Содержание работ",
+        dataIndex: "content",
+        key: "content",
         width: 100,
         sorter: (a, b) => a.content.length - b.content.length,
-        sortDirections: ['descend', 'ascend'],
+        sortDirections: ["descend", "ascend"],
     },
     {
-        title: 'Работа принята',
-        dataIndex: 'acceptTask',
-        key: 'acceptTask',
+        title: "Работа принята",
+        dataIndex: ["acceptTask", "name"],
+        key: "acceptTask",
         width: 100,
         sorter: (a, b) => {
             if (a.acceptTask && b.acceptTask) {
                 return a.acceptTask.name.length - b.acceptTask.name.length;
             }
         },
-        sortDirections: ['descend', 'ascend'],
+        sortDirections: ["descend", "ascend"],
     },
 ];
 

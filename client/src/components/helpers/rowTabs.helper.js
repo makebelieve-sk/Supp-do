@@ -48,12 +48,22 @@ const onSave = async (url, values, setLoadingSave, dispatchActionEdit, dispatchA
         setLoadingSave(true);
         // Определяем метод
         const method = rowData ? "PUT" : "POST";
+
         // Получаем данные от сервера
-        const data = await request(`/api/directory/${url}`, method, values);
+        let data = null;
+
+        if (url === "log-do") {
+            data = await request(`/api/${url}`, method, values);
+        } else {
+            data = await request(`/api/directory/${url}`, method, values);
+        }
+
         // Останавливаем спиннер
         setLoadingSave(false);
 
         if (data) {
+            console.log("Ответ от сервера при сохранении/редактировании записи: ", data);
+
             // Выводим сообщение от сервера
             message.success(data.message);
 
@@ -88,8 +98,16 @@ const onDelete = async (url, setLoadingDelete, dispatchActionDelete, dataStore, 
         if (rowData) {
             // Устанавливаем спиннер
             setLoadingDelete(true);
+
             // Получаем данные от сервера
-            const data = await request(`/api/directory/${url}/` + rowData._id, "DELETE", rowData);
+            let data;
+
+            if (url === "log-do") {
+                data = await request(`/api/${url}/` + rowData._id, "DELETE", rowData);
+            } else {
+                data = await request(`/api/directory/${url}/` + rowData._id, "DELETE", rowData);
+            }
+
             // Останавливаем спиннер, и скрываем всплывающее окно
             setLoadingDelete(false);
             setVisiblePopConfirm(false);

@@ -237,6 +237,7 @@ export const EquipmentTab = ({specKey, onRemove}) => {
             const id = rowData ? rowData._id : -1;
 
             try {
+                console.log("Файл на удаление: ", deletedFile);
                 const data = await request("/files/delete-file/" + id, "DELETE", deletedFile);
 
                 if (data) {
@@ -251,6 +252,8 @@ export const EquipmentTab = ({specKey, onRemove}) => {
 
         setLoadingDeleteFile(false);
     }
+
+    let duplicateFile = null;
 
     // Настройки компонента "Upload"
     const props = {
@@ -278,6 +281,18 @@ export const EquipmentTab = ({specKey, onRemove}) => {
                 </Popconfirm>
             }
         },
+        beforeUpload(file, fileList) {
+            duplicateFile = files.find(currentFile => {
+                return file.name === currentFile.name;
+            });
+            // console.log(foundFile)
+            //
+            // if (foundFile) {
+            //     message.warning("Такой файл уже существует в этой записи").then(null);
+            // }
+            //
+            // return !foundFile;
+        },
         onChange(info) {
             const {status} = info.file;
 
@@ -287,11 +302,15 @@ export const EquipmentTab = ({specKey, onRemove}) => {
                 message.error(`Возникла ошибка при загрузке файла ${info.file.name}.`).then(r => console.log(r));
             }
 
+            if (duplicateFile) {
+                info.fileList.splice(info.fileList.length - 1, 1);
+            }
+
             // Создаем объект файла
             let newFileList = info.fileList.map(file => {
                 return {
                     name: file.name,
-                    url: `public/${file.name}`,
+                    url: `public/${file.name}}`,
                     status: "done",
                     uid: `-1-${file.name}`
                 }

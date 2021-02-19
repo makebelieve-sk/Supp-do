@@ -47,18 +47,18 @@ router.get("/log-do", async (req, res) => {
     }
 });
 
-//===================================================================================================================
 // Сохраняет новую запись
-router.post('/equipment', async (req, res) => {
+router.post('/log-do', async (req, res) => {
     try {
         let resFileArr = [];
 
-        const {name, notes, parent, properties, files} = req.body;
+        let {date, numberLog, applicant, equipment, notes, sendEmail, department, responsible, task, state,
+            dateDone, content, acceptTask, files} = req.body;
 
-        if (parent) {
-            if (name === parent.name) {
-                return res.status(400).json({message: "Объект не может принадлежать сам себе"});
-            }
+        const item = await LogDO.findOne({numberLog});
+
+        if (item) {
+            numberLog = numberLog.slice(0, 3) + numberLog.slice(3, 4) * 1 + 1;
         }
 
         if (files && files.length >= 0) {
@@ -73,38 +73,42 @@ router.post('/equipment', async (req, res) => {
             }
         }
 
-        const newItem = new Equipment({
-            parent: parent, name: name, notes: notes, properties: properties, files: resFileArr
+        const newItem = new LogDO({
+            numberLog: numberLog, date: date, applicant: applicant, equipment: equipment, notes: notes, sendEmail: sendEmail,
+            department: department, responsible: responsible, task: task, state: state, dateDone: dateDone, content: content,
+            acceptTask: acceptTask, files: resFileArr
         });
 
         await newItem.save();
 
-        let currentEquipment = await Equipment.findOne({name})
-            .populate("parent")
-            .populate("properties.equipmentProperty")
+        let currentItem = await LogDO.findOne({numberLog})
+            .populate('applicant')
+            .populate("equipment")
+            .populate("department")
+            .populate("responsible")
+            .populate("state")
+            .populate("acceptTask")
             .populate("files");
 
-        res.status(201).json({message: "Подразделение сохранено", item: currentEquipment});
+        console.log(currentItem);
+        res.status(201).json({message: "Запись сохранена", item: currentItem});
     } catch (e) {
         res.status(500).json({message: "Ошибка при создании записи"})
     }
 });
 
 // Изменяет запись
-router.put('/equipment', async (req, res) => {
+router.put('/log-do', async (req, res) => {
     try {
-        const {_id, name, notes, parent, properties, files} = req.body;
-        const item = await Equipment.findById({_id});
+        const {_id, numberLog, date, applicant, equipment, notes, sendEmail, department, responsible, task, state,
+            dateDone, content, acceptTask, files} = req.body;
+
+        const item = await LogDO.findById({_id});
+
         let resFileArr = [];
 
         if (!item) {
             return res.status(400).json({message: `Запись с кодом ${_id} не найдена`});
-        }
-
-        if (parent) {
-            if (name === parent.name) {
-                return res.status(400).json({message: "Объект не может принадлежать сам себе"});
-            }
         }
 
         if (files && files.length >= 0) {
@@ -123,17 +127,30 @@ router.put('/equipment', async (req, res) => {
             }
         }
 
-        item.parent = parent;
-        item.name = name;
+        item.numberLog = numberLog;
+        item.date = date;
+        item.applicant = applicant;
+        item.equipment = equipment;
         item.notes = notes;
-        item.properties = properties;
+        item.sendEmail = sendEmail;
+        item.department = department;
+        item.responsible = responsible;
+        item.task = task;
+        item.state = state;
+        item.dateDone = dateDone;
+        item.content = content;
+        item.acceptTask = acceptTask;
         item.files = resFileArr;
 
         await item.save();
 
-        let savedItem = await Equipment.findById({_id})
-            .populate("parent")
-            .populate("properties.equipmentProperty")
+        let savedItem = await LogDO.findById({_id})
+            .populate('applicant')
+            .populate("equipment")
+            .populate("department")
+            .populate("responsible")
+            .populate("state")
+            .populate("acceptTask")
             .populate("files");
 
         res.status(201).json({message: "Запись сохранена", item: savedItem});
@@ -141,7 +158,6 @@ router.put('/equipment', async (req, res) => {
         res.status(500).json({message: "Ошибка при обновлении записи"})
     }
 });
-//===================================================================================================================
 
 // Удаляет запись
 router.delete('/log-do/:id', async (req, res) => {
