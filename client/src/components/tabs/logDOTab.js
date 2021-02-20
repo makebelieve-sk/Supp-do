@@ -25,7 +25,6 @@ import moment from "moment";
 const {Meta} = Card;
 const {TabPane} = Tabs;
 // const {Dragger} = Upload;
-// const { RangePicker } = DatePicker;
 const { TextArea } = Input;
 
 const dateFormat = "DD.MM.YYYY HH:mm";
@@ -34,7 +33,6 @@ export const LogDOTab = ({specKey, onRemove}) => {
     // Инициализация стейта для показа спиннера загрузки при сохранении/удалении записи, обновлении
     // выпадающего списка и списка файлов
     const [loadingSave, setLoadingSave] = useState(false);
-    // const [loadingSelectCharacteristics, setLoadingSelectCharacteristics] = useState(false);
     // const [loadingDeleteFile, setLoadingDeleteFile] = useState(false);
     const [loadingCancel, setLoadingCancel] = useState(false);
 
@@ -123,11 +121,11 @@ export const LogDOTab = ({specKey, onRemove}) => {
         values.department = selectDep === "Не выбрано" ? null : selectDep ? selectDep : initialDepartment;
         values.responsible = selectResponsible === "Не выбрано" ? null : selectResponsible ? selectResponsible : initialResponsible;
         values.state = selectState === "Не выбрано" ? null : selectState ? selectState : initialState;
-        // values.dateDone = values.dateDone.format(dateFormat);
+        values.dateDone = values.dateDone ? values.dateDone.format(dateFormat) : null;
         values.acceptTask = selectAcceptTask === "Не выбрано" ? null : selectAcceptTask ? selectAcceptTask : initialAcceptTask;
         values.files = [];
 
-        console.log("В методе onSave, отправляем на сервер: ", values);
+        console.log("отправляем на сервер: ", values);
 
         onSave(
             "log-do", values, setLoadingSave, ActionCreator.ActionCreatorLogDO.editLogDO,
@@ -325,17 +323,6 @@ export const LogDOTab = ({specKey, onRemove}) => {
     // };
 
     // Изменение времени в датапикере
-    const changeDateHandler = (value, dateString) => {
-        console.log('Selected Time: ', value);
-        console.log('Formatted Selected Time: ', dateString);
-    }
-
-    // Нажатие на кнопку "ОК" в дата пикере
-    const onOk = (value) => {
-        console.log('onOk: ', value);
-    }
-
-    // Изменение времени в датапикере
     // const changeDateDoneHandler = (value, dateString) => {
     //     console.log('Selected Time: ', value);
     //     console.log('Formatted Selected Time: ', dateString);
@@ -366,7 +353,7 @@ export const LogDOTab = ({specKey, onRemove}) => {
                                         initialValues={{
                                             _id: rowData ? rowData._id : "",
                                             numberLog: rowData ? rowData.numberLog : "",
-                                            date: moment(),
+                                            date: rowData && rowData.date ? moment(rowData.date, dateFormat) : moment(),
                                             applicant: rowData && rowData.applicant ? rowData.applicant.name : "Не выбрано",
                                             equipment: rowData && rowData.equipment ? rowData.equipment.name : "Не выбрано",
                                             notes: rowData ? rowData.notes : "",
@@ -375,7 +362,7 @@ export const LogDOTab = ({specKey, onRemove}) => {
                                             responsible: rowData && rowData.responsible ? rowData.responsible.name : "Не выбрано",
                                             task: rowData ? rowData.task : "",
                                             state: rowData && rowData.state ? rowData.state.name : "Не выбрано",
-                                            // dateDone: rowData && rowData.dateDone ? rowData.dateDone : moment(),
+                                            dateDone: rowData && rowData.dateDone ? moment(rowData.dateDone, dateFormat) : null,
                                             content: rowData ? rowData.content : "",
                                             acceptTask: rowData && rowData.acceptTask ? rowData.acceptTask.name : "Не выбрано",
                                         }}
@@ -390,16 +377,17 @@ export const LogDOTab = ({specKey, onRemove}) => {
                                                     <DatePicker
                                                         showTime={{ format: "HH:mm" }}
                                                         format={dateFormat}
-                                                        onChange={changeDateHandler}
-                                                        onOk={onOk}
-                                                        // value={rowData ? rowData.date : moment()}
                                                     />
                                                 </Form.Item>
 
                                                 <Form.Item
                                                     label="Заявитель"
                                                     name="applicant"
-                                                    rules={[{required: true, message: "Выберите заявителя!"}]}
+                                                    rules={[{
+                                                        required: true,
+                                                        transform: value => value === "Не выбрано" ? "" : value,
+                                                        message: "Выберите заявителя!"
+                                                    }]}
                                                 >
                                                     <Select
                                                         options={peopleToOptions}
@@ -412,7 +400,11 @@ export const LogDOTab = ({specKey, onRemove}) => {
                                                 <Form.Item
                                                     label="Оборудование"
                                                     name="equipment"
-                                                    rules={[{required: true, message: "Выберите оборудование!"}]}
+                                                    rules={[{
+                                                        required: true,
+                                                        transform: value => value === "Не выбрано" ? "" : value,
+                                                        message: "Выберите оборудование!"
+                                                    }]}
                                                 >
                                                     <Select
                                                         options={equipmentToOptions}
@@ -434,6 +426,7 @@ export const LogDOTab = ({specKey, onRemove}) => {
                                                     label=""
                                                     name="sendEmail"
                                                     valuePropName="checked"
+                                                    wrapperCol={{offset: 6}}
                                                 >
                                                     <Checkbox>Уведомить исполнителей по электронной почте</Checkbox>
                                                 </Form.Item>
@@ -446,8 +439,7 @@ export const LogDOTab = ({specKey, onRemove}) => {
                                                     <Input/>
                                                 </Form.Item>
                                             </TabPane>
-                                            <TabPane tab="Выполнение" key="done"
-                                                     style={{paddingTop: '5%'}}>
+                                            <TabPane tab="Выполнение" key="done" style={{paddingTop: '5%'}}>
                                                 <Form.Item
                                                     label="Подразделение"
                                                     name="department"

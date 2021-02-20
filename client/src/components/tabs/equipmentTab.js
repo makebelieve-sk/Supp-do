@@ -13,7 +13,8 @@ import {useSelector, useDispatch} from "react-redux";
 import {ActionCreator} from "../../redux/combineActions";
 import {
     CheckTypeTab,
-    onCancel, onChange,
+    onCancel,
+    onChange,
     onDelete,
     onDropDownRender,
     onFailed,

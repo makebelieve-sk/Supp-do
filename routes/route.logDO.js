@@ -4,6 +4,9 @@ const Equipment = require("../models/Equipment");
 const File = require("../models/File");
 const LogDO = require("../models/LogDO.model");
 const router = Router();
+const moment = require("moment");
+
+const dateFormat = "DD.MM.YYYY HH:mm";
 
 // Возвращает запись по коду
 router.get('/log-do/:id', async (req, res) => {
@@ -30,9 +33,15 @@ router.get('/log-do/:id', async (req, res) => {
 });
 
 // Возвращает все записи
-router.get("/log-do", async (req, res) => {
+router.get("/log-do/:dateStart/:dateEnd", async (req, res) => {
+    const dateStart = req.params.dateStart;
+    const dateEnd = req.params.dateEnd;
+
+    const millisecondsStart = moment(dateStart, dateFormat).valueOf();
+    const millisecondsEnd = moment(dateEnd, dateFormat).valueOf();
+
     try {
-        const items = await LogDO.find({})
+        const logsDO = await LogDO.find({})
             .populate('applicant')
             .populate("equipment")
             .populate("department")
@@ -40,6 +49,11 @@ router.get("/log-do", async (req, res) => {
             .populate("state")
             .populate("acceptTask")
             .populate("files");
+
+        let items = logsDO.filter(item => {
+            let millisecondsDate = moment(item.date, dateFormat).valueOf();
+            return millisecondsDate >= millisecondsStart && millisecondsDate <= millisecondsEnd;
+        });
 
         res.json(items);
     } catch (e) {
@@ -74,9 +88,8 @@ router.post('/log-do', async (req, res) => {
         }
 
         const newItem = new LogDO({
-            numberLog: numberLog, date: date, applicant: applicant, equipment: equipment, notes: notes, sendEmail: sendEmail,
-            department: department, responsible: responsible, task: task, state: state, dateDone: dateDone, content: content,
-            acceptTask: acceptTask, files: resFileArr
+            numberLog, date, equipment, notes, applicant, responsible, department, task, state, dateDone,
+            content, acceptTask, resFileArr, sendEmail
         });
 
         await newItem.save();
@@ -90,7 +103,6 @@ router.post('/log-do', async (req, res) => {
             .populate("acceptTask")
             .populate("files");
 
-        console.log(currentItem);
         res.status(201).json({message: "Запись сохранена", item: currentItem});
     } catch (e) {
         res.status(500).json({message: "Ошибка при создании записи"})

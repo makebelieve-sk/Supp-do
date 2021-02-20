@@ -1,13 +1,15 @@
 import React, {useState} from 'react';
-import {useSelector} from 'react-redux';
+import {useSelector, useDispatch} from 'react-redux';
 import {message, Row, Table, DatePicker} from "antd";
 import {CheckOutlined} from '@ant-design/icons';
+import moment from "moment";
 
 import {downloadCSV, pagination} from '../../datatable.options/datatable.options';
 import {HeaderDatatable} from './headerDatatable';
 import {ButtonsComponent} from "./buttonsDatatable";
 import {ColumnsMapHelper, RowMapHelper} from "../helpers/dataTableMap.helper";
-import moment from "moment";
+import {request} from "../helpers/request.helper";
+import {ActionCreator} from "../../redux/combineActions";
 
 const { RangePicker } = DatePicker;
 
@@ -27,6 +29,7 @@ export const DataTableComponent = ({specKey}) => {
         equipment: state.reducerEquipment.equipment,
         logDO: state.reducerLogDO.logDO
     }));
+    const dispatch = useDispatch();
 
     let data = stateObject[specKey];
 
@@ -92,15 +95,20 @@ export const DataTableComponent = ({specKey}) => {
         downloadCSV(data, specKey) : message.error('Записи в таблице отсутствуют');
 
     // Изменение времени в датапикере
-    const onChange = (value, dateString) => {
-        console.log('Selected Time: ', value);
-        console.log('Formatted Selected Time: ', dateString);
-        // здесь пойдут запросы на сервер с отформатированной датой "dateString"
-    }
+    const onChange = async (value, dateString) => {
+        try {
+            // Получаем данные от сервера за указанный период
+            const data = await request("/api/log-do/" + dateString[0] + "/" + dateString[1]);
 
-    // Нажатие на кнопку "ОК" в дата пикере
-    const onOk = (value) => {
-        console.log('onOk: ', value);
+            // Если ответ от сервера есть, то обновляем список записей в хранилище redux
+            if (data) {
+                dispatch(ActionCreator.ActionCreatorLogDO.getAllLogDO(data));
+            }
+        } catch (e) {
+            message.error(
+                "Возникла ошибка при получении данных за выбранный период: " + dateString[0] + "/" + dateString[1]
+            );
+        }
     }
 
     return (
@@ -111,8 +119,7 @@ export const DataTableComponent = ({specKey}) => {
                         showTime={{ format: 'HH:mm' }}
                         format={dateFormat}
                         onChange={onChange}
-                        onOk={onOk}
-                        defaultValue={moment()}
+                        defaultValue={[moment().startOf("month"), moment().endOf("month")]}
                     />
                 </Row> : null
             }

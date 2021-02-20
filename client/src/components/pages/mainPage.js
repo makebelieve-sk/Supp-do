@@ -10,6 +10,7 @@ import {
     QuestionCircleOutlined,
     DownOutlined,
 } from '@ant-design/icons';
+import moment from "moment";
 
 import {ActionCreator} from "../../redux/combineActions";
 
@@ -21,6 +22,8 @@ import logo from '../../assets/logo.png';
 const {Header, Sider, Content, Footer} = Layout;
 const {SubMenu} = Menu;
 const {TabPane} = Tabs;
+
+const dateFormat = "DD.MM.YYYY HH:mm";
 
 export const MainPage = () => {
     // Получаем вкладки из хранилища(текущие, активную и последнюю)
@@ -38,7 +41,8 @@ export const MainPage = () => {
     useEffect(() => {
         async function getItems() {
             try {
-                const items = await request('/api/log-do');
+                const items = await request("/api/log-do/" + moment().startOf("month").format(dateFormat)
+                    + "/" + moment().endOf("month").format(dateFormat));
 
                 if (items && items.length > 0) {
                     dispatch(ActionCreator.ActionCreatorLogDO.getAllLogDO(items));
@@ -188,7 +192,7 @@ export const MainPage = () => {
                     <div className="user">
                         <Dropdown overlay={dropdownMenu} trigger={['click']}>
                             <a className="ant-dropdown-link" href="/" onClick={e => e.preventDefault()}>
-                                <Avatar>{auth.user ? auth.user.login[0] : 'U'} </Avatar> {auth.user ? auth.user.login : ''}
+                                <Avatar> {auth.user ? auth.user.login[0] : 'U'} </Avatar> {auth.user ? auth.user.login : ""}
                                 <DownOutlined/>
                             </a>
                         </Dropdown>

@@ -226,6 +226,20 @@ const LogDOColumns = [
         width: 100,
         sorter: (a, b) => a.numberLog > b.numberLog,
         sortDirections: ["descend", "ascend"],
+        render(text, record) {
+            if (record.state && record.state.color) {
+                return {
+                    props: {
+                        style: {background: record.state.color},
+                    },
+                    children: <div>{text}</div>,
+                };
+            } else {
+                return {
+                    children: <div>{text}</div>,
+                };
+            }
+        },
     },
     {
         title: "Дата заявки",
@@ -234,6 +248,20 @@ const LogDOColumns = [
         width: 100,
         sorter: (a, b) => a.date > b.date,
         sortDirections: ["descend", "ascend"],
+        render(text, record) {
+            if (record.state && record.state.color) {
+                return {
+                    props: {
+                        style: {background: record.state.color},
+                    },
+                    children: <div>{text}</div>,
+                };
+            } else {
+                return {
+                    children: <div>{text}</div>,
+                };
+            }
+        },
     },
     {
         title: "Оборудование",
@@ -246,6 +274,20 @@ const LogDOColumns = [
             }
         },
         sortDirections: ["descend", "ascend"],
+        render(text, record) {
+            if (record.state && record.state.color) {
+                return {
+                    props: {
+                        style: {background: record.state.color},
+                    },
+                    children: <div>{text}</div>,
+                };
+            } else {
+                return {
+                    children: <div>{text}</div>,
+                };
+            }
+        },
     },
     {
         title: "Описание",
@@ -254,6 +296,20 @@ const LogDOColumns = [
         width: 100,
         sorter: (a, b) => a.notes.length - b.notes.length,
         sortDirections: ['descend', 'ascend'],
+        render(text, record) {
+            if (record.state && record.state.color) {
+                return {
+                    props: {
+                        style: {background: record.state.color},
+                    },
+                    children: <div>{text}</div>,
+                };
+            } else {
+                return {
+                    children: <div>{text}</div>,
+                };
+            }
+        },
     },
     {
         title: "Заявитель",
@@ -266,6 +322,20 @@ const LogDOColumns = [
             }
         },
         sortDirections: ["descend", "ascend"],
+        render(text, record) {
+            if (record.state && record.state.color) {
+                return {
+                    props: {
+                        style: {background: record.state.color},
+                    },
+                    children: <div>{text}</div>,
+                };
+            } else {
+                return {
+                    children: <div>{text}</div>,
+                };
+            }
+        },
     },
     {
         title: "Ответственный",
@@ -278,6 +348,20 @@ const LogDOColumns = [
             }
         },
         sortDirections: ["descend", "ascend"],
+        render(text, record) {
+            if (record.state && record.state.color) {
+                return {
+                    props: {
+                        style: {background: record.state.color},
+                    },
+                    children: <div>{text}</div>,
+                };
+            } else {
+                return {
+                    children: <div>{text}</div>,
+                };
+            }
+        },
     },
     {
         title: "Подразделение",
@@ -290,14 +374,46 @@ const LogDOColumns = [
             }
         },
         sortDirections: ["descend", "ascend"],
+        render(text, record) {
+            if (record.state && record.state.color) {
+                return {
+                    props: {
+                        style: {background: record.state.color},
+                    },
+                    children: <div>{text}</div>,
+                };
+            } else {
+                return {
+                    children: <div>{text}</div>,
+                };
+            }
+        },
     },
     {
         title: "Задание",
         dataIndex: "task",
         key: "task",
         width: 100,
-        sorter: (a, b) => a.task.length - b.task.length,
+        sorter: (a, b) => {
+            if (a.task && b.task) {
+                return a.task.length - b.task.length;
+            }
+        },
         sortDirections: ["descend", "ascend"],
+        render(text, record) {
+            if (record.state && record.state.color) {
+                return {
+                    props: {
+                        style: {background: record.state.color},
+                    },
+                    children: <div>{text}</div>,
+                };
+            } else {
+                return {
+                    children: <div>{text}</div>,
+                };
+            }
+        },
     },
     {
         title: "Состояние",
@@ -310,22 +426,72 @@ const LogDOColumns = [
             }
         },
         sortDirections: ["descend", "ascend"],
+        render(text, record) {
+            if (record.state && record.state.color) {
+                return {
+                    props: {
+                        style: {background: record.state.color},
+                    },
+                    children: <div>{text}</div>,
+                };
+            } else {
+                return {
+                    children: <div>{text}</div>,
+                };
+            }
+        },
     },
     {
         title: "Дата выполнения",
         dataIndex: "dateDone",
         key: "dateDone",
         width: 100,
-        sorter: (a, b) => a.dateDone.length - b.dateDone.length,
+        sorter: (a, b) => {
+            if (a.dateDone && b.dateDone) {
+                return a.dateDone.length - b.dateDone.length;
+            }
+        },
         sortDirections: ["descend", "ascend"],
+        render(text, record) {
+            if (record.state && record.state.color) {
+                return {
+                    props: {
+                        style: {background: record.state.color},
+                    },
+                    children: <div>{text}</div>,
+                };
+            } else {
+                return {
+                    children: <div>{text}</div>,
+                };
+            }
+        },
     },
     {
         title: "Содержание работ",
         dataIndex: "content",
         key: "content",
         width: 100,
-        sorter: (a, b) => a.content.length - b.content.length,
+        sorter: (a, b) => {
+            if (a.content && b.content) {
+                return a.content.length - b.content.length;
+            }
+        },
         sortDirections: ["descend", "ascend"],
+        render(text, record) {
+            if (record.state && record.state.color) {
+                return {
+                    props: {
+                        style: {background: record.state.color},
+                    },
+                    children: <div>{text}</div>,
+                };
+            } else {
+                return {
+                    children: <div>{text}</div>,
+                };
+            }
+        },
     },
     {
         title: "Работа принята",
@@ -338,6 +504,20 @@ const LogDOColumns = [
             }
         },
         sortDirections: ["descend", "ascend"],
+        render(text, record) {
+            if (record.state && record.state.color) {
+                return {
+                    props: {
+                        style: {background: record.state.color},
+                    },
+                    children: <div>{text}</div>,
+                };
+            } else {
+                return {
+                    children: <div>{text}</div>,
+                };
+            }
+        },
     },
 ];
 

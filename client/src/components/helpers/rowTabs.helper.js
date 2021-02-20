@@ -18,6 +18,7 @@ const CheckTypeTab = (rowData, deleteHandler) => {
                 okText="Удалить"
                 visible={visiblePopConfirm}
                 onConfirm={() => deleteHandler(setLoadingDelete, setVisiblePopConfirm)}
+                onCancel={() => setVisiblePopConfirm(false)}
                 okButtonProps={{ loading: loadingDelete }}
                 icon={<QuestionCircleOutlined style={{color: 'red'}}/>}
             >
@@ -174,10 +175,10 @@ const onDropDownRender = async (open, setLoading, url, dispatchAction, setSelect
             let valuesToOptions = [{label: "Не выбрано", value: "Не выбрано"}];
 
             if (items) {
-                items.forEach((department) => {
+                items.forEach((item) => {
                     let object = {
-                        label: department.name,
-                        value: department.name
+                        label: item.name,
+                        value: item.name
                     }
 
                     valuesToOptions.push(object);
