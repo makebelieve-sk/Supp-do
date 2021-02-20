@@ -165,7 +165,7 @@ export const MainPage = () => {
                                            'log-do',
                                            ActionCreator.ActionCreatorLogDO.getAllLogDO
                                        )}
-                            >Информация о предприятии</Menu.Item>
+                            >Информация о предприятии(на данный момент находится Журнал Дефектов и отказов)</Menu.Item>
                         </SubMenu>
                     </SubMenu>
                     <SubMenu key="admin" icon={<LaptopOutlined/>} title="Администрирование">

@@ -53,7 +53,7 @@ router.post('/equipment', async (req, res) => {
 
         if (files && files.length >= 0) {
             for (const file of files) {
-                const findFile = await File.findOne({name: file.name});
+                const findFile = await File.findOne({originUid: file.originUid});
 
                 findFile.uid = `${findFile._id}-${findFile.name}`;
 
@@ -63,9 +63,7 @@ router.post('/equipment', async (req, res) => {
             }
         }
 
-        const newItem = new Equipment({
-            parent: parent, name: name, notes: notes, properties: properties, files: resFileArr
-        });
+        const newItem = new Equipment({parent, name, notes, properties, files: resFileArr});
 
         await newItem.save();
 
@@ -100,7 +98,7 @@ router.put('/equipment', async (req, res) => {
         if (files && files.length >= 0) {
             for (const file of files) {
                 if (file.uid.slice(0, 3) === "-1-") {
-                    const findFile = await File.findOne({name: file.name});
+                    const findFile = await File.findOne({originUid: file.originUid});
 
                     findFile.uid = `${findFile._id}-${file.name}`
 

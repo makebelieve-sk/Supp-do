@@ -1,9 +1,8 @@
 import React, {useState} from 'react';
-import {Button, Card, Form, Input, Row, Col, Select, Skeleton, Tabs, message, Upload, Popconfirm} from 'antd';
+import {Button, Card, Form, Input, Row, Col, Select, Skeleton, Tabs, message, Popconfirm} from 'antd';
 import {
     CheckOutlined,
     DeleteOutlined,
-    InboxOutlined,
     StopOutlined,
     QuestionCircleOutlined,
     CloudDownloadOutlined
@@ -21,10 +20,10 @@ import {
     onSave
 } from "../helpers/rowTabs.helper";
 import {request} from "../helpers/request.helper";
+import {UploadComponent} from "../contentComponent/uploadComponent";
 
 const {Meta} = Card;
 const {TabPane} = Tabs;
-const {Dragger} = Upload;
 
 export const EquipmentTab = ({specKey, onRemove}) => {
     // Инициализация стейта для показа спиннера загрузки при сохранении/удалении записи, обновлении
@@ -138,7 +137,7 @@ export const EquipmentTab = ({specKey, onRemove}) => {
     const deleteHandler = async (setLoadingDelete, setVisiblePopConfirm) => {
         try {
             setLoadingDelete(true);
-            const data = await request("/files/delete/" + rowData._id, "DELETE");
+            const data = await request("/files/delete/" + rowData._id, "DELETE", {model: "equipment"});
 
             if (data) {
                 onDelete(
@@ -238,8 +237,13 @@ export const EquipmentTab = ({specKey, onRemove}) => {
             const id = rowData ? rowData._id : -1;
 
             try {
-                console.log("Файл на удаление: ", deletedFile);
-                const data = await request("/files/delete-file/" + id, "DELETE", deletedFile);
+                const objectToServer = {
+                    model: "equipment",
+                    _id: deletedFile._id,
+                    uid: deletedFile.uid,
+                    url: deletedFile.url
+                };
+                const data = await request("/files/delete-file/" + id, "DELETE", objectToServer);
 
                 if (data) {
                     message.success(data.message);
@@ -261,8 +265,12 @@ export const EquipmentTab = ({specKey, onRemove}) => {
         name: 'file',
         multiple: true,
         action: "/files/upload",
-        data: {
-            equipmentId: rowData ? rowData._id : -1,
+        data: (file) => {
+            return {
+                id: rowData ? rowData._id : -1,
+                originUid: file.uid,
+                model: "equipment"
+            }
         },
         defaultFileList: files,
         fileList: files,
@@ -282,17 +290,14 @@ export const EquipmentTab = ({specKey, onRemove}) => {
                 </Popconfirm>
             }
         },
-        beforeUpload(file, fileList) {
+        beforeUpload(file) {
             duplicateFile = files.find(currentFile => {
                 return file.name === currentFile.name;
             });
-            // console.log(foundFile)
-            //
-            // if (foundFile) {
-            //     message.warning("Такой файл уже существует в этой записи").then(null);
-            // }
-            //
-            // return !foundFile;
+
+            if (duplicateFile) {
+                message.warning("Такой файл уже существует в этой записи").then(null);
+            }
         },
         onChange(info) {
             const {status} = info.file;
@@ -307,17 +312,15 @@ export const EquipmentTab = ({specKey, onRemove}) => {
                 info.fileList.splice(info.fileList.length - 1, 1);
             }
 
-            // Создаем объект файла
-            let newFileList = info.fileList.map(file => {
-                return {
-                    name: file.name,
-                    url: `public/${file.name}}`,
-                    status: "done",
-                    uid: `-1-${file.name}`
-                }
-            });
+            const newFileList = {
+                originUid: info.file.uid,
+                name: info.file.name,
+                url: `public/logDO/${info.file.name}`,
+                status: "done",
+                uid: `-1-${info.file.name}`
+            };
 
-            dispatch(ActionCreator.ActionCreatorEquipment.getAllFiles(newFileList));
+            dispatch(ActionCreator.ActionCreatorEquipment.addFile(newFileList));
         },
         async onRemove(file) {
             return new Promise((resolve, reject) => {
@@ -353,14 +356,16 @@ export const EquipmentTab = ({specKey, onRemove}) => {
                                         name={name}
                                         onFinish={saveHandler}
                                         onFinishFailed={onFailed}
+                                        initialValues={{
+                                            _id: rowData ? rowData._id : "",
+                                            parent: rowData && rowData.parent ? rowData.parent.name : "Не выбрано",
+                                            name: rowData ? rowData.name : "",
+                                            notes: rowData ? rowData.notes : ""
+                                        }}
                                     >
                                         <Tabs defaultActiveKey="name">
                                             <TabPane tab="Наименование" key="name" style={{paddingTop: '5%'}}>
-                                                <Form.Item
-                                                    name="parent"
-                                                    initialValue={rowData && rowData.parent ? rowData.parent.name : "Не выбрано"}
-                                                    label="Принадлежит"
-                                                >
+                                                <Form.Item name="parent" label="Принадлежит">
                                                     <Select
                                                         options={equipmentToOptions}
                                                         onDropdownVisibleChange={dropDownRenderHandler}
@@ -372,7 +377,6 @@ export const EquipmentTab = ({specKey, onRemove}) => {
                                                 <Form.Item
                                                     label="Наименование"
                                                     name="name"
-                                                    initialValue={rowData ? rowData.name : ""}
                                                     rules={[{
                                                         required: true,
                                                         message: "Введите название подразделения!"
@@ -381,24 +385,16 @@ export const EquipmentTab = ({specKey, onRemove}) => {
                                                     <Input maxLength={255} type="text"/>
                                                 </Form.Item>
 
-                                                <Form.Item
-                                                    label="Примечание"
-                                                    name="notes"
-                                                    initialValue={rowData ? rowData.notes : ""}
-                                                >
+                                                <Form.Item label="Примечание" name="notes">
                                                     <Input maxLength={255} type="text"/>
                                                 </Form.Item>
 
-                                                <Form.Item
-                                                    name="_id"
-                                                    hidden={true}
-                                                    initialValue={rowData ? rowData._id : ""}
-                                                >
+                                                <Form.Item name="_id" hidden={true}>
                                                     <Input/>
                                                 </Form.Item>
                                             </TabPane>
-                                            <TabPane tab="Характеристики" key="characteristics"
-                                                     style={{paddingTop: '5%'}}>
+
+                                            <TabPane tab="Характеристики" key="characteristics" style={{paddingTop: '5%'}}>
                                                 {
                                                     selectsArray && selectsArray.length ?
                                                         selectsArray.map((label, index) => (
@@ -448,18 +444,10 @@ export const EquipmentTab = ({specKey, onRemove}) => {
                                                         )) : "Список характеристик пуст"
                                                 }
                                             </TabPane>
+
                                             <TabPane tab="Файлы" key="files" style={{paddingTop: '5%'}}>
                                                 <Form.Item name="files" wrapperCol={{span: 24}}>
-                                                    <Dragger {...props}>
-                                                        <p className="ant-upload-drag-icon">
-                                                            <InboxOutlined/>
-                                                        </p>
-                                                        <p className="ant-upload-text">Щелкните или перетащите файл
-                                                            в эту область, чтобы загрузить</p>
-                                                        <p className="ant-upload-hint">
-                                                            Поддержка одиночной или массовой загрузки.
-                                                        </p>
-                                                    </Dragger>
+                                                    <UploadComponent props={props}/>
                                                 </Form.Item>
                                             </TabPane>
                                         </Tabs>

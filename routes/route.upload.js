@@ -1,9 +1,16 @@
 // Маршруты для загрузки файлов
 const {Router} = require("express");
-const router = Router();
+const LogDO = require("../models/LogDO.model");
 const Equipment = require("../models/Equipment");
 const File = require("../models/File");
 const fs = require('fs');
+
+const router = Router();
+
+// Функция определения текущей модели
+const checkModel = (model) => {
+    return model === "equipment" ? Equipment : LogDO;
+};
 
 // Сохраняет файл
 router.post("/upload", async (req, res) => {
@@ -12,7 +19,9 @@ router.post("/upload", async (req, res) => {
 
     try {
         const files = await File.find({});
-        const equipmentId = req.body.equipmentId;
+        const {id, originUid, model} = req.body;
+
+        const Model = checkModel(model);
 
         // Если два одинаковых файла добавляются в запись
         for (let file of files) {
@@ -22,9 +31,9 @@ router.post("/upload", async (req, res) => {
         }
 
         // Существующий файл добавляется в уже существующую запись
-        if (equipmentId !== "-1") {
-            const equipment = await Equipment.findOne({_id: equipmentId}).populate("files");
-            for (let file of equipment.files) {
+        if (id !== "-1") {
+            const item = await Model.findOne({_id: id}).populate("files");
+            for (let file of item.files) {
                 if (file.name === originalFileName) {
                     return res.status(201).json({message: "Такой файл уже существует в этой записи."});
                 }
@@ -33,9 +42,10 @@ router.post("/upload", async (req, res) => {
 
         let file = new File({
             name: originalFileName,
-            url: `public/${fileName}`,
+            url: `public/${model}/${fileName}`,
             status: "done",
-            uid: `-1-${originalFileName}`
+            uid: `-1-${originalFileName}`,
+            originUid: originUid
         });
 
         await file.save();
@@ -54,7 +64,11 @@ router.delete("/delete/:id", async (req, res) => {
     let item = null;
 
     try {
-        item = await Equipment.findById({_id: id}).populate("files");
+        const {model} = req.body;
+
+        const Model = checkModel(model);
+
+        item = await Model.findById({_id: id}).populate("files");
 
         for (const file of item.files) {
             await File.deleteOne({_id: file._id});
@@ -88,7 +102,9 @@ router.delete("/delete-file/:id", async (req, res) => {
     let item = null;
 
     try {
-        const {_id, uid, url} = req.body;
+        const {_id, uid, url, model} = req.body;
+
+        const Model = checkModel(model);
 
         if (id === "-1") {
             const file = await File.findOne({uid});
@@ -108,7 +124,7 @@ router.delete("/delete-file/:id", async (req, res) => {
                     if (err) console.log(err)
                 });
             } else {
-                item = await Equipment.findById({_id: id}).populate("files");
+                item = await Model.findById({_id: id}).populate("files");
 
                 let foundFile = item.files.find(file => file.uid === uid);
                 let indexOf = item.files.indexOf(foundFile);

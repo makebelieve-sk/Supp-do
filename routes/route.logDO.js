@@ -77,7 +77,7 @@ router.post('/log-do', async (req, res) => {
 
         if (files && files.length >= 0) {
             for (const file of files) {
-                const findFile = await File.findOne({name: file.name});
+                const findFile = await File.findOne({originUid: file.originUid});
 
                 findFile.uid = `${findFile._id}-${findFile.name}`;
 
@@ -89,7 +89,7 @@ router.post('/log-do', async (req, res) => {
 
         const newItem = new LogDO({
             numberLog, date, equipment, notes, applicant, responsible, department, task, state, dateDone,
-            content, acceptTask, resFileArr, sendEmail
+            content, acceptTask, files: resFileArr, sendEmail
         });
 
         await newItem.save();
@@ -112,21 +112,19 @@ router.post('/log-do', async (req, res) => {
 // Изменяет запись
 router.put('/log-do', async (req, res) => {
     try {
+        let resFileArr = [];
         const {_id, numberLog, date, applicant, equipment, notes, sendEmail, department, responsible, task, state,
             dateDone, content, acceptTask, files} = req.body;
-
         const item = await LogDO.findById({_id});
-
-        let resFileArr = [];
 
         if (!item) {
             return res.status(400).json({message: `Запись с кодом ${_id} не найдена`});
         }
-
+        console.log(files);
         if (files && files.length >= 0) {
             for (const file of files) {
                 if (file.uid.slice(0, 3) === "-1-") {
-                    const findFile = await File.findOne({name: file.name});
+                    const findFile = await File.findOne({originUid: file.originUid});
 
                     findFile.uid = `${findFile._id}-${file.name}`
 
@@ -137,6 +135,7 @@ router.put('/log-do', async (req, res) => {
                     resFileArr.push(file);
                 }
             }
+            console.log(resFileArr);
         }
 
         item.numberLog = numberLog;
@@ -164,7 +163,7 @@ router.put('/log-do', async (req, res) => {
             .populate("state")
             .populate("acceptTask")
             .populate("files");
-
+        console.log(savedItem);
         res.status(201).json({message: "Запись сохранена", item: savedItem});
     } catch (e) {
         res.status(500).json({message: "Ошибка при обновлении записи"})
