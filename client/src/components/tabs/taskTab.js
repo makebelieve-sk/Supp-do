@@ -6,7 +6,7 @@ import {Card, Form, Input, Row, Col, Button, Skeleton, Checkbox, Dropdown} from 
 import {CheckOutlined, EditOutlined, StopOutlined} from '@ant-design/icons';
 
 import {ActionCreator} from "../../redux/combineActions";
-import {CheckTypeTab, onCancel, onDelete, onFailed, onSave} from "../helpers/rowTabs.helper";
+import {CheckTypeTab, onCancel, onDelete, onFailed, onSave} from "../helpers/tab.helpers/tab.functions";
 
 const {Meta} = Card;
 
@@ -58,9 +58,6 @@ export const TaskTab = ({specKey, onRemove}) => {
     // Обработка нажатия на кнопку "Отмена"
     const cancelHandler = () => onCancel(onRemove, specKey);
 
-    // Инициализация кнопок, появляющихся при редактировании записи
-    const editButtonsComponent = CheckTypeTab(rowData, deleteHandler);
-
     // Создание компонента цветового пикера
     let colorPickerComponent = <>
         <SketchPicker
@@ -96,11 +93,16 @@ export const TaskTab = ({specKey, onRemove}) => {
                                     name={name}
                                     onFinish={saveHandler}
                                     onFinishFailed={onFailed}
+                                    initialValues={{
+                                        _id: rowData ? rowData._id : "",
+                                        color: color,
+                                        name: rowData ? rowData.name : "",
+                                        notes: rowData ? rowData.notes : ""
+                                    }}
                                 >
                                     <Form.Item
                                         label="Наименование"
                                         name="name"
-                                        initialValue={!rowData ? '' : rowData.name}
                                         rules={[{required: true, message: 'Введите наименование записи!'}]}
                                     >
                                         <Input maxLength={255} type="text"/>
@@ -109,11 +111,7 @@ export const TaskTab = ({specKey, onRemove}) => {
                                     <Form.Item label="Цвет">
                                         <Row gutter={8}>
                                             <Col xs={{span: 20}} sm={{span: 20}} md={{span: 22}} lg={{span: 22}} xl={{span: 22}}>
-                                                <Form.Item
-                                                    name="color"
-                                                    noStyle
-                                                    initialValue={color}
-                                                >
+                                                <Form.Item name="color" noStyle>
                                                     <Input maxLength={255} type="text" disabled/>
                                                 </Form.Item>
                                             </Col>
@@ -133,7 +131,7 @@ export const TaskTab = ({specKey, onRemove}) => {
                                         </Row>
                                     </Form.Item>
 
-                                    <Form.Item name="notes" label="Примечание" initialValue={!rowData ? '' : rowData.notes}>
+                                    <Form.Item name="notes" label="Примечание">
                                         <Input maxLength={255} type="text"/>
                                     </Form.Item>
 
@@ -141,7 +139,7 @@ export const TaskTab = ({specKey, onRemove}) => {
                                         <Checkbox>Завершено</Checkbox>
                                     </Form.Item>
 
-                                    <Form.Item name="_id" hidden={true} initialValue={!rowData ? '' : rowData._id}>
+                                    <Form.Item name="_id" hidden={true}>
                                         <Input/>
                                     </Form.Item>
 
@@ -157,7 +155,7 @@ export const TaskTab = ({specKey, onRemove}) => {
                                                 Сохранить
                                             </Button>
 
-                                            {editButtonsComponent}
+                                            {CheckTypeTab(rowData, deleteHandler)}
 
                                             <Button
                                                 className="button-style"

@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {Button, Row, Menu, Dropdown, Checkbox} from 'antd';
 import {PlusOutlined, FileExcelOutlined, PrinterOutlined, EditOutlined} from '@ant-design/icons';
 
-import {ColumnsMapHelper, RowMapHelper} from "../helpers/dataTableMap.helper";
+import {ColumnsMapHelper, RowMapHelper} from "../../helpers/table.helpers/tableMap.helper";
 
 export const ButtonsComponent = ({specKey, onExport, checkedColumns, setCheckedColumns, setColumnsTable, initialColumns}) => {
     // Получение колонок для таблицы

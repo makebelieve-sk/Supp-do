@@ -1,7 +1,7 @@
 import React, {useMemo} from 'react';
 import {Input, Row} from "antd";
 
-export const HeaderDatatable = ({filterText, setFilterText}) => {
+export const Header = ({filterText, setFilterText}) => {
     // Фукнция вызывается, когда изменяются переменные в массиве зависимостей
     return useMemo(() => {
         return (

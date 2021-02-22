@@ -3,8 +3,8 @@ import React, {useState} from "react";
 import {Button, message, Popconfirm} from "antd";
 import {DeleteOutlined, PrinterOutlined, QuestionCircleOutlined} from "@ant-design/icons";
 
-import {request} from "./request.helper";
-import store from "../../redux/store";
+import {request} from "../request.helper";
+import store from "../../../redux/store";
 
 // Инициализация кнопок, появляющихся при редактировании записи
 const CheckTypeTab = (rowData, deleteHandler) => {
@@ -63,8 +63,6 @@ const onSave = async (url, values, setLoadingSave, dispatchActionEdit, dispatchA
         setLoadingSave(false);
 
         if (data) {
-            console.log("Ответ от сервера при сохранении/редактировании записи: ", data);
-
             // Выводим сообщение от сервера
             message.success(data.message);
 

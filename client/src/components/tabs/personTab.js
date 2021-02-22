@@ -4,17 +4,9 @@ import {Card, Form, Input, Row, Button, Select, Col, Skeleton} from 'antd';
 import {useSelector} from "react-redux";
 import {CheckOutlined, PlusOutlined, StopOutlined} from "@ant-design/icons";
 
-import {RowMapHelper} from "../helpers/dataTableMap.helper";
+import {RowMapHelper} from "../helpers/table.helpers/tableMap.helper";
 import {ActionCreator} from "../../redux/combineActions";
-import {
-    CheckTypeTab,
-    onSave,
-    onDelete,
-    onFailed,
-    onCancel,
-    onChange,
-    onDropDownRender
-} from "../helpers/rowTabs.helper";
+import {CheckTypeTab, onSave, onDelete, onFailed, onCancel, onChange, onDropDownRender} from "../helpers/tab.helpers/tab.functions";
 
 const {Meta} = Card;
 
@@ -128,9 +120,6 @@ export const PersonTab = ({specKey, onRemove}) => {
         onDropDownRender(open, setLoading, key, dispatchAction, setSelectToOptions).then(null);
     }
 
-    // Инициализация кнопок, появляющихся при редактировании записи
-    const editButtonsComponent = CheckTypeTab(rowData, deleteHandler);
-
     return (
         <Row className="container-tab" justify="center">
             <Col sm={{span: 24}} md={{span: 20}} lg={{span: 16}} xl={{span: 12}}>
@@ -145,11 +134,18 @@ export const PersonTab = ({specKey, onRemove}) => {
                                     name={name}
                                     onFinish={saveHandler}
                                     onFinishFailed={onFailed}
+                                    initialValues={{
+                                        _id: rowData ? rowData._id : "",
+                                        name: rowData ? rowData.name : "",
+                                        department: rowData && rowData.department ? rowData.department.name : "Не выбрано",
+                                        profession: rowData && rowData.profession ? rowData.profession.name : "Не выбрано",
+                                        tabNumber: rowData ? rowData.tabNumber : "",
+                                        notes: rowData ? rowData.notes : ""
+                                    }}
                                 >
                                     <Form.Item
                                         label="ФИО"
                                         name="name"
-                                        initialValue={!rowData ? '' : rowData.name}
                                         rules={[{required: true, message: 'Введите ФИО сотрудника!',}]}
                                     >
                                         <Input maxLength={255} type="text"/>
@@ -161,8 +157,11 @@ export const PersonTab = ({specKey, onRemove}) => {
                                                 <Form.Item
                                                     name="department"
                                                     noStyle
-                                                    initialValue={rowData && rowData.department ? rowData.department.name : "Не выбрано"}
-                                                    rules={[{required: true, message: 'Выберите подразделение!'}]}
+                                                    rules={[{
+                                                        required: true,
+                                                        transform: value => value === "Не выбрано" ? "" : value,
+                                                        message: 'Выберите подразделение!'
+                                                    }]}
                                                 >
                                                     <Select
                                                         options={departmentsToOptions}
@@ -189,8 +188,10 @@ export const PersonTab = ({specKey, onRemove}) => {
                                                 <Form.Item
                                                     name="profession"
                                                     noStyle
-                                                    initialValue={rowData && rowData.profession ? rowData.profession.name : "Не выбрано"}
-                                                    rules={[{required: true, message: 'Выберите сотрудника!'}]}
+                                                    rules={[{
+                                                        required: true,
+                                                        transform: value => value === "Не выбрано" ? "" : value,
+                                                        message: 'Выберите сотрудника!'}]}
                                                 >
                                                     <Select
                                                         options={professionsToOptions}
@@ -211,15 +212,15 @@ export const PersonTab = ({specKey, onRemove}) => {
                                         </Row>
                                     </Form.Item>
 
-                                    <Form.Item name="tabNumber" label="Таб. номер" initialValue={!rowData ? '' : rowData.tabNumber}>
+                                    <Form.Item name="tabNumber" label="Таб. номер">
                                         <Input maxLength={255} type="number" style={{textAlign: 'right'}}/>
                                     </Form.Item>
 
-                                    <Form.Item name="notes" label="Примечание" initialValue={!rowData ? '' : rowData.notes}>
+                                    <Form.Item name="notes" label="Примечание">
                                         <Input maxLength={255} type="text"/>
                                     </Form.Item>
 
-                                    <Form.Item name="_id" hidden={true} initialValue={!rowData ? '' : rowData._id}>
+                                    <Form.Item name="_id" hidden={true}>
                                         <Input/>
                                     </Form.Item>
 
@@ -234,7 +235,7 @@ export const PersonTab = ({specKey, onRemove}) => {
                                             Сохранить
                                         </Button>
 
-                                        {editButtonsComponent}
+                                        {CheckTypeTab(rowData, deleteHandler)}
 
                                         <Button
                                             className="button-style"

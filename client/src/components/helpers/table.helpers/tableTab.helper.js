@@ -1,16 +1,16 @@
-import {ProfessionTab} from "../tabs/professionTab";
-import {DepartmentTab} from "../tabs/departmentTab";
-import {PersonTab} from "../tabs/personTab";
-import {TaskTab} from "../tabs/taskTab";
-import {EquipmentPropertyTab} from "../tabs/EquipmentPropertyTab";
-import {EquipmentTab} from "../tabs/equipmentTab";
-import {LogDOTab} from "../tabs/logDOTab";
+import {ProfessionTab} from "../../tabs/professionTab";
+import {DepartmentTab} from "../../tabs/departmentTab";
+import {PersonTab} from "../../tabs/personTab";
+import {TaskTab} from "../../tabs/taskTab";
+import {EquipmentPropertyTab} from "../../tabs/EquipmentPropertyTab";
+import {EquipmentTab} from "../../tabs/equipmentTab";
+import {LogDOTab} from "../../tabs/logDOTab";
 
-import store from "../../redux/store";
-import {ActionCreator} from "../../redux/combineActions";
+import store from "../../../redux/store";
+import {ActionCreator} from "../../../redux/combineActions";
 
-import {request} from "./request.helper";
-import {getEmptyTabWithLoading} from "./getEmptyTab.helper";
+import {request} from "../request.helper";
+import {getEmptyTabWithLoading} from "../getEmptyTab.helper";
 
 /**
  * Добавление и заполнение вкладки "Профессии"

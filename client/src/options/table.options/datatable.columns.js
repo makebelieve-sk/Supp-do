@@ -1,4 +1,5 @@
 import React from 'react';
+import {Tooltip} from "antd";
 
 // Создание заголовка таблицы
 const headerProfessionTable = 'Наименование, Примечание';
@@ -245,7 +246,7 @@ const LogDOColumns = [
         title: "Дата заявки",
         dataIndex: "date",
         key: "date",
-        width: 100,
+        width: 150,
         sorter: (a, b) => a.date > b.date,
         sortDirections: ["descend", "ascend"],
         render(text, record) {
@@ -267,7 +268,7 @@ const LogDOColumns = [
         title: "Оборудование",
         dataIndex: ["equipment", "name"],
         key: "equipment",
-        width: 100,
+        width: 150,
         sorter: (a, b) => {
             if (a.equipment && b.equipment) {
                 return a.equipment.name.length - b.equipment.name.length;
@@ -293,16 +294,21 @@ const LogDOColumns = [
         title: "Описание",
         dataIndex: "notes",
         key: 'notes',
-        width: 100,
+        width: 250,
         sorter: (a, b) => a.notes.length - b.notes.length,
         sortDirections: ['descend', 'ascend'],
+        ellipsis: {
+            showTitle: false,
+        },
         render(text, record) {
             if (record.state && record.state.color) {
                 return {
                     props: {
                         style: {background: record.state.color},
                     },
-                    children: <div>{text}</div>,
+                    children: <Tooltip placement="topLeft" title={text}>
+                        {text}
+                    </Tooltip>,
                 };
             } else {
                 return {
@@ -315,7 +321,7 @@ const LogDOColumns = [
         title: "Заявитель",
         dataIndex: ["applicant", "name"],
         key: "applicant",
-        width: 100,
+        width: 150,
         sorter: (a, b) => {
             if (a.applicant && b.applicant) {
                 return a.applicant.name.length - b.applicant.name.length;
@@ -341,7 +347,7 @@ const LogDOColumns = [
         title: "Ответственный",
         dataIndex: ["responsible", "name"],
         key: "responsible",
-        width: 100,
+        width: 150,
         sorter: (a, b) => {
             if (a.responsible && b.responsible) {
                 return a.responsible.name.length - b.responsible.name.length;
@@ -367,7 +373,7 @@ const LogDOColumns = [
         title: "Подразделение",
         dataIndex: ["department", "name"],
         key: "department",
-        width: 100,
+        width: 150,
         sorter: (a, b) => {
             if (a.department && b.department) {
                 return a.department.name.length - b.department.name.length;
@@ -393,7 +399,10 @@ const LogDOColumns = [
         title: "Задание",
         dataIndex: "task",
         key: "task",
-        width: 100,
+        width: 250,
+        ellipsis: {
+            showTitle: false,
+        },
         sorter: (a, b) => {
             if (a.task && b.task) {
                 return a.task.length - b.task.length;
@@ -406,7 +415,9 @@ const LogDOColumns = [
                     props: {
                         style: {background: record.state.color},
                     },
-                    children: <div>{text}</div>,
+                    children: <Tooltip placement="topLeft" title={text}>
+                        {text}
+                    </Tooltip>,
                 };
             } else {
                 return {
@@ -419,7 +430,7 @@ const LogDOColumns = [
         title: "Состояние",
         dataIndex: ["state", "name"],
         key: "state",
-        width: 100,
+        width: 150,
         sorter: (a, b) => {
             if (a.state && b.state) {
                 return a.state.name.length - b.state.name.length;
@@ -445,7 +456,7 @@ const LogDOColumns = [
         title: "Дата выполнения",
         dataIndex: "dateDone",
         key: "dateDone",
-        width: 100,
+        width: 150,
         sorter: (a, b) => {
             if (a.dateDone && b.dateDone) {
                 return a.dateDone.length - b.dateDone.length;
@@ -471,11 +482,14 @@ const LogDOColumns = [
         title: "Содержание работ",
         dataIndex: "content",
         key: "content",
-        width: 100,
+        width: 250,
         sorter: (a, b) => {
             if (a.content && b.content) {
                 return a.content.length - b.content.length;
             }
+        },
+        ellipsis: {
+            showTitle: false,
         },
         sortDirections: ["descend", "ascend"],
         render(text, record) {
@@ -484,7 +498,9 @@ const LogDOColumns = [
                     props: {
                         style: {background: record.state.color},
                     },
-                    children: <div>{text}</div>,
+                    children: <Tooltip placement="topLeft" title={text}>
+                        {text}
+                    </Tooltip>,
                 };
             } else {
                 return {
@@ -497,7 +513,7 @@ const LogDOColumns = [
         title: "Работа принята",
         dataIndex: ["acceptTask", "name"],
         key: "acceptTask",
-        width: 100,
+        width: 150,
         sorter: (a, b) => {
             if (a.acceptTask && b.acceptTask) {
                 return a.acceptTask.name.length - b.acceptTask.name.length;

@@ -1,29 +1,21 @@
 // Главная страница
+import moment from "moment";
 import React, {useState, useEffect, useContext} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
 import {Layout, Menu, Button, Tabs, Row, Col, Modal, Dropdown, Avatar} from 'antd';
-import {
-    MenuUnfoldOutlined,
-    MenuFoldOutlined,
-    UserOutlined,
-    LaptopOutlined,
-    QuestionCircleOutlined,
-    DownOutlined,
-} from '@ant-design/icons';
-import moment from "moment";
+import {MenuUnfoldOutlined, MenuFoldOutlined, QuestionCircleOutlined, DownOutlined,} from '@ant-design/icons';
 
-import {ActionCreator} from "../../redux/combineActions";
-
+import {menuItems} from "../../options/global.options/global.options";
 import {AuthContext} from "../../context/authContext";
+import {ActionCreator} from "../../redux/combineActions";
 import {OpenTabSectionHelper} from "../helpers/openTabSection.helper";
 import {request} from "../helpers/request.helper";
+import TabOptions from "../../options/tab.options/tab.options";
 import logo from '../../assets/logo.png';
 
 const {Header, Sider, Content, Footer} = Layout;
 const {SubMenu} = Menu;
 const {TabPane} = Tabs;
-
-const dateFormat = "DD.MM.YYYY HH:mm";
 
 export const MainPage = () => {
     // Получаем вкладки из хранилища(текущие, активную и последнюю)
@@ -41,8 +33,8 @@ export const MainPage = () => {
     useEffect(() => {
         async function getItems() {
             try {
-                const items = await request("/api/log-do/" + moment().startOf("month").format(dateFormat)
-                    + "/" + moment().endOf("month").format(dateFormat));
+                const items = await request("/api/log-do/" + moment().startOf("month").format(TabOptions.dateFormat)
+                    + "/" + moment().endOf("month").format(TabOptions.dateFormat));
 
                 if (items && items.length > 0) {
                     dispatch(ActionCreator.ActionCreatorLogDO.getAllLogDO(items));
@@ -100,85 +92,40 @@ export const MainPage = () => {
         <Layout>
             <Sider trigger={null} collapsible collapsed={collapsed} width={300}>
                 <div className="logo">
-                    <img src={logo} alt="Лого" className="logo-image"/>
+                    <img src={logo} alt="Лого" className="logo-image" onClick={() => OpenTabSectionHelper(
+                        'Журнал Дефектов и отказов',
+                        'logDO',
+                        'log-do',
+                        ActionCreator.ActionCreatorLogDO.getAllLogDO
+                    )}/>
                     {collapsed ? null : 'СУПП ДО'}
                 </div>
                 <Menu theme="dark" mode="inline">
-                    <SubMenu key="directory" icon={<UserOutlined/>} title="Справочники">
-                        <SubMenu title="Управление персоналом">
-                            <Menu.Item key="professions"
-                                       onClick={() => OpenTabSectionHelper(
-                                           'Профессии',
-                                           'professions',
-                                           'professions',
-                                           ActionCreator.ActionCreatorProfession.getAllProfessions
-                                       )}
-                            >Профессии</Menu.Item>
-                            <Menu.Item key="departments"
-                                       onClick={() => OpenTabSectionHelper(
-                                           'Подразделения',
-                                           'departments',
-                                           'departments',
-                                           ActionCreator.ActionCreatorDepartment.getAllDepartments
-                                       )}
-                            >Подразделения</Menu.Item>
-                            <Menu.Item key="people"
-                                       onClick={() => OpenTabSectionHelper(
-                                           'Персонал',
-                                           'people',
-                                           'people',
-                                           ActionCreator.ActionCreatorPerson.getAllPeople
-                                       )}
-                            >Персонал</Menu.Item>
-                        </SubMenu>
-                        <SubMenu title="Оборудование">
-                            <Menu.Item key="equipmentProperties"
-                                       onClick={() => OpenTabSectionHelper(
-                                           'Характеристики оборудования',
-                                           'equipmentProperties',
-                                           'equipment-property',
-                                           ActionCreator.ActionCreatorEquipmentProperty.getAllEquipmentProperties
-                                       )}
-                            >Характеристики оборудования</Menu.Item>
-                            <Menu.Item key="equipment"
-                                       onClick={() => OpenTabSectionHelper(
-                                           'Перечень оборудования',
-                                           'equipment',
-                                           'equipment',
-                                           ActionCreator.ActionCreatorEquipment.getAllEquipment
-                                       )}
-                            >Перечень оборудования</Menu.Item>
-                            <Menu.Item key="tasks"
-                                       onClick={() => OpenTabSectionHelper(
-                                           'Состояние заявки',
-                                           'tasks',
-                                           'taskStatus',
-                                           ActionCreator.ActionCreatorTask.getAllTasks
-                                       )}
-                            >Состояние заявок</Menu.Item>
-                        </SubMenu>
-                        <SubMenu title="Прочее">
-                            <Menu.Item key="info"
-                                       onClick={() => OpenTabSectionHelper(
-                                           'Журнал Дефектов и отказов',
-                                           'logDO',
-                                           'log-do',
-                                           ActionCreator.ActionCreatorLogDO.getAllLogDO
-                                       )}
-                            >Информация о предприятии(на данный момент находится Журнал Дефектов и отказов)</Menu.Item>
-                        </SubMenu>
-                    </SubMenu>
-                    <SubMenu key="admin" icon={<LaptopOutlined/>} title="Администрирование">
-                        <SubMenu title="Общее">
-                            <Menu.Item key="pages">Страницы приложения</Menu.Item>
-                            <Menu.Item key="help">Помощь</Menu.Item>
-                        </SubMenu>
-                        <SubMenu title="Управление пользователями">
-                            <Menu.Item key="users">Пользователи</Menu.Item>
-                            <Menu.Item key="roles">Роли</Menu.Item>
-                            <Menu.Item key="actions">Журнал действий пользователя</Menu.Item>
-                        </SubMenu>
-                    </SubMenu>
+                    {
+                        menuItems.map(group => (
+                            <SubMenu key={group.key} icon={group.icon} title={group.title}>
+                                {
+                                    group.children.map(subgroup => (
+                                        <SubMenu title={subgroup.title} key={subgroup.key}>
+                                            {
+                                                subgroup.children.map(item => (
+                                                    <Menu.Item
+                                                        key={item.key}
+                                                        onClick={() => OpenTabSectionHelper(
+                                                            item.title,
+                                                            item.key,
+                                                            item.url,
+                                                            item.dispatchAction
+                                                        )}
+                                                    >{item.title}</Menu.Item>
+                                                ))
+                                            }
+                                        </SubMenu>
+                                    ))
+                                }
+                            </SubMenu>
+                        ))
+                    }
                 </Menu>
             </Sider>
             <Layout className="site-layout">
@@ -221,7 +168,7 @@ export const MainPage = () => {
                 <Footer>
                     <Row>
                         <Col span={18} className="footer_text">
-                            Система управления производственным процессом. Дефекты и отказы. 2020. Версия 1.0.0
+                            Система управления производственным процессом. Дефекты и отказы. 2021. Версия 1.0.0
                         </Col>
                         <Col span={6}>
                             <p onClick={() => setIsModalVisible(true)} className="footer_text cursor">

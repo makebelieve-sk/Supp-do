@@ -1,61 +1,21 @@
+// Раздел "Журнал дефектов и отказов"
 import React, {useState} from 'react';
-import {
-    Button,
-    Card,
-    Form,
-    Input,
-    Row,
-    Col,
-    Select,
-    Skeleton,
-    Tabs,
-    message,
-    Popconfirm,
-    DatePicker,
-    Checkbox
-} from 'antd';
-import {
-    CheckOutlined,
-    DeleteOutlined,
-    StopOutlined,
-    QuestionCircleOutlined,
-    CloudDownloadOutlined
-} from "@ant-design/icons";
-import {useSelector, useDispatch} from "react-redux";
-
-import {ActionCreator} from "../../redux/combineActions";
-import {
-    CheckTypeTab,
-    onCancel,
-    onChange,
-    onDelete,
-    onDropDownRender,
-    onFailed,
-    onSave
-} from "../helpers/rowTabs.helper";
-import {request} from "../helpers/request.helper";
+import {Button, Card, Form, Input, Row, Col, Select, Skeleton, Tabs, DatePicker, Checkbox} from 'antd';
+import {CheckOutlined, StopOutlined,} from "@ant-design/icons";
+import {useSelector} from "react-redux";
 import moment from "moment";
-import {UploadComponent} from "../contentComponent/uploadComponent";
+
+import {UploadComponent} from "../contentComponent/tab.components/uploadComponent";
+import {ActionCreator} from "../../redux/combineActions";
+import {CheckTypeTab, onFailed} from "../helpers/tab.helpers/tab.functions";
+import {HOCFunctions} from "../helpers/tab.helpers/tab.HOC.functions";
+import TabOptions from "../../options/tab.options/tab.options";
 
 const {Meta} = Card;
 const {TabPane} = Tabs;
 const {TextArea} = Input;
 
-const dateFormat = "DD.MM.YYYY HH:mm";
-
 export const LogDOTab = ({specKey, onRemove}) => {
-    // Инициализация стейта для показа спиннера загрузки при сохранении/удалении записи, обновлении
-    // выпадающего списка и списка файлов
-    const [loadingSave, setLoadingSave] = useState(false);
-    const [loadingDeleteFile, setLoadingDeleteFile] = useState(false);
-    const [loadingCancel, setLoadingCancel] = useState(false);
-    const [loadingSelectDep, setLoadingSelectDep] = useState(false);
-    const [loadingSelectPeople, setLoadingSelectPeople] = useState(false);
-    const [loadingSelectEquipment, setLoadingSelectEquipment] = useState(false);
-    const [loadingSelectResponsible, setLoadingSelectResponsible] = useState(false);
-    const [loadingSelectState, setLoadingSelectState] = useState(false);
-    const [loadingSelectAcceptTask, setLoadingSelectAcceptTask] = useState(false);
-
     // Получение списка подразделений и загрузки записи из хранилища redux
     const {loadingSkeleton, logDO, rowData, departments, people, equipment, tasks, files} = useSelector((state) => ({
         loadingSkeleton: state.reducerLoading.loadingSkeleton,
@@ -67,12 +27,19 @@ export const LogDOTab = ({specKey, onRemove}) => {
         tasks: state.reducerTask.tasks,
         files: state.reducerLogDO.files,
     }));
-    const dispatch = useDispatch();
 
-    // Создание стейта для значений в выпадающем списке "Перечень оборудования" и начального значения и
-    // установка спиннера загрузки при сохранении записи
-    const [selectEquipment, setSelectEquipment] = useState(null);
+    // Инициализация стейта для показа спиннера загрузки при сохранении/удалении записи, обновлении
+    // выпадающих списков и списка файлов
+    const [loadingSave, setLoadingSave] = useState(false);
+    const [loadingCancel, setLoadingCancel] = useState(false);
+    const [loadingSelectDep, setLoadingSelectDep] = useState(false);
+    const [loadingSelectPeople, setLoadingSelectPeople] = useState(false);
+    const [loadingSelectEquipment, setLoadingSelectEquipment] = useState(false);
+    const [loadingSelectResponsible, setLoadingSelectResponsible] = useState(false);
+    const [loadingSelectState, setLoadingSelectState] = useState(false);
+    const [loadingSelectAcceptTask, setLoadingSelectAcceptTask] = useState(false);
 
+    // Инициализация значений для выпадающих списков
     const [departmentsToOptions, setDepartmentsToOptions] = useState([]);
     const [peopleToOptions, setPeopleToOptions] = useState([]);
     const [equipmentToOptions, setEquipmentToOptions] = useState([]);
@@ -83,6 +50,7 @@ export const LogDOTab = ({specKey, onRemove}) => {
     // Инициализация выбранного элемента из выпадающих списков
     const [selectDep, setSelectDep] = useState(null);
     const [selectPeople, setSelectPeople] = useState(null);
+    const [selectEquipment, setSelectEquipment] = useState(null);
     const [selectResponsible, setSelectResponsible] = useState(null);
     const [selectState, setSelectState] = useState(null);
     const [selectAcceptTask, setSelectAcceptTask] = useState(null);
@@ -104,258 +72,71 @@ export const LogDOTab = ({specKey, onRemove}) => {
         initialAcceptTask = rowData.acceptTask;
     }
 
-    // Создание заголовка раздела и имени формы
+    // Создание заголовка раздела и наименования формы
     const title = rowData ? 'Редактирование записи' : 'Создание записи';
     const name = rowData ? `control-ref-log-do-${rowData.name}` : "control-ref-log-do";
 
-    // Функция создания номера записи
-    const getNumberLog = (numberLog) => {
-        if (numberLog.toString().length < 4) {
-            return getNumberLog(`0${numberLog}`);
-        } else {
-            localStorage.setItem("numberLog", numberLog);
-            return numberLog;
-        }
-    }
-
     // Обработка нажатия на кнопку "Сохранить"
     const saveHandler = (values) => {
-        let numberLog = localStorage.getItem("numberLog");
+        const selectOptions = {
+            selectPeople, initialApplicant, selectEquipment, initialEquipment, selectDep, initialDepartment, selectResponsible,
+            initialResponsible, selectState, initialState, selectAcceptTask, initialAcceptTask
+        };
 
-        if (!numberLog) {
-            numberLog = 0;
-        }
+        const onSaveOptions = {
+            url: "log-do", setLoadingSave, actionCreatorEdit: ActionCreator.ActionCreatorLogDO.editLogDO, rowData,
+            actionCreatorCreate: ActionCreator.ActionCreatorLogDO.createLogDO, dataStore: logDO, onRemove, specKey,
+        };
 
-        values.numberLog = getNumberLog(++numberLog) + "/" + moment().get("year");
-        values.date = values.date.format(dateFormat);
-        values.applicant = selectPeople === "Не выбрано" ? null : selectPeople ? selectPeople : initialApplicant;
-        values.equipment = selectEquipment === "Не выбрано" ? null : selectEquipment ? selectEquipment : initialEquipment;
-        values.department = selectDep === "Не выбрано" ? null : selectDep ? selectDep : initialDepartment;
-        values.responsible = selectResponsible === "Не выбрано" ? null : selectResponsible ? selectResponsible : initialResponsible;
-        values.state = selectState === "Не выбрано" ? null : selectState ? selectState : initialState;
-        values.dateDone = values.dateDone ? values.dateDone.format(dateFormat) : null;
-        values.acceptTask = selectAcceptTask === "Не выбрано" ? null : selectAcceptTask ? selectAcceptTask : initialAcceptTask;
-        values.files = files;
-
-        console.log("отправляем на сервер: ", values);
-
-        onSave(
-            "log-do", values, setLoadingSave, ActionCreator.ActionCreatorLogDO.editLogDO,
-            ActionCreator.ActionCreatorLogDO.createLogDO, logDO, onRemove, specKey, rowData
-        ).then(null);
+        HOCFunctions.onSave.onSaveHOCLogDO(values, files, selectOptions, onSaveOptions);
     }
 
     // Обработка нажатия на кнопку "Удалить"
-    const deleteHandler = async (setLoadingDelete, setVisiblePopConfirm) => {
-        try {
-            setLoadingDelete(true);
-            const data = await request("/files/delete/" + rowData._id, "DELETE", {model: "logDO"});
+    const deleteHandler = (setLoadingDelete, setVisiblePopConfirm) => {
+        const onSaveOptions = {
+            url: "log-do", setLoadingDelete, actionCreatorDelete: ActionCreator.ActionCreatorLogDO.deleteLogDO, rowData,
+            dataStore: logDO, onRemove, specKey, setVisiblePopConfirm
+        };
 
-            if (data) {
-                onDelete(
-                    "log-do", setLoadingDelete, ActionCreator.ActionCreatorLogDO.deleteLogDO,
-                    logDO, onRemove, specKey, rowData, setVisiblePopConfirm
-                ).then(null);
-            }
-        } catch (e) {
-            message.error("Возникла ошибка при удалении файлов записи, пожалуйста, удалите файлы вручную");
-        }
+        HOCFunctions.onDelete(setLoadingDelete, "logDO", onSaveOptions).then(null);
     }
 
     // Обработка нажатия на кнопку "Отмена"
-    const cancelHandler = async () => {
-        try {
-            setLoadingCancel(true);
+    const cancelHandler = () => {
+        const onCancelOptions = { onRemove, specKey };
 
-            const data = await request("/files/cancel", "DELETE");
-
-            if (data) {
-                setLoadingCancel(false);
-                onCancel(onRemove, specKey);
-            }
-        } catch (e) {
-            message.error("Возникла ошибка при удалении файлов записи, пожалуйста, удалите файлы вручную");
-        }
+        HOCFunctions.onCancel(setLoadingCancel, onCancelOptions).then(null);
     }
 
-    // Изменение значения в выпадающих списках, и сохранение этого значения в стейте
-    const changeHandler = (value, dataStore) => {
-        const setSelect = dataStore === departments ? setSelectDep : dataStore === people ?
-            setSelectPeople : dataStore === equipment ? setSelectEquipment : dataStore === "responsible" ?
-                setSelectResponsible : dataStore === tasks ? setSelectState : setSelectAcceptTask;
+    // Изменение значения в выпадающих списках
+    const changeHandler = (value, data) => {
+        const dataStore = {departments, people, equipment, responsible: "responsible", tasks, acceptTask: "acceptTask"};
 
-        if (dataStore === "responsible" || dataStore === "acceptTask") {
-            dataStore = people;
-        }
+        const setSelect = {setSelectDep, setSelectPeople, setSelectEquipment, setSelectResponsible, setSelectState,
+            setSelectAcceptTask};
 
-        onChange(form, value, setSelect, dataStore);
+        HOCFunctions.onChange(form, value, data, dataStore, setSelect);
     }
 
-    // Обновление выпадающего списка
-    const dropDownRenderHandler = (open, dataStore) => {
-        let setLoading = setLoadingSelectDep,
-            key = "departments",
-            dispatchAction = ActionCreator.ActionCreatorDepartment.getAllDepartments,
-            setSelectToOptions = setDepartmentsToOptions;
+    // Обновление выпадающих списков
+    const dropDownRenderHandler = (open, data) => {
+        const dataStore = {departments, people, equipment, responsible: "responsible", tasks, acceptTask: "acceptTask"};
+        const setLoading = {setLoadingSelectDep, setLoadingSelectPeople, setLoadingSelectEquipment,
+            setLoadingSelectResponsible, setLoadingSelectState, setLoadingSelectAcceptTask};
+        const setOptions = {setDepartmentsToOptions, setPeopleToOptions, setEquipmentToOptions, setResponsibleToOptions,
+            setStateToOptions, setAcceptTaskToOptions};
 
-        if (dataStore === people) {
-            setLoading = setLoadingSelectPeople;
-            key = "people";
-            dispatchAction = ActionCreator.ActionCreatorPerson.getAllPeople;
-            setSelectToOptions = setPeopleToOptions;
-        }
-
-        if (dataStore === equipment) {
-            setLoading = setLoadingSelectEquipment;
-            key = "equipment";
-            dispatchAction = ActionCreator.ActionCreatorEquipment.getAllEquipment;
-            setSelectToOptions = setEquipmentToOptions;
-        }
-
-        if (dataStore === "responsible") {
-            setLoading = setLoadingSelectResponsible;
-            key = "people";
-            dispatchAction = ActionCreator.ActionCreatorPerson.getAllPeople;
-            setSelectToOptions = setResponsibleToOptions;
-        }
-
-        if (dataStore === tasks) {
-            setLoading = setLoadingSelectState;
-            key = "taskStatus";
-            dispatchAction = ActionCreator.ActionCreatorTask.getAllTasks;
-            setSelectToOptions = setStateToOptions;
-        }
-
-        if (dataStore === "acceptTask") {
-            setLoading = setLoadingSelectAcceptTask;
-            key = "people";
-            dispatchAction = ActionCreator.ActionCreatorPerson.getAllPeople;
-            setSelectToOptions = setAcceptTaskToOptions;
-        }
-
-        onDropDownRender(open, setLoading, key, dispatchAction, setSelectToOptions).then(null);
+        HOCFunctions.onDropDownRender(open, data, dataStore, setLoading, setOptions);
     }
 
-    // Инициализация кнопок, появляющихся при редактировании записи
-    const editButtonsComponent = CheckTypeTab(rowData, deleteHandler);
-
-    // Удаляет файл из redux`а, из базы данных и с диска
-    const removeFile = async (deletedFile) => {
-        setLoadingDeleteFile(true);
-
-        let findFile = files.find(file => {
-            return JSON.stringify(file) === JSON.stringify(deletedFile);
-        });
-
-        let indexOf = files.indexOf(findFile);
-
-        if (findFile && indexOf >= 0) {
-            dispatch(ActionCreator.ActionCreatorLogDO.deleteFile(indexOf));
-
-            const id = rowData ? rowData._id : -1;
-
-            try {
-                const objectToServer = {
-                    model: "logDO",
-                    _id: deletedFile._id,
-                    uid: deletedFile.uid,
-                    url: deletedFile.url
-                };
-                const data = await request("/files/delete-file/" + id, "DELETE", objectToServer);
-
-                if (data) {
-                    message.success(data.message);
-                }
-            } catch (e) {
-                message.error("Возникла ошибка при удалении файла " + deletedFile.name);
-            }
-        } else {
-            message.error(`Файл ${deletedFile.name} не найден`);
-        }
-
-        setLoadingDeleteFile(false);
+    // Настройка компонента UploadComponent (вкладка "Файлы")
+    const uploadProps = {
+        files,
+        model: "logDO",
+        rowData,
+        actionCreatorAdd: ActionCreator.ActionCreatorLogDO.addFile,
+        actionCreatorDelete: ActionCreator.ActionCreatorLogDO.deleteFile
     }
-
-    let duplicateFile = null;
-
-    // Настройки компонента "Upload"
-    const props = {
-        name: 'file',
-        multiple: true,
-        action: "/files/upload",
-        data: (file) => {
-            return {
-                id: rowData ? rowData._id : -1,
-                originUid: file.uid,
-                model: "logDO"
-            }
-        },
-        defaultFileList: files,
-        fileList: files,
-        showUploadList: {
-            showDownloadIcon: true,
-            downloadIcon: <CloudDownloadOutlined/>,
-            showRemoveIcon: true,
-            removeIcon: (file) => {
-                return <Popconfirm
-                    title="Вы уверены, что хотите удалить файл?"
-                    okText="Удалить"
-                    onConfirm={() => removeFile(file)}
-                    okButtonProps={{loading: loadingDeleteFile}}
-                    icon={<QuestionCircleOutlined style={{color: 'red'}}/>}
-                >
-                    <DeleteOutlined/>
-                </Popconfirm>
-            }
-        },
-        beforeUpload(file) {
-            duplicateFile = files.find(currentFile => {
-                return file.name === currentFile.name;
-            });
-
-            if (duplicateFile) {
-                message.warning("Такой файл уже существует в этой записи").then(null);
-            }
-        },
-        onChange(info) {
-            const {status} = info.file;
-
-            if (status === 'done') {
-                message.success(`Файл ${info.file.name} успешно загружен.`).then(null);
-            } else if (status === 'error') {
-                message.error(`Возникла ошибка при загрузке файла ${info.file.name}.`).then(r => console.log(r));
-            }
-
-            if (duplicateFile) {
-                info.fileList.splice(info.fileList.length - 1, 1);
-            }
-
-            const newFileList = {
-                originUid: info.file.uid,
-                name: info.file.name,
-                url: `public/logDO/${info.file.name}`,
-                status: "done",
-                uid: `-1-${info.file.name}`
-            };
-
-            dispatch(ActionCreator.ActionCreatorLogDO.addFile(newFileList));
-        },
-        async onRemove(file) {
-            return new Promise((resolve, reject) => {
-                return <Popconfirm
-                    onConfirm={() => {
-                        resolve(true);
-                        removeFile(file);
-                    }}
-                    onCancel={() => {
-                        reject(true);
-                    }}
-                >
-                    <DeleteOutlined/>
-                </Popconfirm>
-            });
-        }
-    };
 
     return (
         <Row className="container-tab" justify="center">
@@ -376,7 +157,7 @@ export const LogDOTab = ({specKey, onRemove}) => {
                                     initialValues={{
                                         _id: rowData ? rowData._id : "",
                                         numberLog: rowData ? rowData.numberLog : "",
-                                        date: rowData && rowData.date ? moment(rowData.date, dateFormat) : moment(),
+                                        date: rowData && rowData.date ? moment(rowData.date, TabOptions.dateFormat) : moment(),
                                         applicant: rowData && rowData.applicant ? rowData.applicant.name : "Не выбрано",
                                         equipment: rowData && rowData.equipment ? rowData.equipment.name : "Не выбрано",
                                         notes: rowData ? rowData.notes : "",
@@ -385,7 +166,7 @@ export const LogDOTab = ({specKey, onRemove}) => {
                                         responsible: rowData && rowData.responsible ? rowData.responsible.name : "Не выбрано",
                                         task: rowData ? rowData.task : "",
                                         state: rowData && rowData.state ? rowData.state.name : "Не выбрано",
-                                        dateDone: rowData && rowData.dateDone ? moment(rowData.dateDone, dateFormat) : null,
+                                        dateDone: rowData && rowData.dateDone ? moment(rowData.dateDone, TabOptions.dateFormat) : null,
                                         content: rowData ? rowData.content : "",
                                         acceptTask: rowData && rowData.acceptTask ? rowData.acceptTask.name : "Не выбрано",
                                     }}
@@ -397,7 +178,7 @@ export const LogDOTab = ({specKey, onRemove}) => {
                                                 name="date"
                                                 rules={[{required: true, message: "Введите дату заявки!"}]}
                                             >
-                                                <DatePicker showTime={{format: "HH:mm"}} format={dateFormat}/>
+                                                <DatePicker showTime={{format: "HH:mm"}} format={TabOptions.dateFormat}/>
                                             </Form.Item>
 
                                             <Form.Item
@@ -493,7 +274,7 @@ export const LogDOTab = ({specKey, onRemove}) => {
                                             </Form.Item>
 
                                             <Form.Item label="Дата выполнения" name="dateDone">
-                                                <DatePicker showTime={{format: "HH:mm"}} format={dateFormat}/>
+                                                <DatePicker showTime={{format: "HH:mm"}} format={TabOptions.dateFormat}/>
                                             </Form.Item>
 
                                             <Form.Item label="Содержание работ" name="content">
@@ -512,7 +293,7 @@ export const LogDOTab = ({specKey, onRemove}) => {
 
                                         <TabPane tab="Файлы" key="files" style={{paddingTop: '5%'}}>
                                             <Form.Item name="files" wrapperCol={{span: 24}}>
-                                                <UploadComponent props={props}/>
+                                                <UploadComponent {...uploadProps}/>
                                             </Form.Item>
                                         </TabPane>
                                     </Tabs>
@@ -528,7 +309,7 @@ export const LogDOTab = ({specKey, onRemove}) => {
                                             Сохранить
                                         </Button>
 
-                                        {editButtonsComponent}
+                                        {CheckTypeTab(rowData, deleteHandler)}
 
                                         <Button
                                             className="button-style"

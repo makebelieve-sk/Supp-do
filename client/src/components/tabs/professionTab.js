@@ -5,7 +5,7 @@ import {Card, Form, Input, Row, Col, Button, Skeleton} from 'antd';
 import {CheckOutlined, StopOutlined} from '@ant-design/icons';
 
 import {ActionCreator} from "../../redux/combineActions";
-import {CheckTypeTab, onSave, onDelete, onFailed, onCancel} from "../helpers/rowTabs.helper";
+import {CheckTypeTab, onSave, onDelete, onFailed, onCancel} from "../helpers/tab.helpers/tab.functions";
 
 const {Meta} = Card;
 
@@ -42,9 +42,6 @@ export const ProfessionTab = ({specKey, onRemove}) => {
     // Обработка нажатия на кнопку "Отмена"
     const cancelHandler = () => onCancel(onRemove, specKey);
 
-    // Инициализация кнопок, появляющихся при редактировании записи
-    const editButtonsComponent = CheckTypeTab(rowData, deleteHandler);
-
     return (
         <Row className="container-tab" justify="center">
             <Col sm={{span: 24}} md={{span: 20}} lg={{span: 16}} xl={{span: 12}}>
@@ -59,21 +56,25 @@ export const ProfessionTab = ({specKey, onRemove}) => {
                                     name={name}
                                     onFinishFailed={onFailed}
                                     onFinish={saveHandler}
+                                    initialValues={{
+                                        _id: rowData ? rowData._id : "",
+                                        name: rowData ? rowData.name : "",
+                                        notes: rowData ? rowData.notes : ""
+                                    }}
                                 >
                                     <Form.Item
                                         label="Профессия"
                                         name="name"
-                                        initialValue={!rowData ? '' : rowData.name}
                                         rules={[{required: true, message: 'Введите название профессии!'}]}
                                     >
                                         <Input maxLength={255} type="text"/>
                                     </Form.Item>
 
-                                    <Form.Item name="notes" label="Примечание" initialValue={!rowData ? '' : rowData.notes}>
+                                    <Form.Item name="notes" label="Примечание">
                                         <Input maxLength={255} type="text"/>
                                     </Form.Item>
 
-                                    <Form.Item name="_id" hidden={true} initialValue={!rowData ? '' : rowData._id}>
+                                    <Form.Item name="_id" hidden={true}>
                                         <Input/>
                                     </Form.Item>
 
@@ -89,7 +90,7 @@ export const ProfessionTab = ({specKey, onRemove}) => {
                                                 Сохранить
                                             </Button>
 
-                                            {editButtonsComponent}
+                                            {CheckTypeTab(rowData, deleteHandler)}
 
                                             <Button
                                                 className="button-style"

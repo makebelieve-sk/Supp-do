@@ -4,18 +4,18 @@ import {message, Row, Table, DatePicker} from "antd";
 import {CheckOutlined} from '@ant-design/icons';
 import moment from "moment";
 
-import {downloadCSV, pagination} from '../../datatable.options/datatable.options';
-import {HeaderDatatable} from './headerDatatable';
-import {ButtonsComponent} from "./buttonsDatatable";
-import {ColumnsMapHelper, RowMapHelper} from "../helpers/dataTableMap.helper";
-import {request} from "../helpers/request.helper";
-import {ActionCreator} from "../../redux/combineActions";
+import {downloadCSV, pagination} from '../../../options/table.options/datatable.options';
+import {Header} from './header';
+import {ButtonsComponent} from "./buttons";
+import {ColumnsMapHelper, RowMapHelper} from "../../helpers/table.helpers/tableMap.helper";
+import {request} from "../../helpers/request.helper";
+import {ActionCreator} from "../../../redux/combineActions";
 
 const { RangePicker } = DatePicker;
 
 const dateFormat = "DD.MM.YYYY HH:mm";
 
-export const DataTableComponent = ({specKey}) => {
+export const TableComponent = ({specKey}) => {
     // Получение колонок для таблицы
     const columns = ColumnsMapHelper(specKey);
 
@@ -113,21 +113,24 @@ export const DataTableComponent = ({specKey}) => {
 
     return (
         <>
-            {
-                specKey === "logDO" ? <Row justify="start">
-                    <RangePicker
-                        showTime={{ format: 'HH:mm' }}
-                        format={dateFormat}
-                        onChange={onChange}
-                        defaultValue={[moment().startOf("month"), moment().endOf("month")]}
-                    />
-                </Row> : null
-            }
-            <Row className="container-row-dto" justify="space-between">
-                <HeaderDatatable
+            <Row className="container-row-dto" justify="space-between" align="bottom">
+                <Header
                     filterText={filterText}
                     setFilterText={setFilterText}
                 />
+                {
+                    specKey === "logDO" ?
+                        // <Row justify="center">
+                            <RangePicker
+                                showTime={{ format: 'HH:mm' }}
+                                format={dateFormat}
+                                onChange={onChange}
+                                // style={{height: "32px"}}
+                                defaultValue={[moment().startOf("month"), moment().endOf("month")]}
+                            />
+                        // </Row>
+                        : null
+                }
                 <ButtonsComponent
                     specKey={specKey}
                     onExport={onExport}

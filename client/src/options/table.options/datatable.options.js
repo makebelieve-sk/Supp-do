@@ -1,4 +1,4 @@
-import {ExportMapHelper} from "../components/helpers/dataTableMap.helper";
+import {ExportMapHelper} from "../../components/helpers/table.helpers/tableMap.helper";
 
 // Пагинация
 const pagination = {

@@ -13,7 +13,7 @@ import {
     onSave,
     onChange,
     onDropDownRender
-} from "../helpers/rowTabs.helper";
+} from "../helpers/tab.helpers/tab.functions";
 
 const {Meta} = Card;
 
@@ -76,9 +76,6 @@ export const DepartmentTab = ({specKey, onRemove}) => {
             open, setLoadingSelectDep, "departments", ActionCreator.ActionCreatorDepartment.getAllDepartments,
             setDepartmentsToOptions);
 
-    // Инициализация кнопок, появляющихся при редактировании записи
-    const editButtonsComponent = CheckTypeTab(rowData, deleteHandler);
-
     return (
         <Row className="container-tab" justify="center">
             <Col sm={{span: 24}} md={{span: 20}} lg={{span: 16}} xl={{span: 12}}>
@@ -93,12 +90,14 @@ export const DepartmentTab = ({specKey, onRemove}) => {
                                     name={name}
                                     onFinish={saveHandler}
                                     onFinishFailed={onFailed}
+                                    initialValues={{
+                                        _id: rowData ? rowData._id : "",
+                                        parent: rowData && rowData.parent ? rowData.parent.name : "Не выбрано",
+                                        name: rowData ? rowData.name : "",
+                                        notes: rowData ? rowData.notes : ""
+                                    }}
                                 >
-                                    <Form.Item
-                                        name="parent"
-                                        initialValue={rowData && rowData.parent ? rowData.parent.name : "Не выбрано"}
-                                        label="Принадлежит"
-                                    >
+                                    <Form.Item name="parent" label="Принадлежит">
                                         <Select
                                             options={departmentsToOptions}
                                             onDropdownVisibleChange={dropDownRenderHandler}
@@ -110,17 +109,16 @@ export const DepartmentTab = ({specKey, onRemove}) => {
                                     <Form.Item
                                         label="Наименование"
                                         name="name"
-                                        initialValue={!rowData ? '' : rowData.name}
                                         rules={[{required: true, message: 'Введите название подразделения!'}]}
                                     >
                                         <Input maxLength={255} type="text"/>
                                     </Form.Item>
 
-                                    <Form.Item label="Примечание" name="notes" initialValue={!rowData ? '' : rowData.notes}>
+                                    <Form.Item label="Примечание" name="notes">
                                         <Input maxLength={255} type="text"/>
                                     </Form.Item>
 
-                                    <Form.Item name="_id" hidden={true} initialValue={!rowData ? '' : rowData._id}>
+                                    <Form.Item name="_id" hidden={true}>
                                         <Input/>
                                     </Form.Item>
 
@@ -135,7 +133,7 @@ export const DepartmentTab = ({specKey, onRemove}) => {
                                             Сохранить
                                         </Button>
 
-                                        {editButtonsComponent}
+                                        {CheckTypeTab(rowData, deleteHandler)}
 
                                         <Button
                                             className="button-style"

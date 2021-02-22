@@ -15,7 +15,7 @@ import {
     EquipmentPropertyColumns,
     EquipmentColumns,
     LogDOColumns,
-} from "../../datatable.options/datatable.columns";
+} from "../../../options/table.options/datatable.columns";
 
 import {
     getProfession,
@@ -25,7 +25,7 @@ import {
     getEquipmentProperty,
     getEquipment,
     getLogDO
-} from "./rowFunctions.helper";
+} from "./tableTab.helper";
 
 import {message} from "antd";
 

@@ -1,6 +1,6 @@
 // Маршруты для загрузки файлов
 const {Router} = require("express");
-const LogDO = require("../models/LogDO.model");
+const LogDO = require("../models/LogDO");
 const Equipment = require("../models/Equipment");
 const File = require("../models/File");
 const fs = require('fs');
@@ -15,11 +15,11 @@ const checkModel = (model) => {
 // Сохраняет файл
 router.post("/upload", async (req, res) => {
     const originalFileName = req.files.file.name;
-    const fileName = `${originalFileName}-${Date.now()}`;
+    // const fileName = `${originalFileName}-${Date.now()}`;
 
     try {
         const files = await File.find({});
-        const {id, originUid, model} = req.body;
+        const {id, originUid, model, uid} = req.body;
 
         const Model = checkModel(model);
 
@@ -42,7 +42,7 @@ router.post("/upload", async (req, res) => {
 
         let file = new File({
             name: originalFileName,
-            url: `public/${model}/${fileName}`,
+            url: `public/${model}/${uid}-${originalFileName}`,
             status: "done",
             uid: `-1-${originalFileName}`,
             originUid: originUid

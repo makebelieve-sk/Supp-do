@@ -5,14 +5,13 @@ import {useSelector} from "react-redux";
 import {CheckOutlined, StopOutlined} from '@ant-design/icons';
 
 import {ActionCreator} from "../../redux/combineActions";
-import {CheckTypeTab, onCancel, onDelete, onFailed, onSave} from "../helpers/rowTabs.helper";
+import {CheckTypeTab, onCancel, onDelete, onFailed, onSave} from "../helpers/tab.helpers/tab.functions";
 
 const {Meta} = Card;
 
 export const EquipmentPropertyTab = ({specKey, onRemove}) => {
     // Инициализация стейта для показа спиннера загрузки при сохранении и удалении записи
     const [loadingSave, setLoadingSave] = useState(false);
-    // const [loadingDelete, setLoadingDelete] = useState(false);
 
     // Получение списка характеристик оборудования и загрузки записи из хранилища redux
     const {equipmentProperties, rowData, loadingSkeleton} = useSelector((state) => ({
@@ -43,9 +42,6 @@ export const EquipmentPropertyTab = ({specKey, onRemove}) => {
     // Обработка нажатия на кнопку "Отмена"
     const cancelHandler = () => onCancel(onRemove, specKey);
 
-    // Инициализация кнопок, появляющихся при редактировании записи
-    const editButtonsComponent = CheckTypeTab(rowData, deleteHandler);
-
     return (
         <Row className="container-tab" justify="center">
             <Col sm={{span: 24}} md={{span: 20}} lg={{span: 16}} xl={{span: 12}}>
@@ -61,21 +57,25 @@ export const EquipmentPropertyTab = ({specKey, onRemove}) => {
                                     name={name}
                                     onFinish={saveHandler}
                                     onFinishFailed={onFailed}
+                                    initialValues={{
+                                        _id: rowData ? rowData._id : "",
+                                        name: rowData ? rowData.name : "",
+                                        notes: rowData ? rowData.notes : ""
+                                    }}
                                 >
                                     <Form.Item
                                         label="Наименование"
                                         name="name"
-                                        initialValue={!rowData ? '' : rowData.name}
                                         rules={[{required: true, message: 'Введите наименование!'}]}
                                     >
                                         <Input maxLength={255} type="text"/>
                                     </Form.Item>
 
-                                    <Form.Item name="notes" label="Примечание" initialValue={!rowData ? '' : rowData.notes}>
+                                    <Form.Item name="notes" label="Примечание">
                                         <Input maxLength={255} type="text"/>
                                     </Form.Item>
 
-                                    <Form.Item name="_id" hidden={true} initialValue={!rowData ? '' : rowData._id}>
+                                    <Form.Item name="_id" hidden={true}>
                                         <Input/>
                                     </Form.Item>
 
@@ -91,7 +91,7 @@ export const EquipmentPropertyTab = ({specKey, onRemove}) => {
                                                 Сохранить
                                             </Button>
 
-                                            {editButtonsComponent}
+                                            {CheckTypeTab(rowData, deleteHandler)}
 
                                             <Button
                                                 className="button-style"

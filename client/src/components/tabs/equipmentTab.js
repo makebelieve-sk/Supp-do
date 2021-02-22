@@ -1,39 +1,19 @@
+// Раздел "Оборудование"
 import React, {useState} from 'react';
-import {Button, Card, Form, Input, Row, Col, Select, Skeleton, Tabs, message, Popconfirm} from 'antd';
-import {
-    CheckOutlined,
-    DeleteOutlined,
-    StopOutlined,
-    QuestionCircleOutlined,
-    CloudDownloadOutlined
-} from "@ant-design/icons";
-import {useSelector, useDispatch} from "react-redux";
+import {Button, Card, Form, Input, Row, Col, Select, Skeleton, Tabs} from 'antd';
+import {CheckOutlined, StopOutlined} from "@ant-design/icons";
+import {useSelector} from "react-redux";
 
+import {UploadComponent} from "../contentComponent/tab.components/uploadComponent";
+import {CharacteristicComponent} from "../contentComponent/tab.components/characteristic.component";
 import {ActionCreator} from "../../redux/combineActions";
-import {
-    CheckTypeTab,
-    onCancel,
-    onChange,
-    onDelete,
-    onDropDownRender,
-    onFailed,
-    onSave
-} from "../helpers/rowTabs.helper";
-import {request} from "../helpers/request.helper";
-import {UploadComponent} from "../contentComponent/uploadComponent";
+import {CheckTypeTab, onChange, onDropDownRender, onFailed} from "../helpers/tab.helpers/tab.functions";
+import {HOCFunctions} from "../helpers/tab.helpers/tab.HOC.functions";
 
 const {Meta} = Card;
 const {TabPane} = Tabs;
 
 export const EquipmentTab = ({specKey, onRemove}) => {
-    // Инициализация стейта для показа спиннера загрузки при сохранении/удалении записи, обновлении
-    // выпадающего списка и списка файлов
-    const [loadingSave, setLoadingSave] = useState(false);
-    const [loadingSelectEquipment, setLoadingSelectEquipment] = useState(false);
-    const [loadingSelectCharacteristics, setLoadingSelectCharacteristics] = useState(false);
-    const [loadingDeleteFile, setLoadingDeleteFile] = useState(false);
-    const [loadingCancel, setLoadingCancel] = useState(false);
-
     // Получение списка подразделений и загрузки записи из хранилища redux
     const {equipment, rowData, loadingSkeleton, equipmentProperties, selectsArray, files} = useSelector((state) => ({
         equipment: state.reducerEquipment.equipment,
@@ -43,10 +23,15 @@ export const EquipmentTab = ({specKey, onRemove}) => {
         selectsArray: state.reducerEquipment.selectsArray,
         files: state.reducerEquipment.files
     }));
-    const dispatch = useDispatch();
 
-    // Создание стейта для значений в выпадающем списке "Перечень оборудования" и начального значения и
-    // установка спиннера загрузки при сохранении записи
+    // Инициализация стейта для показа спиннера загрузки при сохранении/удалении записи, обновлении выпадающих списков
+    // и списка файлов
+    const [loadingSave, setLoadingSave] = useState(false);
+    const [loadingSelectEquipment, setLoadingSelectEquipment] = useState(false);
+    const [loadingSelectCharacteristics, setLoadingSelectCharacteristics] = useState(false);
+    const [loadingCancel, setLoadingCancel] = useState(false);
+
+    // Создание стейта для значений в выпадающих списках
     const [selectEquipment, setSelectEquipment] = useState(null);
     const [equipmentToOptions, setEquipmentToOptions] = useState([]);
     const [equipmentPropertyToOptions, setEquipmentPropertyToOptions] = useState([]);
@@ -62,282 +47,68 @@ export const EquipmentTab = ({specKey, onRemove}) => {
         initialEquipment = rowData.parent;
     }
 
-    // Создание заголовка раздела и имени формы
+    // Создание заголовка раздела и наименования формы
     const title = rowData ? 'Редактирование оборудования' : 'Создание оборудования';
     const name = rowData ? `control-ref-equipment-${rowData.name}` : "control-ref-equipment";
 
     // Обработка нажатия на кнопку "Сохранить"
     const saveHandler = (values) => {
-        let clonSelectsArray = selectsArray;
-        let clonValues = {};
+        const selectOptions = {selectEquipment, initialEquipment, equipmentProperties, selectsArray};
 
-        // Находим поля value из values
-        for (let key in values) {
-            clonValues[key] = values[key];
-        }
-
-        delete clonValues["name"];
-        delete clonValues["notes"];
-        delete clonValues["_id"];
-        delete clonValues["parent"];
-        delete clonValues["files"];
-
-        for (let key in clonValues) {
-            if (key.slice(0, 5) === "label") {
-                delete clonValues[key];
-            }
-        }
-
-        let entriesArr = Object.entries(clonValues);
-
-        // Переприсваиваем значение value
-        entriesArr.forEach(arr => {
-            let rowId = arr[0].split("-")[2];
-
-            clonSelectsArray.forEach(select => {
-                if (select.id === rowId * 1) {
-                    select.value = arr[1];
-                }
-            })
-        })
-
-        // Находим и переприсваиваем equipmentProperty
-        clonSelectsArray.forEach(select => {
-            let foundEquipmentProperty = equipmentProperties.find(property => {
-                return property.name === select.equipmentProperty;
-            });
-
-            if (foundEquipmentProperty) {
-                select.equipmentProperty = foundEquipmentProperty;
-            }
-        });
-
-        // Фильтруем неподходящие значения поля equipmentProperty
-        let rightSelectsArray = clonSelectsArray.filter(select => {
-            return select.equipmentProperty !== "Не выбрано" && select.equipmentProperty;
-        });
-
-        // Создаем конечный объект, который отправляется на сервер
-        let objectSendToServer = {
-            name: values.name,
-            notes: values.notes,
-            _id: values._id,
-            parent: selectEquipment === "Не выбрано" ? null : selectEquipment ? selectEquipment : initialEquipment,
-            properties: rightSelectsArray,
-            files: files
+        const onSaveOptions = {
+            url: "equipment", setLoadingSave, actionCreatorEdit: ActionCreator.ActionCreatorEquipment.editEquipment, rowData,
+            actionCreatorCreate: ActionCreator.ActionCreatorEquipment.createEquipment, dataStore: equipment, onRemove, specKey,
         };
 
-        onSave(
-            "equipment", objectSendToServer, setLoadingSave, ActionCreator.ActionCreatorEquipment.editEquipment,
-            ActionCreator.ActionCreatorEquipment.createEquipment, equipment, onRemove, specKey, rowData
-        ).then(null);
+        HOCFunctions.onSave.onSaveHOCEquipment(values, files, selectOptions, onSaveOptions);
     }
 
     // Обработка нажатия на кнопку "Удалить"
-    const deleteHandler = async (setLoadingDelete, setVisiblePopConfirm) => {
-        try {
-            setLoadingDelete(true);
-            const data = await request("/files/delete/" + rowData._id, "DELETE", {model: "equipment"});
+    const deleteHandler = (setLoadingDelete, setVisiblePopConfirm) => {
+        const onSaveOptions = {
+            url: "equipment", setLoadingDelete, actionCreatorDelete: ActionCreator.ActionCreatorEquipment.deleteEquipment,
+            rowData, dataStore: equipment, onRemove, specKey, setVisiblePopConfirm
+        };
 
-            if (data) {
-                onDelete(
-                    "equipment", setLoadingDelete, ActionCreator.ActionCreatorEquipment.deleteEquipment,
-                    equipment, onRemove, specKey, rowData, setVisiblePopConfirm
-                ).then(null);
-            }
-        } catch (e) {
-            message.error("Возникла ошибка при удалении файлов записи, пожалуйста, удалите файлы вручную");
-        }
+        HOCFunctions.onDelete(setLoadingDelete, "equipment", onSaveOptions).then(null);
     }
 
     // Обработка нажатия на кнопку "Отмена"
-    const cancelHandler = async () => {
-        try {
-            setLoadingCancel(true);
+    const cancelHandler = () => {
+        const onCancelOptions = { onRemove, specKey };
 
-            const data = await request("/files/cancel", "DELETE");
-
-            if (data) {
-                setLoadingCancel(false);
-                onCancel(onRemove, specKey);
-            }
-        } catch (e) {
-            message.error("Возникла ошибка при удалении файлов записи, пожалуйста, удалите файлы вручную");
-        }
+        HOCFunctions.onCancel(setLoadingCancel, onCancelOptions).then(null);
     }
 
-    // Изменение значения в выпадающем списке "Подразделение", и сохранение этого значения в стейте
+    // Изменение значения в выпадающих списках
     const changeHandler = (value) => onChange(form, value, setSelectEquipment, equipment);
 
-    // Обновление выпадающего списка "Подразделения"
+    // Обновление выпадающих списков
     const dropDownRenderHandler = (open) => onDropDownRender(
         open, setLoadingSelectEquipment, "equipment", ActionCreator.ActionCreatorEquipment.getAllEquipment,
         setEquipmentToOptions);
 
-    // Обновление выпадающего списка во вкладке "Характеристики"
+    // Обновление выпадающих списков во вкладке "Характеристики"
     const dropDownRenderHandlerProperty = (open) => onDropDownRender(
         open, setLoadingSelectCharacteristics, "equipment-property",
         ActionCreator.ActionCreatorEquipmentProperty.getAllEquipmentProperties, setEquipmentPropertyToOptions);
 
-    // Инициализация кнопок, появляющихся при редактировании записи
-    const editButtonsComponent = CheckTypeTab(rowData, deleteHandler);
-
-    // Добавление строки во вкладке "Характеристики"
-    const addRowProperty = (index) => {
-        if (index === selectsArray.length - 1) {
-            dispatch(ActionCreator.ActionCreatorEquipment.addSelectRow({
-                equipmentProperty: "Не выбрано",
-                value: "",
-                id: Math.random()
-            }));
-        }
-    };
-
-    // Удаление строки во вкладке "Характеристики"
-    const deleteRowProperty = (index) => {
-        if (selectsArray.length === 1) {
-            return null;
-        }
-
-        dispatch(ActionCreator.ActionCreatorEquipment.deleteSelectRow(index));
-    };
-
-    // Изменение строки во вкладке "Характеристики"
-    const changeRowPropertyHandler = (value, index) => {
-        let selectRow;
-
-        selectRow = value === "Не выбрано" ?
-            {
-                equipmentProperty: null,
-                value: null,
-                id: selectsArray[index].id
-            } :
-            {
-                equipmentProperty: value,
-                value: selectsArray[index].value,
-                id: selectsArray[index].id
-            }
-
-        dispatch(ActionCreator.ActionCreatorEquipment.editSelectRow(selectRow, index));
+    // Настройка компонента CharacteristicComponent (вкладка "Характеристики")
+    const characteristicProps = {
+        selectsArray: selectsArray,
+        equipmentPropertyToOptions: equipmentPropertyToOptions,
+        dropDownRenderHandlerProperty: dropDownRenderHandlerProperty,
+        loadingSelectCharacteristics: loadingSelectCharacteristics
     }
 
-    // Удаляет файл из redux`а, из базы данных и с диска
-    const removeFile = async (deletedFile) => {
-        setLoadingDeleteFile(true);
-
-        let findFile = files.find(file => {
-            return JSON.stringify(file) === JSON.stringify(deletedFile);
-        });
-
-        let indexOf = files.indexOf(findFile);
-
-        if (findFile && indexOf >= 0) {
-            dispatch(ActionCreator.ActionCreatorEquipment.deleteFile(indexOf));
-
-            const id = rowData ? rowData._id : -1;
-
-            try {
-                const objectToServer = {
-                    model: "equipment",
-                    _id: deletedFile._id,
-                    uid: deletedFile.uid,
-                    url: deletedFile.url
-                };
-                const data = await request("/files/delete-file/" + id, "DELETE", objectToServer);
-
-                if (data) {
-                    message.success(data.message);
-                }
-            } catch (e) {
-                message.error("Возникла ошибка при удалении файла " + deletedFile.name);
-            }
-        } else {
-            message.error(`Файл ${deletedFile.name} не найден`);
-        }
-
-        setLoadingDeleteFile(false);
+    // Настройка компонента UploadComponent (вкладка "Файлы")
+    const uploadProps = {
+        files,
+        model: "equipment",
+        rowData,
+        actionCreatorAdd: ActionCreator.ActionCreatorEquipment.addFile,
+        actionCreatorDelete: ActionCreator.ActionCreatorEquipment.deleteFile
     }
-
-    let duplicateFile = null;
-
-    // Настройки компонента "Upload"
-    const props = {
-        name: 'file',
-        multiple: true,
-        action: "/files/upload",
-        data: (file) => {
-            return {
-                id: rowData ? rowData._id : -1,
-                originUid: file.uid,
-                model: "equipment"
-            }
-        },
-        defaultFileList: files,
-        fileList: files,
-        showUploadList: {
-            showDownloadIcon: true,
-            downloadIcon: <CloudDownloadOutlined/>,
-            showRemoveIcon: true,
-            removeIcon: (file) => {
-                return <Popconfirm
-                    title="Вы уверены, что хотите удалить файл?"
-                    okText="Удалить"
-                    onConfirm={() => removeFile(file)}
-                    okButtonProps={{loading: loadingDeleteFile}}
-                    icon={<QuestionCircleOutlined style={{color: 'red'}}/>}
-                >
-                    <DeleteOutlined/>
-                </Popconfirm>
-            }
-        },
-        beforeUpload(file) {
-            duplicateFile = files.find(currentFile => {
-                return file.name === currentFile.name;
-            });
-
-            if (duplicateFile) {
-                message.warning("Такой файл уже существует в этой записи").then(null);
-            }
-        },
-        onChange(info) {
-            const {status} = info.file;
-
-            if (status === 'done') {
-                message.success(`Файл ${info.file.name} успешно загружен.`).then(null);
-            } else if (status === 'error') {
-                message.error(`Возникла ошибка при загрузке файла ${info.file.name}.`).then(r => console.log(r));
-            }
-
-            if (duplicateFile) {
-                info.fileList.splice(info.fileList.length - 1, 1);
-            }
-
-            const newFileList = {
-                originUid: info.file.uid,
-                name: info.file.name,
-                url: `public/logDO/${info.file.name}`,
-                status: "done",
-                uid: `-1-${info.file.name}`
-            };
-
-            dispatch(ActionCreator.ActionCreatorEquipment.addFile(newFileList));
-        },
-        async onRemove(file) {
-            return new Promise((resolve, reject) => {
-                return <Popconfirm
-                    onConfirm={() => {
-                        resolve(true);
-                        removeFile(file);
-                    }}
-                    onCancel={() => {
-                        reject(true);
-                    }}
-                >
-                    <DeleteOutlined/>
-                </Popconfirm>
-            });
-        }
-    };
 
     return (
         <Row className="container-tab" justify="center">
@@ -395,59 +166,12 @@ export const EquipmentTab = ({specKey, onRemove}) => {
                                             </TabPane>
 
                                             <TabPane tab="Характеристики" key="characteristics" style={{paddingTop: '5%'}}>
-                                                {
-                                                    selectsArray && selectsArray.length ?
-                                                        selectsArray.map((label, index) => (
-                                                            <Form.Item
-                                                                key={`${label.equipmentProperty}-${label.id}`}
-                                                                wrapperCol={{span: 24}}
-                                                            >
-                                                                <Row gutter={8}>
-                                                                    <Col span={11}>
-                                                                        <Form.Item
-                                                                            name={`label-${label.equipmentProperty}-${label.id}`}
-                                                                            noStyle
-                                                                            initialValue={label.equipmentProperty === "Не выбрано" ?
-                                                                                "Не выбрано" : label.equipmentProperty ? label.equipmentProperty.name ?
-                                                                                    label.equipmentProperty.name : label.equipmentProperty : "Не выбрано"}
-                                                                        >
-                                                                            <Select
-                                                                                onClick={() => addRowProperty(index)}
-                                                                                options={equipmentPropertyToOptions}
-                                                                                onDropdownVisibleChange={dropDownRenderHandlerProperty}
-                                                                                loading={loadingSelectCharacteristics}
-                                                                                onChange={(value) => changeRowPropertyHandler(value, index)}
-                                                                            />
-                                                                        </Form.Item>
-                                                                    </Col>
-                                                                    <Col span={11}>
-                                                                        <Form.Item
-                                                                            name={`value-${label.value}1-${label.id}`}
-                                                                            initialValue={label.value}
-                                                                        >
-                                                                            <Input
-                                                                                onClick={() => addRowProperty(index)}
-                                                                                maxLength={255}
-                                                                                type="text"
-                                                                            />
-                                                                        </Form.Item>
-                                                                    </Col>
-                                                                    <Col span={2}>
-                                                                        <Button
-                                                                            onClick={() => deleteRowProperty(index)}
-                                                                            icon={<DeleteOutlined/>}
-                                                                            type="danger"
-                                                                        />
-                                                                    </Col>
-                                                                </Row>
-                                                            </Form.Item>
-                                                        )) : "Список характеристик пуст"
-                                                }
+                                                <CharacteristicComponent {...characteristicProps} />
                                             </TabPane>
 
                                             <TabPane tab="Файлы" key="files" style={{paddingTop: '5%'}}>
                                                 <Form.Item name="files" wrapperCol={{span: 24}}>
-                                                    <UploadComponent props={props}/>
+                                                    <UploadComponent {...uploadProps}/>
                                                 </Form.Item>
                                             </TabPane>
                                         </Tabs>
@@ -463,7 +187,7 @@ export const EquipmentTab = ({specKey, onRemove}) => {
                                                 Сохранить
                                             </Button>
 
-                                            {editButtonsComponent}
+                                            {CheckTypeTab(rowData, deleteHandler)}
 
                                             <Button
                                                 className="button-style"

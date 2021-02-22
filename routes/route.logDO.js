@@ -1,8 +1,7 @@
 // Маршруты для "Журнала дефектов и отказов"
 const {Router} = require("express");
-const Equipment = require("../models/Equipment");
 const File = require("../models/File");
-const LogDO = require("../models/LogDO.model");
+const LogDO = require("../models/LogDO");
 const router = Router();
 const moment = require("moment");
 
@@ -120,7 +119,7 @@ router.put('/log-do', async (req, res) => {
         if (!item) {
             return res.status(400).json({message: `Запись с кодом ${_id} не найдена`});
         }
-        console.log(files);
+
         if (files && files.length >= 0) {
             for (const file of files) {
                 if (file.uid.slice(0, 3) === "-1-") {
@@ -135,7 +134,6 @@ router.put('/log-do', async (req, res) => {
                     resFileArr.push(file);
                 }
             }
-            console.log(resFileArr);
         }
 
         item.numberLog = numberLog;
@@ -163,7 +161,7 @@ router.put('/log-do', async (req, res) => {
             .populate("state")
             .populate("acceptTask")
             .populate("files");
-        console.log(savedItem);
+
         res.status(201).json({message: "Запись сохранена", item: savedItem});
     } catch (e) {
         res.status(500).json({message: "Ошибка при обновлении записи"})
