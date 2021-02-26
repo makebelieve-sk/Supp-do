@@ -40,27 +40,10 @@ export const RegistrationComponent = () => {
                         }}
                         onFinish={onFinish}
                     >
-                        <Form.Item
-                            name="login"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: 'Введите логин',
-                                },
-                            ]}
-                        >
+                        <Form.Item name="login" rules={[{required: true, message: 'Введите логин'}]}>
                             <Input prefix={<UserOutlined className="site-form-item-icon"/>} placeholder="Логин"/>
                         </Form.Item>
-                        <Form.Item
-                            name="password"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: 'Введите пароль',
-                                },
-                            ]}
-                            hasFeedback
-                        >
+                        <Form.Item name="password" rules={[{required: true, message: 'Введите пароль'}]} hasFeedback>
                             <Input.Password prefix={<LockOutlined className="site-form-item-icon"/>}
                                             placeholder="Введите пароль"/>
                         </Form.Item>
@@ -70,10 +53,7 @@ export const RegistrationComponent = () => {
                             dependencies={['password']}
                             hasFeedback
                             rules={[
-                                {
-                                    required: true,
-                                    message: 'Подтвердите пароль',
-                                },
+                                {required: true, message: 'Подтвердите пароль'},
                                 ({getFieldValue}) => ({
                                     validator(_, value) {
                                         if (!value || getFieldValue('password') === value) {

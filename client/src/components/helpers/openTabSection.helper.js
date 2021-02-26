@@ -6,6 +6,7 @@ import {getEmptyTabWithLoading} from "./getEmptyTab.helper";
 import {BodyManager} from "./bodyManager";
 import {request} from "./request.helper";
 import TabOptions from "../../options/tab.options/tab.options";
+import getParents from "./getRowParents.helper";
 
 /**
  * Создание вкладки раздела
@@ -33,7 +34,19 @@ export const OpenTabSectionHelper = async (title, key, url, dispatchAction) => {
 
     // Если есть данные, то записываем полученные данные в хранилище
     if (items && items.length > 0) {
-        store.dispatch(dispatchAction(items));
+        if (url === "equipment" || url === "departments") {
+            items.forEach(item => {
+                if (item.parent) {
+                    item.nameWithParent = getParents(item, items) + item.name
+                } else {
+                    item.nameWithParent = item.name
+                }
+            })
+
+            store.dispatch(dispatchAction(items));
+        } else {
+            store.dispatch(dispatchAction(items));
+        }
     }
 
     // Останавливаем показ спиннера загрузки при открытии вкладки

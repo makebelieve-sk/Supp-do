@@ -14,6 +14,7 @@ import {
     onChange,
     onDropDownRender
 } from "../helpers/tab.helpers/tab.functions";
+import getParents from "../helpers/getRowParents.helper";
 
 const {Meta} = Card;
 
@@ -31,11 +32,23 @@ export const DepartmentTab = ({specKey, onRemove}) => {
     const [loadingSelectDep, setLoadingSelectDep] = useState(false);
 
     // Инициализация начлаьного значения в выпадающем списке
-    let initialDepartment = null;
+    let initialDepartment = null, foundParentName = {};
 
     // Если вкладка редактирования, то устанавливаем начальные значения для выпадающих списков
     if (rowData) {
         initialDepartment = rowData.parent;
+
+        if (departments && departments.length && rowData.parent) {
+            departments.forEach(item => {
+                if (item.parent) {
+                    item.nameWithParent = getParents(item, departments) + item.name;
+                } else {
+                    item.nameWithParent = item.name;
+                }
+            })
+
+            foundParentName = departments.find(item => item._id === rowData.parent._id);
+        }
     }
 
     // Создание стейта для значений в выпадающем списке "Подразделения" и начального значения
@@ -92,7 +105,7 @@ export const DepartmentTab = ({specKey, onRemove}) => {
                                     onFinishFailed={onFailed}
                                     initialValues={{
                                         _id: rowData ? rowData._id : "",
-                                        parent: rowData && rowData.parent ? rowData.parent.name : "Не выбрано",
+                                        parent: rowData && rowData.parent && foundParentName ? foundParentName.nameWithParent : "Не выбрано",
                                         name: rowData ? rowData.name : "",
                                         notes: rowData ? rowData.notes : ""
                                     }}

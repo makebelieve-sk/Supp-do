@@ -5,6 +5,7 @@ import {DeleteOutlined, PrinterOutlined, QuestionCircleOutlined} from "@ant-desi
 
 import {request} from "../request.helper";
 import store from "../../../redux/store";
+import getParents from "../getRowParents.helper";
 
 // Инициализация кнопок, появляющихся при редактировании записи
 const CheckTypeTab = (rowData, deleteHandler) => {
@@ -19,7 +20,7 @@ const CheckTypeTab = (rowData, deleteHandler) => {
                 visible={visiblePopConfirm}
                 onConfirm={() => deleteHandler(setLoadingDelete, setVisiblePopConfirm)}
                 onCancel={() => setVisiblePopConfirm(false)}
-                okButtonProps={{ loading: loadingDelete }}
+                okButtonProps={{loading: loadingDelete}}
                 icon={<QuestionCircleOutlined style={{color: 'red'}}/>}
             >
                 <Button
@@ -151,7 +152,7 @@ const onChange = (form, value, setSelect, dataStore) => {
 
     if (dataStore && dataStore.length > 0) {
         let foundItem = dataStore.find(item => {
-            return item.name === value;
+            return item._id === value;
         });
 
         if (foundItem) {
@@ -168,6 +169,14 @@ const onDropDownRender = async (open, setLoading, url, dispatchAction, setSelect
 
             const items = await request(`/api/directory/${url}`);
 
+            if (url === 'equipment' || url === 'departments') {
+                items.forEach(item => {
+                    if (item.parent) {
+                        item.nameWithParent = getParents(item, items) + item.name
+                    }
+                })
+            }
+
             store.dispatch(dispatchAction(items));
 
             let valuesToOptions = [{label: "Не выбрано", value: "Не выбрано"}];
@@ -175,8 +184,8 @@ const onDropDownRender = async (open, setLoading, url, dispatchAction, setSelect
             if (items) {
                 items.forEach((item) => {
                     let object = {
-                        label: item.name,
-                        value: item.name
+                        label: item.nameWithParent ?? item.name,
+                        value: item._id
                     }
 
                     valuesToOptions.push(object);

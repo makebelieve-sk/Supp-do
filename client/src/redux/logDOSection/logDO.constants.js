@@ -9,6 +9,8 @@ const ADD_FILE = 'ADD_FILE';
 const DELETE_FILE = 'DELETE_FILE';
 const GET_ALL_FILES = 'GET_ALL_FILES';
 
+const SET_NEW_DATE = 'SET_NEW_DATE';
+
 export {
     CREATE_LOGDO,
     EDIT_LOGDO,
@@ -17,6 +19,6 @@ export {
     SET_ROW_DATA_LOGDO,
     ADD_FILE,
     DELETE_FILE,
-    GET_ALL_FILES
-
+    GET_ALL_FILES,
+    SET_NEW_DATE
 }

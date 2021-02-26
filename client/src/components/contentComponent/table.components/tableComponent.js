@@ -1,19 +1,19 @@
+import moment from "moment";
 import React, {useState} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
 import {message, Row, Table, DatePicker} from "antd";
 import {CheckOutlined} from '@ant-design/icons';
-import moment from "moment";
 
-import {downloadCSV, pagination} from '../../../options/table.options/datatable.options';
 import {Header} from './header';
 import {ButtonsComponent} from "./buttons";
 import {ColumnsMapHelper, RowMapHelper} from "../../helpers/table.helpers/tableMap.helper";
 import {request} from "../../helpers/request.helper";
 import {ActionCreator} from "../../../redux/combineActions";
+import TabOptions from "../../../options/tab.options/tab.options";
+import {downloadCSV, pagination} from '../../../options/table.options/datatable.options';
+import {createTreeData} from "../../helpers/createTreeData.helper";
 
-const { RangePicker } = DatePicker;
-
-const dateFormat = "DD.MM.YYYY HH:mm";
+const {RangePicker} = DatePicker;
 
 export const TableComponent = ({specKey}) => {
     // Получение колонок для таблицы
@@ -31,7 +31,13 @@ export const TableComponent = ({specKey}) => {
     }));
     const dispatch = useDispatch();
 
-    let data = stateObject[specKey];
+    let data;
+
+    if (specKey === "equipment") {
+        data = createTreeData();
+    } else {
+        data = stateObject[specKey];
+    }
 
     // Создание стейта для текстового поля, отфильтрованных колонок, выбранных колонок и начальных колонок
     const [filterText, setFilterText] = useState('');
@@ -47,8 +53,15 @@ export const TableComponent = ({specKey}) => {
         if (specKey === 'tasks') {
             data.forEach(task => {
                 if (task.isFinish) {
-                    task.isFinish = <CheckOutlined />;
+                    task.isFinish = <CheckOutlined/>;
                 }
+            })
+        }
+
+        // Если поле isFinish = true, то устанавливаем иконку "Галочка"
+        if (specKey === 'logDO') {
+            data.forEach(log => {
+                log.formattedDate = moment(log.date).format(TabOptions.dateFormat);
             })
         }
 
@@ -74,7 +87,7 @@ export const TableComponent = ({specKey}) => {
                         }
 
                         if (typeof item[key] === "object") {
-                            if (item[key].name.toLowerCase().includes(filterText.toLowerCase())) {
+                            if (item[key].name && item[key].name.toLowerCase().includes(filterText.toLowerCase())) {
                                 filteredItems.add(item);
                             }
                         }
@@ -97,6 +110,8 @@ export const TableComponent = ({specKey}) => {
     // Изменение времени в датапикере
     const onChange = async (value, dateString) => {
         try {
+            dispatch(ActionCreator.ActionCreatorLogDO.setDate(dateString[0] + "/" + dateString[1]));
+
             // Получаем данные от сервера за указанный период
             const data = await request("/api/log-do/" + dateString[0] + "/" + dateString[1]);
 
@@ -120,15 +135,13 @@ export const TableComponent = ({specKey}) => {
                 />
                 {
                     specKey === "logDO" ?
-                        // <Row justify="center">
-                            <RangePicker
-                                showTime={{ format: 'HH:mm' }}
-                                format={dateFormat}
-                                onChange={onChange}
-                                // style={{height: "32px"}}
-                                defaultValue={[moment().startOf("month"), moment().endOf("month")]}
-                            />
-                        // </Row>
+                        <RangePicker
+                            allowClear={false}
+                            showTime={{format: 'HH:mm'}}
+                            format={TabOptions.dateFormat}
+                            onChange={onChange}
+                            defaultValue={[moment().startOf("month"), moment().endOf("month")]}
+                        />
                         : null
                 }
                 <ButtonsComponent
@@ -145,10 +158,16 @@ export const TableComponent = ({specKey}) => {
                 columns={columnsTable}
                 dataSource={columnsTable && columnsTable.length === 0 ? null : Array.from(filteredItems)}
                 scroll={{x: 500}}
-                size="middle"
+                size="small"
                 bordered
                 pagination={pagination}
-                rowKey={(record) => record._id.toString()}
+                rowKey={(record) => {
+                    if (specKey === "equipment") {
+                        return record.key.toString();
+                    } else {
+                        return record._id.toString();
+                    }
+                }}
                 onRow={(rowData) => ({
                     onClick: () => {
                         // Открытие новой вкладки для редактирования записи
@@ -158,4 +177,4 @@ export const TableComponent = ({specKey}) => {
             />
         </>
     );
-};
+}

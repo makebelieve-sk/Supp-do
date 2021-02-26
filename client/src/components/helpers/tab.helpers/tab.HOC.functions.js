@@ -6,6 +6,7 @@ import TabOptions from "../../../options/tab.options/tab.options";
 import {request} from "../request.helper";
 import {message} from "antd";
 import {ActionCreator} from "../../../redux/combineActions";
+import store from "../../../redux/store";
 
 // Функция создания номера записи
 const getNumberLog = (numberLog) => {
@@ -26,7 +27,7 @@ const onSaveHOCLogDO = (values, files, selectOptions, onSaveOptions) => {
     }
 
     values.numberLog = getNumberLog(++numberLog) + "/" + moment().get("year");
-    values.date = values.date.format(TabOptions.dateFormat);
+    values.date = moment(values.date, TabOptions.dateFormat);
     values.applicant = selectOptions.selectPeople === "Не выбрано" ? null : selectOptions.selectPeople ?
         selectOptions.selectPeople : selectOptions.initialApplicant;
     values.equipment = selectOptions.selectEquipment === "Не выбрано" ? null : selectOptions.selectEquipment ?
@@ -38,6 +39,7 @@ const onSaveHOCLogDO = (values, files, selectOptions, onSaveOptions) => {
     values.state = selectOptions.selectState === "Не выбрано" ? null : selectOptions.selectState ?
         selectOptions.selectState : selectOptions.initialState;
     values.dateDone = values.dateDone ? values.dateDone.format(TabOptions.dateFormat) : null;
+    values.planDateDone = values.planDateDone ? values.planDateDone.format(TabOptions.dateFormat) : null;
     values.acceptTask = selectOptions.selectAcceptTask === "Не выбрано" ? null : selectOptions.selectAcceptTask ?
         selectOptions.selectAcceptTask : selectOptions.initialAcceptTask;
     values.files = files;
@@ -45,7 +47,15 @@ const onSaveHOCLogDO = (values, files, selectOptions, onSaveOptions) => {
     onSave(
         onSaveOptions.url, values, onSaveOptions.setLoadingSave, onSaveOptions.actionCreatorEdit,
         onSaveOptions.actionCreatorCreate, onSaveOptions.dataStore, onSaveOptions.onRemove, onSaveOptions.specKey, onSaveOptions.rowData
-    ).then(null);
+    ).then(async () => {
+        const date = store.getState().reducerLogDO.date;
+
+        const data = await request("/api/log-do/" + date);
+
+        if (data) {
+            store.dispatch(ActionCreator.ActionCreatorLogDO.getAllLogDO(data));
+        }
+    });
 };
 
 // Функция, добавлюящая доп. функционал при сохранении записи в разделе "Оборудование"

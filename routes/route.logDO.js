@@ -1,4 +1,5 @@
 // Маршруты для "Журнала дефектов и отказов"
+
 const {Router} = require("express");
 const File = require("../models/File");
 const LogDO = require("../models/LogDO");
@@ -40,7 +41,8 @@ router.get("/log-do/:dateStart/:dateEnd", async (req, res) => {
     const millisecondsEnd = moment(dateEnd, dateFormat).valueOf();
 
     try {
-        const logsDO = await LogDO.find({})
+        const items = await LogDO.find({date: { $gte: millisecondsStart, $lte: millisecondsEnd }})
+            .sort({ date: 1 })
             .populate('applicant')
             .populate("equipment")
             .populate("department")
@@ -48,11 +50,6 @@ router.get("/log-do/:dateStart/:dateEnd", async (req, res) => {
             .populate("state")
             .populate("acceptTask")
             .populate("files");
-
-        let items = logsDO.filter(item => {
-            let millisecondsDate = moment(item.date, dateFormat).valueOf();
-            return millisecondsDate >= millisecondsStart && millisecondsDate <= millisecondsEnd;
-        });
 
         res.json(items);
     } catch (e) {
@@ -65,8 +62,8 @@ router.post('/log-do', async (req, res) => {
     try {
         let resFileArr = [];
 
-        let {date, numberLog, applicant, equipment, notes, sendEmail, department, responsible, task, state,
-            dateDone, content, acceptTask, files} = req.body;
+        let {date, numberLog, applicant, equipment, notes, sendEmail, productionCheck, department, responsible, task, state,
+            dateDone, planDateDone, content, downtime, acceptTask, files} = req.body;
 
         const item = await LogDO.findOne({numberLog});
 
@@ -88,7 +85,7 @@ router.post('/log-do', async (req, res) => {
 
         const newItem = new LogDO({
             numberLog, date, equipment, notes, applicant, responsible, department, task, state, dateDone,
-            content, acceptTask, files: resFileArr, sendEmail
+            content, acceptTask, files: resFileArr, sendEmail, productionCheck, planDateDone, downtime
         });
 
         await newItem.save();
@@ -112,8 +109,8 @@ router.post('/log-do', async (req, res) => {
 router.put('/log-do', async (req, res) => {
     try {
         let resFileArr = [];
-        const {_id, numberLog, date, applicant, equipment, notes, sendEmail, department, responsible, task, state,
-            dateDone, content, acceptTask, files} = req.body;
+        const {_id, numberLog, date, applicant, equipment, notes, sendEmail, productionCheck, department, responsible, task, state,
+            dateDone, planDateDone, content, downtime, acceptTask, files} = req.body;
         const item = await LogDO.findById({_id});
 
         if (!item) {
@@ -142,12 +139,15 @@ router.put('/log-do', async (req, res) => {
         item.equipment = equipment;
         item.notes = notes;
         item.sendEmail = sendEmail;
+        item.productionCheck = productionCheck;
         item.department = department;
         item.responsible = responsible;
         item.task = task;
         item.state = state;
         item.dateDone = dateDone;
+        item.planDateDone = planDateDone;
         item.content = content;
+        item.downtime = downtime;
         item.acceptTask = acceptTask;
         item.files = resFileArr;
 

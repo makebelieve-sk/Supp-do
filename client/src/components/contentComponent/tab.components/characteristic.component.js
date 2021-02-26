@@ -4,6 +4,7 @@ import {useDispatch} from "react-redux";
 import {ActionCreator} from "../../../redux/combineActions";
 import {Button, Col, Form, Input, Row, Select} from "antd";
 import {DeleteOutlined} from "@ant-design/icons";
+import {RowMapHelper} from "../../helpers/table.helpers/tableMap.helper";
 
 export const CharacteristicComponent = ({
     selectsArray, equipmentPropertyToOptions, dropDownRenderHandlerProperty, loadingSelectCharacteristics
@@ -16,7 +17,7 @@ export const CharacteristicComponent = ({
             dispatch(ActionCreator.ActionCreatorEquipment.addSelectRow({
                 equipmentProperty: "Не выбрано",
                 value: "",
-                id: Math.random()
+                id: Date.now()
             }));
         }
     };
@@ -51,15 +52,12 @@ export const CharacteristicComponent = ({
 
     return selectsArray && selectsArray.length ?
         selectsArray.map((label, index) => (
-            <Form.Item
-                key={`${label.equipmentProperty}-${label.id}`}
-                wrapperCol={{span: 24}}
-            >
+            <Form.Item key={`${label.equipmentProperty}-${label.id}`}>
                 <Row gutter={8}>
                     <Col span={11}>
                         <Form.Item
+                            label="Наименование характеристики"
                             name={`label-${label.equipmentProperty}-${label.id}`}
-                            noStyle
                             initialValue={label.equipmentProperty === "Не выбрано" ?
                                 "Не выбрано" : label.equipmentProperty ? label.equipmentProperty.name ?
                                     label.equipmentProperty.name : label.equipmentProperty : "Не выбрано"}
@@ -73,26 +71,21 @@ export const CharacteristicComponent = ({
                             />
                         </Form.Item>
                     </Col>
+
                     <Col span={11}>
-                        <Form.Item
-                            name={`value-${label.value}1-${label.id}`}
-                            initialValue={label.value}
-                        >
-                            <Input
-                                onClick={() => addRowProperty(index)}
-                                maxLength={255}
-                                type="text"
-                            />
+                        <Form.Item label="Значение характеристики" name={`value-${label.value}-${label.id}`} initialValue={label.value}>
+                            <Input onClick={() => addRowProperty(index)} maxLength={255} type="text"/>
                         </Form.Item>
                     </Col>
+
                     <Col span={2}>
-                        <Button
-                            onClick={() => deleteRowProperty(index)}
-                            icon={<DeleteOutlined/>}
-                            type="danger"
-                        />
+                        <Form.Item label=" ">
+                            <Button onClick={() => deleteRowProperty(index)} icon={<DeleteOutlined/>} type="danger"/>
+                        </Form.Item>
                     </Col>
                 </Row>
             </Form.Item>
-        )) : "Список характеристик пуст";
+        )) : <>
+            Список характеристик пуст. <a href="/" onClick={() => RowMapHelper("equipmentProperties", null)}>Добавить характеристику оборудования?</a>
+        </>;
 };

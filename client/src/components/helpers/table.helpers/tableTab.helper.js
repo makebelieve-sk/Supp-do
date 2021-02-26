@@ -197,7 +197,7 @@ const getEquipmentProperty = async (rowData) => {
  * @param rowData - редактируемая строка
  * @constructor
  */
-const getEquipment = async (rowData) => {
+const getEquipment = async (rowData, key) => {
     // Устанавливаем показ спиннера загрузки при открытии вкладки с записью
     store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(true));
 
@@ -224,8 +224,14 @@ const getEquipment = async (rowData) => {
             'Редактирование записи об объекте оборудования', EquipmentTab, 'updateEquipment'
         );
 
+        let itemId = rowData._id;
+
+        if (key === "equipment") {
+            itemId = rowData.key;
+        }
+
         // Получаем данные для записи
-        let data = await request('/api/directory/equipment/' + rowData._id);
+        let data = await request('/api/directory/equipment/' + itemId);
 
         // Если есть данные о записи, то записываем полученные данные в хранилище
         // и устанавливаем массив строк во вкладке "Характеристики"
@@ -268,6 +274,7 @@ const getLogDO = async (rowData) => {
         // Обнуляем данные в редактируемой строчке, получаем все файлы
         store.dispatch(ActionCreator.ActionCreatorLogDO.setRowDataLogDO(null));
         store.dispatch(ActionCreator.ActionCreatorLogDO.getAllFiles([]));
+        console.log(store.getState().reducerLogDO.logDO)
     } else {
         // Вызываем пустую вкладку редактируемой записи для показа спиннера загрузки
         getEmptyTabWithLoading(

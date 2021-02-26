@@ -7,6 +7,7 @@ import {CheckOutlined, PlusOutlined, StopOutlined} from "@ant-design/icons";
 import {RowMapHelper} from "../helpers/table.helpers/tableMap.helper";
 import {ActionCreator} from "../../redux/combineActions";
 import {CheckTypeTab, onSave, onDelete, onFailed, onCancel, onChange, onDropDownRender} from "../helpers/tab.helpers/tab.functions";
+import getParents from "../helpers/getRowParents.helper";
 
 const {Meta} = Card;
 
@@ -33,7 +34,7 @@ export const PersonTab = ({specKey, onRemove}) => {
     const [loadingSave, setLoadingSave] = useState(false);
 
     // Инициализация первоначальных значений в в выпадающих списках
-    let initialDepartment = null, initialProfession = null;
+    let initialDepartment = null, initialProfession = null, foundParentName = {};
 
     // Если вкладка редактирования, то устанавливаем начальные значения для выпадающих списков
     if (rowData) {
@@ -44,6 +45,18 @@ export const PersonTab = ({specKey, onRemove}) => {
             initialDepartment = rowData.department;
         } else if (rowData.profession) {
             initialProfession = rowData.profession;
+        }
+
+        if (departments && departments.length && rowData.department) {
+            departments.forEach(item => {
+                if (item.parent) {
+                    item.nameWithParent = getParents(item, departments) + item.name;
+                } else {
+                    item.nameWithParent = item.name;
+                }
+            })
+
+            foundParentName = departments.find(item => item._id === rowData.department._id);
         }
     }
 
@@ -137,9 +150,8 @@ export const PersonTab = ({specKey, onRemove}) => {
                                     initialValues={{
                                         _id: rowData ? rowData._id : "",
                                         name: rowData ? rowData.name : "",
-                                        department: rowData && rowData.department ? rowData.department.name : "Не выбрано",
+                                        department: rowData && rowData.department && foundParentName ? foundParentName.nameWithParent : "Не выбрано",
                                         profession: rowData && rowData.profession ? rowData.profession.name : "Не выбрано",
-                                        tabNumber: rowData ? rowData.tabNumber : "",
                                         notes: rowData ? rowData.notes : ""
                                     }}
                                 >
@@ -210,10 +222,6 @@ export const PersonTab = ({specKey, onRemove}) => {
                                                 />
                                             </Col>
                                         </Row>
-                                    </Form.Item>
-
-                                    <Form.Item name="tabNumber" label="Таб. номер">
-                                        <Input maxLength={255} type="number" style={{textAlign: 'right'}}/>
                                     </Form.Item>
 
                                     <Form.Item name="notes" label="Примечание">

@@ -1,19 +1,18 @@
-import React from 'react';
-import {Tree, Row} from 'antd';
+import store from "../../redux/store";
 
-const { DirectoryTree } = Tree;
+export const createTreeData = () => {
+    const equipment = store.getState().reducerEquipment.equipment;
 
-export const TreeComponent = ({dataStore}) => {
     // Сортируем массив по полю "parent"
-    dataStore.sort((a, b) => a.parent && b.parent && a.parent.name > b.parent.name ? 1 : -1);
+    equipment.sort((a, b) => a.parent && b.parent && a.parent.name > b.parent.name ? 1 : -1);
 
     // Находим записи, у которых указано, какому подразделению они принадлежат
-    let notNullParentData = dataStore.filter(obj => {
+    let notNullParentData = equipment.filter(obj => {
         return obj.parent;
     })
 
     // Находим записи, у которых нет указанного подразделения (такие записи будут на самом верху)
-    let nullParentData = dataStore.filter(obj => {
+    let nullParentData = equipment.filter(obj => {
         return !obj.parent;
     })
 
@@ -24,9 +23,11 @@ export const TreeComponent = ({dataStore}) => {
     if (nullParentData && nullParentData.length > 0) {
         nullParentData.forEach(nullParent => {
             treeData.push({
-                title: nullParent.name,
                 key: nullParent._id,
-                children: []
+                children: null,
+                parent: "",
+                name: nullParent.name,
+                notes: nullParent.notes
             })
         })
     }
@@ -38,26 +39,37 @@ export const TreeComponent = ({dataStore}) => {
         if (firstRun) {
             childrenArr.forEach(nullParent => {
                 notNullParentData.forEach(notNullParent => {
-                    if (notNullParent.parent.name === nullParent.title) {
+                    if (notNullParent.parent._id === nullParent.key) {
+                        nullParent.children = [];
+
                         nullParent.children.push({
-                            title: notNullParent.name,
                             key: notNullParent._id,
-                            children: []
+                            children: null,
+                            parent: notNullParent.nameWithParent,
+                            name: notNullParent.name,
+                            notes: notNullParent.notes
                         });
                     }
                 })
-            })
-            childrenArr.forEach(obj => {
-                createTree(obj);
-            })
+            });
+
+            childrenArr.forEach(obj => createTree(obj));
         } else {
+            if (!childrenArr.children) {
+                return null;
+            }
+
             childrenArr.children.forEach(childObj => {
                 notNullParentData.forEach(notNullParent => {
-                    if (notNullParent.parent.name === childObj.title) {
+                    if (notNullParent.parent._id === childObj.key) {
+                        childObj.children = [];
+
                         childObj.children.push({
-                            title: notNullParent.name,
                             key: notNullParent._id,
-                            children: []
+                            children: null,
+                            parent: notNullParent.nameWithParent,
+                            name: notNullParent.name,
+                            notes: notNullParent.notes
                         })
 
                         createTree(childObj);
@@ -72,11 +84,5 @@ export const TreeComponent = ({dataStore}) => {
         createTree(treeData, true);
     }
 
-    return (
-        <Row className="tree-wrapper">
-            <DirectoryTree
-                treeData={treeData}
-            />
-        </Row>
-    );
+    return treeData;
 }

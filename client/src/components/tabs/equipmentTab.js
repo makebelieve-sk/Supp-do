@@ -9,6 +9,7 @@ import {CharacteristicComponent} from "../contentComponent/tab.components/charac
 import {ActionCreator} from "../../redux/combineActions";
 import {CheckTypeTab, onChange, onDropDownRender, onFailed} from "../helpers/tab.helpers/tab.functions";
 import {HOCFunctions} from "../helpers/tab.helpers/tab.HOC.functions";
+import {RowMapHelper} from "../helpers/table.helpers/tableMap.helper";
 
 const {Meta} = Card;
 const {TabPane} = Tabs;
@@ -112,7 +113,7 @@ export const EquipmentTab = ({specKey, onRemove}) => {
 
     return (
         <Row className="container-tab" justify="center">
-            <Col sm={{span: 24}} md={{span: 20}} lg={{span: 16}} xl={{span: 12}}>
+            <Col sm={{span: 24}} md={{span: 24}} lg={{span: 16}} xl={{span: 12}}>
                 <Card className="card-style" bordered>
                     <Skeleton loading={loadingSkeleton} active>
                         <Meta
@@ -120,11 +121,10 @@ export const EquipmentTab = ({specKey, onRemove}) => {
                             description={
                                 <>
                                     <Form
-                                        labelCol={{span: 6}}
-                                        wrapperCol={{span: 18}}
-                                        style={{marginTop: "5%"}}
-                                        form={form}
+                                        className="form-styles"
                                         name={name}
+                                        form={form}
+                                        layout="vertical"
                                         onFinish={saveHandler}
                                         onFinishFailed={onFailed}
                                         initialValues={{
@@ -135,7 +135,7 @@ export const EquipmentTab = ({specKey, onRemove}) => {
                                         }}
                                     >
                                         <Tabs defaultActiveKey="name">
-                                            <TabPane tab="Наименование" key="name" style={{paddingTop: '5%'}}>
+                                            <TabPane tab="Наименование" key="name" className="tabPane-styles">
                                                 <Form.Item name="parent" label="Принадлежит">
                                                     <Select
                                                         options={equipmentToOptions}
@@ -165,11 +165,17 @@ export const EquipmentTab = ({specKey, onRemove}) => {
                                                 </Form.Item>
                                             </TabPane>
 
-                                            <TabPane tab="Характеристики" key="characteristics" style={{paddingTop: '5%'}}>
+                                            <TabPane tab="Характеристики" key="characteristics" className="tabPane-styles">
+                                                <Row className="button-add-equipmentProperty" justify="end">
+                                                    <Button
+                                                        type="primary"
+                                                        onClick={() => RowMapHelper("equipmentProperties", null)}
+                                                    >Добавить характеристику</Button>
+                                                </Row>
                                                 <CharacteristicComponent {...characteristicProps} />
                                             </TabPane>
 
-                                            <TabPane tab="Файлы" key="files" style={{paddingTop: '5%'}}>
+                                            <TabPane tab="Дополнительно" key="files" className="tabPane-styles">
                                                 <Form.Item name="files" wrapperCol={{span: 24}}>
                                                     <UploadComponent {...uploadProps}/>
                                                 </Form.Item>

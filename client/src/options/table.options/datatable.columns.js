@@ -1,14 +1,16 @@
 import React from 'react';
 import {Tooltip} from "antd";
 
+import store from "../../redux/store";
+
 // Создание заголовка таблицы
 const headerProfessionTable = 'Наименование, Примечание';
 const headerDepartmentTable = 'Наименование, Примечание, Подразделение';
-const headerPersonTable = 'Таб №, ФИО, Подразделение, Профессия, Примечание';
+const headerPersonTable = 'ФИО, Подразделение, Профессия, Примечание';
 const headerTasksTable = 'Наименование, Примечание, Завершено';
 const headerEquipmentPropertyTable = 'Наименование, Примечание';
 const headerEquipmentTable = 'Принадлежит, Наименование, Примечание';
-const headerLogDOTable = '№, Дата заявки, Оборудование, Описание, Заявитель, Ответственный, Подразделение, Задание, Состояние, Дата выполнения, Содержание работ, Работа принята';
+const headerLogDOTable = 'Дата заявки, Оборудование, Описание, Заявитель, Исполнитель, Задание, Состояние, Планируемая дата выполнения';
 
 // Создание колонок для раздела "Профессии"
 const ProfessionColumns = [
@@ -43,6 +45,18 @@ const DepartmentColumns = [
             }
         },
         sortDirections: ['descend', 'ascend'],
+        render(text, record) {
+            const departments = store.getState().reducerDepartment.departments;
+            let foundElement;
+
+            if (departments && departments.length && record.parent) {
+                foundElement = departments.find(item => item._id === record.parent._id);
+            }
+
+            return {
+                children: <div>{foundElement ? foundElement.nameWithParent : text}</div>,
+            };
+        }
     },
     {
         title: 'Наименование',
@@ -65,14 +79,6 @@ const DepartmentColumns = [
 // Создание колонок для раздела "Персонал"
 const PersonColumns = [
     {
-        title: 'Таб №',
-        dataIndex: 'tabNumber',
-        key: 'tabNumber',
-        width: 100,
-        sorter: (a, b) => a.tabNumber - b.tabNumber,
-        sortDirections: ['descend', 'ascend'],
-    },
-    {
         title: 'ФИО',
         dataIndex: 'name',
         key: 'name',
@@ -91,6 +97,18 @@ const PersonColumns = [
             }
         },
         sortDirections: ['descend', 'ascend'],
+        render(text, record) {
+            const departments = store.getState().reducerDepartment.departments;
+            let foundElement;
+
+            if (departments && departments.length && record.department) {
+                foundElement = departments.find(item => item._id === record.department._id);
+            }
+
+            return {
+                children: <div>{foundElement ? foundElement.nameWithParent : text}</div>,
+            };
+        }
     },
     {
         title: 'Профессия',
@@ -190,7 +208,7 @@ const EquipmentPropertyColumns = [
 const EquipmentColumns = [
     {
         title: "Принадлежит",
-        dataIndex: ["parent", "name"],
+        dataIndex: "parent",
         key: "parent",
         width: 100,
         sorter: (a, b) => {
@@ -221,32 +239,10 @@ const EquipmentColumns = [
 // Создание колонок для раздела "Журнал дефектов и отказов"
 const LogDOColumns = [
     {
-        title: "№",
-        dataIndex: "numberLog",
-        key: "numberLog",
-        width: 100,
-        sorter: (a, b) => a.numberLog > b.numberLog,
-        sortDirections: ["descend", "ascend"],
-        render(text, record) {
-            if (record.state && record.state.color) {
-                return {
-                    props: {
-                        style: {background: record.state.color},
-                    },
-                    children: <div>{text}</div>,
-                };
-            } else {
-                return {
-                    children: <div>{text}</div>,
-                };
-            }
-        },
-    },
-    {
         title: "Дата заявки",
-        dataIndex: "date",
+        dataIndex: "formattedDate",
         key: "date",
-        width: 150,
+        width: 100,
         sorter: (a, b) => a.date > b.date,
         sortDirections: ["descend", "ascend"],
         render(text, record) {
@@ -275,17 +271,24 @@ const LogDOColumns = [
             }
         },
         sortDirections: ["descend", "ascend"],
-        render(text, record) {
+        render: (text, record) => {
+            const equipment = store.getState().reducerEquipment.equipment;
+            let foundElement;
+
+            if (equipment && equipment.length && record.equipment) {
+                foundElement = equipment.find(item => item._id === record.equipment._id);
+            }
+
             if (record.state && record.state.color) {
                 return {
                     props: {
                         style: {background: record.state.color},
                     },
-                    children: <div>{text}</div>,
+                    children: <div>{foundElement ? foundElement.nameWithParent : text}</div>,
                 };
             } else {
                 return {
-                    children: <div>{text}</div>,
+                    children: <div>{foundElement ? foundElement.nameWithParent : text}</div>,
                 };
             }
         },
@@ -294,7 +297,7 @@ const LogDOColumns = [
         title: "Описание",
         dataIndex: "notes",
         key: 'notes',
-        width: 250,
+        width: 150,
         sorter: (a, b) => a.notes.length - b.notes.length,
         sortDirections: ['descend', 'ascend'],
         ellipsis: {
@@ -312,7 +315,9 @@ const LogDOColumns = [
                 };
             } else {
                 return {
-                    children: <div>{text}</div>,
+                    children: <Tooltip placement="topLeft" title={text}>
+                        {text}
+                    </Tooltip>,
                 };
             }
         },
@@ -321,7 +326,7 @@ const LogDOColumns = [
         title: "Заявитель",
         dataIndex: ["applicant", "name"],
         key: "applicant",
-        width: 150,
+        width: 100,
         sorter: (a, b) => {
             if (a.applicant && b.applicant) {
                 return a.applicant.name.length - b.applicant.name.length;
@@ -344,10 +349,10 @@ const LogDOColumns = [
         },
     },
     {
-        title: "Ответственный",
+        title: "Исполнитель",
         dataIndex: ["responsible", "name"],
         key: "responsible",
-        width: 150,
+        width: 110,
         sorter: (a, b) => {
             if (a.responsible && b.responsible) {
                 return a.responsible.name.length - b.responsible.name.length;
@@ -370,36 +375,10 @@ const LogDOColumns = [
         },
     },
     {
-        title: "Подразделение",
-        dataIndex: ["department", "name"],
-        key: "department",
-        width: 150,
-        sorter: (a, b) => {
-            if (a.department && b.department) {
-                return a.department.name.length - b.department.name.length;
-            }
-        },
-        sortDirections: ["descend", "ascend"],
-        render(text, record) {
-            if (record.state && record.state.color) {
-                return {
-                    props: {
-                        style: {background: record.state.color},
-                    },
-                    children: <div>{text}</div>,
-                };
-            } else {
-                return {
-                    children: <div>{text}</div>,
-                };
-            }
-        },
-    },
-    {
         title: "Задание",
         dataIndex: "task",
         key: "task",
-        width: 250,
+        width: 150,
         ellipsis: {
             showTitle: false,
         },
@@ -421,7 +400,9 @@ const LogDOColumns = [
                 };
             } else {
                 return {
-                    children: <div>{text}</div>,
+                    children: <Tooltip placement="topLeft" title={text}>
+                        {text}
+                    </Tooltip>,
                 };
             }
         },
@@ -430,7 +411,7 @@ const LogDOColumns = [
         title: "Состояние",
         dataIndex: ["state", "name"],
         key: "state",
-        width: 150,
+        width: 100,
         sorter: (a, b) => {
             if (a.state && b.state) {
                 return a.state.name.length - b.state.name.length;
@@ -453,13 +434,13 @@ const LogDOColumns = [
         },
     },
     {
-        title: "Дата выполнения",
-        dataIndex: "dateDone",
-        key: "dateDone",
-        width: 150,
+        title: "Планируемая дата выполнения",
+        dataIndex: "planDateDone",
+        key: "planDateDone",
+        width: 100,
         sorter: (a, b) => {
-            if (a.dateDone && b.dateDone) {
-                return a.dateDone.length - b.dateDone.length;
+            if (a.planDateDone && b.planDateDone) {
+                return a.planDateDone.length - b.planDateDone.length;
             }
         },
         sortDirections: ["descend", "ascend"],
@@ -477,64 +458,7 @@ const LogDOColumns = [
                 };
             }
         },
-    },
-    {
-        title: "Содержание работ",
-        dataIndex: "content",
-        key: "content",
-        width: 250,
-        sorter: (a, b) => {
-            if (a.content && b.content) {
-                return a.content.length - b.content.length;
-            }
-        },
-        ellipsis: {
-            showTitle: false,
-        },
-        sortDirections: ["descend", "ascend"],
-        render(text, record) {
-            if (record.state && record.state.color) {
-                return {
-                    props: {
-                        style: {background: record.state.color},
-                    },
-                    children: <Tooltip placement="topLeft" title={text}>
-                        {text}
-                    </Tooltip>,
-                };
-            } else {
-                return {
-                    children: <div>{text}</div>,
-                };
-            }
-        },
-    },
-    {
-        title: "Работа принята",
-        dataIndex: ["acceptTask", "name"],
-        key: "acceptTask",
-        width: 150,
-        sorter: (a, b) => {
-            if (a.acceptTask && b.acceptTask) {
-                return a.acceptTask.name.length - b.acceptTask.name.length;
-            }
-        },
-        sortDirections: ["descend", "ascend"],
-        render(text, record) {
-            if (record.state && record.state.color) {
-                return {
-                    props: {
-                        style: {background: record.state.color},
-                    },
-                    children: <div>{text}</div>,
-                };
-            } else {
-                return {
-                    children: <div>{text}</div>,
-                };
-            }
-        },
-    },
+    }
 ];
 
 export {

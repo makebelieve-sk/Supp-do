@@ -9,6 +9,7 @@ import {menuItems} from "../../options/global.options/global.options";
 import {AuthContext} from "../../context/authContext";
 import {ActionCreator} from "../../redux/combineActions";
 import {OpenTabSectionHelper} from "../helpers/openTabSection.helper";
+import getParents from "../helpers/getRowParents.helper";
 import {request} from "../helpers/request.helper";
 import TabOptions from "../../options/tab.options/tab.options";
 import logo from '../../assets/logo.png';
@@ -32,12 +33,42 @@ export const MainPage = () => {
     // Загрузка главного раздела "Журнал дефектов и отказов"
     useEffect(() => {
         async function getItems() {
+            const date = moment().startOf("month").format(TabOptions.dateFormat)
+            + "/" + moment().endOf("month").format(TabOptions.dateFormat);
+
             try {
-                const items = await request("/api/log-do/" + moment().startOf("month").format(TabOptions.dateFormat)
-                    + "/" + moment().endOf("month").format(TabOptions.dateFormat));
+                dispatch(ActionCreator.ActionCreatorLogDO.setDate(date));
+
+                const items = await request("/api/log-do/" + date);
+                const equipment = await request("/api/directory/equipment");
+                const departments = await request("/api/directory/departments");
 
                 if (items && items.length > 0) {
                     dispatch(ActionCreator.ActionCreatorLogDO.getAllLogDO(items));
+                }
+
+                if (equipment && equipment.length) {
+                    equipment.forEach(item => {
+                        if (item.parent) {
+                            item.nameWithParent = getParents(item, equipment) + item.name
+                        } else {
+                            item.nameWithParent = item.name
+                        }
+                    })
+
+                    dispatch(ActionCreator.ActionCreatorEquipment.getAllEquipment(equipment));
+                }
+
+                if (departments && departments.length) {
+                    departments.forEach(item => {
+                        if (item.parent) {
+                            item.nameWithParent = getParents(item, departments) + item.name
+                        } else {
+                            item.nameWithParent = item.name
+                        }
+                    })
+
+                    dispatch(ActionCreator.ActionCreatorDepartment.getAllDepartments(departments));
                 }
             } catch (e) {
             }
@@ -139,8 +170,7 @@ export const MainPage = () => {
                     <div className="user">
                         <Dropdown overlay={dropdownMenu} trigger={['click']}>
                             <a className="ant-dropdown-link" href="/" onClick={e => e.preventDefault()}>
-                                <Avatar> {auth.user ? auth.user.login[0] : 'U'} </Avatar> {auth.user ? auth.user.login : ""}
-                                <DownOutlined/>
+                                <Avatar>{auth.user ? auth.user.login[0] : 'U'}</Avatar> {auth.user ? auth.user.login : ""} <DownOutlined/>
                             </a>
                         </Dropdown>
                     </div>

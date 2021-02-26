@@ -1,11 +1,6 @@
 // Глобальные настройки приложения
 import {LaptopOutlined, UserOutlined} from "@ant-design/icons";
 import {ActionCreator} from "../../redux/combineActions";
-import {Card, Skeleton, Tabs} from "antd";
-import {TableComponent} from "../../components/contentComponent/table.components/tableComponent";
-import {TreeComponent} from "../../components/contentComponent/table.components/treeComponent";
-
-const {TabPane} = Tabs;
 
 // Инициализация меню приложения
 const menuItems = [
@@ -39,11 +34,11 @@ const menuItems = [
                 ]
             },
             {
-                title: "Оборудование",
+                title: "Характеристики оборудования",
                 key: "equipmentKey",
                 children: [
                     {
-                        title: "Оборудование",
+                        title: "Характеристики оборудования",
                         key: "equipmentProperties",
                         url: "equipment-property",
                         dispatchAction: ActionCreator.ActionCreatorEquipmentProperty.getAllEquipmentProperties
@@ -127,45 +122,4 @@ const menuItems = [
     }
 ];
 
-// Отображение контента для обычных вкладок
-const tabContent = (loadingSkeleton, key) => <div className="container-dto">
-    <Skeleton loading={loadingSkeleton} active>
-        <Card className="card-dto">
-            <TableComponent specKey={key}/>
-        </Card>
-    </Skeleton>
-</div>;
-
-// Отображение контента для вкладки "Подразделение"
-const departmentsContent = (loadingSkeleton, key, dataStore) => <div className="container-dto">
-    <Skeleton loading={loadingSkeleton} active>
-        <Card className="card-dto">
-            <Tabs defaultActiveKey="table">
-                <TabPane tab="Таблица" key="table">
-                    <TableComponent specKey={key}/>
-                </TabPane>
-                <TabPane tab="Дерево" key="tree">
-                    <TreeComponent dataStore={dataStore}/>
-                </TabPane>
-            </Tabs>
-        </Card>
-    </Skeleton>
-</div>;
-
-// Отображение контента для вкладки "Оборудование"
-const equipmentContent = (loadingSkeleton, key, dataStore) => <div className="container-dto">
-    <Skeleton loading={loadingSkeleton} active>
-        <Card className="card-dto">
-            <Tabs defaultActiveKey="table">
-                <TabPane tab="Таблица" key="table">
-                    <TableComponent specKey={key}/>
-                </TabPane>
-                <TabPane tab="Дерево" key="tree">
-                    <TreeComponent dataStore={dataStore}/>
-                </TabPane>
-            </Tabs>
-        </Card>
-    </Skeleton>
-</div>;
-
-export {menuItems, tabContent, departmentsContent, equipmentContent};
+export {menuItems};

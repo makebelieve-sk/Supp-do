@@ -36,31 +36,13 @@ export const AuthComponent = ({setRegForm, setChangePass}) => {
                     <Form
                         name="normal_login"
                         className="login-form"
-                        initialValues={{
-                            remember: true,
-                        }}
+                        initialValues={{remember: true,}}
                         onFinish={login}
                     >
-                        <Form.Item
-                            name="login"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: 'Введите логин',
-                                },
-                            ]}
-                        >
+                        <Form.Item name="login" rules={[{required: true, message: 'Введите логин'}]}>
                             <Input prefix={<UserOutlined className="site-form-item-icon"/>} placeholder="Логин"/>
                         </Form.Item>
-                        <Form.Item
-                            name="password"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: 'Введите пароль',
-                                },
-                            ]}
-                        >
+                        <Form.Item name="password" rules={[{required: true, message: 'Введите пароль'}]}>
                             <Input
                                 prefix={<LockOutlined className="site-form-item-icon"/>}
                                 type="password"

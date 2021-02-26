@@ -106,7 +106,6 @@ export const UploadComponent = ({files, model, rowData, actionCreatorAdd, action
                 info.fileList.splice(info.fileList.length - 1, 1);
             }
 
-            console.log(info.file.uid)
             const newFileList = {
                 originUid: info.file.uid,
                 name: info.file.name,

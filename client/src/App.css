@@ -58,6 +58,7 @@
 .container-row-dto {
     width: 100%;
     margin-bottom: 20px;
+    margin-top: 10px;
 }
 .container-dto {
     width: 100%;
@@ -95,6 +96,25 @@
     margin-top: 10px;
     width: 9em;
 }
+.button-chart {
+    background-color: #198754;
+    border-color: #198754;
+}
+.button-chart:hover {
+    background-color: #198754;
+    border-color: #198754;
+}
+.button-chart:focus {
+    background-color: #198754;
+    border-color: #198754;
+}
+.button-chart::selection {
+    background-color: #198754;
+    border-color: #198754;
+}
+.button-add-equipmentProperty {
+    margin-bottom: 3%
+}
 
 /* установка стилей для таблицы*/
 .ant-table-cell:hover {
@@ -103,10 +123,20 @@
 .rdt_TableCol {
     text-align: center !important;
 }
+.ant-table-thead th {
+    text-align: center !important;
+}
 
 /* установка стилей для дерева*/
 .tree-wrapper {
     margin-top: 20px;
+}
+/* установка стилей для вкладок */
+.form-styles {
+    margin-top: 5%;
+}
+.tabPane-styles {
+    padding-top: 3%;
 }
 
 /* установка цвета для выпадающего списка с действиями учетной записи пользователя*/
