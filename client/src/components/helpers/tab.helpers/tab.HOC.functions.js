@@ -60,70 +60,28 @@ const onSaveHOCLogDO = (values, files, selectOptions, onSaveOptions) => {
 
 // Функция, добавлюящая доп. функционал при сохранении записи в разделе "Оборудование"
 const onSaveHOCEquipment = (values, files, selectOptions, onSaveOptions) => {
-    let clonSelectsArray = selectOptions.selectsArray;
-    let clonValues = {};
-
-    // Находим поля value из values
-    for (let key in values) {
-        clonValues[key] = values[key];
-    }
-
-    delete clonValues["name"];
-    delete clonValues["notes"];
-    delete clonValues["_id"];
-    delete clonValues["parent"];
-    delete clonValues["files"];
-
-    for (let key in clonValues) {
-        if (key.slice(0, 5) === "label") {
-            delete clonValues[key];
-        }
-    }
-
-    let entriesArr = Object.entries(clonValues);
-
-    // Переприсваиваем значение value
-    entriesArr.forEach(arr => {
-        let rowId = arr[0].split("-")[2];
-
-        clonSelectsArray.forEach(select => {
-            if (select.id === rowId * 1) {
-                select.value = arr[1];
-            }
-        })
-    })
-
     // Находим и переприсваиваем equipmentProperty
-    clonSelectsArray.forEach(select => {
-        let foundEquipmentProperty = selectOptions.equipmentProperties.find(property => {
-            return property.name === select.equipmentProperty;
-        });
-
-        if (foundEquipmentProperty) {
-            select.equipmentProperty = foundEquipmentProperty;
-        }
-    });
+    // values.properties.forEach(select => {
+    //     let foundEquipmentProperty = selectOptions.equipmentProperties.find(property => {
+    //         return property._id === select.equipmentProperty || property.name === select.equipmentProperty;
+    //     });
+    //
+    //     if (foundEquipmentProperty) {
+    //         select.equipmentProperty = foundEquipmentProperty;
+    //     }
+    // });
 
     // Фильтруем неподходящие значения поля equipmentProperty
-    let rightSelectsArray = clonSelectsArray.filter(select => {
+    values.properties = values.properties.filter(select => {
         return select.equipmentProperty !== "Не выбрано" && select.equipmentProperty;
     });
+    values.parent = selectOptions.selectEquipment === "Не выбрано" ? null : selectOptions.selectEquipment ?
+                selectOptions.selectEquipment : selectOptions.initialEquipment;
+    values.files = files;
 
-    // Создаем конечный объект, который отправляется на сервер
-    let objectSendToServer = {
-        name: values.name,
-        notes: values.notes,
-        _id: values._id,
-        parent: selectOptions.selectEquipment === "Не выбрано" ? null : selectOptions.selectEquipment ?
-            selectOptions.selectEquipment : selectOptions.initialEquipment,
-        properties: rightSelectsArray,
-        files: files
-    };
-
-    onSave(
-        onSaveOptions.url, objectSendToServer, onSaveOptions.setLoadingSave, onSaveOptions.actionCreatorEdit,
-        onSaveOptions.actionCreatorCreate, onSaveOptions.dataStore, onSaveOptions.onRemove, onSaveOptions.specKey, onSaveOptions.rowData
-    ).then(null);
+    onSave(onSaveOptions.url, values, onSaveOptions.setLoadingSave, onSaveOptions.actionCreatorEdit,
+        onSaveOptions.actionCreatorCreate, onSaveOptions.dataStore, onSaveOptions.onRemove, onSaveOptions.specKey,
+        onSaveOptions.rowData).then(null);
 };
 
 // Функция, добавлюящая доп. функционал при удалении записи

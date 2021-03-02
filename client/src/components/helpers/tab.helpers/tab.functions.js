@@ -8,11 +8,11 @@ import store from "../../../redux/store";
 import getParents from "../getRowParents.helper";
 
 // Инициализация кнопок, появляющихся при редактировании записи
-const CheckTypeTab = (rowData, deleteHandler) => {
+const CheckTypeTab = (item, deleteHandler) => {
     const [loadingDelete, setLoadingDelete] = useState(false);
     const [visiblePopConfirm, setVisiblePopConfirm] = useState(false);
 
-    return rowData ?
+    return !item || item.itemId !== "-1" ?
         <>
             <Popconfirm
                 title="Вы уверены, что хотите удалить запись?"
@@ -162,7 +162,7 @@ const onChange = (form, value, setSelect, dataStore) => {
 };
 
 // Обновление значений в выпадающем списке
-const onDropDownRender = async (open, setLoading, url, dispatchAction, setSelectToOptions) => {
+const onDropDownRender = async (open, setLoading, url, dispatchAction, setSelectToOptions, rowData) => {
     try {
         if (open) {
             setLoading(true);

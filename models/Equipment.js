@@ -11,12 +11,7 @@ const schema = new Schema({
                 type: Types.ObjectId,
                 ref: "EquipmentProperty"
             },
-            value: {
-                type: String
-            },
-            id: {
-                type: Number
-            }
+            value: {type: String}
         }
     ],
     files: [{ type: Types.ObjectId, ref: "File" }]

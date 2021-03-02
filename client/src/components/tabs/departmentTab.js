@@ -87,7 +87,7 @@ export const DepartmentTab = ({specKey, onRemove}) => {
     // Обновление выпадающего списка "Подразделения"
     const dropDownRenderHandler = (open) => onDropDownRender(
             open, setLoadingSelectDep, "departments", ActionCreator.ActionCreatorDepartment.getAllDepartments,
-            setDepartmentsToOptions);
+            setDepartmentsToOptions, rowData);
 
     return (
         <Row className="container-tab" justify="center">

@@ -168,10 +168,10 @@ export const TableComponent = ({specKey}) => {
                         return record._id.toString();
                     }
                 }}
-                onRow={(rowData) => ({
+                onRow={(row) => ({
                     onClick: () => {
                         // Открытие новой вкладки для редактирования записи
-                        RowMapHelper(specKey, rowData);
+                        RowMapHelper(specKey, row._id);
                     }
                 })}
             />

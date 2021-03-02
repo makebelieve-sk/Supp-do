@@ -1,91 +1,59 @@
 // Компонент "Характеристики оборудования"
-import React from "react";
-import {useDispatch} from "react-redux";
-import {ActionCreator} from "../../../redux/combineActions";
-import {Button, Col, Form, Input, Row, Select} from "antd";
+import React, {useMemo} from "react";
+import {Button, Form, Input, Select, Space} from "antd";
 import {DeleteOutlined} from "@ant-design/icons";
-import {RowMapHelper} from "../../helpers/table.helpers/tableMap.helper";
 
-export const CharacteristicComponent = ({
-    selectsArray, equipmentPropertyToOptions, dropDownRenderHandlerProperty, loadingSelectCharacteristics
-}) => {
-    const dispatch = useDispatch();
-
+export const CharacteristicComponent = ({properties, equipmentPropertyToOptions, dropDownRenderHandlerProperty, loadingSelectCharacteristics}) => {
     // Добавление строки во вкладке "Характеристики"
-    const addRowProperty = (index) => {
-        if (index === selectsArray.length - 1) {
-            dispatch(ActionCreator.ActionCreatorEquipment.addSelectRow({
-                equipmentProperty: "Не выбрано",
-                value: "",
-                id: Date.now()
-            }));
+    const addRowProperty = (index, add, fields) => {
+        if (index === fields.length - 1) {
+            add();
         }
     };
 
-    // Удаление строки во вкладке "Характеристики"
-    const deleteRowProperty = (index) => {
-        if (selectsArray.length === 1) {
-            return null;
-        }
+    return useMemo(() => (
+        <Form.List name="properties">
+            { (fields, { add, remove }) => {
+                return <>
+                    {fields.map((field, index) => (
+                        <Space key={field.key} align="baseline" style={{width: "100%"}}>
+                            <Form.Item
+                                {...field}
+                                isListField={true}
+                                label="Наименование характеристики"
+                                name={[field.name, "equipmentProperty"]}
+                                fieldKey={[field.fieldKey, "equipmentProperty"]}
+                                initialValue={properties && properties.length ?
+                                    properties[index] && properties[index].equipmentProperty ?
+                                        properties[index].equipmentProperty.name : "Не выбрано" : "Не выбрано"}
+                            >
+                                <Select
+                                    onClick={() => addRowProperty(index, add, fields)}
+                                    options={equipmentPropertyToOptions}
+                                    onDropdownVisibleChange={dropDownRenderHandlerProperty}
+                                    loading={loadingSelectCharacteristics}
+                                />
+                            </Form.Item>
 
-        dispatch(ActionCreator.ActionCreatorEquipment.deleteSelectRow(index));
-    };
+                            <Form.Item
+                                {...field}
+                                isListField={true}
+                                label="Значение характеристики"
+                                name={[field.name, "value"]}
+                                fieldKey={[field.fieldKey, "value"]}
+                                initialValue={properties && properties.length ?
+                                    properties[index] ? properties[index].value : "" : ""}
+                            >
+                                <Input onClick={() => addRowProperty(index, add, fields)} maxLength={255} type="text"/>
+                            </Form.Item>
 
-    // Изменение строки во вкладке "Характеристики"
-    const changeRowPropertyHandler = (value, index) => {
-        let selectRow;
-
-        selectRow = value === "Не выбрано" ?
-            {
-                equipmentProperty: null,
-                value: null,
-                id: selectsArray[index].id
-            } :
-            {
-                equipmentProperty: value,
-                value: selectsArray[index].value,
-                id: selectsArray[index].id
-            }
-
-        dispatch(ActionCreator.ActionCreatorEquipment.editSelectRow(selectRow, index));
-    }
-
-    return selectsArray && selectsArray.length ?
-        selectsArray.map((label, index) => (
-            <Form.Item key={`${label.equipmentProperty}-${label.id}`}>
-                <Row gutter={8}>
-                    <Col span={11}>
-                        <Form.Item
-                            label="Наименование характеристики"
-                            name={`label-${label.equipmentProperty}-${label.id}`}
-                            initialValue={label.equipmentProperty === "Не выбрано" ?
-                                "Не выбрано" : label.equipmentProperty ? label.equipmentProperty.name ?
-                                    label.equipmentProperty.name : label.equipmentProperty : "Не выбрано"}
-                        >
-                            <Select
-                                onClick={() => addRowProperty(index)}
-                                options={equipmentPropertyToOptions}
-                                onDropdownVisibleChange={dropDownRenderHandlerProperty}
-                                loading={loadingSelectCharacteristics}
-                                onChange={(value) => changeRowPropertyHandler(value, index)}
-                            />
-                        </Form.Item>
-                    </Col>
-
-                    <Col span={11}>
-                        <Form.Item label="Значение характеристики" name={`value-${label.value}-${label.id}`} initialValue={label.value}>
-                            <Input onClick={() => addRowProperty(index)} maxLength={255} type="text"/>
-                        </Form.Item>
-                    </Col>
-
-                    <Col span={2}>
-                        <Form.Item label=" ">
-                            <Button onClick={() => deleteRowProperty(index)} icon={<DeleteOutlined/>} type="danger"/>
-                        </Form.Item>
-                    </Col>
-                </Row>
-            </Form.Item>
-        )) : <>
-            Список характеристик пуст. <a href="/" onClick={() => RowMapHelper("equipmentProperties", null)}>Добавить характеристику оборудования?</a>
-        </>;
-};
+                            <Form.Item label=" ">
+                                <Button onClick={() => remove(field.name)} icon={<DeleteOutlined/>} type="danger"/>
+                            </Form.Item>
+                        </Space>
+                    ))}
+                </>
+            }}
+        </Form.List>
+    ), [properties, equipmentPropertyToOptions, dropDownRenderHandlerProperty, loadingSelectCharacteristics])
+}

@@ -43,12 +43,12 @@ const map = new Map([
 /**
  * Создание мапы соответствия для функций открытия/редактирования вкладок
  * @param key - ключ для поиска компонента, добавляемого во вкладку
- * @param rowData - редактируемая строка
+ * @param _id - id строчки
  * @constructor
  */
-const RowMapHelper = (key, rowData) => {
+const RowMapHelper = (key, _id) => {
     if (map.has(key)) {
-        map.get(key).getRow(rowData, key).then(null);
+        map.get(key).getRow(_id, key).then(null);
     } else {
         message.error(`Раздел с ключём ${key} не существует (открытие вкладки создания/редактирования записи)`)
             .then(r => console.log(r));

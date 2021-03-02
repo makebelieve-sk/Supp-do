@@ -1,5 +1,5 @@
 // Раздел "Оборудование"
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {Button, Card, Form, Input, Row, Col, Select, Skeleton, Tabs} from 'antd';
 import {CheckOutlined, StopOutlined} from "@ant-design/icons";
 import {useSelector} from "react-redux";
@@ -47,6 +47,24 @@ export const EquipmentTab = ({specKey, onRemove}) => {
     if (rowData) {
         initialEquipment = rowData.parent;
     }
+
+    useEffect(() => {
+        if (rowData && rowData.properties && rowData.properties.length) {
+            let resArr = [];
+
+            rowData.properties.forEach(property => {
+                let obj = {};
+                obj.equipmentProperty = property.equipmentProperty ? property.equipmentProperty.name : "Не выбрано";
+                obj.value = property ? property.value : "";
+
+                resArr.push(obj);
+            });
+
+            form.setFieldsValue({properties: resArr});
+        } else {
+            form.setFieldsValue({properties: [{equipmentProperty: "Не выбрано", value: ""}]});
+        }
+    }, [form, rowData]);
 
     // Создание заголовка раздела и наименования формы
     const title = rowData ? 'Редактирование оборудования' : 'Создание оборудования';
@@ -96,7 +114,7 @@ export const EquipmentTab = ({specKey, onRemove}) => {
 
     // Настройка компонента CharacteristicComponent (вкладка "Характеристики")
     const characteristicProps = {
-        selectsArray: selectsArray,
+        properties: rowData ? rowData.properties : null,
         equipmentPropertyToOptions: equipmentPropertyToOptions,
         dropDownRenderHandlerProperty: dropDownRenderHandlerProperty,
         loadingSelectCharacteristics: loadingSelectCharacteristics
@@ -131,7 +149,8 @@ export const EquipmentTab = ({specKey, onRemove}) => {
                                             _id: rowData ? rowData._id : "",
                                             parent: rowData && rowData.parent ? rowData.parent.name : "Не выбрано",
                                             name: rowData ? rowData.name : "",
-                                            notes: rowData ? rowData.notes : ""
+                                            notes: rowData ? rowData.notes : "",
+                                            // properties: rowData ? rowData.properties : ["", ""]
                                         }}
                                     >
                                         <Tabs defaultActiveKey="name">

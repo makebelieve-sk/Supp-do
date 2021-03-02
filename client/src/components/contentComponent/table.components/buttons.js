@@ -73,7 +73,7 @@ export const ButtonsComponent = ({specKey, onExport, checkedColumns, setCheckedC
         return (
             <Row align="middle">
                 <Button className="button-style" icon={<PlusOutlined/>} type="primary"
-                        onClick={() => RowMapHelper(specKey, null)}>Добавить</Button>
+                        onClick={() => RowMapHelper(specKey, "-1")}>Добавить</Button>
                 <Button className="button-style" icon={<FileExcelOutlined/>} size="middle"
                         onClick={e => onExport(e.target.value)}>Экспорт</Button>
                 <Button className="button-style" icon={<PrinterOutlined/>} size="middle"

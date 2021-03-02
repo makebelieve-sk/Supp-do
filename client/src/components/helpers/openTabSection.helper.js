@@ -7,6 +7,7 @@ import {BodyManager} from "./bodyManager";
 import {request} from "./request.helper";
 import TabOptions from "../../options/tab.options/tab.options";
 import getParents from "./getRowParents.helper";
+import {Professions} from "../../model/Profession";
 
 /**
  * Создание вкладки раздела
@@ -23,32 +24,39 @@ export const OpenTabSectionHelper = async (title, key, url, dispatchAction) => {
     // Вызываем пустую вкладку для показа спиннера загрузки
     getEmptyTabWithLoading(title, BodyManager, key);
 
-    let URL = "/api/directory/" + url;
+    //===================================================================
+    if (key === "professions") {
+        await Professions.getAll();
+    } else {
+        //===================================================================
 
-    if (url === "log-do") {
-        URL = "/api/log-do/" + moment().startOf("month").format(TabOptions.dateFormat)
-            + "/" + moment().endOf("month").format(TabOptions.dateFormat);
-    }
-    // Получаем данные для раздела
-    const items = await request(URL);
+        let URL = "/api/directory/" + url;
 
-    // Если есть данные, то записываем полученные данные в хранилище
-    if (items && items.length > 0) {
-        if (url === "equipment" || url === "departments") {
-            items.forEach(item => {
-                if (item.parent) {
-                    item.nameWithParent = getParents(item, items) + item.name
-                } else {
-                    item.nameWithParent = item.name
-                }
-            })
-
-            store.dispatch(dispatchAction(items));
-        } else {
-            store.dispatch(dispatchAction(items));
+        if (url === "log-do") {
+            URL = "/api/log-do/" + moment().startOf("month").format(TabOptions.dateFormat)
+                + "/" + moment().endOf("month").format(TabOptions.dateFormat);
         }
-    }
+        // Получаем данные для раздела
+        const items = await request(URL);
 
-    // Останавливаем показ спиннера загрузки при открытии вкладки
-    store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(false));
+        // Если есть данные, то записываем полученные данные в хранилище
+        if (items && items.length > 0) {
+            if (url === "equipment" || url === "departments") {
+                items.forEach(item => {
+                    if (item.parent) {
+                        item.nameWithParent = getParents(item, items) + item.name
+                    } else {
+                        item.nameWithParent = item.name
+                    }
+                })
+
+                store.dispatch(dispatchAction(items));
+            } else {
+                store.dispatch(dispatchAction(items));
+            }
+        }
+
+        // Останавливаем показ спиннера загрузки при открытии вкладки
+        store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(false));
+    }
 };

@@ -6,11 +6,28 @@ const router = Router();
 // Возвращает запись по коду
 router.get('/professions/:id', async (req, res) => {
     try {
-        const item = await Profession.findById({_id: req.params.id});
+        let item;
+
+        if (req.params.id === "-1") {
+            // Находим уже созданный пустой документ
+            const emptyItem = await Profession.findOne({itemId: "-1"});
+
+            // Если созданный пустой документ есть, возвращаем его, иначе создаем пустой документ
+            if (emptyItem) {
+                item = emptyItem;
+            } else {
+                // Создание новой записи
+                item = await Profession.create({itemId: "-1", name: " ", notes: ""});
+            }
+        } else {
+            // Редактирование существующей записи
+            item = await Profession.findById({_id: req.params.id});
+        }
 
         if (!item) {
             return res.status(400).json({message: `Профессия с кодом ${req.params.id} не существует`});
         }
+        console.log(item)
 
         res.status(201).json({profession: item});
     } catch (e) {
@@ -22,6 +39,7 @@ router.get('/professions/:id', async (req, res) => {
 router.get('/professions', async (req, res) => {
     try {
         const items = await Profession.find({});
+
         res.json(items);
     } catch (e) {
         res.status(500).json({message: "Ошибка при получении записей о профессиях"})
@@ -31,18 +49,25 @@ router.get('/professions', async (req, res) => {
 // Сохраняет новую запись
 router.post('/professions', async (req, res) => {
     try {
-        const {name, notes} = req.body;
-        const item = await Profession.findOne({name});
+        const {_id, name, notes} = req.body;
+        const item = await Profession.findOne({_id});
 
-        if (item) {
-            return res.status(400).json({message: `Профессия с именем ${name} уже существует`});
+        if (!item) {
+            return res.status(400).json({message: `Профессия с кодом ${_id} не найдена`});
         }
 
-        const newItem = new Profession({name: name, notes: notes})
+        if (item.name === name) {
+            return res.status(400).json({message: `Профессия с именем ${name} уже существует`});
+        }
+        console.log("Перед сохранением", item)
+        item.itemId = _id;
+        item.name = name;
+        item.notes = notes;
+        console.log(item)
 
-        let savedItem = await newItem.save();
+        await item.save();
 
-        res.status(201).json({message: "Профессия сохранена", item: savedItem});
+        res.status(201).json({message: "Профессия сохранена", item: item});
     } catch (e) {
         res.status(500).json({message: "Ошибка при создании записи"})
     }
@@ -51,13 +76,14 @@ router.post('/professions', async (req, res) => {
 // Изменяет запись
 router.put('/professions', async (req, res) => {
     try {
-        const {_id, name, notes} = req.body;
+        const {_id, itemId, name, notes} = req.body;
         const item = await Profession.findById({_id});
 
         if (!item) {
             return res.status(400).json({message: `Профессия с кодом ${_id} не найдена`});
         }
 
+        item.itemId = itemId;
         item.name = name;
         item.notes = notes;
 

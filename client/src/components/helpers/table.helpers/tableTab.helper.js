@@ -1,4 +1,4 @@
-import {ProfessionTab} from "../../tabs/professionTab";
+import {ProfessionTab} from "../../tabs/profession/profession.edit";
 import {DepartmentTab} from "../../tabs/departmentTab";
 import {PersonTab} from "../../tabs/personTab";
 import {TaskTab} from "../../tabs/taskTab";
@@ -11,41 +11,45 @@ import {ActionCreator} from "../../../redux/combineActions";
 
 import {request} from "../request.helper";
 import {getEmptyTabWithLoading} from "../getEmptyTab.helper";
+import {Professions} from "../../../model/Profession";
 
 /**
  * Добавление и заполнение вкладки "Профессии"
- * @param rowData - редактируемая строка
+ * @param _id - id редактируемой строки
  * @constructor
  */
-const getProfession = async (rowData) => {
-    // Устанавливаем показ спиннера загрузки при открытии вкладки с записью
-    store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(true));
+const getProfession = async (_id) => {
+    try {
+        // Устанавливаем показ спиннера загрузки при открытии вкладки с записью
+        store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(true));
 
-    if (rowData === null) {
-        // Вызываем пустую вкладку новой записи для показа спиннера загрузки
-        getEmptyTabWithLoading(
-            'Создание профессии', ProfessionTab, 'newProfession'
-        );
+        if (_id === "-1") {
+            // Вызываем пустую вкладку новой записи для показа спиннера загрузки
+            getEmptyTabWithLoading('Создание профессии', ProfessionTab, 'newProfession');
 
-        // Обнуляем данные в редактируемой строчке
-        store.dispatch(ActionCreator.ActionCreatorProfession.setRowDataProfession(null));
-    } else {
-        // Вызываем пустую вкладку редактируемой записи для показа спиннера загрузки
-        getEmptyTabWithLoading(
-            'Редактирование профессии', ProfessionTab, 'updateProfession'
-        );
+            // Обнуляем данные в редактируемой строчке
+            // store.dispatch(ActionCreator.ActionCreatorProfession.setRowDataProfession(null));
+        } else {
+            // Вызываем пустую вкладку редактируемой записи для показа спиннера загрузки
+            getEmptyTabWithLoading('Редактирование профессии', ProfessionTab, 'updateProfession');
+
+            // let data = await request('/api/directory/professions/' + rowData._id);
+
+            // Если есть данные о записи, то записываем полученные данные в хранилище
+            // if (data) {
+            //     store.dispatch(ActionCreator.ActionCreatorProfession.setRowDataProfession(data.profession));
+            // }
+        }
 
         // Получаем данные для записи
-        let data = await request('/api/directory/professions/' + rowData._id);
+        await Professions.get(_id);
 
-        // Если есть данные о записи, то записываем полученные данные в хранилище
-        if (data) {
-            store.dispatch(ActionCreator.ActionCreatorProfession.setRowDataProfession(data.profession));
-        }
+        // Останавливаем показ спиннера загрузки при открытии вкладки с записью
+        store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(false));
+    } catch (e) {
+        // Останавливаем показ спиннера загрузки при открытии вкладки с записью
+        store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(false));
     }
-
-    // Останавливаем показ спиннера загрузки при открытии вкладки с записью
-    store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(false));
 };
 
 /**
@@ -214,7 +218,8 @@ const getEquipment = async (rowData, key) => {
         store.dispatch(ActionCreator.ActionCreatorEquipment.getAllSelectRows([{
             equipmentProperty: "Не выбрано",
             value: "",
-            id: Math.random(),
+            id: Date.now(),
+            name: 0,
             _id: null
         }]));
         store.dispatch(ActionCreator.ActionCreatorEquipment.getAllFiles([]));
@@ -245,7 +250,8 @@ const getEquipment = async (rowData, key) => {
                 store.dispatch(ActionCreator.ActionCreatorEquipment.getAllSelectRows([{
                     equipmentProperty: "Не выбрано",
                     value: "",
-                    id: Math.random(),
+                    id: Date.now(),
+                    name: 0,
                     _id: null
                 }]));
             }

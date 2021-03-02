@@ -1,6 +1,7 @@
 // Маршруты для "Перечень оборудования"
 const {Router} = require("express");
 const Equipment = require("../models/Equipment");
+const EquipmentProperty = require("../models/EquipmentProperty");
 const File = require("../models/File");
 const router = Router();
 
@@ -44,7 +45,6 @@ router.post('/equipment', async (req, res) => {
         let resFileArr = [];
 
         const {name, notes, parent, properties, files} = req.body;
-
         if (parent) {
             if (name === parent.name) {
                 return res.status(400).json({message: "Объект не может принадлежать сам себе"});
@@ -62,6 +62,18 @@ router.post('/equipment', async (req, res) => {
                 resFileArr.push(findFile);
             }
         }
+
+        const equipmentProperties = await EquipmentProperty.find({});
+
+        properties.forEach(select => {
+            let foundEquipmentProperty = equipmentProperties.find(property => {
+                return property._id === select.equipmentProperty || property.name === select.equipmentProperty;
+            });
+
+            if (foundEquipmentProperty) {
+                select.equipmentProperty = foundEquipmentProperty;
+            }
+        });
 
         const newItem = new Equipment({parent, name, notes, properties, files: resFileArr});
 
@@ -82,6 +94,7 @@ router.post('/equipment', async (req, res) => {
 router.put('/equipment', async (req, res) => {
     try {
         const {_id, name, notes, parent, properties, files} = req.body;
+        console.log(req.body)
         const item = await Equipment.findById({_id});
         let resFileArr = [];
 
@@ -110,6 +123,18 @@ router.put('/equipment', async (req, res) => {
                 }
             }
         }
+
+        const equipmentProperties = await EquipmentProperty.find({});
+
+        properties.forEach(select => {
+            let foundEquipmentProperty = equipmentProperties.find(property => {
+                return property._id === select.equipmentProperty || property.name === select.equipmentProperty;
+            });
+
+            if (foundEquipmentProperty) {
+                select.equipmentProperty = foundEquipmentProperty;
+            }
+        });
 
         item.parent = parent;
         item.name = name;
