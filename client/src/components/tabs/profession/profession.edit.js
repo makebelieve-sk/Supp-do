@@ -20,18 +20,16 @@ export const ProfessionTab = ({specKey, onRemove}) => {
     const [loadingSave, setLoadingSave] = useState(false);
 
     // Инициализация заголовка раздела и имени формы
-    const title = !item || item.itemId === "-1" ? "Создание профессии" : "Редактирование профессии";
-    const name = !item || item.itemId === "-1" ? "control-ref-profession" : `control-ref-profession-${item._id}`;
+    const title = !item || item.isCreated ? "Создание профессии" : "Редактирование профессии";
 
-    console.log(name)
     // Обработка нажатия на кнопку "Сохранить"
     const saveHandler = async (values) => {
         await Professions.save(values, setLoadingSave, onRemove, specKey);
     };
 
     // Обработка нажатия на кнопку "Удалить"
-    const deleteHandler = async (setLoadingDelete, setVisiblePopConfirm, onRemove, specKey) => {
-        await Professions.delete(item, setLoadingDelete, setVisiblePopConfirm, onRemove, specKey);
+    const deleteHandler = async (setLoadingDelete, setVisiblePopConfirm) => {
+        await Professions.delete(item._id, setLoadingDelete, setVisiblePopConfirm, onRemove, specKey);
     };
 
     const cancelHandler = () => Professions.cancel(onRemove, specKey);
@@ -46,20 +44,20 @@ export const ProfessionTab = ({specKey, onRemove}) => {
                             description={
                                 <Form
                                     style={{marginTop: '5%'}}
-                                    name={name}
+                                    name="profession-item"
                                     onFinishFailed={onFailed}
                                     onFinish={saveHandler}
                                     initialValues={{
-                                        _id: item ? item._id : "-1",
-                                        itemId: item ? item.itemId : "-1",
-                                        name: item ? item.name : "",
-                                        notes: item ? item.notes : ""
+                                        _id: !item ? null : item._id,
+                                        isCreated: !item ? null : item.isCreated,
+                                        name: !item ? null : item.name,
+                                        notes: !item ? null : item.notes
                                     }}
                                 >
                                     <Form.Item name="_id" hidden={true}>
                                         <Input/>
                                     </Form.Item>
-                                    <Form.Item name="itemId" hidden={true}>
+                                    <Form.Item name="isCreated" hidden={true}>
                                         <Input/>
                                     </Form.Item>
 

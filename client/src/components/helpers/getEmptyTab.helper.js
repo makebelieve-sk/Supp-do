@@ -27,7 +27,7 @@ export const getEmptyTabWithLoading = (title, content, key) => {
     let indexOf = tabs.indexOf(findTab);
 
     if (findTab && indexOf >= 0) {
-        store.dispatch(ActionCreator.ActionCreatorTab.editTab(indexOf, findTab));
+        store.dispatch(ActionCreator.ActionCreatorTab.editTab(indexOf, tabObject));
     } else {
         store.dispatch(ActionCreator.ActionCreatorTab.addTab(tabObject));
     }

@@ -2,7 +2,7 @@ const { Schema, model } = require("mongoose");
 
 // Создаем модель Профессии
 const schema = new Schema({
-    itemId: { type: String },
+    isCreated: { type: Boolean },
     name: { type: String, required: true, unique: true },
     notes: { type: String }
 });

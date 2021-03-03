@@ -26,12 +26,25 @@ export const DepartmentTab = ({specKey, onRemove}) => {
         loadingSkeleton: state.reducerLoading.loadingSkeleton
     }));
 
+    let valuesToOptions = [{label: "Не выбрано", value: null}];
+
+    if (departments) {
+        departments.forEach((item) => {
+            let object = {
+                label: item.nameWithParent ?? item.name,
+                value: item._id
+            }
+
+            valuesToOptions.push(object);
+        })
+    }
+
     // Инициализация стейта для показа спиннера загрузки при сохранении/редактировании/удалении записи и обновлении
     // выпадающего списка
     const [loadingSave, setLoadingSave] = useState(false);
     const [loadingSelectDep, setLoadingSelectDep] = useState(false);
 
-    // Инициализация начлаьного значения в выпадающем списке
+    // Инициализация начального значения в выпадающем списке
     let initialDepartment = null, foundParentName = {};
 
     // Если вкладка редактирования, то устанавливаем начальные значения для выпадающих списков
@@ -53,7 +66,7 @@ export const DepartmentTab = ({specKey, onRemove}) => {
 
     // Создание стейта для значений в выпадающем списке "Подразделения" и начального значения
     const [selectDep, setSelectDep] = useState(null);
-    const [departmentsToOptions, setDepartmentsToOptions] = useState([]);
+    const [departmentsToOptions, setDepartmentsToOptions] = useState(valuesToOptions);
 
     // Инициализация хука useForm() от Form antd
     const [form] = Form.useForm();
@@ -64,7 +77,7 @@ export const DepartmentTab = ({specKey, onRemove}) => {
 
     // Обработка нажатия на кнопку "Сохранить"
     const saveHandler = (values) => {
-        values.parent = selectDep === "Не выбрано" ? null : selectDep ? selectDep : initialDepartment;
+        values.parent = selectDep === null ? null : selectDep ? selectDep : initialDepartment;
 
         onSave(
             "departments", values, setLoadingSave, ActionCreator.ActionCreatorDepartment.editDepartment,
@@ -105,7 +118,7 @@ export const DepartmentTab = ({specKey, onRemove}) => {
                                     onFinishFailed={onFailed}
                                     initialValues={{
                                         _id: rowData ? rowData._id : "",
-                                        parent: rowData && rowData.parent && foundParentName ? foundParentName.nameWithParent : "Не выбрано",
+                                        parent: rowData && rowData.parent && foundParentName ? foundParentName._id : null,
                                         name: rowData ? rowData.name : "",
                                         notes: rowData ? rowData.notes : ""
                                     }}

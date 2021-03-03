@@ -37,10 +37,10 @@ const ActionCreatorProfession = {
         }
     },
     // Установка данных для строки раздела "Профессии"
-    setRowDataProfession: (rowData) => {
+    setRowDataProfession: (item) => {
         return {
             type: SET_ROW_DATA_PROFESSION,
-            payload: rowData
+            payload: item
         }
     }
 }

@@ -2,6 +2,9 @@ import React from 'react';
 import {Tooltip} from "antd";
 
 import store from "../../redux/store";
+import moment from "moment";
+import TabOptions from "../tab.options/tab.options";
+import {CheckOutlined} from "@ant-design/icons";
 
 // Создание заголовка таблицы
 const headerProfessionTable = 'Наименование, Примечание';
@@ -54,7 +57,11 @@ const DepartmentColumns = [
             }
 
             return {
-                children: <div>{foundElement ? foundElement.nameWithParent : text}</div>,
+                children: <div>
+                    <Tooltip placement="topLeft" title={foundElement ? foundElement.nameWithParent : text}>
+                        {text}
+                    </Tooltip>
+                </div>
             };
         }
     },
@@ -174,11 +181,17 @@ const TasksColumns = [
         sorter: (a, b) => a.isFinish.length - b.isFinish.length,
         sortDirections: ['descend', 'ascend'],
         render(text, record) {
+            let formattedIsFinish = "";
+
+            if (record.isFinish) {
+                formattedIsFinish = <CheckOutlined/>;
+            }
+
             return {
                 props: {
                     style: {background: record.color},
                 },
-                children: <div>{text}</div>,
+                children: <div>{formattedIsFinish}</div>,
             };
         },
     },
@@ -240,22 +253,24 @@ const EquipmentColumns = [
 const LogDOColumns = [
     {
         title: "Дата заявки",
-        dataIndex: "formattedDate",
+        dataIndex: "date",
         key: "date",
         width: 100,
         sorter: (a, b) => a.date > b.date,
         sortDirections: ["descend", "ascend"],
         render(text, record) {
+            const formattedDate = moment(record.date).format(TabOptions.dateFormat);
+
             if (record.state && record.state.color) {
                 return {
                     props: {
                         style: {background: record.state.color},
                     },
-                    children: <div>{text}</div>,
+                    children: <div>{formattedDate}</div>,
                 };
             } else {
                 return {
-                    children: <div>{text}</div>,
+                    children: <div>{formattedDate}</div>,
                 };
             }
         },

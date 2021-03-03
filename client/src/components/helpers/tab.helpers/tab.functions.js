@@ -12,7 +12,7 @@ const CheckTypeTab = (item, deleteHandler) => {
     const [loadingDelete, setLoadingDelete] = useState(false);
     const [visiblePopConfirm, setVisiblePopConfirm] = useState(false);
 
-    return !item || item.itemId !== "-1" ?
+    return item && !item.isCreated ?
         <>
             <Popconfirm
                 title="Вы уверены, что хотите удалить запись?"
@@ -145,24 +145,17 @@ const onCancel = (onRemove, specKey) => onRemove(specKey, 'remove');
 
 // Изменение значения в выпадающем списке
 const onChange = (form, value, setSelect, dataStore) => {
-    if (value === "Не выбрано") {
-        setSelect(value);
-        return null;
-    }
-
     if (dataStore && dataStore.length > 0) {
         let foundItem = dataStore.find(item => {
             return item._id === value;
         });
 
-        if (foundItem) {
-            setSelect(foundItem);
-        }
+        foundItem ? setSelect(foundItem) : setSelect(null);
     }
 };
 
 // Обновление значений в выпадающем списке
-const onDropDownRender = async (open, setLoading, url, dispatchAction, setSelectToOptions, rowData) => {
+const onDropDownRender = async (open, setLoading, url, dispatchAction, setSelectToOptions) => {
     try {
         if (open) {
             setLoading(true);
@@ -172,14 +165,14 @@ const onDropDownRender = async (open, setLoading, url, dispatchAction, setSelect
             if (url === 'equipment' || url === 'departments') {
                 items.forEach(item => {
                     if (item.parent) {
-                        item.nameWithParent = getParents(item, items) + item.name
+                        item.nameWithParent = getParents(item, items) + item.name;
                     }
                 })
             }
 
             store.dispatch(dispatchAction(items));
 
-            let valuesToOptions = [{label: "Не выбрано", value: "Не выбрано"}];
+            let valuesToOptions = [{label: "Не выбрано", value: null}];
 
             if (items) {
                 items.forEach((item) => {

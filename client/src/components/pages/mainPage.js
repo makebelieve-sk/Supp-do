@@ -124,7 +124,7 @@ export const MainPage = () => {
             <Sider trigger={null} collapsible collapsed={collapsed} width={300}>
                 <div className="logo">
                     <img src={logo} alt="Лого" className="logo-image" onClick={() => OpenTabSectionHelper(
-                        'Журнал Дефектов и отказов',
+                        'Журнал дефектов и отказов',
                         'logDO',
                         'log-do',
                         ActionCreator.ActionCreatorLogDO.getAllLogDO

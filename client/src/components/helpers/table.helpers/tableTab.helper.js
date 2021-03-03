@@ -1,21 +1,23 @@
 import {ProfessionTab} from "../../tabs/profession/profession.edit";
-import {DepartmentTab} from "../../tabs/departmentTab";
+import {DepartmentTab} from "../../tabs/department/department.edit";
 import {PersonTab} from "../../tabs/personTab";
 import {TaskTab} from "../../tabs/taskTab";
 import {EquipmentPropertyTab} from "../../tabs/EquipmentPropertyTab";
 import {EquipmentTab} from "../../tabs/equipmentTab";
 import {LogDOTab} from "../../tabs/logDOTab";
 
+import {Professions} from "../../../model/Profession";
+import {Departments} from "../../../model/Department";
+
 import store from "../../../redux/store";
 import {ActionCreator} from "../../../redux/combineActions";
 
 import {request} from "../request.helper";
 import {getEmptyTabWithLoading} from "../getEmptyTab.helper";
-import {Professions} from "../../../model/Profession";
 
 /**
  * Добавление и заполнение вкладки "Профессии"
- * @param _id - id редактируемой строки
+ * @param _id - id полученной строки
  * @constructor
  */
 const getProfession = async (_id) => {
@@ -23,23 +25,11 @@ const getProfession = async (_id) => {
         // Устанавливаем показ спиннера загрузки при открытии вкладки с записью
         store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(true));
 
-        if (_id === "-1") {
-            // Вызываем пустую вкладку новой записи для показа спиннера загрузки
-            getEmptyTabWithLoading('Создание профессии', ProfessionTab, 'newProfession');
+        // Название вкладки
+        const title = _id === "-1" ? "Создание профессии" : "Редактирование профессии";
 
-            // Обнуляем данные в редактируемой строчке
-            // store.dispatch(ActionCreator.ActionCreatorProfession.setRowDataProfession(null));
-        } else {
-            // Вызываем пустую вкладку редактируемой записи для показа спиннера загрузки
-            getEmptyTabWithLoading('Редактирование профессии', ProfessionTab, 'updateProfession');
-
-            // let data = await request('/api/directory/professions/' + rowData._id);
-
-            // Если есть данные о записи, то записываем полученные данные в хранилище
-            // if (data) {
-            //     store.dispatch(ActionCreator.ActionCreatorProfession.setRowDataProfession(data.profession));
-            // }
-        }
+        // Вызываем пустую вкладку записи для показа спиннера загрузки
+        getEmptyTabWithLoading(title, ProfessionTab, "professionItem");
 
         // Получаем данные для записи
         await Professions.get(_id);
@@ -47,42 +37,28 @@ const getProfession = async (_id) => {
         // Останавливаем показ спиннера загрузки при открытии вкладки с записью
         store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(false));
     } catch (e) {
-        // Останавливаем показ спиннера загрузки при открытии вкладки с записью
+        // Останавливаем показ спиннера загрузки при появлении ошибки
         store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(false));
     }
 };
 
 /**
  * Добавление и заполнение вкладки "Подразделения"
- * @param rowData - редактируемая строка
+ * @param _id - id полученной строки
  * @constructor
  */
-const getDepartment = async (rowData) => {
+const getDepartment = async (_id) => {
     // Устанавливаем показ спиннера загрузки при открытии вкладки с записью
     store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(true));
 
-    if (rowData === null) {
-        // Вызываем пустую вкладку новой записи для показа спиннера загрузки
-        getEmptyTabWithLoading(
-            'Создание подразделения', DepartmentTab, 'newDepartment'
-        );
+    // Название вкладки
+    const title = _id === "-1" ? "Создание подразделения" : "Редактирование подразделения";
 
-        // Обнуляем данные в редактируемой строчке
-        store.dispatch(ActionCreator.ActionCreatorDepartment.setRowDataDepartment(null));
-    } else {
-        // Вызываем пустую вкладку редактируемой записи для показа спиннера загрузки
-        getEmptyTabWithLoading(
-            'Редактирование подразделения', DepartmentTab, 'updateDepartment'
-        );
+    // Вызываем пустую вкладку записи для показа спиннера загрузки
+    getEmptyTabWithLoading(title, DepartmentTab, "departmentItem");
 
-        // Получаем данные для записи
-        let data = await request('/api/directory/departments/' + rowData._id);
-
-        // Если есть данные о записи, то записываем полученные данные в хранилище
-        if (data) {
-            store.dispatch(ActionCreator.ActionCreatorDepartment.setRowDataDepartment(data.department));
-        }
-    }
+    // Получаем данные для записи
+    await Departments.get(_id);
 
     // Останавливаем показ спиннера загрузки при открытии вкладки с записью
     store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(false));
@@ -199,6 +175,7 @@ const getEquipmentProperty = async (rowData) => {
 /**
  * Добавление и заполнение вкладки "Перечень оборудования"
  * @param rowData - редактируемая строка
+ * @param key - ключ вкладки
  * @constructor
  */
 const getEquipment = async (rowData, key) => {

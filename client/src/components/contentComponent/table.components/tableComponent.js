@@ -2,7 +2,6 @@ import moment from "moment";
 import React, {useState} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
 import {message, Row, Table, DatePicker} from "antd";
-import {CheckOutlined} from '@ant-design/icons';
 
 import {Header} from './header';
 import {ButtonsComponent} from "./buttons";
@@ -44,27 +43,11 @@ export const TableComponent = ({specKey}) => {
     const [columnsTable, setColumnsTable] = useState(columns);
     const [checkedColumns, setCheckedColumns] = useState([]);
 
-    // Фильтрация данных через строку поиска
     let dataKeys = [];
     let filteredItems = new Set();
 
+    // Реализация поиска
     if (data && data.length > 0) {
-        // Если поле isFinish = true, то устанавливаем иконку "Галочка"
-        if (specKey === 'tasks') {
-            data.forEach(task => {
-                if (task.isFinish) {
-                    task.isFinish = <CheckOutlined/>;
-                }
-            })
-        }
-
-        // Если поле isFinish = true, то устанавливаем иконку "Галочка"
-        if (specKey === 'logDO') {
-            data.forEach(log => {
-                log.formattedDate = moment(log.date).format(TabOptions.dateFormat);
-            })
-        }
-
         // Получаем ключи - столбцы таблицы
         dataKeys = Object.keys(data[0]);
 
