@@ -1,34 +1,59 @@
 // Маршруты для "Журнала дефектов и отказов"
-
+const moment = require("moment");
 const {Router} = require("express");
 const File = require("../models/File");
 const LogDO = require("../models/LogDO");
 const router = Router();
-const moment = require("moment");
 
 const dateFormat = "DD.MM.YYYY HH:mm";
 
 // Возвращает запись по коду
 router.get('/log-do/:id', async (req, res) => {
-    const id = req.params.id;
+    const _id = req.params.id;
 
     try {
-        const item = await LogDO.findById({_id: id})
-            .populate('applicant')
-            .populate("equipment")
-            .populate("department")
-            .populate("responsible")
-            .populate("state")
-            .populate("acceptTask")
-            .populate("files");
+        let item, isNewItem = true;
 
-        if (!item) {
-            return res.status(400).json({message: `Запись с кодом ${id} не существует`});
+        if (_id === "-1") {
+            // Создание новой записи
+            item = new LogDO({
+                date: moment(),
+                applicant: null,
+                equipment: null,
+                notes: "",
+                sendEmail: false,
+                productionCheck: false,
+                department: null,
+                responsible: null,
+                task: "",
+                state: null,
+                dateDone: null,
+                planDateDone: null,
+                content: "",
+                downtime: null,
+                acceptTask: false,
+                files: []
+            });
+        } else {
+            // Редактирование существующей записи
+            item = await LogDO.findById({_id})
+                .populate('applicant')
+                .populate("equipment")
+                .populate("department")
+                .populate("responsible")
+                .populate("state")
+                .populate("files");
+
+            isNewItem = false;
         }
 
-        res.status(201).json({logDO: item});
+        if (!item) {
+            return res.status(400).json({message: `Запись с кодом ${_id} не существует`});
+        }
+
+        res.status(201).json({isNewItem, logDO: item});
     } catch (e) {
-        res.status(500).json({message: `Ошибка при открытии записи с кодом ${id}`})
+        res.status(500).json({message: `Ошибка при открытии записи с кодом ${_id}`})
     }
 });
 
@@ -48,7 +73,6 @@ router.get("/log-do/:dateStart/:dateEnd", async (req, res) => {
             .populate("department")
             .populate("responsible")
             .populate("state")
-            .populate("acceptTask")
             .populate("files");
 
         res.json(items);
@@ -62,14 +86,8 @@ router.post('/log-do', async (req, res) => {
     try {
         let resFileArr = [];
 
-        let {date, numberLog, applicant, equipment, notes, sendEmail, productionCheck, department, responsible, task, state,
+        let {date, applicant, equipment, notes, sendEmail, productionCheck, department, responsible, task, state,
             dateDone, planDateDone, content, downtime, acceptTask, files} = req.body;
-
-        const item = await LogDO.findOne({numberLog});
-
-        if (item) {
-            numberLog = numberLog.slice(0, 3) + numberLog.slice(3, 4) * 1 + 1;
-        }
 
         if (files && files.length >= 0) {
             for (const file of files) {
@@ -83,20 +101,19 @@ router.post('/log-do', async (req, res) => {
             }
         }
 
-        const newItem = new LogDO({
-            numberLog, date, equipment, notes, applicant, responsible, department, task, state, dateDone,
+        const item = new LogDO({
+            date, equipment, notes, applicant, responsible, department, task, state, dateDone,
             content, acceptTask, files: resFileArr, sendEmail, productionCheck, planDateDone, downtime
         });
 
-        await newItem.save();
+        await item.save();
 
-        let currentItem = await LogDO.findOne({numberLog})
-            .populate('applicant')
+        let currentItem = await LogDO.findById({_id: item._id})
+            .populate("applicant")
             .populate("equipment")
             .populate("department")
             .populate("responsible")
             .populate("state")
-            .populate("acceptTask")
             .populate("files");
 
         res.status(201).json({message: "Запись сохранена", item: currentItem});
@@ -109,7 +126,7 @@ router.post('/log-do', async (req, res) => {
 router.put('/log-do', async (req, res) => {
     try {
         let resFileArr = [];
-        const {_id, numberLog, date, applicant, equipment, notes, sendEmail, productionCheck, department, responsible, task, state,
+        const {_id, date, applicant, equipment, notes, sendEmail, productionCheck, department, responsible, task, state,
             dateDone, planDateDone, content, downtime, acceptTask, files} = req.body;
         const item = await LogDO.findById({_id});
 
@@ -133,7 +150,6 @@ router.put('/log-do', async (req, res) => {
             }
         }
 
-        item.numberLog = numberLog;
         item.date = date;
         item.applicant = applicant;
         item.equipment = equipment;
@@ -154,12 +170,11 @@ router.put('/log-do', async (req, res) => {
         await item.save();
 
         let savedItem = await LogDO.findById({_id})
-            .populate('applicant')
+            .populate("applicant")
             .populate("equipment")
             .populate("department")
             .populate("responsible")
             .populate("state")
-            .populate("acceptTask")
             .populate("files");
 
         res.status(201).json({message: "Запись сохранена", item: savedItem});
@@ -170,14 +185,14 @@ router.put('/log-do', async (req, res) => {
 
 // Удаляет запись
 router.delete('/log-do/:id', async (req, res) => {
-    const id = req.params.id;
+    const _id = req.params.id;
 
     try {
-        await LogDO.deleteOne({_id: id});
+        await LogDO.deleteOne({_id});
 
         res.status(201).json({message: "Запись успешно удалена"});
     } catch (e) {
-        res.status(500).json({message: `Ошибка при удалении записи с кодом ${id}`})
+        res.status(500).json({message: `Ошибка при удалении записи с кодом ${_id}`})
     }
 });
 

@@ -1,27 +1,28 @@
 // Раздел "Оборудование"
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import {Button, Card, Form, Input, Row, Col, Select, Skeleton, Tabs} from 'antd';
 import {CheckOutlined, StopOutlined} from "@ant-design/icons";
 import {useSelector} from "react-redux";
 
-import {UploadComponent} from "../contentComponent/tab.components/uploadComponent";
-import {CharacteristicComponent} from "../contentComponent/tab.components/characteristic.component";
-import {ActionCreator} from "../../redux/combineActions";
-import {CheckTypeTab, onChange, onDropDownRender, onFailed} from "../helpers/tab.helpers/tab.functions";
-import {HOCFunctions} from "../helpers/tab.helpers/tab.HOC.functions";
-import {RowMapHelper} from "../helpers/table.helpers/tableMap.helper";
+import {Equipment} from "../../../model/equipment";
+
+import {ActionCreator} from "../../../redux/combineActions";
+import {RowMapHelper} from "../../helpers/table.helpers/tableMap.helper";
+import {CheckTypeTab, getOptions, onFailed} from "../../helpers/tab.helpers/tab.functions";
+
+import {CharacteristicComponent} from "../../contentComponent/tab.components/characteristic.component";
+import {UploadComponent} from "../../contentComponent/tab.components/uploadComponent";
 
 const {Meta} = Card;
 const {TabPane} = Tabs;
 
 export const EquipmentTab = ({specKey, onRemove}) => {
-    // Получение списка подразделений и загрузки записи из хранилища redux
-    const {equipment, rowData, loadingSkeleton, equipmentProperties, selectsArray, files} = useSelector((state) => ({
+    // Получение списка подразделений и загрузки записи
+    const {equipment, item, loadingSkeleton, equipmentProperties, files} = useSelector((state) => ({
         equipment: state.reducerEquipment.equipment,
-        rowData: state.reducerEquipment.rowDataEquipment,
+        item: state.reducerEquipment.rowDataEquipment,
         loadingSkeleton: state.reducerLoading.loadingSkeleton,
         equipmentProperties: state.reducerEquipmentProperty.equipmentProperties,
-        selectsArray: state.reducerEquipment.selectsArray,
         files: state.reducerEquipment.files
     }));
 
@@ -33,98 +34,101 @@ export const EquipmentTab = ({specKey, onRemove}) => {
     const [loadingCancel, setLoadingCancel] = useState(false);
 
     // Создание стейта для значений в выпадающих списках
-    const [selectEquipment, setSelectEquipment] = useState(null);
-    const [equipmentToOptions, setEquipmentToOptions] = useState([]);
-    const [equipmentPropertyToOptions, setEquipmentPropertyToOptions] = useState([]);
+    const [options, setOptions] = useState(getOptions(equipment));
+    const [equipmentPropertyToOptions, setEquipmentPropertyToOptions] = useState(getOptions(equipmentProperties));
 
-    // Инициализация хука useForm() от Form antd
-    const [form] = Form.useForm();
+    let initialOptions = {_id: null};
+    let characteristicArr = [];
 
-    // Инициализация начлаьного значения в выпадающем списке
-    let initialEquipment = null;
-
-    // Если вкладка редактирования, то устанавливаем начальные значения для выпадающих списков
-    if (rowData) {
-        initialEquipment = rowData.parent;
+    // Начальное значение выбранного элемента в выпадающем списке Подразделения
+    if (equipment && equipment.length && item && item.parent) {
+        initialOptions = equipment.find(eq => eq._id === item.parent._id);
     }
 
-    useEffect(() => {
-        if (rowData && rowData.properties && rowData.properties.length) {
-            let resArr = [];
+    // Начальное значение выбранного элемента в выпадающих списках на вкладке Характеристики
+    if (item && item.properties && item.properties.length) {
+        item.properties.forEach(property => {
+            let obj = {
+                equipmentProperty: property.equipmentProperty ? property.equipmentProperty.name : "Не выбрано",
+                value: property ? property.value : ""
+            };
 
-            rowData.properties.forEach(property => {
-                let obj = {};
-                obj.equipmentProperty = property.equipmentProperty ? property.equipmentProperty.name : "Не выбрано";
-                obj.value = property ? property.value : "";
+            characteristicArr.push(obj);
+        });
+    }
 
-                resArr.push(obj);
-            });
-
-            form.setFieldsValue({properties: resArr});
-        } else {
-            form.setFieldsValue({properties: [{equipmentProperty: "Не выбрано", value: null}]});
-        }
-    }, [form, rowData]);
-
-    // Создание заголовка раздела и наименования формы
-    const title = rowData ? 'Редактирование оборудования' : 'Создание оборудования';
-    const name = rowData ? `control-ref-equipment-${rowData.name}` : "control-ref-equipment";
+    // Создание заголовка раздела и имени формы
+    const title = !item || item.isCreated ? "Создание оборудования" : "Редактирование оборудования";
 
     // Обработка нажатия на кнопку "Сохранить"
-    const saveHandler = (values) => {
-        const selectOptions = {selectEquipment, initialEquipment, equipmentProperties, selectsArray};
+    const saveHandler = async (values) => {
+        // Устанавливаем спиннер загрузки
+        setLoadingSave(true);
 
-        const onSaveOptions = {
-            url: "equipment", setLoadingSave, actionCreatorEdit: ActionCreator.ActionCreatorEquipment.editEquipment, rowData,
-            actionCreatorCreate: ActionCreator.ActionCreatorEquipment.createEquipment, dataStore: equipment, onRemove, specKey,
-        };
+        // Обновляем список подразделений
+        await Equipment.getAll();
 
-        HOCFunctions.onSave.onSaveHOCEquipment(values, files, selectOptions, onSaveOptions);
-    }
+        // Проверяем, есть ли выбранный элемент в списке подразделений
+        const foundEquipment = equipment.find(eq => {
+            return eq._id === values.parent;
+        });
+
+        values.parent = foundEquipment ? foundEquipment : null;
+        // Проверяем, выбраны ли значения в выпадающих списках на вкладке Характеристики
+        if (values.properties) {
+            values.properties = values.properties.filter(select => {
+                return select.equipmentProperty !== "Не выбрано" && select.equipmentProperty;
+            });
+        } else if (!values.properties && item.properties && item.properties.length) {
+            values.properties = item.properties;
+        } else {
+            values.properties = [];
+        }
+
+        values.files = files;
+
+        await Equipment.save(values, setLoadingSave, onRemove, specKey);
+    };
 
     // Обработка нажатия на кнопку "Удалить"
-    const deleteHandler = (setLoadingDelete, setVisiblePopConfirm) => {
-        const onSaveOptions = {
-            url: "equipment", setLoadingDelete, actionCreatorDelete: ActionCreator.ActionCreatorEquipment.deleteEquipment,
-            rowData, dataStore: equipment, onRemove, specKey, setVisiblePopConfirm
-        };
+    const deleteHandler = async (setLoadingDelete, setVisiblePopConfirm) => {
+        await Equipment.delete(item._id, setLoadingDelete, setVisiblePopConfirm, onRemove, specKey);
+    };
 
-        HOCFunctions.onDelete(setLoadingDelete, "equipment", onSaveOptions).then(null);
+    const cancelHandler = () => Equipment.cancel(onRemove, specKey, setLoadingCancel);
+
+    // Обновление выпадающего списка "Подразделения"
+    const dropDownRenderHandler = async (open, setLoadingSelect, model, setOptions, dataStore) => {
+        try {
+            if (open) {
+                setLoadingSelect(true);
+
+                await model.getAll();
+
+                setOptions(getOptions(dataStore));
+
+                setLoadingSelect(false);
+            }
+        } catch (e) {
+            setLoadingSelect(false);
+        }
     }
-
-    // Обработка нажатия на кнопку "Отмена"
-    const cancelHandler = () => {
-        const onCancelOptions = { onRemove, specKey };
-
-        HOCFunctions.onCancel(setLoadingCancel, onCancelOptions).then(null);
-    }
-
-    // Изменение значения в выпадающих списках
-    const changeHandler = (value) => onChange(form, value, setSelectEquipment, equipment);
-
-    // Обновление выпадающих списков
-    const dropDownRenderHandler = (open) => onDropDownRender(
-        open, setLoadingSelectEquipment, "equipment", ActionCreator.ActionCreatorEquipment.getAllEquipment,
-        setEquipmentToOptions);
-
-    // Обновление выпадающих списков во вкладке "Характеристики"
-    const dropDownRenderHandlerProperty = (open) => onDropDownRender(
-        open, setLoadingSelectCharacteristics, "equipment-property",
-        ActionCreator.ActionCreatorEquipmentProperty.getAllEquipmentProperties, setEquipmentPropertyToOptions);
 
     // Настройка компонента CharacteristicComponent (вкладка "Характеристики")
     const characteristicProps = {
-        properties: rowData ? rowData.properties : null,
-        equipmentPropertyToOptions: equipmentPropertyToOptions,
-        dropDownRenderHandlerProperty: dropDownRenderHandlerProperty,
-        loadingSelectCharacteristics: loadingSelectCharacteristics
+        equipmentPropertyToOptions,
+        dropDownRenderHandler,
+        loadingSelectCharacteristics,
+        setLoadingSelectCharacteristics,
+        equipmentProperties,
+        setEquipmentPropertyToOptions
     }
 
     // Настройка компонента UploadComponent (вкладка "Файлы")
     const uploadProps = {
         files,
         model: "equipment",
-        rowData,
+        item,
         actionCreatorAdd: ActionCreator.ActionCreatorEquipment.addFile,
         actionCreatorDelete: ActionCreator.ActionCreatorEquipment.deleteFile
     }
@@ -140,27 +144,35 @@ export const EquipmentTab = ({specKey, onRemove}) => {
                                 <>
                                     <Form
                                         className="form-styles"
-                                        name={name}
-                                        form={form}
+                                        name="equipment-item"
                                         layout="vertical"
                                         onFinish={saveHandler}
                                         onFinishFailed={onFailed}
                                         initialValues={{
-                                            _id: rowData ? rowData._id : "",
-                                            parent: rowData && rowData.parent ? rowData.parent.name : "Не выбрано",
-                                            name: rowData ? rowData.name : "",
-                                            notes: rowData ? rowData.notes : "",
-                                            // properties: rowData ? rowData.properties : ["", ""]
+                                            _id: !item ? null : item._id,
+                                            isCreated: !item ? null : item.isCreated,
+                                            name: !item ? null : item.name,
+                                            notes: !item ? null : item.notes,
+                                            parent: item && initialOptions ? initialOptions._id : null,
+                                            properties: item && item.properties && item.properties.length ? characteristicArr : [{equipmentProperty: "Не выбрано", value: null}]
                                         }}
                                     >
                                         <Tabs defaultActiveKey="name">
                                             <TabPane tab="Наименование" key="name" className="tabPane-styles">
+                                                <Form.Item name="_id" hidden={true}>
+                                                    <Input/>
+                                                </Form.Item>
+                                                <Form.Item name="isCreated" hidden={true}>
+                                                    <Input/>
+                                                </Form.Item>
+
                                                 <Form.Item name="parent" label="Принадлежит">
                                                     <Select
-                                                        options={equipmentToOptions}
-                                                        onDropdownVisibleChange={dropDownRenderHandler}
+                                                        options={options}
+                                                        onDropdownVisibleChange={async open => {
+                                                            await dropDownRenderHandler(open, setLoadingSelectEquipment, Equipment, setOptions, equipment);
+                                                        }}
                                                         loading={loadingSelectEquipment}
-                                                        onChange={changeHandler}
                                                     />
                                                 </Form.Item>
 
@@ -178,10 +190,6 @@ export const EquipmentTab = ({specKey, onRemove}) => {
                                                 <Form.Item label="Примечание" name="notes">
                                                     <Input maxLength={255} type="text"/>
                                                 </Form.Item>
-
-                                                <Form.Item name="_id" hidden={true}>
-                                                    <Input/>
-                                                </Form.Item>
                                             </TabPane>
 
                                             <TabPane tab="Характеристики" key="characteristics" className="tabPane-styles">
@@ -191,6 +199,7 @@ export const EquipmentTab = ({specKey, onRemove}) => {
                                                         onClick={() => RowMapHelper("equipmentProperties", null)}
                                                     >Добавить характеристику</Button>
                                                 </Row>
+
                                                 <CharacteristicComponent {...characteristicProps} />
                                             </TabPane>
 
@@ -212,7 +221,7 @@ export const EquipmentTab = ({specKey, onRemove}) => {
                                                 Сохранить
                                             </Button>
 
-                                            {CheckTypeTab(rowData, deleteHandler)}
+                                            {CheckTypeTab(item, deleteHandler)}
 
                                             <Button
                                                 className="button-style"

@@ -49,19 +49,8 @@ const DepartmentColumns = [
         },
         sortDirections: ['descend', 'ascend'],
         render(text, record) {
-            const departments = store.getState().reducerDepartment.departments;
-            let foundElement;
-
-            if (departments && departments.length && record.parent) {
-                foundElement = departments.find(item => item._id === record.parent._id);
-            }
-
             return {
-                children: <div>
-                    <Tooltip placement="topLeft" title={foundElement ? foundElement.nameWithParent : text}>
-                        {text}
-                    </Tooltip>
-                </div>
+                children: <div>{record.parent ? record.parent.name : ""}</div>
             };
         }
     },
@@ -113,7 +102,9 @@ const PersonColumns = [
             }
 
             return {
-                children: <div>{foundElement ? foundElement.nameWithParent : text}</div>,
+                children: <div><Tooltip placement="topLeft" title={foundElement ? foundElement.nameWithParent : text}>
+                    {text}
+                </Tooltip></div>,
             };
         }
     },
@@ -230,6 +221,11 @@ const EquipmentColumns = [
             }
         },
         sortDirections: ['descend', 'ascend'],
+        render(text, record) {
+            return {
+                children: <div>{record.parent ? record.parent.name : ""}</div>
+            };
+        }
     },
     {
         title: 'Наименование',
@@ -255,7 +251,7 @@ const LogDOColumns = [
         title: "Дата заявки",
         dataIndex: "date",
         key: "date",
-        width: 100,
+        width: 150,
         sorter: (a, b) => a.date > b.date,
         sortDirections: ["descend", "ascend"],
         render(text, record) {
@@ -286,7 +282,7 @@ const LogDOColumns = [
             }
         },
         sortDirections: ["descend", "ascend"],
-        render: (text, record) => {
+        render(text, record) {
             const equipment = store.getState().reducerEquipment.equipment;
             let foundElement;
 
@@ -294,25 +290,18 @@ const LogDOColumns = [
                 foundElement = equipment.find(item => item._id === record.equipment._id);
             }
 
-            if (record.state && record.state.color) {
-                return {
-                    props: {
-                        style: {background: record.state.color},
-                    },
-                    children: <div>{foundElement ? foundElement.nameWithParent : text}</div>,
-                };
-            } else {
-                return {
-                    children: <div>{foundElement ? foundElement.nameWithParent : text}</div>,
-                };
-            }
-        },
+            return {
+                children: <div><Tooltip placement="topLeft" title={foundElement ? foundElement.nameWithParent : text}>
+                    {text}
+                </Tooltip></div>,
+            };
+        }
     },
     {
         title: "Описание",
         dataIndex: "notes",
         key: 'notes',
-        width: 150,
+        width: 200,
         sorter: (a, b) => a.notes.length - b.notes.length,
         sortDirections: ['descend', 'ascend'],
         ellipsis: {
@@ -341,7 +330,7 @@ const LogDOColumns = [
         title: "Заявитель",
         dataIndex: ["applicant", "name"],
         key: "applicant",
-        width: 100,
+        width: 150,
         sorter: (a, b) => {
             if (a.applicant && b.applicant) {
                 return a.applicant.name.length - b.applicant.name.length;
@@ -367,7 +356,7 @@ const LogDOColumns = [
         title: "Исполнитель",
         dataIndex: ["responsible", "name"],
         key: "responsible",
-        width: 110,
+        width: 150,
         sorter: (a, b) => {
             if (a.responsible && b.responsible) {
                 return a.responsible.name.length - b.responsible.name.length;
@@ -388,6 +377,32 @@ const LogDOColumns = [
                 };
             }
         },
+    },
+    {
+        title: "Подразделение",
+        dataIndex: ["department", "name"],
+        key: "department",
+        width: 150,
+        sorter: (a, b) => {
+            if (a.department && b.department) {
+                return a.department.name.length - b.department.name.length;
+            }
+        },
+        sortDirections: ["descend", "ascend"],
+        render(text, record) {
+            const departments = store.getState().reducerDepartment.departments;
+            let foundElement;
+
+            if (departments && departments.length && record.department) {
+                foundElement = departments.find(item => item._id === record.department._id);
+            }
+
+            return {
+                children: <div><Tooltip placement="topLeft" title={foundElement ? foundElement.nameWithParent : text}>
+                    {text}
+                </Tooltip></div>,
+            };
+        }
     },
     {
         title: "Задание",
@@ -426,7 +441,7 @@ const LogDOColumns = [
         title: "Состояние",
         dataIndex: ["state", "name"],
         key: "state",
-        width: 100,
+        width: 150,
         sorter: (a, b) => {
             if (a.state && b.state) {
                 return a.state.name.length - b.state.name.length;
@@ -452,7 +467,7 @@ const LogDOColumns = [
         title: "Планируемая дата выполнения",
         dataIndex: "planDateDone",
         key: "planDateDone",
-        width: 100,
+        width: 150,
         sorter: (a, b) => {
             if (a.planDateDone && b.planDateDone) {
                 return a.planDateDone.length - b.planDateDone.length;
@@ -470,6 +485,65 @@ const LogDOColumns = [
             } else {
                 return {
                     children: <div>{text}</div>,
+                };
+            }
+        },
+    },
+    {
+        title: "Дата выполнения",
+        dataIndex: "dateDone",
+        key: "dateDone",
+        width: 150,
+        sorter: (a, b) => {
+            if (a.dateDone && b.dateDone) {
+                return a.dateDone.length - b.dateDone.length;
+            }
+        },
+        sortDirections: ["descend", "ascend"],
+        render(text, record) {
+            if (record.state && record.state.color) {
+                return {
+                    props: {
+                        style: {background: record.state.color},
+                    },
+                    children: <div>{text}</div>,
+                };
+            } else {
+                return {
+                    children: <div>{text}</div>,
+                };
+            }
+        },
+    },
+    {
+        title: "Содержание работ",
+        dataIndex: "content",
+        key: "content",
+        width: 200,
+        ellipsis: {
+            showTitle: false,
+        },
+        sorter: (a, b) => {
+            if (a.content && b.content) {
+                return a.content.length - b.content.length;
+            }
+        },
+        sortDirections: ["descend", "ascend"],
+        render(text, record) {
+            if (record.state && record.state.color) {
+                return {
+                    props: {
+                        style: {background: record.state.color},
+                    },
+                    children: <Tooltip placement="topLeft" title={text}>
+                        {text}
+                    </Tooltip>,
+                };
+            } else {
+                return {
+                    children: <Tooltip placement="topLeft" title={text}>
+                        {text}
+                    </Tooltip>,
                 };
             }
         },

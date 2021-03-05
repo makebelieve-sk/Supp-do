@@ -2,6 +2,7 @@ import React from 'react';
 import {BrowserRouter as Router} from "react-router-dom";
 import { ConfigProvider } from 'antd';
 import ruRU from 'antd/lib/locale/ru_RU';
+import "moment/locale/ru";
 import './App.css';
 
 import {useRoutes} from './hooks/routes.hook';

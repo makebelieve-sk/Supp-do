@@ -2,8 +2,9 @@
 import React, {useMemo} from "react";
 import {Button, Form, Input, Select, Space} from "antd";
 import {DeleteOutlined} from "@ant-design/icons";
+import {EquipmentProperty} from "../../../model/EquipmentProperty";
 
-export const CharacteristicComponent = ({properties, equipmentPropertyToOptions, dropDownRenderHandlerProperty, loadingSelectCharacteristics}) => {
+export const CharacteristicComponent = ({equipmentPropertyToOptions, dropDownRenderHandler, loadingSelectCharacteristics, setLoadingSelectCharacteristics, equipmentProperties, setEquipmentPropertyToOptions}) => {
     // Добавление строки во вкладке "Характеристики"
     const addRowProperty = (index, add, fields) => {
         if (index === fields.length - 1) {
@@ -23,14 +24,13 @@ export const CharacteristicComponent = ({properties, equipmentPropertyToOptions,
                                 label="Наименование характеристики"
                                 name={[field.name, "equipmentProperty"]}
                                 fieldKey={[field.fieldKey, "equipmentProperty"]}
-                                initialValue={properties && properties.length ?
-                                    properties[index] && properties[index].equipmentProperty ?
-                                        properties[index].equipmentProperty.name : "Не выбрано" : "Не выбрано"}
                             >
                                 <Select
                                     onClick={() => addRowProperty(index, add, fields)}
                                     options={equipmentPropertyToOptions}
-                                    onDropdownVisibleChange={dropDownRenderHandlerProperty}
+                                    onDropdownVisibleChange={async open => {
+                                        await dropDownRenderHandler(open, setLoadingSelectCharacteristics, EquipmentProperty, setEquipmentPropertyToOptions, equipmentProperties);
+                                    }}
                                     loading={loadingSelectCharacteristics}
                                 />
                             </Form.Item>
@@ -41,8 +41,6 @@ export const CharacteristicComponent = ({properties, equipmentPropertyToOptions,
                                 label="Значение характеристики"
                                 name={[field.name, "value"]}
                                 fieldKey={[field.fieldKey, "value"]}
-                                initialValue={properties && properties.length ?
-                                    properties[index] ? properties[index].value : "" : ""}
                             >
                                 <Input onClick={() => addRowProperty(index, add, fields)} maxLength={255} type="text"/>
                             </Form.Item>
@@ -55,5 +53,5 @@ export const CharacteristicComponent = ({properties, equipmentPropertyToOptions,
                 </>
             }}
         </Form.List>
-    ), [properties, equipmentPropertyToOptions, dropDownRenderHandlerProperty, loadingSelectCharacteristics])
+    ), [equipmentPropertyToOptions, dropDownRenderHandler, loadingSelectCharacteristics, equipmentProperties, setEquipmentPropertyToOptions, setLoadingSelectCharacteristics])
 }

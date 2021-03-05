@@ -4,22 +4,32 @@ const EquipmentProperty = require("../models/EquipmentProperty");
 const router = Router();
 
 // Возвращает запись по коду
-router.get('/equipment-property/:id', async (req, res) => {
+router.get("/equipment-property/:id", async (req, res) => {
+    const _id = req.params.id;
+
     try {
-        const item = await EquipmentProperty.findById({_id: req.params.id});
+        let item;
+
+        if (_id === "-1") {
+            // Создание новой записи
+            item = new EquipmentProperty({isCreated: true, tabNumber: null, name: "", notes: ""});
+        } else {
+            // Редактирование существующей записи
+            item = await EquipmentProperty.findById({_id});
+        }
 
         if (!item) {
-            return res.status(400).json({message: `Характеристика с кодом ${req.params.id} не существует`});
+            return res.status(400).json({message: `Характеристика с кодом ${_id} не существует`});
         }
 
         res.status(201).json({equipmentProperty: item});
     } catch (e) {
-        res.status(500).json({message: `Ошибка при открытии записи с кодом ${req.params.id}`});
+        res.status(500).json({message: `Ошибка при открытии записи с кодом ${_id}`});
     }
 });
 
 // Возвращает все записи
-router.get('/equipment-property', async (req, res) => {
+router.get("/equipment-property", async (req, res) => {
     try {
         const items = await EquipmentProperty.find({});
         res.json(items);
@@ -29,7 +39,7 @@ router.get('/equipment-property', async (req, res) => {
 });
 
 // Сохраняет новую запись
-router.post('/equipment-property', async (req, res) => {
+router.post("/equipment-property", async (req, res) => {
     try {
         const {name, notes} = req.body;
         // Проверяем на существование характеристики с указанным именем
@@ -39,7 +49,11 @@ router.post('/equipment-property', async (req, res) => {
             return res.status(400).json({message: `Характеристика с именем ${name} уже существует`});
         }
 
-        const newItem = new EquipmentProperty({name: name, notes: notes})
+        if (name === "" || !name) {
+            return res.status(400).json({message: "Поле 'Наименование' должно быть заполнено"});
+        }
+
+        const newItem = new EquipmentProperty({isCreated: false, name: name, notes: notes})
 
         let savedItem = await newItem.save();
 
@@ -50,15 +64,20 @@ router.post('/equipment-property', async (req, res) => {
 });
 
 // Изменяет запись
-router.put('/equipment-property', async (req, res) => {
+router.put("/equipment-property", async (req, res) => {
     try {
-        const {_id, name, notes} = req.body;
+        const {_id, isCreated,  name, notes} = req.body;
         const item = await EquipmentProperty.findById({_id});
 
         if (!item) {
             return res.status(400).json({message: `Характеристика с кодом ${_id} не найдена`});
         }
 
+        if (name === "" || !name) {
+            return res.status(400).json({message: "Поле 'Наименование' должно быть заполнено"});
+        }
+
+        item.isCreated = isCreated;
         item.name = name;
         item.notes = notes;
 
@@ -72,14 +91,14 @@ router.put('/equipment-property', async (req, res) => {
 
 // Удаляет запись
 router.delete('/equipment-property/:id', async (req, res) => {
-    const id = req.params.id;
+    const _id = req.params.id;
 
     try {
-        await EquipmentProperty.deleteOne({_id: id});
+        await EquipmentProperty.deleteOne({_id});
 
         res.status(201).json({message: "Характеристика успешно удалена"});
     } catch (e) {
-        res.status(500).json({message: `Ошибка при удалении характеристики с кодом ${id}`})
+        res.status(500).json({message: `Ошибка при удалении характеристики с кодом ${_id}`})
     }
 });
 

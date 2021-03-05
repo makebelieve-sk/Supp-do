@@ -6,24 +6,9 @@ import {CheckOutlined, StopOutlined} from "@ant-design/icons";
 
 import {Departments} from "../../../model/Department";
 import getParents from "../../helpers/getRowParents.helper";
-import {CheckTypeTab, onFailed} from "../../helpers/tab.helpers/tab.functions";
+import {getOptions, CheckTypeTab, onFailed} from "../../helpers/tab.helpers/tab.functions";
 
 const {Meta} = Card;
-
-const getOptions = (items) => {
-    let valuesToOptions = [{label: "Не выбрано", value: null}];
-
-    if (items) {
-        items.forEach(item => {
-            valuesToOptions.push({
-                label: item.nameWithParent ?? item.name,
-                value: item._id
-            });
-        })
-    }
-
-    return valuesToOptions;
-};
 
 export const DepartmentTab = ({specKey, onRemove}) => {
     // Получение списка подразделений, редактируемой строки и загрузки записи
@@ -61,7 +46,6 @@ export const DepartmentTab = ({specKey, onRemove}) => {
 
     // Обработка нажатия на кнопку "Сохранить"
     const saveHandler = async (values) => {
-        console.log(values)
         // Обновляем список подразделений
         await Departments.getAll();
 

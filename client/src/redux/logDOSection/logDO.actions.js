@@ -6,8 +6,7 @@ import {
     SET_ROW_DATA_LOGDO,
     ADD_FILE,
     DELETE_FILE,
-    GET_ALL_FILES,
-    SET_NEW_DATE
+    GET_ALL_FILES
 } from "./logDO.constants";
 
 const ActionCreatorLogDO = {
@@ -66,13 +65,6 @@ const ActionCreatorLogDO = {
         return {
             type: GET_ALL_FILES,
             payload: files
-        }
-    },
-    // Установка даты с
-    setDate: (date) => {
-        return {
-            type: SET_NEW_DATE,
-            payload: date
         }
     }
 

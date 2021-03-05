@@ -1,36 +1,29 @@
-// Модель для справочника Подразделения
-import {message} from "antd";
-
+// Методы модели Профессии
+import {request} from "../components/helpers/request.helper";
 import store from "../redux/store";
 import {ActionCreator} from "../redux/combineActions";
-import {request} from "../components/helpers/request.helper";
-import getParents from "../components/helpers/getRowParents.helper";
+import {message} from "antd";
+import {Profession} from "../model/Profession";
 
-export const Departments = {
-    base_url: "/api/directory/departments/",
+export const ProfessionRoute = {
+    base_url: "/api/directory/professions/",
     getAll: async function () {
         try {
             const items = await request(this.base_url);
 
-            if (items && items.length) {
-                items.forEach(item => {
-                    if (item.parent) {
-                        item.nameWithParent = getParents(item, items) + item.name;
-                    }
-                })
-
-                store.dispatch(ActionCreator.ActionCreatorDepartment.getAllDepartments(items));
+            if (items) {
+                store.dispatch(ActionCreator.ActionCreatorProfession.getAllProfessions(items));
             }
         } catch (e) {
-            message.error("Возникла ошибка при получении характеристик оборудования: ", e);
+            message.error("Возникла ошибка при получении профессий: ", e);
         }
     },
     get: async function (id) {
         try {
             const item = await request(this.base_url + id);
 
-            if (item && item.department) {
-                this.fillItem(item.department);
+            if (item) {
+                this.fillItem(item);
             }
         } catch (e) {
             message.error("Возникла ошибка при получении записи: ", e);
@@ -41,7 +34,7 @@ export const Departments = {
             // Устанавливаем спиннер загрузки
             setLoading(true);
 
-            const method = item.isCreated ? "POST" : "PUT";
+            const method = item.isNewItem ? "POST" : "PUT";
 
             const data = await request(this.base_url, method, item);
 
@@ -55,16 +48,16 @@ export const Departments = {
                 // Редактирование записи - изменение записи в хранилище redux,
                 // Сохранение записи - создание записи в хранилище redux
                 if (method === "POST") {
-                    store.dispatch(ActionCreator.ActionCreatorDepartment.createDepartment(data.item));
+                    store.dispatch(ActionCreator.ActionCreatorProfession.createProfession(data.item));
                 } else {
-                    const departments = store.getState().reducerDepartment.departments;
-                    const foundDepartment = departments.find(department => {
-                        return department._id === item._id;
+                    const professions = store.getState().reducerProfession.professions;
+                    const foundProfession = professions.find(profession => {
+                        return profession._id === item._id;
                     });
-                    const indexDepartment = departments.indexOf(foundDepartment);
+                    const indexProfession = professions.indexOf(foundProfession);
 
-                    if (indexDepartment >= 0 && foundDepartment) {
-                        store.dispatch(ActionCreator.ActionCreatorDepartment.editDepartment(indexDepartment, data.item));
+                    if (indexProfession >= 0 && foundProfession) {
+                        store.dispatch(ActionCreator.ActionCreatorProfession.editProfession(indexProfession, data.item));
                     }
                 }
             }
@@ -75,6 +68,7 @@ export const Departments = {
             // Останавливаем спиннер загрузки
             setLoading(false);
         }
+
     },
     delete: async function (_id, setLoadingDelete, setVisiblePopConfirm, onRemove, specKey) {
         try {
@@ -91,16 +85,16 @@ export const Departments = {
                 // Вывод сообщения
                 message.success(data.message);
 
-                const departments = store.getState().reducerDepartment.departments;
+                const professions = store.getState().reducerProfession.professions;
 
                 // Удаляем запись из хранилища redux
-                let foundDepartment = departments.find(department => {
-                    return department._id === _id;
+                let foundProfession = professions.find(profession => {
+                    return profession._id === _id;
                 });
-                let indexDepartment = departments.indexOf(foundDepartment);
+                let indexProfession = professions.indexOf(foundProfession);
 
-                if (foundDepartment && indexDepartment >= 0) {
-                    store.dispatch(ActionCreator.ActionCreatorDepartment.deleteDepartment(indexDepartment));
+                if (foundProfession && indexProfession >= 0) {
+                    store.dispatch(ActionCreator.ActionCreatorProfession.deleteProfession(indexProfession));
                 }
             }
 
@@ -111,22 +105,19 @@ export const Departments = {
             setLoadingDelete(false);
             setVisiblePopConfirm(false);
         }
+
     },
     cancel: function (onRemove, specKey) {
+        // Удаление текущей вкладки
         onRemove(specKey, 'remove');
     },
     fillItem: function (item) {
-        if (!item)
+        if (!item.profession)
             return;
 
-        const departmentItem = {
-            _id: item._id,
-            isCreated: item.isCreated,
-            name: item.name,
-            notes: item.notes,
-            parent: item.parent
-        };
+        let professionItem = new Profession(item);
+        professionItem.isNewItem = item.isNewItem;
 
-        store.dispatch(ActionCreator.ActionCreatorDepartment.setRowDataDepartment(departmentItem));
+        store.dispatch(ActionCreator.ActionCreatorProfession.setRowDataProfession(professionItem));
     }
 }

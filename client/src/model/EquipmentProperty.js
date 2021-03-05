@@ -1,36 +1,30 @@
-// Модель для справочника Подразделения
+// Модель для справочника Характеристики оборудования
 import {message} from "antd";
 
 import store from "../redux/store";
 import {ActionCreator} from "../redux/combineActions";
 import {request} from "../components/helpers/request.helper";
-import getParents from "../components/helpers/getRowParents.helper";
 
-export const Departments = {
-    base_url: "/api/directory/departments/",
-    getAll: async function () {
+export const EquipmentProperty = {
+    base_url: "/api/directory/equipment-property/",
+    getAll: async function (setLoading) {
         try {
             const items = await request(this.base_url);
 
-            if (items && items.length) {
-                items.forEach(item => {
-                    if (item.parent) {
-                        item.nameWithParent = getParents(item, items) + item.name;
-                    }
-                })
-
-                store.dispatch(ActionCreator.ActionCreatorDepartment.getAllDepartments(items));
+            if (items) {
+                store.dispatch(ActionCreator.ActionCreatorEquipmentProperty.getAllEquipmentProperties(items));
             }
         } catch (e) {
             message.error("Возникла ошибка при получении характеристик оборудования: ", e);
+            setLoading(false);
         }
     },
     get: async function (id) {
         try {
             const item = await request(this.base_url + id);
 
-            if (item && item.department) {
-                this.fillItem(item.department);
+            if (item && item.equipmentProperty) {
+                this.fillItem(item.equipmentProperty);
             }
         } catch (e) {
             message.error("Возникла ошибка при получении записи: ", e);
@@ -38,9 +32,6 @@ export const Departments = {
     },
     save: async function (item, setLoading, onRemove, specKey) {
         try {
-            // Устанавливаем спиннер загрузки
-            setLoading(true);
-
             const method = item.isCreated ? "POST" : "PUT";
 
             const data = await request(this.base_url, method, item);
@@ -55,16 +46,16 @@ export const Departments = {
                 // Редактирование записи - изменение записи в хранилище redux,
                 // Сохранение записи - создание записи в хранилище redux
                 if (method === "POST") {
-                    store.dispatch(ActionCreator.ActionCreatorDepartment.createDepartment(data.item));
+                    store.dispatch(ActionCreator.ActionCreatorEquipmentProperty.createEquipmentProperty(data.item));
                 } else {
-                    const departments = store.getState().reducerDepartment.departments;
-                    const foundDepartment = departments.find(department => {
-                        return department._id === item._id;
+                    const equipmentProperties = store.getState().reducerEquipmentProperty.equipmentProperties;
+                    const foundEquipmentProperty = equipmentProperties.find(equipmentProperty => {
+                        return equipmentProperty._id === item._id;
                     });
-                    const indexDepartment = departments.indexOf(foundDepartment);
+                    const indexEquipmentProperty = equipmentProperties.indexOf(foundEquipmentProperty);
 
-                    if (indexDepartment >= 0 && foundDepartment) {
-                        store.dispatch(ActionCreator.ActionCreatorDepartment.editDepartment(indexDepartment, data.item));
+                    if (indexEquipmentProperty >= 0 && foundEquipmentProperty) {
+                        store.dispatch(ActionCreator.ActionCreatorEquipmentProperty.editEquipmentProperty(indexEquipmentProperty, data.item));
                     }
                 }
             }
@@ -91,16 +82,16 @@ export const Departments = {
                 // Вывод сообщения
                 message.success(data.message);
 
-                const departments = store.getState().reducerDepartment.departments;
+                const equipmentProperties = store.getState().reducerEquipmentProperty.equipmentProperties;
 
                 // Удаляем запись из хранилища redux
-                let foundDepartment = departments.find(department => {
-                    return department._id === _id;
+                let foundEquipmentProperty = equipmentProperties.find(equipmentProperty => {
+                    return equipmentProperty._id === _id;
                 });
-                let indexDepartment = departments.indexOf(foundDepartment);
+                let indexEquipmentProperty = equipmentProperties.indexOf(foundEquipmentProperty);
 
-                if (foundDepartment && indexDepartment >= 0) {
-                    store.dispatch(ActionCreator.ActionCreatorDepartment.deleteDepartment(indexDepartment));
+                if (foundEquipmentProperty && indexEquipmentProperty >= 0) {
+                    store.dispatch(ActionCreator.ActionCreatorEquipmentProperty.deleteEquipmentProperty(indexEquipmentProperty));
                 }
             }
 
@@ -119,14 +110,13 @@ export const Departments = {
         if (!item)
             return;
 
-        const departmentItem = {
+        const equipmentPropertyItem = {
             _id: item._id,
             isCreated: item.isCreated,
             name: item.name,
-            notes: item.notes,
-            parent: item.parent
+            notes: item.notes
         };
 
-        store.dispatch(ActionCreator.ActionCreatorDepartment.setRowDataDepartment(departmentItem));
+        store.dispatch(ActionCreator.ActionCreatorEquipmentProperty.setRowDataEquipmentProperty(equipmentPropertyItem));
     }
 }

@@ -6,22 +6,43 @@ const File = require("../models/File");
 const router = Router();
 
 // Возвращает запись по коду
-router.get('/equipment/:id', async (req, res) => {
-    const id = req.params.id;
+router.get("/equipment/:id", async (req, res) => {
+    const _id = req.params.id;
 
     try {
-        const item = await Equipment.findById({_id: id})
-            .populate('parent')
-            .populate('properties.equipmentProperty')
-            .populate("files");
+        let item;
+
+        if (_id === "-1") {
+            // Создание новой записи
+            item = new Equipment({
+                isCreated: true,
+                name: "",
+                notes: "",
+                parent: null,
+                properties: [{
+                    equipmentProperty: "Не выбрано",
+                    value: "",
+                    id: Date.now(),
+                    name: 0,
+                    _id: null
+                }],
+                files: []
+            });
+        } else {
+            // Редактирование существующей записи
+            item = await Equipment.findById({_id})
+                .populate("parent")
+                .populate("properties.equipmentProperty")
+                .populate("files");
+        }
 
         if (!item) {
-            return res.status(400).json({message: `Запись с кодом ${id} не существует`});
+            return res.status(400).json({message: `Запись с кодом ${_id} не существует`});
         }
 
         res.status(201).json({equipment: item});
     } catch (e) {
-        res.status(500).json({message: `Ошибка при открытии записи с кодом ${id}`})
+        res.status(500).json({message: `Ошибка при открытии записи с кодом ${_id}`})
     }
 });
 
@@ -29,7 +50,7 @@ router.get('/equipment/:id', async (req, res) => {
 router.get("/equipment", async (req, res) => {
     try {
         const items = await Equipment.find({})
-            .populate('parent')
+            .populate("parent")
             .populate("properties")
             .populate("files");
 
@@ -40,15 +61,19 @@ router.get("/equipment", async (req, res) => {
 });
 
 // Сохраняет новую запись
-router.post('/equipment', async (req, res) => {
+router.post("/equipment", async (req, res) => {
     try {
         let resFileArr = [];
-
         const {name, notes, parent, properties, files} = req.body;
+
         if (parent) {
             if (name === parent.name) {
                 return res.status(400).json({message: "Объект не может принадлежать сам себе"});
             }
+        }
+
+        if (name === "" || !name) {
+            return res.status(400).json({message: "Поле 'Наименование' должно быть заполнено"});
         }
 
         if (files && files.length >= 0) {
@@ -75,7 +100,7 @@ router.post('/equipment', async (req, res) => {
             }
         });
 
-        const newItem = new Equipment({parent, name, notes, properties, files: resFileArr});
+        const newItem = new Equipment({isCreated: false, parent, name, notes, properties, files: resFileArr});
 
         await newItem.save();
 
@@ -91,15 +116,18 @@ router.post('/equipment', async (req, res) => {
 });
 
 // Изменяет запись
-router.put('/equipment', async (req, res) => {
+router.put("/equipment", async (req, res) => {
     try {
-        const {_id, name, notes, parent, properties, files} = req.body;
-        console.log(req.body)
+        const {_id, isCreated,  name, notes, parent, properties, files} = req.body;
         const item = await Equipment.findById({_id});
         let resFileArr = [];
 
         if (!item) {
             return res.status(400).json({message: `Запись с кодом ${_id} не найдена`});
+        }
+
+        if (name === "" || !name) {
+            return res.status(400).json({message: "Поле 'Наименование' должно быть заполнено"});
         }
 
         if (parent) {
@@ -136,6 +164,7 @@ router.put('/equipment', async (req, res) => {
             }
         });
 
+        item.isCreated = isCreated;
         item.parent = parent;
         item.name = name;
         item.notes = notes;
@@ -157,14 +186,14 @@ router.put('/equipment', async (req, res) => {
 
 // Удаляет запись
 router.delete('/equipment/:id', async (req, res) => {
-    const id = req.params.id;
+    const _id = req.params.id;
 
     try {
-        await Equipment.deleteOne({_id: id});
+        await Equipment.deleteOne({_id});
 
         res.status(201).json({message: "Запись успешно удалена"});
     } catch (e) {
-        res.status(500).json({message: `Ошибка при удалении записи с кодом ${id}`})
+        res.status(500).json({message: `Ошибка при удалении записи с кодом ${_id}`})
     }
 });
 

@@ -90,6 +90,12 @@
     border: 0 !important;
 }
 
+/* единые стили для выпадающих списков*/
+.ant-select:not(.ant-select-customize-input) .ant-select-selector {
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
 /* единые стили для кнопок*/
 .button-style {
     margin-left: 10px;
@@ -114,6 +120,18 @@
 }
 .button-add-equipmentProperty {
     margin-bottom: 3%
+}
+.button-add-select {
+    width: 100%;
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+    border-left: 0;
+}
+.ant-btn:hover, .ant-btn:focus {
+    border-left: 1px solid #40a9ff;
+}
+.ant-btn:active {
+    border-left: 1px solid #096dd9;
 }
 
 /* установка стилей для таблицы*/

@@ -3,16 +3,32 @@ import React, {useState} from "react";
 import {Button, message, Popconfirm} from "antd";
 import {DeleteOutlined, PrinterOutlined, QuestionCircleOutlined} from "@ant-design/icons";
 
-import {request} from "../request.helper";
 import store from "../../../redux/store";
+import {request} from "../request.helper";
 import getParents from "../getRowParents.helper";
+
+// Получение выпадающего списка
+const getOptions = (items) => {
+    let valuesToOptions = [{label: "Не выбрано", value: null}];
+
+    if (items) {
+        items.forEach(item => {
+            valuesToOptions.push({
+                label: item.nameWithParent ?? item.name,
+                value: item._id
+            });
+        })
+    }
+
+    return valuesToOptions;
+};
 
 // Инициализация кнопок, появляющихся при редактировании записи
 const CheckTypeTab = (item, deleteHandler) => {
     const [loadingDelete, setLoadingDelete] = useState(false);
     const [visiblePopConfirm, setVisiblePopConfirm] = useState(false);
 
-    return item && !item.isCreated ?
+    return item && !item.isNewItem ?
         <>
             <Popconfirm
                 title="Вы уверены, что хотите удалить запись?"
@@ -195,6 +211,7 @@ const onDropDownRender = async (open, setLoading, url, dispatchAction, setSelect
 }
 
 export {
+    getOptions,
     CheckTypeTab,
     onSave,
     onDelete,

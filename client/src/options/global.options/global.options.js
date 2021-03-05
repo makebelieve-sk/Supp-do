@@ -2,6 +2,12 @@
 import {LaptopOutlined, UserOutlined} from "@ant-design/icons";
 import {ActionCreator} from "../../redux/combineActions";
 
+import {ProfessionRoute} from "../../routes/route.profession";
+import {Departments} from "../../model/Department";
+import {People} from "../../model/Person";
+import {EquipmentProperty} from "../../model/EquipmentProperty";
+import {Equipment} from "../../model/equipment";
+
 // Инициализация меню приложения
 const menuItems = [
     {
@@ -17,19 +23,22 @@ const menuItems = [
                         title: "Профессии",
                         key: "professions",
                         url: "professions",
-                        dispatchAction: ActionCreator.ActionCreatorProfession.getAllProfessions
+                        dispatchAction: ActionCreator.ActionCreatorProfession.getAllProfessions,
+                        model: ProfessionRoute
                     },
                     {
                         title: "Подразделения",
                         key: "departments",
                         url: "departments",
-                        dispatchAction: ActionCreator.ActionCreatorDepartment.getAllDepartments
+                        dispatchAction: ActionCreator.ActionCreatorDepartment.getAllDepartments,
+                        model: Departments
                     },
                     {
                         title: "Персонал",
                         key: "people",
                         url: "people",
-                        dispatchAction: ActionCreator.ActionCreatorPerson.getAllPeople
+                        dispatchAction: ActionCreator.ActionCreatorPerson.getAllPeople,
+                        model: People
                     }
                 ]
             },
@@ -41,13 +50,15 @@ const menuItems = [
                         title: "Характеристики оборудования",
                         key: "equipmentProperties",
                         url: "equipment-property",
-                        dispatchAction: ActionCreator.ActionCreatorEquipmentProperty.getAllEquipmentProperties
+                        dispatchAction: ActionCreator.ActionCreatorEquipmentProperty.getAllEquipmentProperties,
+                        model: EquipmentProperty
                     },
                     {
                         title: "Перечень оборудования",
                         key: "equipment",
                         url: "equipment",
-                        dispatchAction: ActionCreator.ActionCreatorEquipment.getAllEquipment
+                        dispatchAction: ActionCreator.ActionCreatorEquipment.getAllEquipment,
+                        model: Equipment
                     },
                     {
                         title: "Состояние заявок",

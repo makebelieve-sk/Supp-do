@@ -8,21 +8,22 @@ router.get('/professions/:id', async (req, res) => {
     const _id = req.params.id;
 
     try {
-        let item;
+        let item, isNewItem = true;
 
         if (_id === "-1") {
             // Создание новой записи
-            item = new Profession({isCreated: true, name: "", notes: ""});
+            item = new Profession({name: "", notes: ""});
         } else {
             // Редактирование существующей записи
             item = await Profession.findById({_id});
+            isNewItem = false;
         }
 
         if (!item) {
             return res.status(400).json({message: `Профессия с кодом ${_id} не существует`});
         }
 
-        res.status(201).json({profession: item});
+        res.status(201).json({isNewItem, profession: item});
     } catch (e) {
         res.status(500).json({message: `Ошибка при открытии записи с кодом ${_id}`})
     }
@@ -46,15 +47,15 @@ router.post('/professions', async (req, res) => {
 
         let item = await Profession.findOne({name});
 
+        if (!name) {
+            return res.status(400).json({message: "Поле 'Наименование' должно быть заполнено"});
+        }
+
         if (item) {
             return res.status(400).json({message: `Профессия с именем ${name} уже существует`});
         }
 
-        if (name === "" || !name) {
-            return res.status(400).json({message: "Поле 'Наименование' должно быть заполнено"});
-        }
-
-        item = new Profession({isCreated: false, name, notes});
+        item = new Profession({name, notes});
         await item.save();
 
         res.status(201).json({message: "Профессия сохранена", item});
@@ -66,18 +67,17 @@ router.post('/professions', async (req, res) => {
 // Изменяет запись
 router.put('/professions', async (req, res) => {
     try {
-        const {_id, isCreated, name, notes} = req.body;
+        const {_id, name, notes} = req.body;
         const item = await Profession.findById({_id});
+
+        if (!name) {
+            return res.status(400).json({message: "Поле 'Наименование' должно быть заполнено"});
+        }
 
         if (!item) {
             return res.status(400).json({message: `Профессия с кодом ${_id} не найдена`});
         }
 
-        if (name === "" || !name) {
-            return res.status(400).json({message: "Поле 'Наименование' должно быть заполнено"});
-        }
-
-        item.isCreated = isCreated;
         item.name = name;
         item.notes = notes;
 

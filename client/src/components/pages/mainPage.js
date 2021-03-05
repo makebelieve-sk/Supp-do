@@ -1,17 +1,14 @@
 // Главная страница
-import moment from "moment";
 import React, {useState, useEffect, useContext} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
 import {Layout, Menu, Button, Tabs, Row, Col, Modal, Dropdown, Avatar} from 'antd';
-import {MenuUnfoldOutlined, MenuFoldOutlined, QuestionCircleOutlined, DownOutlined,} from '@ant-design/icons';
+import {MenuUnfoldOutlined, MenuFoldOutlined, QuestionCircleOutlined, DownOutlined} from '@ant-design/icons';
 
+import {LogDORoute} from "../../routes/route.LogDO";
 import {menuItems} from "../../options/global.options/global.options";
 import {AuthContext} from "../../context/authContext";
 import {ActionCreator} from "../../redux/combineActions";
 import {OpenTabSectionHelper} from "../helpers/openTabSection.helper";
-import getParents from "../helpers/getRowParents.helper";
-import {request} from "../helpers/request.helper";
-import TabOptions from "../../options/tab.options/tab.options";
 import logo from '../../assets/logo.png';
 
 const {Header, Sider, Content, Footer} = Layout;
@@ -32,50 +29,12 @@ export const MainPage = () => {
 
     // Загрузка главного раздела "Журнал дефектов и отказов"
     useEffect(() => {
-        async function getItems() {
-            const date = moment().startOf("month").format(TabOptions.dateFormat)
-            + "/" + moment().endOf("month").format(TabOptions.dateFormat);
-
-            try {
-                dispatch(ActionCreator.ActionCreatorLogDO.setDate(date));
-
-                const items = await request("/api/log-do/" + date);
-                const equipment = await request("/api/directory/equipment");
-                const departments = await request("/api/directory/departments");
-
-                if (items && items.length > 0) {
-                    dispatch(ActionCreator.ActionCreatorLogDO.getAllLogDO(items));
-                }
-
-                if (equipment && equipment.length) {
-                    equipment.forEach(item => {
-                        if (item.parent) {
-                            item.nameWithParent = getParents(item, equipment) + item.name
-                        } else {
-                            item.nameWithParent = item.name
-                        }
-                    })
-
-                    dispatch(ActionCreator.ActionCreatorEquipment.getAllEquipment(equipment));
-                }
-
-                if (departments && departments.length) {
-                    departments.forEach(item => {
-                        if (item.parent) {
-                            item.nameWithParent = getParents(item, departments) + item.name
-                        } else {
-                            item.nameWithParent = item.name
-                        }
-                    })
-
-                    dispatch(ActionCreator.ActionCreatorDepartment.getAllDepartments(departments));
-                }
-            } catch (e) {
-            }
+        const getItems = async () => {
+            await LogDORoute.getAll();
         }
 
         getItems();
-    }, [dispatch]);
+    }, []);
 
     // Фукнция удаления вкладки
     const onRemove = (targetKey, action) => {
@@ -127,7 +86,8 @@ export const MainPage = () => {
                         'Журнал дефектов и отказов',
                         'logDO',
                         'log-do',
-                        ActionCreator.ActionCreatorLogDO.getAllLogDO
+                        ActionCreator.ActionCreatorLogDO.getAllLogDO,
+                        LogDORoute
                     )}/>
                     {collapsed ? null : 'СУПП ДО'}
                 </div>
@@ -146,7 +106,8 @@ export const MainPage = () => {
                                                             item.title,
                                                             item.key,
                                                             item.url,
-                                                            item.dispatchAction
+                                                            item.dispatchAction,
+                                                            item.model
                                                         )}
                                                     >{item.title}</Menu.Item>
                                                 ))

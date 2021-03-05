@@ -1,13 +1,12 @@
 import moment from "moment";
 import React, {useState} from 'react';
-import {useSelector, useDispatch} from 'react-redux';
+import {useSelector} from 'react-redux';
 import {message, Row, Table, DatePicker} from "antd";
 
+import {LogDORoute} from "../../../routes/route.LogDO";
 import {Header} from './header';
 import {ButtonsComponent} from "./buttons";
 import {ColumnsMapHelper, RowMapHelper} from "../../helpers/table.helpers/tableMap.helper";
-import {request} from "../../helpers/request.helper";
-import {ActionCreator} from "../../../redux/combineActions";
 import TabOptions from "../../../options/tab.options/tab.options";
 import {downloadCSV, pagination} from '../../../options/table.options/datatable.options';
 import {createTreeData} from "../../helpers/createTreeData.helper";
@@ -28,12 +27,11 @@ export const TableComponent = ({specKey}) => {
         equipment: state.reducerEquipment.equipment,
         logDO: state.reducerLogDO.logDO
     }));
-    const dispatch = useDispatch();
 
     let data;
 
-    if (specKey === "equipment") {
-        data = createTreeData();
+    if (specKey === "equipment" || specKey === "departments") {
+        data = createTreeData(stateObject[specKey]);
     } else {
         data = stateObject[specKey];
     }
@@ -88,26 +86,10 @@ export const TableComponent = ({specKey}) => {
 
     // Экспорт данных
     const onExport = () => data && data.length > 0 ?
-        downloadCSV(data, specKey) : message.error('Записи в таблице отсутствуют');
+        downloadCSV(data, specKey) : message.error("Записи в таблице отсутствуют");
 
     // Изменение времени в датапикере
-    const onChange = async (value, dateString) => {
-        try {
-            dispatch(ActionCreator.ActionCreatorLogDO.setDate(dateString[0] + "/" + dateString[1]));
-
-            // Получаем данные от сервера за указанный период
-            const data = await request("/api/log-do/" + dateString[0] + "/" + dateString[1]);
-
-            // Если ответ от сервера есть, то обновляем список записей в хранилище redux
-            if (data) {
-                dispatch(ActionCreator.ActionCreatorLogDO.getAllLogDO(data));
-            }
-        } catch (e) {
-            message.error(
-                "Возникла ошибка при получении данных за выбранный период: " + dateString[0] + "/" + dateString[1]
-            );
-        }
-    }
+    const onChange = async (value, dateString) => await LogDORoute.getAll(dateString[0] + "/" + dateString[1]);
 
     return (
         <>
@@ -120,7 +102,7 @@ export const TableComponent = ({specKey}) => {
                     specKey === "logDO" ?
                         <RangePicker
                             allowClear={false}
-                            showTime={{format: 'HH:mm'}}
+                            showTime={{format: "HH:mm"}}
                             format={TabOptions.dateFormat}
                             onChange={onChange}
                             defaultValue={[moment().startOf("month"), moment().endOf("month")]}
@@ -145,16 +127,21 @@ export const TableComponent = ({specKey}) => {
                 bordered
                 pagination={pagination}
                 rowKey={(record) => {
-                    if (specKey === "equipment") {
-                        return record.key.toString();
+                    if (specKey === "equipment" || specKey === "departments") {
+                        return record.key;
                     } else {
                         return record._id.toString();
                     }
                 }}
                 onRow={(row) => ({
                     onClick: () => {
+                        let _id = row._id;
+
+                        if (row.key && !row._id) {
+                            _id = row.key;
+                        }
                         // Открытие новой вкладки для редактирования записи
-                        RowMapHelper(specKey, row._id);
+                        RowMapHelper(specKey, _id);
                     }
                 })}
             />

@@ -1,18 +1,15 @@
-import store from "../../redux/store";
-
-export const createTreeData = () => {
-    const equipment = store.getState().reducerEquipment.equipment;
-
+// Функция построения древовидной структуры данных
+export const createTreeData = (dataStore) => {
     // Сортируем массив по полю "parent"
-    equipment.sort((a, b) => a.parent && b.parent && a.parent.name > b.parent.name ? 1 : -1);
+    dataStore.sort((a, b) => a.parent && b.parent && a.parent.name > b.parent.name ? 1 : -1);
 
     // Находим записи, у которых указано, какому подразделению они принадлежат
-    let notNullParentData = equipment.filter(obj => {
+    let notNullParentData = dataStore.filter(obj => {
         return obj.parent;
     })
 
     // Находим записи, у которых нет указанного подразделения (такие записи будут на самом верху)
-    let nullParentData = equipment.filter(obj => {
+    let nullParentData = dataStore.filter(obj => {
         return !obj.parent;
     })
 
@@ -45,7 +42,7 @@ export const createTreeData = () => {
                         nullParent.children.push({
                             key: notNullParent._id,
                             children: null,
-                            parent: notNullParent.nameWithParent,
+                            parent: notNullParent.parent,
                             name: notNullParent.name,
                             notes: notNullParent.notes
                         });
@@ -67,7 +64,7 @@ export const createTreeData = () => {
                         childObj.children.push({
                             key: notNullParent._id,
                             children: null,
-                            parent: notNullParent.nameWithParent,
+                            parent: notNullParent.parent,
                             name: notNullParent.name,
                             notes: notNullParent.notes
                         })
