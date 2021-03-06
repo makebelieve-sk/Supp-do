@@ -12,6 +12,7 @@ import {ActionCreator} from "../redux/combineActions";
 import {request} from "../components/helpers/request.helper";
 import getParents from "../components/helpers/getRowParents.helper";
 import TabOptions from "../options/tab.options/tab.options";
+import {TaskStatusRoute} from "./route.taskStatus";
 
 export const LogDORoute = {
     base_url: "/api/log-do/",
@@ -23,7 +24,7 @@ export const LogDORoute = {
             const itemsEquipment = await request(Equipment.base_url);
             const itemsDepartments = await request(Departments.base_url);
             const itemsPeople = await request(People.base_url);
-            // const itemsTasks = await request(Tasks.base_url);
+            const itemsTasks = await request(TaskStatusRoute.base_url);
 
             if (items) {
                 store.dispatch(ActionCreator.ActionCreatorLogDO.getAllLogDO(items));
@@ -53,9 +54,9 @@ export const LogDORoute = {
                 store.dispatch(ActionCreator.ActionCreatorPerson.getAllPeople(itemsPeople));
             }
 
-            // if (itemsTasks) {
-            //     store.dispatch(ActionCreator.ActionCreatorTask.getAllTasks(itemsTasks));
-            // }
+            if (itemsTasks) {
+                store.dispatch(ActionCreator.ActionCreatorTask.getAllTasks(itemsTasks));
+            }
         } catch (e) {
             message.error("Возникла ошибка при получении записей журнала дефектов и отказов: ", e);
         }

@@ -1,18 +1,21 @@
 // Раздел "Журнал дефектов и отказов"
-import React, {useState} from 'react';
-import {Button, Card, Form, Input, Row, Col, Select, Skeleton, Tabs, DatePicker, Checkbox} from 'antd';
-import {CheckOutlined, PlusOutlined, StopOutlined,} from "@ant-design/icons";
+import moment from "moment";
+import React, {useState} from "react";
 import {useSelector} from "react-redux";
+import {Button, Card, Form, Input, Row, Col, Select, Skeleton, Tabs, DatePicker, Checkbox} from "antd";
+import {CheckOutlined, PlusOutlined, StopOutlined,} from "@ant-design/icons";
+
 import {CheckTypeTab, getOptions, onFailed} from "../../helpers/tab.helpers/tab.functions";
-import {Equipment} from "../../../model/equipment";
 import TabOptions from "../../../options/tab.options/tab.options";
-import {LogDORoute} from "../../../routes/route.LogDO";
 import {ActionCreator} from "../../../redux/combineActions";
 import {RowMapHelper} from "../../helpers/table.helpers/tableMap.helper";
 import {UploadComponent} from "../../contentComponent/tab.components/uploadComponent";
-import {People} from "../../../model/Person";
+
 import {Departments} from "../../../model/Department";
-import moment from "moment";
+import {People} from "../../../model/Person";
+import {Equipment} from "../../../model/equipment";
+import {TaskStatusRoute} from "../../../routes/route.taskStatus";
+import {LogDORoute} from "../../../routes/route.LogDO";
 
 const {Meta} = Card;
 const {TabPane} = Tabs;
@@ -37,14 +40,14 @@ export const LogDOTab = ({specKey, onRemove}) => {
     const [loadingSelectApplicant, setLoadingSelectApplicant] = useState(false);
     const [loadingSelectEquipment, setLoadingSelectEquipment] = useState(false);
     const [loadingSelectResponsible, setLoadingSelectResponsible] = useState(false);
-    // const [loadingSelectState, setLoadingSelectState] = useState(false);
+    const [loadingSelectState, setLoadingSelectState] = useState(false);
 
     // Инициализация значений для выпадающих списков
     const [departmentsToOptions, setDepartmentsToOptions] = useState(getOptions(departments));
     const [applicantToOptions, setApplicantToOptions] = useState(getOptions(people));
     const [equipmentToOptions, setEquipmentToOptions] = useState(getOptions(equipment));
     const [responsibleToOptions, setResponsibleToOptions] = useState(getOptions(people));
-    // const [stateToOptions, setStateToOptions] = useState(getOptions(tasks));
+    const [stateToOptions, setStateToOptions] = useState(getOptions(tasks));
 
     let initialApplicantOptions = {_id: null}, initialEquipmentOptions = {_id: null}, initialResponsibleOptions = {_id: null},
         initialDepartmentOptions = {_id: null}, initialStateOptions = {_id: null};
@@ -334,29 +337,29 @@ export const LogDOTab = ({specKey, onRemove}) => {
                                                 <TextArea rows={2} placeholder="Максимально 1000 символов"/>
                                             </Form.Item>
 
-                                            {/*<Form.Item label="Состояние">*/}
-                                            {/*    <Row gutter={8}>*/}
-                                            {/*        <Col xs={{span: 20}} sm={{span: 20}} md={{span: 22}} lg={{span: 22}} xl={{span: 22}}>*/}
-                                            {/*            <Form.Item noStyle name="state">*/}
-                                            {/*                <Select*/}
-                                            {/*                    options={stateToOptions}*/}
-                                            {/*                    onDropdownVisibleChange={async open => {*/}
-                                            {/*                        await dropDownRenderHandler(open, setLoadingSelectState, Task, setStateToOptions, tasks);*/}
-                                            {/*                    }}*/}
-                                            {/*                    loading={loadingSelectState}*/}
-                                            {/*                />*/}
-                                            {/*            </Form.Item>*/}
-                                            {/*        </Col>*/}
-                                            {/*        <Col xs={{span: 4}} sm={{span: 4}} md={{span: 2}} lg={{span: 2}} xl={{span: 2}}>*/}
-                                            {/*            <Button*/}
-                                            {/*                style={{width: "100%"}}*/}
-                                            {/*                onClick={() => RowMapHelper("tasks", "-1)}*/}
-                                            {/*                icon={<PlusOutlined/>}*/}
-                                            {/*                type="secondary"*/}
-                                            {/*            />*/}
-                                            {/*        </Col>*/}
-                                            {/*    </Row>*/}
-                                            {/*</Form.Item>*/}
+                                            <Form.Item label="Состояние">
+                                                <Row>
+                                                    <Col xs={{span: 20}} sm={{span: 20}} md={{span: 21}} lg={{span: 21}} xl={{span: 21}}>
+                                                        <Form.Item noStyle name="state">
+                                                            <Select
+                                                                options={stateToOptions}
+                                                                onDropdownVisibleChange={async open => {
+                                                                    await dropDownRenderHandler(open, setLoadingSelectState, TaskStatusRoute, setStateToOptions, tasks);
+                                                                }}
+                                                                loading={loadingSelectState}
+                                                            />
+                                                        </Form.Item>
+                                                    </Col>
+                                                    <Col xs={{span: 4}} sm={{span: 4}} md={{span: 3}} lg={{span: 3}} xl={{span: 3}}>
+                                                        <Button
+                                                            className="button-add-select"
+                                                            onClick={() => RowMapHelper("tasks", "-1")}
+                                                            icon={<PlusOutlined/>}
+                                                            type="secondary"
+                                                        />
+                                                    </Col>
+                                                </Row>
+                                            </Form.Item>
 
                                             <Row gutter={8}>
                                                 <Col span={12}>

@@ -8,4 +8,4 @@ const schema = new Schema({
     isFinish: { type: Boolean }
 });
 
-module.exports = model('TaskStatus', schema);
+module.exports = model("TaskStatus", schema);

@@ -5,16 +5,27 @@ const router = Router();
 
 // Возвращает запись по коду
 router.get('/taskStatus/:id', async (req, res) => {
-    try {
-        const item = await TaskStatus.findById({_id: req.params.id});
+    const _id = req.params.id;
 
-        if (!item) {
-            return res.status(400).json({message: `Запись с кодом ${req.params.id} не существует`});
+    try {
+        let item, isNewItem = true;
+
+        if (_id === "-1") {
+            // Создание новой записи
+            item = new TaskStatus({name: "", color: "#FFFFFF", notes: "", isFinish: false});
+        } else {
+            // Редактирование существующей записи
+            item = await TaskStatus.findById({_id});
+            isNewItem = false;
         }
 
-        res.status(201).json({task: item});
+        if (!item) {
+            return res.status(400).json({message: `Запись с кодом ${_id} не существует`});
+        }
+
+        res.status(201).json({isNewItem, task: item});
     } catch (e) {
-        res.status(500).json({message: `Ошибка при открытии записи с кодом ${req.params.id}`})
+        res.status(500).json({message: `Ошибка при открытии записи с кодом ${_id}`})
     }
 });
 
@@ -32,17 +43,17 @@ router.get('/taskStatus', async (req, res) => {
 router.post('/taskStatus', async (req, res) => {
     try {
         const {name, color, notes, isFinish} = req.body;
-        const item = await TaskStatus.findOne({name});
+
+        let item = await TaskStatus.findOne({name});
 
         if (item) {
             return res.status(400).json({message: `Запись с именем ${name} уже существует`});
         }
 
-        const newItem = new TaskStatus({name: name, color: color, notes: notes, isFinish: isFinish})
+        item = new TaskStatus({name: name, color: color, notes: notes, isFinish: isFinish})
+        await item.save();
 
-        let savedItem = await newItem.save();
-
-        res.status(201).json({message: "Запись о состоянии заявки сохранена", item: savedItem});
+        res.status(201).json({message: "Запись о состоянии заявки сохранена", item});
     } catch (e) {
         res.status(500).json({message: "Ошибка при создании записи"})
     }
@@ -65,7 +76,7 @@ router.put('/taskStatus', async (req, res) => {
 
         await item.save();
 
-        res.status(201).json({message: "Запись о состоянии заявки сохранена", item: item});
+        res.status(201).json({message: "Запись о состоянии заявки сохранена", item});
     } catch (e) {
         res.status(500).json({message: "Ошибка при обновлении записи о состоянии заявки"})
     }
@@ -73,14 +84,14 @@ router.put('/taskStatus', async (req, res) => {
 
 // Удаляет запись
 router.delete('/taskStatus/:id', async (req, res) => {
-    const id = req.params.id;
+    const _id = req.params.id;
 
     try {
-        await TaskStatus.deleteOne({_id: id});
+        await TaskStatus.deleteOne({_id});
 
         res.status(201).json({message: "Запись о состоянии заявки успешно удалена"});
     } catch (e) {
-        res.status(500).json({message: `Ошибка при удалении записи с кодом ${id}`})
+        res.status(500).json({message: `Ошибка при удалении записи с кодом ${_id}`})
     }
 });
 

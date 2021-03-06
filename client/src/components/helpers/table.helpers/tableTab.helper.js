@@ -1,7 +1,7 @@
 import {ProfessionTab} from "../../tabs/profession/profession.edit";
 import {DepartmentTab} from "../../tabs/department/department.edit";
 import {PersonTab} from "../../tabs/person/person.edit";
-import {TaskTab} from "../../tabs/taskTab";
+import {TaskTab} from "../../tabs/taskStatus/taskStatus.edit";
 import {EquipmentPropertyTab} from "../../tabs/equipmentProperty/equipmentProperty.edit";
 import {EquipmentTab} from "../../tabs/equipment/equipment.edit";
 import {LogDOTab} from "../../tabs/logDO/logDO.edit";
@@ -9,6 +9,7 @@ import {LogDOTab} from "../../tabs/logDO/logDO.edit";
 import {ProfessionRoute} from "../../../routes/route.profession";
 import {Departments} from "../../../model/Department";
 import {People} from "../../../model/Person";
+import {TaskStatusRoute} from "../../../routes/route.taskStatus";
 import {EquipmentProperty} from "../../../model/EquipmentProperty";
 import {Equipment} from "../../../model/equipment";
 import {LogDORoute} from "../../../routes/route.LogDO";
@@ -16,7 +17,6 @@ import {LogDORoute} from "../../../routes/route.LogDO";
 import store from "../../../redux/store";
 import {ActionCreator} from "../../../redux/combineActions";
 
-import {request} from "../request.helper";
 import {getEmptyTabWithLoading} from "../getEmptyTab.helper";
 
 /**
@@ -92,35 +92,21 @@ const getPerson = async (_id) => {
 
 /**
  * Добавление и заполнение вкладки "Состояние заявок"
- * @param rowData - редактируемая строка
+ * @param _id - id полученной строки
  * @constructor
  */
-const getTask = async (rowData) => {
+const getTask = async (_id) => {
     // Устанавливаем показ спиннера загрузки при открытии вкладки с записью
     store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(true));
 
-    if (rowData === null) {
-        // Вызываем пустую вкладку новой записи для показа спиннера загрузки
-        getEmptyTabWithLoading(
-            'Создание записи о состоянии заявки', TaskTab, 'newTask'
-        );
+    // Название вкладки
+    const title = _id === "-1" ? "Создание записи о состоянии заявки" : "Редактирование записи о состоянии заявки";
 
-        // Обнуляем данные в редактируемой строчке
-        store.dispatch(ActionCreator.ActionCreatorTask.setRowDataTask(null));
-    } else {
-        // Вызываем пустую вкладку редактируемой записи для показа спиннера загрузки
-        getEmptyTabWithLoading(
-            'Редактирование записи о состоянии заявки', TaskTab, 'updateTask'
-        );
+    // Вызываем пустую вкладку записи для показа спиннера загрузки
+    getEmptyTabWithLoading(title, TaskTab, "taskStatusItem");
 
-        // Получаем данные для записи
-        let data = await request('/api/directory/taskStatus/' + rowData._id);
-
-        // Если есть данные о записи, то записываем полученные данные в хранилище
-        if (data) {
-            store.dispatch(ActionCreator.ActionCreatorTask.setRowDataTask(data.task));
-        }
-    }
+    // Получаем данные для записи
+    await TaskStatusRoute.get(_id);
 
     // Останавливаем показ спиннера загрузки при открытии вкладки с записью
     store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(false));
@@ -192,6 +178,4 @@ const getLogDO = async (_id) => {
     store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(false));
 };
 
-export {
-    getProfession, getDepartment, getPerson, getTask, getEquipmentProperty, getEquipment, getLogDO
-}
+export {getProfession, getDepartment, getPerson, getTask, getEquipmentProperty, getEquipment, getLogDO}

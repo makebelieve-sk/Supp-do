@@ -291,6 +291,9 @@ const LogDOColumns = [
             }
 
             return {
+                props: {
+                    style: {background: record.state.color},
+                },
                 children: <div><Tooltip placement="topLeft" title={foundElement ? foundElement.nameWithParent : text}>
                     {text}
                 </Tooltip></div>,
@@ -398,6 +401,9 @@ const LogDOColumns = [
             }
 
             return {
+                props: {
+                    style: {background: record.state.color},
+                },
                 children: <div><Tooltip placement="topLeft" title={foundElement ? foundElement.nameWithParent : text}>
                     {text}
                 </Tooltip></div>,

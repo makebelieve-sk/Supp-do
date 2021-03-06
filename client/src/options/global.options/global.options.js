@@ -7,6 +7,7 @@ import {Departments} from "../../model/Department";
 import {People} from "../../model/Person";
 import {EquipmentProperty} from "../../model/EquipmentProperty";
 import {Equipment} from "../../model/equipment";
+import {TaskStatusRoute} from "../../routes/route.taskStatus";
 
 // Инициализация меню приложения
 const menuItems = [
@@ -64,7 +65,8 @@ const menuItems = [
                         title: "Состояние заявок",
                         key: "tasks",
                         url: "taskStatus",
-                        dispatchAction: ActionCreator.ActionCreatorTask.getAllTasks
+                        dispatchAction: ActionCreator.ActionCreatorTask.getAllTasks,
+                        model: TaskStatusRoute
                     }
                 ]
             },
