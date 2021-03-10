@@ -1,4 +1,5 @@
 // Управление содержимым вкладки с таблицей
+import React from "react";
 import {useSelector} from "react-redux";
 
 import {Card, Skeleton} from "antd";

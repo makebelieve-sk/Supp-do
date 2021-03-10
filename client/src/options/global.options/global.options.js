@@ -1,4 +1,5 @@
 // Глобальные настройки приложения
+import React from "react";
 import {LaptopOutlined, UserOutlined} from "@ant-design/icons";
 import {ActionCreator} from "../../redux/combineActions";
 
