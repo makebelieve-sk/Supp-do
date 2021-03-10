@@ -1,7 +1,14 @@
 // Маршруты для подразделений
 const {Router} = require("express");
+const {check, validationResult} = require("express-validator");
 const Department = require("../models/Department");
 const router = Router();
+
+// Валидация полей раздела "Подразделения"
+const checkMiddleware = [
+    check("name", "Некорректное наименование подразделения").isString().notEmpty().isLength({ max: 255 }),
+    check("notes", "Максимальная длина поля 'Примечание' составляет 255 символов").isString().isLength({ max: 255 })
+];
 
 // Возвращает запись по коду
 router.get("/departments/:id", async (req, res) => {
@@ -40,8 +47,14 @@ router.get("/departments", async (req, res) => {
 });
 
 // Сохраняет новую запись
-router.post("/departments", async (req, res) => {
+router.post("/departments", checkMiddleware, async (req, res) => {
     try {
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            return res.status(400).json({errors: errors.array(), message: "Некоректные данные при создании записи"});
+        }
+
         const {name, notes, parent} = req.body;
         const item = await Department.findOne({name});
 
@@ -77,8 +90,14 @@ router.post("/departments", async (req, res) => {
 });
 
 // Изменяет запись
-router.put("/departments", async (req, res) => {
+router.put("/departments", checkMiddleware, async (req, res) => {
     try {
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            return res.status(400).json({errors: errors.array(), message: "Некоректные данные при создании записи"});
+        }
+
         const {_id, isCreated, name, notes, parent} = req.body;
         const item = await Department.findById({_id}).populate("parent");
 

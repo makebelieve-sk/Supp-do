@@ -20,8 +20,9 @@ export const createTreeData = (dataStore) => {
     if (nullParentData && nullParentData.length > 0) {
         nullParentData.forEach(nullParent => {
             treeData.push({
+                _id: nullParent._id,
                 key: nullParent._id,
-                children: null,
+                children: [],
                 parent: "",
                 name: nullParent.name,
                 notes: nullParent.notes
@@ -37,17 +38,31 @@ export const createTreeData = (dataStore) => {
             childrenArr.forEach(nullParent => {
                 notNullParentData.forEach(notNullParent => {
                     if (notNullParent.parent._id === nullParent.key) {
-                        nullParent.children = [];
-
-                        nullParent.children.push({
+                        if (nullParent.children.includes({
+                            _id: notNullParent._id,
                             key: notNullParent._id,
-                            children: null,
+                            children: [],
                             parent: notNullParent.parent,
                             name: notNullParent.name,
                             notes: notNullParent.notes
-                        });
+                        })) {
+                            return null;
+                        } else {
+                            nullParent.children.push({
+                                _id: notNullParent._id,
+                                key: notNullParent._id,
+                                children: [],
+                                parent: notNullParent.parent,
+                                name: notNullParent.name,
+                                notes: notNullParent.notes
+                            });
+                        }
                     }
                 })
+
+                if (nullParent.children && nullParent.children.length === 0) {
+                    nullParent.children = null;
+                }
             });
 
             childrenArr.forEach(obj => createTree(obj));
@@ -59,19 +74,33 @@ export const createTreeData = (dataStore) => {
             childrenArr.children.forEach(childObj => {
                 notNullParentData.forEach(notNullParent => {
                     if (notNullParent.parent._id === childObj.key) {
-                        childObj.children = [];
-
-                        childObj.children.push({
+                        if (childObj.children.includes({
+                            _id: notNullParent._id,
                             key: notNullParent._id,
-                            children: null,
+                            children: [],
                             parent: notNullParent.parent,
                             name: notNullParent.name,
                             notes: notNullParent.notes
-                        })
+                        })) {
+                            return null;
+                        } else {
+                            childObj.children.push({
+                                _id: notNullParent._id,
+                                key: notNullParent._id,
+                                children: [],
+                                parent: notNullParent.parent,
+                                name: notNullParent.name,
+                                notes: notNullParent.notes
+                            })
+                        }
 
                         createTree(childObj);
                     }
                 })
+
+                if (childObj.children && childObj.children.length === 0) {
+                    childObj.children = null;
+                }
             })
         }
     }

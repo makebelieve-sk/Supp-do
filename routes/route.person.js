@@ -1,7 +1,14 @@
 // Маршруты для персонала
 const {Router} = require("express");
+const {check, validationResult} = require("express-validator");
 const Person = require("../models/Person");
 const router = Router();
+
+// Валидация полей раздела "Персонал"
+const checkMiddleware = [
+    check("name", "Некорректное наименование сотрудника").isString().notEmpty().isLength({ max: 255 }),
+    check("notes", "Максимальная длина поля 'Примечание' составляет 255 символов").isString().isLength({ max: 255 }),
+];
 
 // Возвращает запись по коду
 router.get("/people/:id", async (req, res) => {
@@ -39,9 +46,15 @@ router.get("/people", async (req, res) => {
 });
 
 // Сохраняет новую запись
-router.post("/people", async (req, res) => {
+router.post("/people", checkMiddleware, async (req, res) => {
     try {
-        const {name, notes, department, profession, tabNumber} = req.body;
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            return res.status(400).json({errors: errors.array(), message: "Некоректные данные при создании записи"});
+        }
+
+        const {name, notes, department, profession} = req.body;
 
         const item = await Person.findOne({name});
 
@@ -53,7 +66,7 @@ router.post("/people", async (req, res) => {
             return res.status(400).json({message: "Поле 'Наименование' должно быть заполнено"});
         }
 
-        const newItem = new Person({isCreated: false, tabNumber, name, department, profession, notes});
+        const newItem = new Person({isCreated: false, name, department, profession, notes});
 
         await newItem.save();
 
@@ -70,9 +83,15 @@ router.post("/people", async (req, res) => {
 });
 
 // Изменяет запись
-router.put("/people", async (req, res) => {
+router.put("/people", checkMiddleware, async (req, res) => {
     try {
-        const {_id, isCreated, name, notes, department, profession, tabNumber} = req.body;
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            return res.status(400).json({errors: errors.array(), message: "Некоректные данные при создании записи"});
+        }
+
+        const {_id, isCreated, name, notes, department, profession} = req.body;
         const item = await Person.findById({_id}).populate("department").populate("profession");
 
         if (!item) {
@@ -84,7 +103,6 @@ router.put("/people", async (req, res) => {
         }
 
         item.isCreated = isCreated;
-        item.tabNumber = tabNumber;
         item.name = name;
         item.department = department;
         item.profession = profession;
@@ -101,7 +119,7 @@ router.put("/people", async (req, res) => {
 });
 
 // Удаляет запись
-router.delete('/people/:id', async (req, res) => {
+router.delete("/people/:id", async (req, res) => {
     const _id = req.params.id;
 
     try {

@@ -15,7 +15,6 @@ const checkModel = (model) => {
 // Сохраняет файл
 router.post("/upload", async (req, res) => {
     const originalFileName = req.files.file.name;
-    // const fileName = `${originalFileName}-${Date.now()}`;
 
     try {
         const files = await File.find({});

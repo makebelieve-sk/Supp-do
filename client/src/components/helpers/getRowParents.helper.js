@@ -5,19 +5,20 @@
  * @returns {string} строка со списком всех родителей
  */
 export default function getParents(item, items) {
-    let retVal = ""
+    let retVal = "";
+
     if (item.parent) {
         if (item.parent.name) {
             //Случай, когда родитель - это объект
-            retVal = concat(item.parent.name, retVal)
-            retVal = concat(getParents(item.parent, items), retVal)
+            retVal = concat(item.parent.name, retVal);
+            retVal = concat(getParents(item.parent, items), retVal);
         } else {
             //Случай, когда родитель содержит только код
-            let parent = items.find(p => p._id === item.parent)
+            let parent = items.find(p => p._id === item.parent);
 
             if (parent) {
-                retVal = concat(parent.name, retVal)
-                retVal = concat(getParents(parent, items), retVal)
+                retVal = concat(parent.name, retVal);
+                retVal = concat(getParents(parent, items), retVal);
             }
         }
     }
@@ -32,5 +33,5 @@ export default function getParents(item, items) {
  * @returns {string} - объединённая строка
  */
 function concat(parent, itemName) {
-    return (parent ? (parent + (parent.endsWith(' \\ ') ? '' : ' \\ ')) : '') + itemName
+    return (parent ? (parent + (parent.endsWith(' \\ ') ? '' : ' \\ ')) : '') + itemName;
 }

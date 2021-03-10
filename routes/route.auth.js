@@ -6,21 +6,20 @@ const {check, validationResult} = require("express-validator");
 const User = require("../models/User");
 const router = Router();
 
-router.post(
-    '/register',
-    [
-        check('password', 'Минимальная длина пароля 6 символов').isLength({min: 6}),
-    ],
-    async (req, res) => {
+// Валидация полей авторизации
+const checkMiddleware = [
+    check("login", "Некорректное поле 'Логин'").notEmpty().isString().isLength({ max: 255 }),
+    check("password", "Минимальная длина пароля 6 символов").notEmpty().isString().isLength({min: 6}),
+];
+
+router.post("/register", checkMiddleware, async (req, res) => {
     try {
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
-            return res.status(400).json({
-                errors: errors.array(),
-                message: 'Некорректные данные при регистрации'
-            })
+            return res.status(400).json({errors: errors.array(), message: "Некоректные данные при регистрации"});
         }
+
         const {login, password} = req.body;
 
         const candidate = await User.findOne({login});
@@ -54,21 +53,14 @@ router.post(
     }
 });
 
-router.post(
-    '/login',
-    [
-        check('password', 'Введите пароль').exists(),
-    ],
-    async (req, res) => {
+router.post("/login", checkMiddleware, async (req, res) => {
     try {
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
-            return res.status(400).json({
-                errors: errors.array(),
-                message: 'Некорректные данные при входе в систему'
-            })
+            return res.status(400).json({errors: errors.array(), message: "Некоректные данные при авторизации"});
         }
+
         const {login, password} = req.body;
 
         const user = await User.findOne({login});

@@ -4,7 +4,7 @@ import {Card, Form, Input, Row, Col, Button, Skeleton} from 'antd';
 import {useSelector} from "react-redux";
 import {CheckOutlined, StopOutlined} from '@ant-design/icons';
 
-import {EquipmentProperty} from "../../../model/EquipmentProperty";
+import {EquipmentPropertyRoute} from "../../../routes/route.EquipmentProperty";
 import {CheckTypeTab, onFailed} from "../../helpers/tab.helpers/tab.functions";
 
 const {Meta} = Card;
@@ -20,22 +20,22 @@ export const EquipmentPropertyTab = ({specKey, onRemove}) => {
     const [loadingSave, setLoadingSave] = useState(false);
 
     // Создание заголовка раздела и имени формы
-    const title = !item || item.isCreated ? "Создание характеристики оборудования" : "Редактирование характеристики оборудования";
+    const title = !item || item.isNewItem ? "Создание характеристики оборудования" : "Редактирование характеристики оборудования";
 
     // Обработка нажатия на кнопку "Сохранить"
     const saveHandler = async (values) => {
         // Устанавливаем спиннер загрузки
         setLoadingSave(true);
 
-        await EquipmentProperty.save(values, setLoadingSave, onRemove, specKey);
+        await EquipmentPropertyRoute.save(values, setLoadingSave, onRemove, specKey);
     };
 
     // Обработка нажатия на кнопку "Удалить"
     const deleteHandler = async (setLoadingDelete, setVisiblePopConfirm) => {
-        await EquipmentProperty.delete(item._id, setLoadingDelete, setVisiblePopConfirm, onRemove, specKey);
+        await EquipmentPropertyRoute.delete(item._id, setLoadingDelete, setVisiblePopConfirm, onRemove, specKey);
     };
 
-    const cancelHandler = () => EquipmentProperty.cancel(onRemove, specKey);
+    const cancelHandler = () => EquipmentPropertyRoute.cancel(onRemove, specKey);
 
     return (
         <Row className="container-tab" justify="center">
@@ -52,7 +52,7 @@ export const EquipmentPropertyTab = ({specKey, onRemove}) => {
                                     onFinishFailed={onFailed}
                                     initialValues={{
                                         _id: !item ? null : item._id,
-                                        isCreated: !item ? null : item.isCreated,
+                                        isNewItem: !item ? null : item.isNewItem,
                                         name: !item ? null : item.name,
                                         notes: !item ? null : item.notes,
                                     }}
@@ -60,7 +60,7 @@ export const EquipmentPropertyTab = ({specKey, onRemove}) => {
                                     <Form.Item name="_id" hidden={true}>
                                         <Input/>
                                     </Form.Item>
-                                    <Form.Item name="isCreated" hidden={true}>
+                                    <Form.Item name="isNewItem" hidden={true}>
                                         <Input/>
                                     </Form.Item>
 

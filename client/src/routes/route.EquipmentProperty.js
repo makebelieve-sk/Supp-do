@@ -1,26 +1,26 @@
-// Методы модели Состояние заявки
+// Методы модели Журнала дефектов и отказов
 import {message} from "antd";
+import {EquipmentProperty} from "../model/EquipmentProperty";
 
 import store from "../redux/store";
 import {ActionCreator} from "../redux/combineActions";
 import {request} from "../components/helpers/request.helper";
-import {TaskStatus} from "../model/TaskStatus";
 
-export const TaskStatusRoute = {
-    // Адрес для работы с разделом "Состояние заявок"
-    base_url: "/api/directory/taskStatus/",
+export const EquipmentPropertyRoute = {
+    // Адрес для работы с разделом "Характеристики оборудования"
+    base_url: "/api/directory/equipment-property/",
     // Получение всех записей
-    getAll: async function () {
+    getAll: async function (setLoading) {
         try {
             // Устанавливаем спиннер загрузки данных в таблицу
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(true));
 
-            // Получаем все записи раздела "Состояние заявок"
+            // Получаем все записи раздела "Характеристики оборудования"
             const items = await request(this.base_url);
 
             if (items) {
                 // Записываем все записи в хранилище
-                store.dispatch(ActionCreator.ActionCreatorTask.getAllTasks(items));
+                store.dispatch(ActionCreator.ActionCreatorEquipmentProperty.getAllEquipmentProperties(items));
             }
 
             // Останавливаем спиннер загрузки данных в таблицу
@@ -28,7 +28,8 @@ export const TaskStatusRoute = {
         } catch (e) {
             // Останавливаем спиннер загрузки данных в таблицу
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
-            message.error("Возникла ошибка при получении состояний заявок: ", e);
+            message.error("Возникла ошибка при получении характеристик оборудования: ", e);
+            setLoading(false);
         }
     },
     // Получение редактируемой записи
@@ -52,7 +53,7 @@ export const TaskStatusRoute = {
             setLoading(true);
 
             // Устанавливаем метод запроса
-            const method = item.isNewItem ? "POST" : "PUT";
+            const method = item.isCreated ? "POST" : "PUT";
 
             // Получаем сохраненную запись
             const data = await request(this.base_url, method, item);
@@ -67,16 +68,16 @@ export const TaskStatusRoute = {
                 // Редактирование записи - изменение записи в хранилище redux,
                 // Сохранение записи - создание записи в хранилище redux
                 if (method === "POST") {
-                    store.dispatch(ActionCreator.ActionCreatorTask.createTask(data.item));
+                    store.dispatch(ActionCreator.ActionCreatorEquipmentProperty.createEquipmentProperty(data.item));
                 } else {
-                    const tasks = store.getState().reducerTask.tasks;
-                    const foundTask = tasks.find(task => {
-                        return task._id === item._id;
+                    const equipmentProperties = store.getState().reducerEquipmentProperty.equipmentProperties;
+                    const foundEquipmentProperty = equipmentProperties.find(equipmentProperty => {
+                        return equipmentProperty._id === item._id;
                     });
-                    const indexTask = tasks.indexOf(foundTask);
+                    const indexEquipmentProperty = equipmentProperties.indexOf(foundEquipmentProperty);
 
-                    if (indexTask >= 0 && foundTask) {
-                        store.dispatch(ActionCreator.ActionCreatorTask.editTask(indexTask, data.item));
+                    if (indexEquipmentProperty >= 0 && foundEquipmentProperty) {
+                        store.dispatch(ActionCreator.ActionCreatorEquipmentProperty.editEquipmentProperty(indexEquipmentProperty, data.item));
                     }
                 }
             }
@@ -87,7 +88,6 @@ export const TaskStatusRoute = {
             // Останавливаем спиннер загрузки
             setLoading(false);
         }
-
     },
     // Удаление записи
     delete: async function (_id, setLoadingDelete, setVisiblePopConfirm, onRemove, specKey) {
@@ -106,16 +106,16 @@ export const TaskStatusRoute = {
                 // Вывод сообщения
                 message.success(data.message);
 
-                const tasks = store.getState().reducerTask.tasks;
+                const equipmentProperties = store.getState().reducerEquipmentProperty.equipmentProperties;
 
                 // Удаляем запись из хранилища redux
-                let foundTask = tasks.find(task => {
-                    return task._id === _id;
+                let foundEquipmentProperty = equipmentProperties.find(equipmentProperty => {
+                    return equipmentProperty._id === _id;
                 });
-                let indexTask = tasks.indexOf(foundTask);
+                let indexEquipmentProperty = equipmentProperties.indexOf(foundEquipmentProperty);
 
-                if (foundTask && indexTask >= 0) {
-                    store.dispatch(ActionCreator.ActionCreatorTask.deleteTask(indexTask));
+                if (foundEquipmentProperty && indexEquipmentProperty >= 0) {
+                    store.dispatch(ActionCreator.ActionCreatorEquipmentProperty.deleteEquipmentProperty(indexEquipmentProperty));
                 }
             }
 
@@ -126,23 +126,21 @@ export const TaskStatusRoute = {
             setLoadingDelete(false);
             setVisiblePopConfirm(false);
         }
-
     },
     // Нажатие на кнопку "Отмена"
     cancel: function (onRemove, specKey) {
-        // Удаление текущей вкладки
         onRemove(specKey, 'remove');
     },
-    // Заполнение модели "Состояние заявок"
+    // Заполнение модели "Характеристики оборудования"
     fillItem: function (item) {
-        if (!item.task)
+        if (!item.equipmentProperty)
             return;
 
         // Создаем объект редактируемой записи
-        let taskItem = new TaskStatus(item.task);
-        taskItem.isNewItem = item.isNewItem;
+        let equipmentPropertyItem = new EquipmentProperty(item.equipmentProperty);
+        equipmentPropertyItem.isNewItem = item.isNewItem;
 
         // Сохраняем объект редактируемой записи в хранилище
-        store.dispatch(ActionCreator.ActionCreatorTask.setRowDataTask(taskItem));
+        store.dispatch(ActionCreator.ActionCreatorEquipmentProperty.setRowDataEquipmentProperty(equipmentPropertyItem));
     }
 }

@@ -2,30 +2,38 @@
 import moment from "moment";
 import {message} from "antd";
 
-import {Departments} from "../model/Department";
-import {People} from "../model/Person";
-import {Equipment} from "../model/equipment";
 import {LogDO} from "../model/LogDO";
+import {DepartmentRoute} from "./route.Department";
+import {PersonRoute} from "./route.Person";
+import {EquipmentRoute} from "./route.Equipment";
+import {TaskStatusRoute} from "./route.taskStatus";
 
 import store from "../redux/store";
 import {ActionCreator} from "../redux/combineActions";
 import {request} from "../components/helpers/request.helper";
 import getParents from "../components/helpers/getRowParents.helper";
 import TabOptions from "../options/tab.options/tab.options";
-import {TaskStatusRoute} from "./route.taskStatus";
 
 export const LogDORoute = {
+    // Адрес для работы с разделом "Журнал дефектов и отказов"
     base_url: "/api/log-do/",
+    // Адрес для работы с файлами
     file_url: "/files/",
+    // Получение всех записей
     getAll: async function (date = moment().startOf("month").format(TabOptions.dateFormat)
     + "/" + moment().endOf("month").format(TabOptions.dateFormat)) {
         try {
+            // Устанавливаем спиннер загрузки данных в таблицу
+            store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(true));
+
+            // Получаем все записи разделов "Журнал дефектов и отказов", "Оборудование", "Подразделения", "Персонал" и "Состояние заявок"
             const items = await request(this.base_url + date);
-            const itemsEquipment = await request(Equipment.base_url);
-            const itemsDepartments = await request(Departments.base_url);
-            const itemsPeople = await request(People.base_url);
+            const itemsEquipment = await request(EquipmentRoute.base_url);
+            const itemsDepartments = await request(DepartmentRoute.base_url);
+            const itemsPeople = await request(PersonRoute.base_url);
             const itemsTasks = await request(TaskStatusRoute.base_url);
 
+            // Записываем все записи в хранилище
             if (items) {
                 store.dispatch(ActionCreator.ActionCreatorLogDO.getAllLogDO(items));
             }
@@ -57,28 +65,39 @@ export const LogDORoute = {
             if (itemsTasks) {
                 store.dispatch(ActionCreator.ActionCreatorTask.getAllTasks(itemsTasks));
             }
+
+            // Останавливаем спиннер загрузки данных в таблицу
+            store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
         } catch (e) {
+            // Останавливаем спиннер загрузки данных в таблицу
+            store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
             message.error("Возникла ошибка при получении записей журнала дефектов и отказов: ", e);
         }
     },
+    // Получение редактируемой записи
     get: async function (id) {
         try {
+            // Получаем редактируемую запись
             const item = await request(this.base_url + id);
 
             if (item) {
+                // Заполняем модель записи
                 this.fillItem(item);
             }
         } catch (e) {
             message.error("Возникла ошибка при получении записи: ", e);
         }
     },
+    // Сохранение записи
     save: async function (item, setLoading, onRemove, specKey) {
         try {
             // Устанавливаем спиннер загрузки
             setLoading(true);
 
+            // Устанавливаем метод запроса
             const method = item.isNewItem ? "POST" : "PUT";
 
+            // Получаем сохраненную запись
             const data = await request(this.base_url, method, item);
 
             // Останавливаем спиннер загрузки
@@ -103,19 +122,21 @@ export const LogDORoute = {
                         store.dispatch(ActionCreator.ActionCreatorLogDO.editLogDO(indexLogDO, data.item));
                     }
                 }
-
-                // Обновляем список записей в таблице с начала месяца по конец месяца
-                // await this.getAll();
             }
 
             // Удаление текущей вкладки
-            onRemove(specKey, 'remove');
+            onRemove(specKey, "remove");
+
+            // Обновляем список записей в таблице по выбранной дате
+            const currentDate = store.getState().reducerLogDO.date;
+            await this.getAll(currentDate);
         } catch (e) {
             // Останавливаем спиннер загрузки
             setLoading(false);
         }
 
     },
+    // Удаление записи
     delete: async function (_id, setLoadingDelete, setVisiblePopConfirm, onRemove, specKey) {
         try {
             // Устанавливаем спиннер загрузки
@@ -159,6 +180,7 @@ export const LogDORoute = {
         }
 
     },
+    // Нажатие на кнопку "Отмена"
     cancel: async function (onRemove, specKey, setLoadingCancel) {
         try {
             setLoadingCancel(true);
@@ -174,13 +196,16 @@ export const LogDORoute = {
             setLoadingCancel(false);
         }
     },
+    // Заполнение модели "Журнал дефектов и отказов"
     fillItem: function (item) {
         if (!item.logDO)
             return;
 
+        // Создаем объект редактируемой записи
         let logDOItem = new LogDO(item.logDO);
         logDOItem.isNewItem = item.isNewItem;
 
+        // Сохраняем объект редактируемой записи в хранилище
         store.dispatch(ActionCreator.ActionCreatorLogDO.setRowDataLogDO(logDOItem));
         store.dispatch(ActionCreator.ActionCreatorLogDO.getAllFiles(logDOItem.files));
     }

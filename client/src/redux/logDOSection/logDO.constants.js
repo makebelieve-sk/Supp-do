@@ -1,13 +1,14 @@
 // Константы раздела Журнал дефетков и отказов
-const CREATE_LOGDO = 'CREATE_LOGDO';
-const EDIT_LOGDO = 'EDIT_LOGDO';
-const DELETE_LOGDO = 'DELETE_LOGDO';
-const GET_ALL_LOGDO = 'GET_ALL_LOGDO';
-const SET_ROW_DATA_LOGDO = 'SET_ROW_DATA_LOGDO';
+const CREATE_LOGDO = "CREATE_LOGDO";
+const EDIT_LOGDO = "EDIT_LOGDO";
+const DELETE_LOGDO = "DELETE_LOGDO";
+const GET_ALL_LOGDO = "GET_ALL_LOGDO";
+const SET_ROW_DATA_LOGDO = "SET_ROW_DATA_LOGDO";
+const SET_DATE = "SET_DATE";
 
-const ADD_FILE = 'ADD_FILE';
-const DELETE_FILE = 'DELETE_FILE';
-const GET_ALL_FILES = 'GET_ALL_FILES';
+const ADD_FILE = "ADD_FILE";
+const DELETE_FILE = "DELETE_FILE";
+const GET_ALL_FILES = "GET_ALL_FILES";
 
 export {
     CREATE_LOGDO,
@@ -15,6 +16,7 @@ export {
     DELETE_LOGDO,
     GET_ALL_LOGDO,
     SET_ROW_DATA_LOGDO,
+    SET_DATE,
     ADD_FILE,
     DELETE_FILE,
     GET_ALL_FILES

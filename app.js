@@ -2,6 +2,7 @@ const express = require("express");
 const config = require("./config/default.json");
 const mongoose = require("mongoose");
 const fileUpload = require("express-fileupload");
+const {path} = require("path");
 
 const app = express();
 
@@ -20,6 +21,16 @@ app.use('/api/directory', require("./routes/route.equipment"));
 app.use(fileUpload({createParentPath: true}));
 app.use("/public", express.static('public'));
 app.use('/files', require("./routes/route.upload"));
+
+if (process.env.NODE_ENV === "production") {
+    // При запуске на сервере необходимо регистрировать фронтенд
+    app.use("/", express.static(path.join(__dirname, "client", "build")));
+
+    // Любой get запрос будет отправляться в файл index.html (в билд)
+    app.get("*", (req, res) => {
+        res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
+    })
+}
 
 const PORT = config.port || 5000;
 

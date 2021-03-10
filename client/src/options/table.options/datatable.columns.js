@@ -292,7 +292,7 @@ const LogDOColumns = [
 
             return {
                 props: {
-                    style: {background: record.state.color},
+                    style: {background: record.state && record.state.color ? record.state.color : "#FFFFFF"},
                 },
                 children: <div><Tooltip placement="topLeft" title={foundElement ? foundElement.nameWithParent : text}>
                     {text}
@@ -402,7 +402,7 @@ const LogDOColumns = [
 
             return {
                 props: {
-                    style: {background: record.state.color},
+                    style: {background: record.state && record.state.color ? record.state.color : "#FFFFFF"},
                 },
                 children: <div><Tooltip placement="topLeft" title={foundElement ? foundElement.nameWithParent : text}>
                     {text}

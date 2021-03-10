@@ -1,11 +1,10 @@
 // Вкладка "Подразделения"
-import React, {useState} from 'react';
+import React, {useState} from "react";
 import {useSelector} from "react-redux";
-import {Button, Card, Form, Input, Row, Col, Select, Skeleton} from 'antd';
+import {Button, Card, Form, Input, Row, Col, Select, Skeleton} from "antd";
 import {CheckOutlined, StopOutlined} from "@ant-design/icons";
 
-import {Departments} from "../../../model/Department";
-import getParents from "../../helpers/getRowParents.helper";
+import {DepartmentRoute} from "../../../routes/route.Department";
 import {getOptions, CheckTypeTab, onFailed} from "../../helpers/tab.helpers/tab.functions";
 
 const {Meta} = Card;
@@ -30,24 +29,16 @@ export const DepartmentTab = ({specKey, onRemove}) => {
 
     // Начальное значение выбранного элемента в выпадающем списке
     if (departments && departments.length && item && item.parent) {
-        departments.forEach(department => {
-            if (department.parent) {
-                department.nameWithParent = getParents(department, departments) + department.name;
-            } else {
-                item.nameWithParent = item.name;
-            }
-        })
-
         initialOption = departments.find(department => department._id === item.parent._id);
     }
 
     // Создание заголовка раздела и имени формы
-    const title = !item || item.isCreated ? "Создание подразделения" : "Редактирование подразделения";
+    const title = !item || item.isNewItem ? "Создание подразделения" : "Редактирование подразделения";
 
     // Обработка нажатия на кнопку "Сохранить"
     const saveHandler = async (values) => {
         // Обновляем список подразделений
-        await Departments.getAll();
+        await DepartmentRoute.getAll();
 
         // Проверяем, есть ли выбранный элемент в списке
         const foundDepartment = departments.find(department => {
@@ -56,15 +47,15 @@ export const DepartmentTab = ({specKey, onRemove}) => {
 
         values.parent = foundDepartment ? foundDepartment : null;
 
-        await Departments.save(values, setLoadingSave, onRemove, specKey);
+        await DepartmentRoute.save(values, setLoadingSave, onRemove, specKey);
     };
 
     // Обработка нажатия на кнопку "Удалить"
     const deleteHandler = async (setLoadingDelete, setVisiblePopConfirm) => {
-        await Departments.delete(item._id, setLoadingDelete, setVisiblePopConfirm, onRemove, specKey);
+        await DepartmentRoute.delete(item._id, setLoadingDelete, setVisiblePopConfirm, onRemove, specKey);
     };
 
-    const cancelHandler = () => Departments.cancel(onRemove, specKey);
+    const cancelHandler = () => DepartmentRoute.cancel(onRemove, specKey);
 
     // Обновление выпадающего списка "Подразделения"
     const dropDownRenderHandler = async (open) => {
@@ -72,7 +63,7 @@ export const DepartmentTab = ({specKey, onRemove}) => {
             if (open) {
                 setLoadingSelect(true);
 
-                await Departments.getAll();
+                await DepartmentRoute.getAll();
 
                 setOptions(getOptions(departments));
 
@@ -98,7 +89,7 @@ export const DepartmentTab = ({specKey, onRemove}) => {
                                     onFinishFailed={onFailed}
                                     initialValues={{
                                         _id: !item ? null : item._id,
-                                        isCreated: !item ? null : item.isCreated,
+                                        isNewItem: !item ? null : item.isNewItem,
                                         name: !item ? null : item.name,
                                         notes: !item ? null : item.notes,
                                         parent: item && initialOption ? initialOption._id : null
@@ -107,7 +98,7 @@ export const DepartmentTab = ({specKey, onRemove}) => {
                                     <Form.Item name="_id" hidden={true}>
                                         <Input/>
                                     </Form.Item>
-                                    <Form.Item name="isCreated" hidden={true}>
+                                    <Form.Item name="isNewItem" hidden={true}>
                                         <Input/>
                                     </Form.Item>
 

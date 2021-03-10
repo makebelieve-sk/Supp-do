@@ -1,9 +1,16 @@
 // Маршруты для "Перечень оборудования"
 const {Router} = require("express");
+const {check, validationResult} = require("express-validator");
 const Equipment = require("../models/Equipment");
 const EquipmentProperty = require("../models/EquipmentProperty");
 const File = require("../models/File");
 const router = Router();
+
+// Валидация полей раздела "Оборудование"
+const checkMiddleware = [
+    check("name", "Некорректное наименование оборудования").isString().notEmpty().isLength({ max: 255 }),
+    check("notes", "Максимальная длина поля 'Примечание' составляет 255 символов").isString().isLength({ max: 255 })
+];
 
 // Возвращает запись по коду
 router.get("/equipment/:id", async (req, res) => {
@@ -61,8 +68,14 @@ router.get("/equipment", async (req, res) => {
 });
 
 // Сохраняет новую запись
-router.post("/equipment", async (req, res) => {
+router.post("/equipment", checkMiddleware, async (req, res) => {
     try {
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            return res.status(400).json({errors: errors.array(), message: "Некоректные данные при создании записи"});
+        }
+
         let resFileArr = [];
         const {name, notes, parent, properties, files} = req.body;
 
@@ -116,8 +129,14 @@ router.post("/equipment", async (req, res) => {
 });
 
 // Изменяет запись
-router.put("/equipment", async (req, res) => {
+router.put("/equipment", checkMiddleware, async (req, res) => {
     try {
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            return res.status(400).json({errors: errors.array(), message: "Некоректные данные при создании записи"});
+        }
+
         const {_id, isCreated,  name, notes, parent, properties, files} = req.body;
         const item = await Equipment.findById({_id});
         let resFileArr = [];

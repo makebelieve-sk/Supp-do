@@ -1,16 +1,15 @@
 // Вкладка "Персонал"
-import React, {useState} from 'react';
-import {Card, Form, Input, Row, Button, Select, Col, Skeleton} from 'antd';
+import React, {useState} from "react";
 import {useSelector} from "react-redux";
+import {Card, Form, Input, Row, Button, Select, Col, Skeleton} from "antd";
 import {CheckOutlined, PlusOutlined, StopOutlined} from "@ant-design/icons";
 
 import {ProfessionRoute} from "../../../routes/route.profession";
-import {Departments} from "../../../model/Department";
-import {People} from "../../../model/Person";
+import {DepartmentRoute} from "../../../routes/route.Department";
+import {PersonRoute} from "../../../routes/route.Person";
 
 import {getOptions, CheckTypeTab, onFailed} from "../../helpers/tab.helpers/tab.functions";
 import {RowMapHelper} from "../../helpers/table.helpers/tableMap.helper";
-import getParents from "../../helpers/getRowParents.helper";
 
 const {Meta} = Card;
 
@@ -37,14 +36,6 @@ export const PersonTab = ({specKey, onRemove}) => {
 
     // Начальное значение выбранного элемента в выпадающем списке Подразделения
     if (departments && departments.length && item && item.department) {
-        departments.forEach(department => {
-            if (department.parent) {
-                department.nameWithParent = getParents(department, departments) + department.name;
-            } else {
-                item.nameWithParent = item.name;
-            }
-        })
-
         initialDepartmentOption = departments.find(department => department._id === item.department._id);
     }
 
@@ -54,7 +45,7 @@ export const PersonTab = ({specKey, onRemove}) => {
     }
 
     // Создание заголовка раздела и имени формы
-    const title = !item || item.isCreated ? "Создание записи о сотруднике" : "Редактирование записи о сотруднике";
+    const title = !item || item.isNewItem ? "Создание записи о сотруднике" : "Редактирование записи о сотруднике";
 
     // Обработка нажатия на кнопку "Сохранить"
     const saveHandler = async (values) => {
@@ -62,7 +53,7 @@ export const PersonTab = ({specKey, onRemove}) => {
         setLoadingSave(true);
 
         // Обновляем список подразделений
-        await People.getAll();
+        await PersonRoute.getAll();
 
         // Проверяем, есть ли выбранный элемент в списке подразделений
         const foundDepartment = departments.find(department => {
@@ -77,15 +68,15 @@ export const PersonTab = ({specKey, onRemove}) => {
         values.department = foundDepartment ? foundDepartment : null;
         values.profession = foundProfession ? foundProfession : null;
 
-        await People.save(values, setLoadingSave, onRemove, specKey);
+        await PersonRoute.save(values, setLoadingSave, onRemove, specKey);
     };
 
     // Обработка нажатия на кнопку "Удалить"
     const deleteHandler = async (setLoadingDelete, setVisiblePopConfirm) => {
-        await People.delete(item._id, setLoadingDelete, setVisiblePopConfirm, onRemove, specKey);
+        await PersonRoute.delete(item._id, setLoadingDelete, setVisiblePopConfirm, onRemove, specKey);
     };
 
-    const cancelHandler = () => People.cancel(onRemove, specKey);
+    const cancelHandler = () => PersonRoute.cancel(onRemove, specKey);
 
     // Обновление выпадающего списка "Подразделения"
     const dropDownRenderHandler = async (open, setLoadingSelect, model, setOptions, dataStore) => {
@@ -119,7 +110,7 @@ export const PersonTab = ({specKey, onRemove}) => {
                                     onFinishFailed={onFailed}
                                     initialValues={{
                                         _id: !item ? null : item._id,
-                                        isCreated: !item ? null : item.isCreated,
+                                        isNewItem: !item ? null : item.isNewItem,
                                         name: !item ? null : item.name,
                                         notes: !item ? null : item.notes,
                                         department: item && initialDepartmentOption ? initialDepartmentOption._id : null,
@@ -129,7 +120,7 @@ export const PersonTab = ({specKey, onRemove}) => {
                                     <Form.Item name="_id" hidden={true}>
                                         <Input/>
                                     </Form.Item>
-                                    <Form.Item name="isCreated" hidden={true}>
+                                    <Form.Item name="isNewItem" hidden={true}>
                                         <Input/>
                                     </Form.Item>
 
@@ -155,7 +146,7 @@ export const PersonTab = ({specKey, onRemove}) => {
                                                     <Select
                                                         options={departmentsOptions}
                                                         onDropdownVisibleChange={async open => {
-                                                            await dropDownRenderHandler(open, setLoadingSelectDepartment, Departments, setDepartmentsOptions, departments)
+                                                            await dropDownRenderHandler(open, setLoadingSelectDepartment, DepartmentRoute, setDepartmentsOptions, departments)
                                                         }}
                                                         loading={loadingSelectDepartment}
                                                     />

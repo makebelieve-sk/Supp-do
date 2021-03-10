@@ -1,11 +1,9 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+import React from "react";
+import ReactDOM from "react-dom";
 import {Provider} from "react-redux";
-import 'antd/dist/antd.css';
+import "antd/dist/antd.css";
 
 import store from "./redux/store";
-import reportWebVitals from './reportWebVitals';
-import {App} from './App';
+import {App} from "./App";
 
-ReactDOM.render(<Provider store={store}><App /></Provider>, document.getElementById('root'));
-reportWebVitals();
+ReactDOM.render(<Provider store={store}><App /></Provider>, document.getElementById("root"));

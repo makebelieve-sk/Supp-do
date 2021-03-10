@@ -1,14 +1,31 @@
 // Маршруты для "Журнала дефектов и отказов"
 const moment = require("moment");
 const {Router} = require("express");
+const {check, validationResult} = require("express-validator");
 const File = require("../models/File");
 const LogDO = require("../models/LogDO");
 const router = Router();
 
 const dateFormat = "DD.MM.YYYY HH:mm";
 
+// Валидация полей раздела "Журнал дефектов и отказов"
+const checkMiddleware = [
+    check("date", "Некорректный формат поля 'Дата заявки'").notEmpty().isString(),
+    check("applicant", "Некорректный формат поля 'Заявитель'").notEmpty(),
+    check("equipment", "Некорректный формат поля 'Оборудование'").notEmpty(),
+    check("notes", "Максимальная длина поля 'Описание' составляет 1000 символов").notEmpty().isString().isLength({min: 0, max: 1000}),
+    check("sendEmail", "Некорректное формат поля 'Оперативное уведомление сотрудников'").isBoolean(),
+    check("productionCheck", "Некорректное формат поля 'Производство остановлено'").isBoolean(),
+    // check("task", "Максимальная длина поля 'Задание' составляет 1000 символов").isString().isLength({min: 0, max: 1000}),
+    // check("dateDone", "Некорректный формат поля 'Заявитель'").isString(),
+    // check("planDateDone", "Некорректный формат поля 'Заявитель'").isString(),
+    // check("content", "Максимальная длина поля 'Содержание работ' составляет 1000 символов").isString().isLength({min: 0, max: 1000}),
+    // check("downtime", "Максимальная длина поля 'Время простоя' составляет 255 символов").isString().isLength({min: 0, max: 255}),
+    // check("acceptTask", "Некорректное формат поля 'Работа принята'").isBoolean(),
+];
+
 // Возвращает запись по коду
-router.get('/log-do/:id', async (req, res) => {
+router.get("/log-do/:id", async (req, res) => {
     const _id = req.params.id;
 
     try {
@@ -37,7 +54,7 @@ router.get('/log-do/:id', async (req, res) => {
         } else {
             // Редактирование существующей записи
             item = await LogDO.findById({_id})
-                .populate('applicant')
+                .populate("applicant")
                 .populate("equipment")
                 .populate("department")
                 .populate("responsible")
@@ -82,8 +99,15 @@ router.get("/log-do/:dateStart/:dateEnd", async (req, res) => {
 });
 
 // Сохраняет новую запись
-router.post('/log-do', async (req, res) => {
+router.post("/log-do", checkMiddleware, async (req, res) => {
     try {
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            console.log(errors)
+            return res.status(400).json({errors: errors.array(), message: "Некоректные данные при создании записи"});
+        }
+
         let resFileArr = [];
 
         let {date, applicant, equipment, notes, sendEmail, productionCheck, department, responsible, task, state,
@@ -123,8 +147,14 @@ router.post('/log-do', async (req, res) => {
 });
 
 // Изменяет запись
-router.put('/log-do', async (req, res) => {
+router.put('/log-do', checkMiddleware, async (req, res) => {
     try {
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            return res.status(400).json({errors: errors.array(), message: "Некоректные данные при создании записи"});
+        }
+
         let resFileArr = [];
         const {_id, date, applicant, equipment, notes, sendEmail, productionCheck, department, responsible, task, state,
             dateDone, planDateDone, content, downtime, acceptTask, files} = req.body;

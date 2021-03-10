@@ -49,6 +49,9 @@
     text-align: center;
     line-height: 48px;
 }
+.logo:hover {
+    cursor: pointer;
+}
 
 /* установка стилей для body*/
 .content-component {

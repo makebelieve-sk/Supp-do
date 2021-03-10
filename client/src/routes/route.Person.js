@@ -1,26 +1,45 @@
-// Методы модели Состояние заявки
+// Методы модели Персонал
 import {message} from "antd";
 
+import {Person} from "../model/Person";
+import {ProfessionRoute} from "./route.profession";
+import {DepartmentRoute} from "./route.Department";
 import store from "../redux/store";
 import {ActionCreator} from "../redux/combineActions";
 import {request} from "../components/helpers/request.helper";
-import {TaskStatus} from "../model/TaskStatus";
+import getParents from "../components/helpers/getRowParents.helper";
 
-export const TaskStatusRoute = {
-    // Адрес для работы с разделом "Состояние заявок"
-    base_url: "/api/directory/taskStatus/",
+export const PersonRoute = {
+    // Адрес для работы с разделом "Персонал"
+    base_url: "/api/directory/people/",
     // Получение всех записей
     getAll: async function () {
         try {
             // Устанавливаем спиннер загрузки данных в таблицу
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(true));
 
-            // Получаем все записи раздела "Состояние заявок"
-            const items = await request(this.base_url);
+            // Получаем все записи разделов "Подразделения", "Персонал" и "Оборудование"
+            const itemsProfessions = await request(ProfessionRoute.base_url);
+            const itemsDepartments = await request(DepartmentRoute.base_url);
+            const itemsPeople = await request(this.base_url);
 
-            if (items) {
-                // Записываем все записи в хранилище
-                store.dispatch(ActionCreator.ActionCreatorTask.getAllTasks(items));
+            // Записываем все записи в хранилище
+            if (itemsProfessions) {
+                store.dispatch(ActionCreator.ActionCreatorProfession.getAllProfessions(itemsProfessions));
+            }
+
+            if (itemsDepartments && itemsDepartments.length) {
+                itemsDepartments.forEach(item => {
+                    if (item.parent) {
+                        item.nameWithParent = getParents(item, itemsDepartments) + item.name;
+                    }
+                })
+
+                store.dispatch(ActionCreator.ActionCreatorDepartment.getAllDepartments(itemsDepartments));
+            }
+
+            if (itemsPeople) {
+                store.dispatch(ActionCreator.ActionCreatorPerson.getAllPeople(itemsPeople));
             }
 
             // Останавливаем спиннер загрузки данных в таблицу
@@ -28,7 +47,7 @@ export const TaskStatusRoute = {
         } catch (e) {
             // Останавливаем спиннер загрузки данных в таблицу
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
-            message.error("Возникла ошибка при получении состояний заявок: ", e);
+            message.error("Возникла ошибка при получении персонала: ", e);
         }
     },
     // Получение редактируемой записи
@@ -52,7 +71,7 @@ export const TaskStatusRoute = {
             setLoading(true);
 
             // Устанавливаем метод запроса
-            const method = item.isNewItem ? "POST" : "PUT";
+            const method = item.isCreated ? "POST" : "PUT";
 
             // Получаем сохраненную запись
             const data = await request(this.base_url, method, item);
@@ -67,16 +86,16 @@ export const TaskStatusRoute = {
                 // Редактирование записи - изменение записи в хранилище redux,
                 // Сохранение записи - создание записи в хранилище redux
                 if (method === "POST") {
-                    store.dispatch(ActionCreator.ActionCreatorTask.createTask(data.item));
+                    store.dispatch(ActionCreator.ActionCreatorPerson.createPerson(data.item));
                 } else {
-                    const tasks = store.getState().reducerTask.tasks;
-                    const foundTask = tasks.find(task => {
-                        return task._id === item._id;
+                    const people = store.getState().reducerPerson.people;
+                    const foundPerson = people.find(person => {
+                        return person._id === item._id;
                     });
-                    const indexTask = tasks.indexOf(foundTask);
+                    const indexPerson = people.indexOf(foundPerson);
 
-                    if (indexTask >= 0 && foundTask) {
-                        store.dispatch(ActionCreator.ActionCreatorTask.editTask(indexTask, data.item));
+                    if (indexPerson >= 0 && foundPerson) {
+                        store.dispatch(ActionCreator.ActionCreatorPerson.editPerson(indexPerson, data.item));
                     }
                 }
             }
@@ -87,7 +106,6 @@ export const TaskStatusRoute = {
             // Останавливаем спиннер загрузки
             setLoading(false);
         }
-
     },
     // Удаление записи
     delete: async function (_id, setLoadingDelete, setVisiblePopConfirm, onRemove, specKey) {
@@ -106,16 +124,16 @@ export const TaskStatusRoute = {
                 // Вывод сообщения
                 message.success(data.message);
 
-                const tasks = store.getState().reducerTask.tasks;
+                const people = store.getState().reducerPerson.people;
 
                 // Удаляем запись из хранилища redux
-                let foundTask = tasks.find(task => {
-                    return task._id === _id;
+                let foundPerson = people.find(person => {
+                    return person._id === _id;
                 });
-                let indexTask = tasks.indexOf(foundTask);
+                let indexPerson = people.indexOf(foundPerson);
 
-                if (foundTask && indexTask >= 0) {
-                    store.dispatch(ActionCreator.ActionCreatorTask.deleteTask(indexTask));
+                if (foundPerson && indexPerson >= 0) {
+                    store.dispatch(ActionCreator.ActionCreatorPerson.deletePerson(indexPerson));
                 }
             }
 
@@ -126,23 +144,21 @@ export const TaskStatusRoute = {
             setLoadingDelete(false);
             setVisiblePopConfirm(false);
         }
-
     },
     // Нажатие на кнопку "Отмена"
     cancel: function (onRemove, specKey) {
-        // Удаление текущей вкладки
         onRemove(specKey, 'remove');
     },
-    // Заполнение модели "Состояние заявок"
+    // Заполнение модели "Персонал"
     fillItem: function (item) {
-        if (!item.task)
+        if (!item.person)
             return;
 
         // Создаем объект редактируемой записи
-        let taskItem = new TaskStatus(item.task);
-        taskItem.isNewItem = item.isNewItem;
+        let personItem = new Person(item.person);
+        personItem.isNewItem = item.isNewItem;
 
         // Сохраняем объект редактируемой записи в хранилище
-        store.dispatch(ActionCreator.ActionCreatorTask.setRowDataTask(taskItem));
+        store.dispatch(ActionCreator.ActionCreatorPerson.setRowDataPerson(personItem));
     }
 }

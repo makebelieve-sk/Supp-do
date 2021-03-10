@@ -1,7 +1,14 @@
 // Маршруты для характеристик оборудования
 const {Router} = require("express");
+const {check, validationResult} = require("express-validator");
 const EquipmentProperty = require("../models/EquipmentProperty");
 const router = Router();
+
+// Валидация полей раздела "Профессии"
+const checkMiddleware = [
+    check("name", "Некорректное наименование характеристики оборудования").isString().notEmpty().isLength({ max: 255 }),
+    check("notes", "Максимальная длина поля 'Примечание' составляет 255 символов").isString().isLength({ max: 255 })
+];
 
 // Возвращает запись по коду
 router.get("/equipment-property/:id", async (req, res) => {
@@ -39,8 +46,14 @@ router.get("/equipment-property", async (req, res) => {
 });
 
 // Сохраняет новую запись
-router.post("/equipment-property", async (req, res) => {
+router.post("/equipment-property", checkMiddleware, async (req, res) => {
     try {
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            return res.status(400).json({errors: errors.array(), message: "Некоректные данные при создании записи"});
+        }
+
         const {name, notes} = req.body;
         // Проверяем на существование характеристики с указанным именем
         const item = await EquipmentProperty.findOne({name});
@@ -64,8 +77,14 @@ router.post("/equipment-property", async (req, res) => {
 });
 
 // Изменяет запись
-router.put("/equipment-property", async (req, res) => {
+router.put("/equipment-property", checkMiddleware, async (req, res) => {
     try {
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            return res.status(400).json({errors: errors.array(), message: "Некоректные данные при создании записи"});
+        }
+
         const {_id, isCreated,  name, notes} = req.body;
         const item = await EquipmentProperty.findById({_id});
 
@@ -90,7 +109,7 @@ router.put("/equipment-property", async (req, res) => {
 });
 
 // Удаляет запись
-router.delete('/equipment-property/:id', async (req, res) => {
+router.delete("/equipment-property/:id", async (req, res) => {
     const _id = req.params.id;
 
     try {

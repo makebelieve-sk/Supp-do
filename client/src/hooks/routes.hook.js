@@ -1,5 +1,5 @@
-import React from 'react';
-import {Switch, Route, Redirect} from 'react-router-dom';
+import React from "react";
+import {Switch, Route, Redirect} from "react-router-dom";
 
 import {MainPage} from "../components/pages/mainPage";
 import {AuthPage} from "../components/pages/authPage";

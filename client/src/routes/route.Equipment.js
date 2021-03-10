@@ -1,20 +1,30 @@
-// Модель для справочника Перечень оборудования
+// Методы модели Оборудование
 import {message} from "antd";
+
+import {Equipment} from "../model/Equipment";
+import {EquipmentPropertyRoute} from "./route.EquipmentProperty";
 
 import store from "../redux/store";
 import {ActionCreator} from "../redux/combineActions";
 import {request} from "../components/helpers/request.helper";
-import {EquipmentProperty} from "./EquipmentProperty";
 import getParents from "../components/helpers/getRowParents.helper";
 
-export const Equipment = {
+export const EquipmentRoute = {
+    // Адрес для работы с разделом "Оборудование"
     base_url: "/api/directory/equipment/",
+    // Адрес для работы с файлами
     file_url: "/files/",
+    // Получение всех записей
     getAll: async function () {
         try {
-            const itemsEquipmentProperty = await request(EquipmentProperty.base_url);
+            // Устанавливаем спиннер загрузки данных в таблицу
+            store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(true));
+
+            // Получаем все записи разделов "Оборудование" и "Характеристики оборудования"
+            const itemsEquipmentProperty = await request(EquipmentPropertyRoute.base_url);
             const itemsEquipment = await request(this.base_url);
 
+            // Записываем все записи в хранилище
             if (itemsEquipmentProperty) {
                 store.dispatch(ActionCreator.ActionCreatorEquipmentProperty.getAllEquipmentProperties(itemsEquipmentProperty));
             }
@@ -28,25 +38,39 @@ export const Equipment = {
 
                 store.dispatch(ActionCreator.ActionCreatorEquipment.getAllEquipment(itemsEquipment));
             }
+
+            // Останавливаем спиннер загрузки данных в таблицу
+            store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
         } catch (e) {
+            // Останавливаем спиннер загрузки данных в таблицу
+            store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
             message.error("Возникла ошибка при получении оборудования: ", e);
         }
     },
+    // Получение редактируемой записи
     get: async function (id) {
         try {
+            // Получаем редактируемую запись
             const item = await request(this.base_url + id);
 
-            if (item && item.equipment) {
-                this.fillItem(item.equipment);
+            if (item) {
+                // Заполняем модель записи
+                this.fillItem(item);
             }
         } catch (e) {
             message.error("Возникла ошибка при получении записи: ", e);
         }
     },
+    // Сохранение записи
     save: async function (item, setLoading, onRemove, specKey) {
         try {
+            // Устанавливаем спиннер загрузки
+            setLoading(true);
+
+            // Устанавливаем метод запроса
             const method = item.isCreated ? "POST" : "PUT";
 
+            // Получаем сохраненную запись
             const data = await request(this.base_url, method, item);
 
             // Останавливаем спиннер загрузки
@@ -80,6 +104,7 @@ export const Equipment = {
             setLoading(false);
         }
     },
+    // Удаление записи
     delete: async function (_id, setLoadingDelete, setVisiblePopConfirm, onRemove, specKey) {
         try {
             // Устанавливаем спиннер загрузки
@@ -122,6 +147,7 @@ export const Equipment = {
             setVisiblePopConfirm(false);
         }
     },
+    // Нажатие на кнопку "Отмена"
     cancel: async function (onRemove, specKey, setLoadingCancel) {
         try {
             setLoadingCancel(true);
@@ -137,20 +163,16 @@ export const Equipment = {
             setLoadingCancel(false);
         }
     },
+    // Заполнение модели "Оборудование"
     fillItem: function (item) {
-        if (!item)
+        if (!item.equipment)
             return;
 
-        const equipmentItem = {
-            _id: item._id,
-            isCreated: item.isCreated,
-            name: item.name,
-            notes: item.notes,
-            parent: item.parent,
-            properties: item.properties,
-            files: item.files
-        };
+        // Создаем объект редактируемой записи
+        let equipmentItem = new Equipment(item.equipment);
+        equipmentItem.isNewItem = item.isNewItem;
 
+        // Сохраняем объект редактируемой записи в хранилище
         store.dispatch(ActionCreator.ActionCreatorEquipment.setRowDataEquipment(equipmentItem));
         store.dispatch(ActionCreator.ActionCreatorEquipment.getAllSelectRows(equipmentItem.properties));
         store.dispatch(ActionCreator.ActionCreatorEquipment.getAllFiles(equipmentItem.files));

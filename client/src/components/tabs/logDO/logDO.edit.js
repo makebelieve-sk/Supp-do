@@ -11,10 +11,10 @@ import {ActionCreator} from "../../../redux/combineActions";
 import {RowMapHelper} from "../../helpers/table.helpers/tableMap.helper";
 import {UploadComponent} from "../../contentComponent/tab.components/uploadComponent";
 
-import {Departments} from "../../../model/Department";
-import {People} from "../../../model/Person";
-import {Equipment} from "../../../model/equipment";
+import {DepartmentRoute} from "../../../routes/route.Department";
+import {PersonRoute} from "../../../routes/route.Person";
 import {TaskStatusRoute} from "../../../routes/route.taskStatus";
+import {EquipmentRoute} from "../../../routes/route.Equipment";
 import {LogDORoute} from "../../../routes/route.LogDO";
 
 const {Meta} = Card;
@@ -88,7 +88,6 @@ export const LogDOTab = ({specKey, onRemove}) => {
         const foundApplicant = people.find(person => {
             return person._id === values.applicant;
         });
-
         // Проверяем, есть ли выбранный элемент в списке оборудования
         const foundEquipment = equipment.find(eq => {
             return eq._id === values.equipment;
@@ -211,18 +210,18 @@ export const LogDOTab = ({specKey, onRemove}) => {
                                                         rules={[{required: true, message: "Выберите заявителя!"}]}
                                                     >
                                                         <Row>
-                                                            <Col xs={{span: 20}} sm={{span: 20}} md={{span: 21}} lg={{span: 21}} xl={{span: 21}}>
+                                                            <Col xs={{span: 18}} sm={{span: 18}} md={{span: 20}} lg={{span: 20}} xl={{span: 20}}>
                                                                 <Form.Item name="applicant" noStyle>
                                                                     <Select
                                                                         options={applicantToOptions}
                                                                         onDropdownVisibleChange={async open => {
-                                                                            await dropDownRenderHandler(open, setLoadingSelectApplicant, People, setApplicantToOptions, people);
+                                                                            await dropDownRenderHandler(open, setLoadingSelectApplicant, PersonRoute, setApplicantToOptions, people);
                                                                         }}
                                                                         loading={loadingSelectApplicant}
                                                                     />
                                                                 </Form.Item>
                                                             </Col>
-                                                            <Col xs={{span: 4}} sm={{span: 4}} md={{span: 3}} lg={{span: 3}} xl={{span: 3}}>
+                                                            <Col xs={{span: 6}} sm={{span: 6}} md={{span: 4}} lg={{span: 4}} xl={{span: 4}}>
                                                                 <Button
                                                                     className="button-add-select"
                                                                     onClick={() => RowMapHelper("people", "-1")}
@@ -241,18 +240,18 @@ export const LogDOTab = ({specKey, onRemove}) => {
                                                 rules={[{required: true, message: "Выберите оборудование!"}]}
                                             >
                                                 <Row>
-                                                    <Col xs={{span: 20}} sm={{span: 20}} md={{span: 22}} lg={{span: 22}} xl={{span: 22}}>
+                                                    <Col xs={{span: 21}} sm={{span: 21}} md={{span: 22}} lg={{span: 22}} xl={{span: 22}}>
                                                         <Form.Item name="equipment" noStyle>
                                                             <Select
                                                                 options={equipmentToOptions}
                                                                 onDropdownVisibleChange={async open => {
-                                                                    await dropDownRenderHandler(open, setLoadingSelectEquipment, Equipment, setEquipmentToOptions, equipment);
+                                                                    await dropDownRenderHandler(open, setLoadingSelectEquipment, EquipmentRoute, setEquipmentToOptions, equipment);
                                                                 }}
                                                                 loading={loadingSelectEquipment}
                                                             />
                                                         </Form.Item>
                                                     </Col>
-                                                    <Col xs={{span: 4}} sm={{span: 4}} md={{span: 2}} lg={{span: 2}} xl={{span: 2}}>
+                                                    <Col xs={{span: 3}} sm={{span: 3}} md={{span: 2}} lg={{span: 2}} xl={{span: 2}}>
                                                         <Button
                                                             className="button-add-select"
                                                             onClick={() => RowMapHelper("equipment", "-1")}
@@ -285,18 +284,18 @@ export const LogDOTab = ({specKey, onRemove}) => {
                                                 <Col span={12}>
                                                     <Form.Item label="Исполнитель">
                                                         <Row>
-                                                            <Col xs={{span: 20}} sm={{span: 20}} md={{span: 21}} lg={{span: 21}} xl={{span: 21}}>
+                                                            <Col xs={{span: 18}} sm={{span: 18}} md={{span: 20}} lg={{span: 20}} xl={{span: 20}}>
                                                                 <Form.Item noStyle name="responsible">
                                                                     <Select
                                                                         options={responsibleToOptions}
                                                                         onDropdownVisibleChange={async open => {
-                                                                            await dropDownRenderHandler(open, setLoadingSelectResponsible, People, setResponsibleToOptions, people);
+                                                                            await dropDownRenderHandler(open, setLoadingSelectResponsible, PersonRoute, setResponsibleToOptions, people);
                                                                         }}
                                                                         loading={loadingSelectResponsible}
                                                                     />
                                                                 </Form.Item>
                                                             </Col>
-                                                            <Col xs={{span: 4}} sm={{span: 4}} md={{span: 3}} lg={{span: 3}} xl={{span: 3}}>
+                                                            <Col xs={{span: 6}} sm={{span: 6}} md={{span: 4}} lg={{span: 4}} xl={{span: 4}}>
                                                                 <Button
                                                                     className="button-add-select"
                                                                     onClick={() => RowMapHelper("people", "-1")}
@@ -310,18 +309,18 @@ export const LogDOTab = ({specKey, onRemove}) => {
                                                 <Col span={12}>
                                                     <Form.Item label="Подразделение">
                                                         <Row>
-                                                            <Col xs={{span: 20}} sm={{span: 20}} md={{span: 21}} lg={{span: 21}} xl={{span: 21}}>
+                                                            <Col xs={{span: 18}} sm={{span: 18}} md={{span: 20}} lg={{span: 20}} xl={{span: 20}}>
                                                                 <Form.Item noStyle name="department">
                                                                     <Select
                                                                         options={departmentsToOptions}
                                                                         onDropdownVisibleChange={async open => {
-                                                                            await dropDownRenderHandler(open, setLoadingSelectDep, Departments, setDepartmentsToOptions, departments);
+                                                                            await dropDownRenderHandler(open, setLoadingSelectDep, DepartmentRoute, setDepartmentsToOptions, departments);
                                                                         }}
                                                                         loading={loadingSelectDep}
                                                                     />
                                                                 </Form.Item>
                                                             </Col>
-                                                            <Col xs={{span: 4}} sm={{span: 4}} md={{span: 3}} lg={{span: 3}} xl={{span: 3}}>
+                                                            <Col xs={{span: 6}} sm={{span: 6}} md={{span: 4}} lg={{span: 4}} xl={{span: 4}}>
                                                                 <Button
                                                                     className="button-add-select"
                                                                     onClick={() => RowMapHelper("departments", "-1")}
@@ -339,7 +338,7 @@ export const LogDOTab = ({specKey, onRemove}) => {
 
                                             <Form.Item label="Состояние">
                                                 <Row>
-                                                    <Col xs={{span: 20}} sm={{span: 20}} md={{span: 21}} lg={{span: 21}} xl={{span: 21}}>
+                                                    <Col xs={{span: 21}} sm={{span: 21}} md={{span: 22}} lg={{span: 22}} xl={{span: 22}}>
                                                         <Form.Item noStyle name="state">
                                                             <Select
                                                                 options={stateToOptions}
@@ -350,7 +349,7 @@ export const LogDOTab = ({specKey, onRemove}) => {
                                                             />
                                                         </Form.Item>
                                                     </Col>
-                                                    <Col xs={{span: 4}} sm={{span: 4}} md={{span: 3}} lg={{span: 3}} xl={{span: 3}}>
+                                                    <Col xs={{span: 3}} sm={{span: 3}} md={{span: 2}} lg={{span: 2}} xl={{span: 2}}>
                                                         <Button
                                                             className="button-add-select"
                                                             onClick={() => RowMapHelper("tasks", "-1")}

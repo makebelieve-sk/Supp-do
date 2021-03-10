@@ -3,10 +3,10 @@ import {LaptopOutlined, UserOutlined} from "@ant-design/icons";
 import {ActionCreator} from "../../redux/combineActions";
 
 import {ProfessionRoute} from "../../routes/route.profession";
-import {Departments} from "../../model/Department";
-import {People} from "../../model/Person";
-import {EquipmentProperty} from "../../model/EquipmentProperty";
-import {Equipment} from "../../model/equipment";
+import {DepartmentRoute} from "../../routes/route.Department";
+import {PersonRoute} from "../../routes/route.Person";
+import {EquipmentPropertyRoute} from "../../routes/route.EquipmentProperty";
+import {EquipmentRoute} from "../../routes/route.Equipment";
 import {TaskStatusRoute} from "../../routes/route.taskStatus";
 
 // Инициализация меню приложения
@@ -32,14 +32,14 @@ const menuItems = [
                         key: "departments",
                         url: "departments",
                         dispatchAction: ActionCreator.ActionCreatorDepartment.getAllDepartments,
-                        model: Departments
+                        model: DepartmentRoute
                     },
                     {
                         title: "Персонал",
                         key: "people",
                         url: "people",
                         dispatchAction: ActionCreator.ActionCreatorPerson.getAllPeople,
-                        model: People
+                        model: PersonRoute
                     }
                 ]
             },
@@ -52,14 +52,14 @@ const menuItems = [
                         key: "equipmentProperties",
                         url: "equipment-property",
                         dispatchAction: ActionCreator.ActionCreatorEquipmentProperty.getAllEquipmentProperties,
-                        model: EquipmentProperty
+                        model: EquipmentPropertyRoute
                     },
                     {
                         title: "Перечень оборудования",
                         key: "equipment",
                         url: "equipment",
                         dispatchAction: ActionCreator.ActionCreatorEquipment.getAllEquipment,
-                        model: Equipment
+                        model: EquipmentRoute
                     },
                     {
                         title: "Состояние заявок",

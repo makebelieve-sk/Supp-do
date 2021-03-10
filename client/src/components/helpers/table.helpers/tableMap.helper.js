@@ -31,13 +31,13 @@ import {message} from "antd";
 
 // Карта соответствия ключей и строк, колонок и заголовков экспорта
 const map = new Map([
-    ['professions', {getRow: getProfession, getColumns: ProfessionColumns, getExportHeaders: headerProfessionTable}],
-    ['departments', {getRow: getDepartment, getColumns: DepartmentColumns, getExportHeaders: headerDepartmentTable}],
-    ['people', {getRow: getPerson, getColumns: PersonColumns, getExportHeaders: headerPersonTable}],
-    ['tasks', {getRow: getTask, getColumns: TasksColumns, getExportHeaders: headerTasksTable}],
-    ['equipmentProperties', {getRow: getEquipmentProperty, getColumns: EquipmentPropertyColumns, getExportHeaders: headerEquipmentPropertyTable}],
-    ['equipment', {getRow: getEquipment, getColumns: EquipmentColumns, getExportHeaders: headerEquipmentTable}],
-    ['logDO', {getRow: getLogDO, getColumns: LogDOColumns, getExportHeaders: headerLogDOTable}],
+    ["professions", {getRow: getProfession, getColumns: ProfessionColumns, getExportHeaders: headerProfessionTable}],
+    ["departments", {getRow: getDepartment, getColumns: DepartmentColumns, getExportHeaders: headerDepartmentTable}],
+    ["people", {getRow: getPerson, getColumns: PersonColumns, getExportHeaders: headerPersonTable}],
+    ["tasks", {getRow: getTask, getColumns: TasksColumns, getExportHeaders: headerTasksTable}],
+    ["equipmentProperties", {getRow: getEquipmentProperty, getColumns: EquipmentPropertyColumns, getExportHeaders: headerEquipmentPropertyTable}],
+    ["equipment", {getRow: getEquipment, getColumns: EquipmentColumns, getExportHeaders: headerEquipmentTable}],
+    ["logDO", {getRow: getLogDO, getColumns: LogDOColumns, getExportHeaders: headerLogDOTable}],
 ]);
 
 /**
@@ -51,7 +51,7 @@ const RowMapHelper = (key, _id) => {
         map.get(key).getRow(_id).then(null);
     } else {
         message.error(`Раздел с ключём ${key} не существует (открытие вкладки создания/редактирования записи)`)
-            .then(r => console.log(r));
+            .then(null);
     }
 };
 
@@ -66,7 +66,7 @@ const ColumnsMapHelper = (key) => {
         return map.get(key).getColumns;
     } else {
         message.error(`Раздел с ключём ${key} не существует (создание колонок)`)
-            .then(r => console.log(r));
+            .then(null);
     }
 };
 
@@ -81,12 +81,8 @@ const ExportMapHelper = (key) => {
         return map.get(key).getExportHeaders;
     } else {
         message.error(`Раздел с ключём ${key} не существует (создание заголовков экспорта)`)
-            .then(r => console.log(r));
+            .then(null);
     }
 };
 
-export {
-    RowMapHelper,
-    ColumnsMapHelper,
-    ExportMapHelper
-}
+export {RowMapHelper, ColumnsMapHelper, ExportMapHelper}

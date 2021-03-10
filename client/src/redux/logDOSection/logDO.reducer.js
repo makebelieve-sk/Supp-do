@@ -5,6 +5,7 @@ import {
     DELETE_LOGDO,
     GET_ALL_LOGDO,
     SET_ROW_DATA_LOGDO,
+    SET_DATE,
     ADD_FILE,
     DELETE_FILE,
     GET_ALL_FILES
@@ -38,6 +39,11 @@ export default function reducerLogDO(state = initialState, action) {
             return {
                 ...state,
                 rowDataLogDO:  action.payload
+            };
+        case SET_DATE:
+            return {
+                ...state,
+                date:  action.payload
             };
         case ADD_FILE:
             return {

@@ -4,6 +4,7 @@ import {
     DELETE_LOGDO,
     GET_ALL_LOGDO,
     SET_ROW_DATA_LOGDO,
+    SET_DATE,
     ADD_FILE,
     DELETE_FILE,
     GET_ALL_FILES
@@ -44,6 +45,13 @@ const ActionCreatorLogDO = {
         return {
             type: SET_ROW_DATA_LOGDO,
             payload: rowData
+        }
+    },
+    // Установка даты
+    setDate: (date) => {
+        return {
+            type: SET_DATE,
+            payload: date
         }
     },
     // Добавление файла во вкладку "Файлы"

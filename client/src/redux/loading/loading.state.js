@@ -1,7 +1,9 @@
 // Хранилище состояний спиннеров
 const initialState = {
     // Состояние загрузки скелетона
-    loadingSkeleton: false
+    loadingSkeleton: false,
+    // Состояние загрузки таблиц
+    loadingTable: false
 };
 
 export default initialState;

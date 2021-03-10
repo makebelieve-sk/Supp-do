@@ -1,10 +1,17 @@
 // Маршруты для раздела "Профессии"
 const {Router} = require("express");
+const {check, validationResult} = require("express-validator");
 const Profession = require("../models/Profession");
 const router = Router();
 
+// Валидация полей раздела "Профессии"
+const checkMiddleware = [
+    check("name", "Некорректное наименование профессии").isString().notEmpty().isLength({ max: 255 }),
+    check("notes", "Максимальная длина поля 'Примечание' составляет 255 символов").isString().isLength({ max: 255 })
+];
+
 // Возвращает запись по коду
-router.get('/professions/:id', async (req, res) => {
+router.get("/professions/:id", async (req, res) => {
     const _id = req.params.id;
 
     try {
@@ -30,7 +37,7 @@ router.get('/professions/:id', async (req, res) => {
 });
 
 // Возвращает все записи
-router.get('/professions', async (req, res) => {
+router.get("/professions", async (req, res) => {
     try {
         const items = await Profession.find({});
 
@@ -41,15 +48,17 @@ router.get('/professions', async (req, res) => {
 });
 
 // Сохраняет новую запись
-router.post('/professions', async (req, res) => {
+router.post("/professions", checkMiddleware, async (req, res) => {
     try {
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            return res.status(400).json({errors: errors.array(), message: "Некоректные данные при создании записи"});
+        }
+
         const {name, notes} = req.body;
 
         let item = await Profession.findOne({name});
-
-        if (!name) {
-            return res.status(400).json({message: "Поле 'Наименование' должно быть заполнено"});
-        }
 
         if (item) {
             return res.status(400).json({message: `Профессия с именем ${name} уже существует`});
@@ -65,8 +74,14 @@ router.post('/professions', async (req, res) => {
 });
 
 // Изменяет запись
-router.put('/professions', async (req, res) => {
+router.put("/professions", checkMiddleware, async (req, res) => {
     try {
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            return res.status(400).json({errors: errors.array(), message: "Некоректные данные при изменении записи"});
+        }
+
         const {_id, name, notes} = req.body;
         const item = await Profession.findById({_id});
 
@@ -90,7 +105,7 @@ router.put('/professions', async (req, res) => {
 });
 
 // Удаляет запись
-router.delete('/professions/:id', async (req, res) => {
+router.delete("/professions/:id", async (req, res) => {
     const _id = req.params.id;
 
     try {

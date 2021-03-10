@@ -1,11 +1,5 @@
 import {ExportMapHelper} from "../../components/helpers/table.helpers/tableMap.helper";
 
-// Пагинация
-const pagination = {
-    showSizeChanger: true,
-    pageSizeOptions: ['5', '10', '20', '30']
-};
-
 // Экспорт в эксель
 const downloadCSV = (array, name) => {
     const link = document.createElement('a');
@@ -31,8 +25,14 @@ const convertArrayOfObjectsToCSV = (array, name) => {
     const lineDelimiter = '\n';
     let keys = Object.keys(array[0]);
 
-    keys.splice(0, 1);
-    keys.splice(keys.length - 1, 1);
+    console.log("До удаления: ", keys)
+    if (name === "departments" || name === "equipment") {
+        keys.splice(0, 2);
+    } else {
+        keys.splice(0, 1);
+        keys.splice(keys.length - 2, 2);
+    }
+    console.log("После удаления: ", keys)
 
     result = '';
     result += headerDataTable;
@@ -60,7 +60,15 @@ const convertArrayOfObjectsToCSV = (array, name) => {
     return result;
 };
 
-export {
-    downloadCSV,
-    pagination
-};
+// Объект настроек таблицы
+const tableOptions = {
+    pagination: {
+        showSizeChanger: true,
+        pageSizeOptions: ["5", "10", "20", "30"]
+    },
+    export: downloadCSV,
+    size: "small",
+    scroll: {x: 500}
+}
+
+export default tableOptions;

@@ -7,11 +7,11 @@ import {EquipmentTab} from "../../tabs/equipment/equipment.edit";
 import {LogDOTab} from "../../tabs/logDO/logDO.edit";
 
 import {ProfessionRoute} from "../../../routes/route.profession";
-import {Departments} from "../../../model/Department";
-import {People} from "../../../model/Person";
+import {DepartmentRoute} from "../../../routes/route.Department";
+import {PersonRoute} from "../../../routes/route.Person";
 import {TaskStatusRoute} from "../../../routes/route.taskStatus";
-import {EquipmentProperty} from "../../../model/EquipmentProperty";
-import {Equipment} from "../../../model/equipment";
+import {EquipmentPropertyRoute} from "../../../routes/route.EquipmentProperty";
+import {EquipmentRoute} from "../../../routes/route.Equipment";
 import {LogDORoute} from "../../../routes/route.LogDO";
 
 import store from "../../../redux/store";
@@ -62,7 +62,7 @@ const getDepartment = async (_id) => {
     getEmptyTabWithLoading(title, DepartmentTab, "departmentItem");
 
     // Получаем данные для записи
-    await Departments.get(_id);
+    await DepartmentRoute.get(_id);
 
     // Останавливаем показ спиннера загрузки при открытии вкладки с записью
     store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(false));
@@ -84,7 +84,7 @@ const getPerson = async (_id) => {
     getEmptyTabWithLoading(title, PersonTab, "personItem");
 
     // Получаем данные для записи
-    await People.get(_id);
+    await PersonRoute.get(_id);
 
     // Останавливаем показ спиннера загрузки при открытии вкладки с записью
     store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(false));
@@ -128,7 +128,7 @@ const getEquipmentProperty = async (_id) => {
     getEmptyTabWithLoading(title, EquipmentPropertyTab, "equipmentPropertyItem");
 
     // Получаем данные для записи
-    await EquipmentProperty.get(_id);
+    await EquipmentPropertyRoute.get(_id);
 
     // Останавливаем показ спиннера загрузки при открытии вкладки с записью
     store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(false));
@@ -150,7 +150,7 @@ const getEquipment = async (_id) => {
     getEmptyTabWithLoading(title, EquipmentTab, "equipmentItem");
 
     // Получаем данные для записи
-    await Equipment.get(_id);
+    await EquipmentRoute.get(_id);
 
     // Останавливаем показ спиннера загрузки при открытии вкладки с записью
     store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(false));

@@ -1,10 +1,10 @@
 // Раздел "Оборудование"
-import React, {useState} from 'react';
-import {Button, Card, Form, Input, Row, Col, Select, Skeleton, Tabs} from 'antd';
+import React, {useState} from "react";
+import {Button, Card, Form, Input, Row, Col, Select, Skeleton, Tabs} from "antd";
 import {CheckOutlined, StopOutlined} from "@ant-design/icons";
 import {useSelector} from "react-redux";
 
-import {Equipment} from "../../../model/equipment";
+import {EquipmentRoute} from "../../../routes/route.Equipment";
 
 import {ActionCreator} from "../../../redux/combineActions";
 import {RowMapHelper} from "../../helpers/table.helpers/tableMap.helper";
@@ -58,7 +58,7 @@ export const EquipmentTab = ({specKey, onRemove}) => {
     }
 
     // Создание заголовка раздела и имени формы
-    const title = !item || item.isCreated ? "Создание оборудования" : "Редактирование оборудования";
+    const title = !item || item.isNewItem ? "Создание оборудования" : "Редактирование оборудования";
 
     // Обработка нажатия на кнопку "Сохранить"
     const saveHandler = async (values) => {
@@ -66,7 +66,7 @@ export const EquipmentTab = ({specKey, onRemove}) => {
         setLoadingSave(true);
 
         // Обновляем список подразделений
-        await Equipment.getAll();
+        await EquipmentRoute.getAll();
 
         // Проверяем, есть ли выбранный элемент в списке подразделений
         const foundEquipment = equipment.find(eq => {
@@ -87,15 +87,15 @@ export const EquipmentTab = ({specKey, onRemove}) => {
 
         values.files = files;
 
-        await Equipment.save(values, setLoadingSave, onRemove, specKey);
+        await EquipmentRoute.save(values, setLoadingSave, onRemove, specKey);
     };
 
     // Обработка нажатия на кнопку "Удалить"
     const deleteHandler = async (setLoadingDelete, setVisiblePopConfirm) => {
-        await Equipment.delete(item._id, setLoadingDelete, setVisiblePopConfirm, onRemove, specKey);
+        await EquipmentRoute.delete(item._id, setLoadingDelete, setVisiblePopConfirm, onRemove, specKey);
     };
 
-    const cancelHandler = () => Equipment.cancel(onRemove, specKey, setLoadingCancel);
+    const cancelHandler = () => EquipmentRoute.cancel(onRemove, specKey, setLoadingCancel);
 
     // Обновление выпадающего списка "Подразделения"
     const dropDownRenderHandler = async (open, setLoadingSelect, model, setOptions, dataStore) => {
@@ -150,7 +150,7 @@ export const EquipmentTab = ({specKey, onRemove}) => {
                                         onFinishFailed={onFailed}
                                         initialValues={{
                                             _id: !item ? null : item._id,
-                                            isCreated: !item ? null : item.isCreated,
+                                            isNewItem: !item ? null : item.isNewItem,
                                             name: !item ? null : item.name,
                                             notes: !item ? null : item.notes,
                                             parent: item && initialOptions ? initialOptions._id : null,
@@ -162,7 +162,7 @@ export const EquipmentTab = ({specKey, onRemove}) => {
                                                 <Form.Item name="_id" hidden={true}>
                                                     <Input/>
                                                 </Form.Item>
-                                                <Form.Item name="isCreated" hidden={true}>
+                                                <Form.Item name="isNewItem" hidden={true}>
                                                     <Input/>
                                                 </Form.Item>
 
@@ -170,7 +170,7 @@ export const EquipmentTab = ({specKey, onRemove}) => {
                                                     <Select
                                                         options={options}
                                                         onDropdownVisibleChange={async open => {
-                                                            await dropDownRenderHandler(open, setLoadingSelectEquipment, Equipment, setOptions, equipment);
+                                                            await dropDownRenderHandler(open, setLoadingSelectEquipment, EquipmentRoute, setOptions, equipment);
                                                         }}
                                                         loading={loadingSelectEquipment}
                                                     />

@@ -1,26 +1,34 @@
-// Методы модели Состояние заявки
+// Методы модели Подразделения
 import {message} from "antd";
+
+import {Department} from "../model/Department";
 
 import store from "../redux/store";
 import {ActionCreator} from "../redux/combineActions";
 import {request} from "../components/helpers/request.helper";
-import {TaskStatus} from "../model/TaskStatus";
+import getParents from "../components/helpers/getRowParents.helper";
 
-export const TaskStatusRoute = {
-    // Адрес для работы с разделом "Состояние заявок"
-    base_url: "/api/directory/taskStatus/",
+export const DepartmentRoute = {
+    // Адрес для работы с разделом "Подразделения"
+    base_url: "/api/directory/departments/",
     // Получение всех записей
     getAll: async function () {
         try {
             // Устанавливаем спиннер загрузки данных в таблицу
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(true));
 
-            // Получаем все записи раздела "Состояние заявок"
+            // Получаем все записи раздела "Подразделения"
             const items = await request(this.base_url);
 
-            if (items) {
-                // Записываем все записи в хранилище
-                store.dispatch(ActionCreator.ActionCreatorTask.getAllTasks(items));
+            // Устанавливаем доп. поле: полное наименование
+            if (items && items.length) {
+                items.forEach(item => {
+                    if (item.parent) {
+                        item.nameWithParent = getParents(item, items) + item.name;
+                    }
+                })
+
+                store.dispatch(ActionCreator.ActionCreatorDepartment.getAllDepartments(items));
             }
 
             // Останавливаем спиннер загрузки данных в таблицу
@@ -28,7 +36,7 @@ export const TaskStatusRoute = {
         } catch (e) {
             // Останавливаем спиннер загрузки данных в таблицу
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
-            message.error("Возникла ошибка при получении состояний заявок: ", e);
+            message.error("Возникла ошибка при получении характеристик оборудования: ", e);
         }
     },
     // Получение редактируемой записи
@@ -52,7 +60,7 @@ export const TaskStatusRoute = {
             setLoading(true);
 
             // Устанавливаем метод запроса
-            const method = item.isNewItem ? "POST" : "PUT";
+            const method = item.isCreated ? "POST" : "PUT";
 
             // Получаем сохраненную запись
             const data = await request(this.base_url, method, item);
@@ -67,16 +75,16 @@ export const TaskStatusRoute = {
                 // Редактирование записи - изменение записи в хранилище redux,
                 // Сохранение записи - создание записи в хранилище redux
                 if (method === "POST") {
-                    store.dispatch(ActionCreator.ActionCreatorTask.createTask(data.item));
+                    store.dispatch(ActionCreator.ActionCreatorDepartment.createDepartment(data.item));
                 } else {
-                    const tasks = store.getState().reducerTask.tasks;
-                    const foundTask = tasks.find(task => {
-                        return task._id === item._id;
+                    const departments = store.getState().reducerDepartment.departments;
+                    const foundDepartment = departments.find(department => {
+                        return department._id === item._id;
                     });
-                    const indexTask = tasks.indexOf(foundTask);
+                    const indexDepartment = departments.indexOf(foundDepartment);
 
-                    if (indexTask >= 0 && foundTask) {
-                        store.dispatch(ActionCreator.ActionCreatorTask.editTask(indexTask, data.item));
+                    if (indexDepartment >= 0 && foundDepartment) {
+                        store.dispatch(ActionCreator.ActionCreatorDepartment.editDepartment(indexDepartment, data.item));
                     }
                 }
             }
@@ -87,7 +95,6 @@ export const TaskStatusRoute = {
             // Останавливаем спиннер загрузки
             setLoading(false);
         }
-
     },
     // Удаление записи
     delete: async function (_id, setLoadingDelete, setVisiblePopConfirm, onRemove, specKey) {
@@ -106,16 +113,16 @@ export const TaskStatusRoute = {
                 // Вывод сообщения
                 message.success(data.message);
 
-                const tasks = store.getState().reducerTask.tasks;
+                const departments = store.getState().reducerDepartment.departments;
 
                 // Удаляем запись из хранилища redux
-                let foundTask = tasks.find(task => {
-                    return task._id === _id;
+                let foundDepartment = departments.find(department => {
+                    return department._id === _id;
                 });
-                let indexTask = tasks.indexOf(foundTask);
+                let indexDepartment = departments.indexOf(foundDepartment);
 
-                if (foundTask && indexTask >= 0) {
-                    store.dispatch(ActionCreator.ActionCreatorTask.deleteTask(indexTask));
+                if (foundDepartment && indexDepartment >= 0) {
+                    store.dispatch(ActionCreator.ActionCreatorDepartment.deleteDepartment(indexDepartment));
                 }
             }
 
@@ -126,23 +133,20 @@ export const TaskStatusRoute = {
             setLoadingDelete(false);
             setVisiblePopConfirm(false);
         }
-
     },
     // Нажатие на кнопку "Отмена"
     cancel: function (onRemove, specKey) {
-        // Удаление текущей вкладки
         onRemove(specKey, 'remove');
     },
-    // Заполнение модели "Состояние заявок"
+    // Заполнение модели "Подразделения"
     fillItem: function (item) {
-        if (!item.task)
+        if (!item.department)
             return;
 
         // Создаем объект редактируемой записи
-        let taskItem = new TaskStatus(item.task);
-        taskItem.isNewItem = item.isNewItem;
+        let departmentItem = new Department(item.department);
+        departmentItem.isNewItem = item.isNewItem;
 
-        // Сохраняем объект редактируемой записи в хранилище
-        store.dispatch(ActionCreator.ActionCreatorTask.setRowDataTask(taskItem));
+        store.dispatch(ActionCreator.ActionCreatorDepartment.setRowDataDepartment(departmentItem));
     }
 }

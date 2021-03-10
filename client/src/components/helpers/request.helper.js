@@ -12,7 +12,11 @@ export const request = async (url, method = 'GET', body = null, headers = {}) =>
         const data = await response.json();
 
         if (!response.ok) {
-            throw new Error(data.message || 'Что-то пошло не так');
+            if (data.errors) {
+                throw new Error(data.errors[0].msg || "Что-то пошло не так");
+            } else {
+                throw new Error(data.message || "Что-то пошло не так");
+            }
         }
 
         return data;
