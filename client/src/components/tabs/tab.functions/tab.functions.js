@@ -33,7 +33,7 @@ const CheckTypeTab = (item, deleteHandler) => {
                 onConfirm={() => deleteHandler(setLoadingDelete, setVisiblePopConfirm)}
                 onCancel={() => setVisiblePopConfirm(false)}
                 okButtonProps={{loading: loadingDelete}}
-                icon={<QuestionCircleOutlined style={{color: 'red'}}/>}
+                icon={<QuestionCircleOutlined style={{color: "red"}}/>}
             >
                 <Button
                     className="button-style"

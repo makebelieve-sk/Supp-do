@@ -4,12 +4,12 @@ import {useSelector} from "react-redux";
 import {Card, Form, Input, Row, Button, Select, Col, Skeleton} from "antd";
 import {CheckOutlined, PlusOutlined, StopOutlined} from "@ant-design/icons";
 
-import {ProfessionRoute} from "../../../routes/route.profession";
-import {DepartmentRoute} from "../../../routes/route.Department";
-import {PersonRoute} from "../../../routes/route.Person";
+import {ProfessionRoute} from "../../routes/route.profession";
+import {DepartmentRoute} from "../../routes/route.Department";
+import {PersonRoute} from "../../routes/route.Person";
 
-import {getOptions, CheckTypeTab, onFailed} from "../../helpers/tab.helpers/tab.functions";
-import {RowMapHelper} from "../../helpers/table.helpers/tableMap.helper";
+import {getOptions, CheckTypeTab, onFailed} from "./tab.functions/tab.functions";
+import {openRecordTab} from "../helpers/table.helpers/table.helper.js";
 
 const {Meta} = Card;
 
@@ -140,8 +140,8 @@ export const PersonTab = ({specKey, onRemove}) => {
                                             message: 'Выберите подразделение!'
                                         }]}
                                     >
-                                        <Row gutter={8}>
-                                            <Col xs={{span: 20}} sm={{span: 20}} md={{span: 22}} lg={{span: 22}} xl={{span: 22}}>
+                                        <Row>
+                                            <Col xs={{span: 21}} sm={{span: 21}} md={{span: 22}} lg={{span: 22}} xl={{span: 22}}>
                                                 <Form.Item name="department" noStyle>
                                                     <Select
                                                         options={departmentsOptions}
@@ -152,10 +152,10 @@ export const PersonTab = ({specKey, onRemove}) => {
                                                     />
                                                 </Form.Item>
                                             </Col>
-                                            <Col xs={{span: 4}} sm={{span: 4}} md={{span: 2}} lg={{span: 2}} xl={{span: 2}}>
+                                            <Col xs={{span: 3}} sm={{span: 3}} md={{span: 2}} lg={{span: 2}} xl={{span: 2}}>
                                                 <Button
-                                                    style={{width: '100%'}}
-                                                    onClick={() => RowMapHelper("departments", "-1")}
+                                                    className="button-add-select"
+                                                    onClick={() => openRecordTab("departments", "-1")}
                                                     icon={<PlusOutlined/>}
                                                     type="secondary"
                                                 />
@@ -171,8 +171,8 @@ export const PersonTab = ({specKey, onRemove}) => {
                                             message: 'Выберите сотрудника!'
                                         }]}
                                     >
-                                        <Row gutter={8}>
-                                            <Col xs={{span: 20}} sm={{span: 20}} md={{span: 22}} lg={{span: 22}} xl={{span: 22}}>
+                                        <Row>
+                                            <Col xs={{span: 21}} sm={{span: 21}} md={{span: 22}} lg={{span: 22}} xl={{span: 22}}>
                                                 <Form.Item name="profession" noStyle>
                                                     <Select
                                                         options={professionsOptions}
@@ -183,10 +183,10 @@ export const PersonTab = ({specKey, onRemove}) => {
                                                     />
                                                 </Form.Item>
                                             </Col>
-                                            <Col xs={{span: 4}} sm={{span: 4}} md={{span: 2}} lg={{span: 2}} xl={{span: 2}}>
+                                            <Col xs={{span: 3}} sm={{span: 3}} md={{span: 2}} lg={{span: 2}} xl={{span: 2}}>
                                                 <Button
-                                                    style={{width: '100%'}}
-                                                    onClick={() => RowMapHelper("professions", "-1")}
+                                                    className="button-add-select"
+                                                    onClick={() => openRecordTab("professions", "-1")}
                                                     icon={<PlusOutlined/>}
                                                     type="secondary"
                                                 />

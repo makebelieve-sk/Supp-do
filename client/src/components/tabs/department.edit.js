@@ -1,11 +1,12 @@
 // Вкладка "Подразделения"
-import React, {useState} from "react";
+import React, {useState, useMemo} from "react";
 import {useSelector} from "react-redux";
 import {Button, Card, Form, Input, Row, Col, Select, Skeleton} from "antd";
 import {CheckOutlined, StopOutlined} from "@ant-design/icons";
 
-import {DepartmentRoute} from "../../../routes/route.Department";
-import {getOptions, CheckTypeTab, onFailed} from "../../helpers/tab.helpers/tab.functions";
+import {DepartmentRoute} from "../../routes/route.Department";
+import {getOptions, CheckTypeTab, onFailed} from "./tab.functions/tab.functions";
+import getParents from "../helpers/getRowParents.helper";
 
 const {Meta} = Card;
 
@@ -21,6 +22,18 @@ export const DepartmentTab = ({specKey, onRemove}) => {
     // выпадающего списка
     const [loadingSave, setLoadingSave] = useState(false);
     const [loadingSelect, setLoadingSelect] = useState(false);
+
+    // Добавляем поле nameWithParent новым записям
+    useMemo(() => {
+        // Устанавливаем доп. поле: полное наименование
+        if (departments && departments.length) {
+            departments.forEach(item => {
+                if (item.parent) {
+                    item.nameWithParent = getParents(item, departments) + item.name;
+                }
+            })
+        }
+    }, [departments]);
 
     // Создание состояния для значений в выпадающем списке "Принадлежит"
     const [options, setOptions] = useState(getOptions(departments));

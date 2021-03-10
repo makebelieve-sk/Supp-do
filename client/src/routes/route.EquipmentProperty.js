@@ -53,7 +53,7 @@ export const EquipmentPropertyRoute = {
             setLoading(true);
 
             // Устанавливаем метод запроса
-            const method = item.isCreated ? "POST" : "PUT";
+            const method = item.isNewItem ? "POST" : "PUT";
 
             // Получаем сохраненную запись
             const data = await request(this.base_url, method, item);
@@ -120,7 +120,7 @@ export const EquipmentPropertyRoute = {
             }
 
             // Удаление текущей вкладки
-            onRemove(specKey, 'remove');
+            onRemove(specKey, "remove");
         } catch (e) {
             // Останавливаем спиннер, и скрываем всплывающее окно
             setLoadingDelete(false);

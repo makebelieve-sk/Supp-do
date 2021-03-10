@@ -5,17 +5,17 @@ import {useSelector} from "react-redux";
 import {Button, Card, Form, Input, Row, Col, Select, Skeleton, Tabs, DatePicker, Checkbox} from "antd";
 import {CheckOutlined, PlusOutlined, StopOutlined,} from "@ant-design/icons";
 
-import {CheckTypeTab, getOptions, onFailed} from "../../helpers/tab.helpers/tab.functions";
-import TabOptions from "../../../options/tab.options/tab.options";
-import {ActionCreator} from "../../../redux/combineActions";
-import {RowMapHelper} from "../../helpers/table.helpers/tableMap.helper";
-import {UploadComponent} from "../../contentComponent/tab.components/uploadComponent";
+import {CheckTypeTab, getOptions, onFailed} from "./tab.functions/tab.functions";
+import TabOptions from "../../options/tab.options/tab.options";
+import {ActionCreator} from "../../redux/combineActions";
+import {openRecordTab} from "../helpers/table.helpers/table.helper.js";
+import {UploadComponent} from "../contentComponent/tab.components/uploadComponent";
 
-import {DepartmentRoute} from "../../../routes/route.Department";
-import {PersonRoute} from "../../../routes/route.Person";
-import {TaskStatusRoute} from "../../../routes/route.taskStatus";
-import {EquipmentRoute} from "../../../routes/route.Equipment";
-import {LogDORoute} from "../../../routes/route.LogDO";
+import {DepartmentRoute} from "../../routes/route.Department";
+import {PersonRoute} from "../../routes/route.Person";
+import {TaskStatusRoute} from "../../routes/route.taskStatus";
+import {EquipmentRoute} from "../../routes/route.Equipment";
+import {LogDORoute} from "../../routes/route.LogDO";
 
 const {Meta} = Card;
 const {TabPane} = Tabs;
@@ -224,7 +224,7 @@ export const LogDOTab = ({specKey, onRemove}) => {
                                                             <Col xs={{span: 6}} sm={{span: 6}} md={{span: 4}} lg={{span: 4}} xl={{span: 4}}>
                                                                 <Button
                                                                     className="button-add-select"
-                                                                    onClick={() => RowMapHelper("people", "-1")}
+                                                                    onClick={() => openRecordTab("people", "-1")}
                                                                     icon={<PlusOutlined/>}
                                                                     type="secondary"
                                                                 />
@@ -254,7 +254,7 @@ export const LogDOTab = ({specKey, onRemove}) => {
                                                     <Col xs={{span: 3}} sm={{span: 3}} md={{span: 2}} lg={{span: 2}} xl={{span: 2}}>
                                                         <Button
                                                             className="button-add-select"
-                                                            onClick={() => RowMapHelper("equipment", "-1")}
+                                                            onClick={() => openRecordTab("equipment", "-1")}
                                                             icon={<PlusOutlined/>}
                                                             type="secondary"
                                                         />
@@ -265,7 +265,7 @@ export const LogDOTab = ({specKey, onRemove}) => {
                                             <Form.Item
                                                 label="Описание"
                                                 name="notes"
-                                                rules={[{required: true, message: 'Введите описание заявки!'}]}
+                                                rules={[{required: true, message: "Введите описание заявки!"}]}
                                             >
                                                 <TextArea rows={2} placeholder="Максимально 1000 символов" />
                                             </Form.Item>
@@ -298,7 +298,7 @@ export const LogDOTab = ({specKey, onRemove}) => {
                                                             <Col xs={{span: 6}} sm={{span: 6}} md={{span: 4}} lg={{span: 4}} xl={{span: 4}}>
                                                                 <Button
                                                                     className="button-add-select"
-                                                                    onClick={() => RowMapHelper("people", "-1")}
+                                                                    onClick={() => openRecordTab("people", "-1")}
                                                                     icon={<PlusOutlined/>}
                                                                     type="secondary"
                                                                 />
@@ -323,7 +323,7 @@ export const LogDOTab = ({specKey, onRemove}) => {
                                                             <Col xs={{span: 6}} sm={{span: 6}} md={{span: 4}} lg={{span: 4}} xl={{span: 4}}>
                                                                 <Button
                                                                     className="button-add-select"
-                                                                    onClick={() => RowMapHelper("departments", "-1")}
+                                                                    onClick={() => openRecordTab("departments", "-1")}
                                                                     icon={<PlusOutlined/>}
                                                                     type="secondary"
                                                                 />
@@ -352,7 +352,7 @@ export const LogDOTab = ({specKey, onRemove}) => {
                                                     <Col xs={{span: 3}} sm={{span: 3}} md={{span: 2}} lg={{span: 2}} xl={{span: 2}}>
                                                         <Button
                                                             className="button-add-select"
-                                                            onClick={() => RowMapHelper("tasks", "-1")}
+                                                            onClick={() => openRecordTab("tasks", "-1")}
                                                             icon={<PlusOutlined/>}
                                                             type="secondary"
                                                         />

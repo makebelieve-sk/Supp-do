@@ -5,8 +5,8 @@ import {SketchPicker} from 'react-color';
 import {Card, Form, Input, Row, Col, Button, Skeleton, Checkbox, Dropdown} from 'antd';
 import {CheckOutlined, EditOutlined, StopOutlined} from '@ant-design/icons';
 
-import {TaskStatusRoute} from "../../../routes/route.taskStatus";
-import {CheckTypeTab, onFailed} from "../../helpers/tab.helpers/tab.functions";
+import {TaskStatusRoute} from "../../routes/route.taskStatus";
+import {CheckTypeTab, onFailed} from "./tab.functions/tab.functions";
 
 const {Meta} = Card;
 

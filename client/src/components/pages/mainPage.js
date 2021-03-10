@@ -1,15 +1,15 @@
 // Главная страница
-import React, {useState, useEffect, useContext} from 'react';
-import {useSelector, useDispatch} from 'react-redux';
-import {Layout, Menu, Button, Tabs, Row, Col, Modal, Dropdown, Avatar} from 'antd';
-import {MenuUnfoldOutlined, MenuFoldOutlined, QuestionCircleOutlined, DownOutlined} from '@ant-design/icons';
+import React, {useState, useEffect, useContext} from "react";
+import {useSelector, useDispatch} from "react-redux";
+import {Layout, Menu, Button, Tabs, Row, Col, Modal, Dropdown, Avatar} from "antd";
+import {MenuUnfoldOutlined, MenuFoldOutlined, QuestionCircleOutlined, DownOutlined} from "@ant-design/icons";
 
 import {LogDORoute} from "../../routes/route.LogDO";
 import {menuItems} from "../../options/global.options/global.options";
 import {AuthContext} from "../../context/authContext";
 import {ActionCreator} from "../../redux/combineActions";
-import {OpenTabSectionHelper} from "../helpers/openTabSection.helper";
-import logo from '../../assets/logo.png';
+import OpenTableTab from "../helpers/tab.helpers/openTableTab";
+import logo from "../../assets/logo.png";
 
 const {Header, Sider, Content, Footer} = Layout;
 const {SubMenu} = Menu;
@@ -33,7 +33,7 @@ export const MainPage = () => {
             await LogDORoute.getAll();
         }
 
-        getItems();
+        getItems().then(null);
     }, []);
 
     // Фукнция удаления вкладки
@@ -82,7 +82,7 @@ export const MainPage = () => {
         <Layout>
             <Sider trigger={null} collapsible collapsed={collapsed} width={300}>
                 <div className="logo">
-                    <img src={logo} alt="Лого" className="logo-image" onClick={() => OpenTabSectionHelper(
+                    <img src={logo} alt="Лого" className="logo-image" onClick={() => OpenTableTab(
                         'Журнал дефектов и отказов',
                         'logDO',
                         'log-do',
@@ -102,7 +102,7 @@ export const MainPage = () => {
                                                 subgroup.children.map(item => (
                                                     <Menu.Item
                                                         key={item.key}
-                                                        onClick={() => OpenTabSectionHelper(
+                                                        onClick={() => OpenTableTab(
                                                             item.title,
                                                             item.key,
                                                             item.url,

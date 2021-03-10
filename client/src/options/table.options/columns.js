@@ -1,19 +1,11 @@
-import React from 'react';
-import {Tooltip} from "antd";
-
-import store from "../../redux/store";
+// Создание колонок таблиц
 import moment from "moment";
-import TabOptions from "../tab.options/tab.options";
+import React from "react";
+import {Tooltip} from "antd";
 import {CheckOutlined} from "@ant-design/icons";
 
-// Создание заголовка таблицы
-const headerProfessionTable = 'Наименование, Примечание';
-const headerDepartmentTable = 'Наименование, Примечание, Подразделение';
-const headerPersonTable = 'ФИО, Подразделение, Профессия, Примечание';
-const headerTasksTable = 'Наименование, Примечание, Завершено';
-const headerEquipmentPropertyTable = 'Наименование, Примечание';
-const headerEquipmentTable = 'Принадлежит, Наименование, Примечание';
-const headerLogDOTable = 'Дата заявки, Оборудование, Описание, Заявитель, Исполнитель, Задание, Состояние, Планируемая дата выполнения';
+import store from "../../redux/store";
+import TabOptions from "../tab.options/tab.options";
 
 // Создание колонок для раздела "Профессии"
 const ProfessionColumns = [
@@ -557,14 +549,6 @@ const LogDOColumns = [
 ];
 
 export {
-    headerProfessionTable,
-    headerDepartmentTable,
-    headerPersonTable,
-    headerTasksTable,
-    headerEquipmentPropertyTable,
-    headerEquipmentTable,
-    headerLogDOTable,
-
     ProfessionColumns,
     DepartmentColumns,
     PersonColumns,

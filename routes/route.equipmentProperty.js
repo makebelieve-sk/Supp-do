@@ -15,7 +15,7 @@ router.get("/equipment-property/:id", async (req, res) => {
     const _id = req.params.id;
 
     try {
-        let item;
+        let item, isNewItem = true;
 
         if (_id === "-1") {
             // Создание новой записи
@@ -23,13 +23,14 @@ router.get("/equipment-property/:id", async (req, res) => {
         } else {
             // Редактирование существующей записи
             item = await EquipmentProperty.findById({_id});
+            isNewItem = false;
         }
 
         if (!item) {
             return res.status(400).json({message: `Характеристика с кодом ${_id} не существует`});
         }
 
-        res.status(201).json({equipmentProperty: item});
+        res.status(201).json({isNewItem, equipmentProperty: item});
     } catch (e) {
         res.status(500).json({message: `Ошибка при открытии записи с кодом ${_id}`});
     }
@@ -66,7 +67,7 @@ router.post("/equipment-property", checkMiddleware, async (req, res) => {
             return res.status(400).json({message: "Поле 'Наименование' должно быть заполнено"});
         }
 
-        const newItem = new EquipmentProperty({isCreated: false, name: name, notes: notes})
+        const newItem = new EquipmentProperty({name, notes})
 
         let savedItem = await newItem.save();
 
@@ -85,7 +86,7 @@ router.put("/equipment-property", checkMiddleware, async (req, res) => {
             return res.status(400).json({errors: errors.array(), message: "Некоректные данные при создании записи"});
         }
 
-        const {_id, isCreated,  name, notes} = req.body;
+        const {_id, name, notes} = req.body;
         const item = await EquipmentProperty.findById({_id});
 
         if (!item) {
@@ -96,7 +97,6 @@ router.put("/equipment-property", checkMiddleware, async (req, res) => {
             return res.status(400).json({message: "Поле 'Наименование' должно быть заполнено"});
         }
 
-        item.isCreated = isCreated;
         item.name = name;
         item.notes = notes;
 

@@ -1,43 +1,29 @@
 import moment from "moment";
-import React, {useState} from "react";
+import React, {useState, useMemo} from "react";
 import {useSelector, useDispatch} from "react-redux";
 import {message, Row, Table, DatePicker} from "antd";
 
+import {ActionCreator} from "../../../redux/combineActions";
 import {LogDORoute} from "../../../routes/route.LogDO";
 import {Header} from "./header";
 import {ButtonsComponent} from "./buttons";
-import {ColumnsMapHelper, RowMapHelper} from "../../helpers/table.helpers/tableMap.helper";
+import getTableData from "../../helpers/table.helpers/getTableData";
+import {getColumns, openRecordTab} from "../../helpers/table.helpers/table.helper";
 import TabOptions from "../../../options/tab.options/tab.options";
-import tableOptions from "../../../options/table.options/datatable.options";
-import {createTreeData} from "../../helpers/createTreeData.helper";
-import {ActionCreator} from "../../../redux/combineActions";
+import tableSettings from "../../../options/table.options/settings";
 
 const {RangePicker} = DatePicker;
 
 export const TableComponent = ({specKey}) => {
     // Получение колонок для таблицы
-    const columns = ColumnsMapHelper(specKey);
+    const columns = useMemo(() => getColumns(specKey), [specKey]);
 
-    // Получение массива данных для заполнения таблицы, спиннера загрузки данных
-    const stateObject = useSelector(state => ({
-        professions: state.reducerProfession.professions,
-        departments: state.reducerDepartment.departments,
-        people: state.reducerPerson.people,
-        tasks: state.reducerTask.tasks,
-        equipmentProperties: state.reducerEquipmentProperty.equipmentProperties,
-        equipment: state.reducerEquipment.equipment,
-        logDO: state.reducerLogDO.logDO,
-        loading: state.reducerLoading.loadingTable
-    }));
+    // Получение данных для таблицы
+    const data = getTableData(specKey);
+
+    // Получение индикатора загрузки таблицы
+    const loadingTable = useSelector(state => state.reducerLoading.loadingTable);
     const dispatch = useDispatch();
-
-    let data;
-
-    if (specKey === "equipment" || specKey === "departments") {
-        data = createTreeData(stateObject[specKey]);
-    } else {
-        data = stateObject[specKey];
-    }
 
     // Создание стейта для текстового поля, отфильтрованных колонок, выбранных колонок и начальных колонок
     const [filterText, setFilterText] = useState("");
@@ -89,7 +75,7 @@ export const TableComponent = ({specKey}) => {
 
     // Экспорт данных
     const onExport = () => data && data.length > 0 ?
-        tableOptions.export(data, specKey) : message.error("Записи в таблице отсутствуют");
+        tableSettings.export(data, specKey) : message.error("Записи в таблице отсутствуют");
 
     // Изменение времени в датапикере
     const onChange = async (value, dateString) => {
@@ -129,17 +115,17 @@ export const TableComponent = ({specKey}) => {
 
             <Table
                 bordered
-                size={tableOptions.size}
-                scroll={tableOptions.scroll}
-                pagination={tableOptions.pagination}
+                size={tableSettings.size}
+                scroll={tableSettings.scroll}
+                pagination={tableSettings.pagination}
                 dataSource={columnsTable && columnsTable.length === 0 ? null : Array.from(filteredItems)}
                 columns={columnsTable}
                 rowKey={record => record._id.toString()}
                 onRow={row => ({
                     // Открытие новой вкладки для редактирования записи по клику
-                    onClick: () => RowMapHelper(specKey, row._id)
+                    onClick: () => openRecordTab(specKey, row._id)
                 })}
-                loading={stateObject.loading}
+                loading={loadingTable}
             />
         </>
     );

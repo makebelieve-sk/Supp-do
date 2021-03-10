@@ -1,6 +1,6 @@
+// Создание запроса
 import {message} from "antd";
 
-// Функция настройки запросов на сервер
 export const request = async (url, method = 'GET', body = null, headers = {}) => {
     try {
         if (body) {

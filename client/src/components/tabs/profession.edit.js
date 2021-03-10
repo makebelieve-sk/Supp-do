@@ -1,41 +1,38 @@
-// Вкладка раздела "Характеристики оборудования"
-import React, {useState} from 'react';
-import {Card, Form, Input, Row, Col, Button, Skeleton} from 'antd';
+// Вкладка "Профессии"
+import React, {useState} from "react";
 import {useSelector} from "react-redux";
-import {CheckOutlined, StopOutlined} from '@ant-design/icons';
+import {Card, Form, Input, Row, Col, Button, Skeleton} from "antd";
+import {CheckOutlined, StopOutlined} from "@ant-design/icons";
 
-import {EquipmentPropertyRoute} from "../../../routes/route.EquipmentProperty";
-import {CheckTypeTab, onFailed} from "../../helpers/tab.helpers/tab.functions";
+import {ProfessionRoute} from "../../routes/route.profession";
+import {CheckTypeTab, onFailed} from "./tab.functions/tab.functions";
 
 const {Meta} = Card;
 
-export const EquipmentPropertyTab = ({specKey, onRemove}) => {
-    // Получение списка характеристик оборудования и загрузки записи
+export const ProfessionTab = ({specKey, onRemove}) => {
+    // Получение списка профессий и загрузки записи из хранилища redux
     const {item, loadingSkeleton} = useSelector((state) => ({
-        item: state.reducerEquipmentProperty.rowDataEquipmentProperty,
+        item: state.reducerProfession.rowDataProfession,
         loadingSkeleton: state.reducerLoading.loadingSkeleton
     }));
 
-    // Инициализация состояния для показа спиннера загрузки при сохранении/удалении записи
+    // Инициализация состояния для показа спиннера загрузки при сохранении и удалении записи
     const [loadingSave, setLoadingSave] = useState(false);
 
-    // Создание заголовка раздела и имени формы
-    const title = !item || item.isNewItem ? "Создание характеристики оборудования" : "Редактирование характеристики оборудования";
+    // Инициализация заголовка раздела и имени формы
+    const title = !item || item.isNewItem ? "Создание профессии" : "Редактирование профессии";
 
     // Обработка нажатия на кнопку "Сохранить"
     const saveHandler = async (values) => {
-        // Устанавливаем спиннер загрузки
-        setLoadingSave(true);
-
-        await EquipmentPropertyRoute.save(values, setLoadingSave, onRemove, specKey);
+        await ProfessionRoute.save(values, setLoadingSave, onRemove, specKey);
     };
 
     // Обработка нажатия на кнопку "Удалить"
     const deleteHandler = async (setLoadingDelete, setVisiblePopConfirm) => {
-        await EquipmentPropertyRoute.delete(item._id, setLoadingDelete, setVisiblePopConfirm, onRemove, specKey);
+        await ProfessionRoute.delete(item._id, setLoadingDelete, setVisiblePopConfirm, onRemove, specKey);
     };
 
-    const cancelHandler = () => EquipmentPropertyRoute.cancel(onRemove, specKey);
+    const cancelHandler = () => ProfessionRoute.cancel(onRemove, specKey);
 
     return (
         <Row className="container-tab" justify="center">
@@ -46,15 +43,15 @@ export const EquipmentPropertyTab = ({specKey, onRemove}) => {
                             title={title}
                             description={
                                 <Form
-                                    style={{marginTop: '5%'}} labelCol={{span: 6}}
-                                    name="equipmentProperty-item"
-                                    onFinish={saveHandler}
+                                    style={{marginTop: '5%'}}
+                                    name="profession-item"
                                     onFinishFailed={onFailed}
+                                    onFinish={saveHandler}
                                     initialValues={{
                                         _id: !item ? null : item._id,
                                         isNewItem: !item ? null : item.isNewItem,
                                         name: !item ? null : item.name,
-                                        notes: !item ? null : item.notes,
+                                        notes: !item ? null : item.notes
                                     }}
                                 >
                                     <Form.Item name="_id" hidden={true}>
@@ -65,14 +62,14 @@ export const EquipmentPropertyTab = ({specKey, onRemove}) => {
                                     </Form.Item>
 
                                     <Form.Item
-                                        label="Наименование"
+                                        label="Профессия"
                                         name="name"
-                                        rules={[{required: true, message: 'Введите наименование!'}]}
+                                        rules={[{required: true, message: "Введите название профессии!"}]}
                                     >
                                         <Input maxLength={255} type="text"/>
                                     </Form.Item>
 
-                                    <Form.Item name="notes" label="Примечание">
+                                    <Form.Item label="Примечание" name="notes">
                                         <Input maxLength={255} type="text"/>
                                     </Form.Item>
 

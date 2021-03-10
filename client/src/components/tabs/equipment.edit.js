@@ -1,17 +1,16 @@
 // Раздел "Оборудование"
-import React, {useState} from "react";
+import React, {useMemo, useState} from "react";
+import {useSelector} from "react-redux";
 import {Button, Card, Form, Input, Row, Col, Select, Skeleton, Tabs} from "antd";
 import {CheckOutlined, StopOutlined} from "@ant-design/icons";
-import {useSelector} from "react-redux";
 
-import {EquipmentRoute} from "../../../routes/route.Equipment";
-
-import {ActionCreator} from "../../../redux/combineActions";
-import {RowMapHelper} from "../../helpers/table.helpers/tableMap.helper";
-import {CheckTypeTab, getOptions, onFailed} from "../../helpers/tab.helpers/tab.functions";
-
-import {CharacteristicComponent} from "../../contentComponent/tab.components/characteristic.component";
-import {UploadComponent} from "../../contentComponent/tab.components/uploadComponent";
+import {EquipmentRoute} from "../../routes/route.Equipment";
+import {ActionCreator} from "../../redux/combineActions";
+import {CheckTypeTab, getOptions, onFailed} from "./tab.functions/tab.functions";
+import {openRecordTab} from "../helpers/table.helpers/table.helper";
+import {CharacteristicComponent} from "../contentComponent/tab.components/characteristic.component";
+import {UploadComponent} from "../contentComponent/tab.components/uploadComponent";
+import getParents from "../helpers/getRowParents.helper";
 
 const {Meta} = Card;
 const {TabPane} = Tabs;
@@ -32,6 +31,18 @@ export const EquipmentTab = ({specKey, onRemove}) => {
     const [loadingSelectEquipment, setLoadingSelectEquipment] = useState(false);
     const [loadingSelectCharacteristics, setLoadingSelectCharacteristics] = useState(false);
     const [loadingCancel, setLoadingCancel] = useState(false);
+
+    // Добавляем поле nameWithParent новым записям
+    useMemo(() => {
+        // Устанавливаем доп. поле: полное наименование
+        if (equipment && equipment.length) {
+            equipment.forEach(item => {
+                if (item.parent) {
+                    item.nameWithParent = getParents(item, equipment) + item.name;
+                }
+            })
+        }
+    }, [equipment]);
 
     // Создание стейта для значений в выпадающих списках
     const [options, setOptions] = useState(getOptions(equipment));
@@ -196,7 +207,7 @@ export const EquipmentTab = ({specKey, onRemove}) => {
                                                 <Row className="button-add-equipmentProperty" justify="end">
                                                     <Button
                                                         type="primary"
-                                                        onClick={() => RowMapHelper("equipmentProperties", null)}
+                                                        onClick={() => openRecordTab("equipmentProperties", "-1")}
                                                     >Добавить характеристику</Button>
                                                 </Row>
 

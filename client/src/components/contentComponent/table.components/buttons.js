@@ -2,11 +2,11 @@ import React, {useState, useMemo} from 'react';
 import {Button, Row, Menu, Dropdown, Checkbox} from 'antd';
 import {PlusOutlined, FileExcelOutlined, PrinterOutlined, EditOutlined} from '@ant-design/icons';
 
-import {ColumnsMapHelper, RowMapHelper} from "../../helpers/table.helpers/tableMap.helper";
+import {getColumns, openRecordTab} from "../../helpers/table.helpers/table.helper";
 
 export const ButtonsComponent = ({specKey, onExport, checkedColumns, setCheckedColumns, setColumnsTable, initialColumns}) => {
     // Получение колонок для таблицы
-    let columns = useMemo(() => ColumnsMapHelper(specKey), [specKey]);
+    let columns = useMemo(() => getColumns(specKey), [specKey]);
 
     // Стейт для отображения выпадающего меню для колонок
     const [visible, setVisible] = useState(false);
@@ -73,7 +73,7 @@ export const ButtonsComponent = ({specKey, onExport, checkedColumns, setCheckedC
         return (
             <Row align="middle">
                 <Button className="button-style" icon={<PlusOutlined/>} type="primary"
-                        onClick={() => RowMapHelper(specKey, "-1")}>Добавить</Button>
+                        onClick={() => openRecordTab(specKey, "-1")}>Добавить</Button>
                 <Button className="button-style" icon={<FileExcelOutlined/>} size="middle"
                         onClick={e => onExport(e.target.value)}>Экспорт</Button>
                 <Button className="button-style" icon={<PrinterOutlined/>} size="middle"

@@ -15,7 +15,7 @@ router.get("/people/:id", async (req, res) => {
     const _id = req.params.id;
 
     try {
-        let item;
+        let item, isNewItem = true;
 
         if (_id === "-1") {
             // Создание новой записи
@@ -23,13 +23,14 @@ router.get("/people/:id", async (req, res) => {
         } else {
             // Редактирование существующей записи
             item = await Person.findById({_id}).populate("department").populate("profession");
+            isNewItem = false;
         }
 
         if (!item) {
             return res.status(400).json({message: `Запись с кодом ${_id} не существует`});
         }
 
-        res.status(201).json({person: item});
+        res.status(201).json({isNewItem, person: item});
     } catch (e) {
         res.status(500).json({message: `Ошибка при открытии записи с кодом ${_id}`})
     }
@@ -66,7 +67,7 @@ router.post("/people", checkMiddleware, async (req, res) => {
             return res.status(400).json({message: "Поле 'Наименование' должно быть заполнено"});
         }
 
-        const newItem = new Person({isCreated: false, name, department, profession, notes});
+        const newItem = new Person({name, department, profession, notes});
 
         await newItem.save();
 
@@ -91,7 +92,7 @@ router.put("/people", checkMiddleware, async (req, res) => {
             return res.status(400).json({errors: errors.array(), message: "Некоректные данные при создании записи"});
         }
 
-        const {_id, isCreated, name, notes, department, profession} = req.body;
+        const {_id, name, notes, department, profession} = req.body;
         const item = await Person.findById({_id}).populate("department").populate("profession");
 
         if (!item) {
@@ -102,7 +103,6 @@ router.put("/people", checkMiddleware, async (req, res) => {
             return res.status(400).json({message: "Поле 'Наименование' должно быть заполнено"});
         }
 
-        item.isCreated = isCreated;
         item.name = name;
         item.department = department;
         item.profession = profession;

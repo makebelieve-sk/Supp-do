@@ -15,7 +15,7 @@ router.get("/departments/:id", async (req, res) => {
     const _id = req.params.id;
 
     try {
-        let item;
+        let item, isNewItem = true;
 
         if (_id === "-1") {
             // Создание новой записи
@@ -23,13 +23,14 @@ router.get("/departments/:id", async (req, res) => {
         } else {
             // Редактирование существующей записи
             item = await Department.findById({_id}).populate("parent");
+            isNewItem = false;
         }
 
         if (!item) {
             return res.status(400).json({message: `Подразделение с кодом ${req.params.id} не существует`});
         }
 
-        res.status(201).json({department: item});
+        res.status(201).json({isNewItem, department: item});
     } catch (e) {
         res.status(500).json({message: `Ошибка при открытии записи с кодом ${req.params.id}`})
     }
@@ -72,7 +73,7 @@ router.post("/departments", checkMiddleware, async (req, res) => {
             }
         }
 
-        const newItem = new Department({isCreated: false, parent, name, notes});
+        const newItem = new Department({parent, name, notes});
         await newItem.save();
 
         let currentDepartment;
@@ -98,7 +99,7 @@ router.put("/departments", checkMiddleware, async (req, res) => {
             return res.status(400).json({errors: errors.array(), message: "Некоректные данные при создании записи"});
         }
 
-        const {_id, isCreated, name, notes, parent} = req.body;
+        const {_id, name, notes, parent} = req.body;
         const item = await Department.findById({_id}).populate("parent");
 
         if (!item) {
@@ -115,7 +116,6 @@ router.put("/departments", checkMiddleware, async (req, res) => {
             }
         }
 
-        item.isCreated = isCreated;
         item.parent = parent;
         item.name = name;
         item.notes = notes;

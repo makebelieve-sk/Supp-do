@@ -60,7 +60,7 @@ export const DepartmentRoute = {
             setLoading(true);
 
             // Устанавливаем метод запроса
-            const method = item.isCreated ? "POST" : "PUT";
+            const method = item.isNewItem ? "POST" : "PUT";
 
             // Получаем сохраненную запись
             const data = await request(this.base_url, method, item);

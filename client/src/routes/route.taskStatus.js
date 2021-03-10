@@ -120,7 +120,7 @@ export const TaskStatusRoute = {
             }
 
             // Удаление текущей вкладки
-            onRemove(specKey, 'remove');
+            onRemove(specKey, "remove");
         } catch (e) {
             // Останавливаем спиннер, и скрываем всплывающее окно
             setLoadingDelete(false);

@@ -1,4 +1,4 @@
-import {ExportMapHelper} from "../../components/helpers/table.helpers/tableMap.helper";
+import {getExportHeader} from "../../components/helpers/table.helpers/table.helper";
 
 // Экспорт в эксель
 const downloadCSV = (array, name) => {
@@ -19,7 +19,7 @@ const downloadCSV = (array, name) => {
 const convertArrayOfObjectsToCSV = (array, name) => {
     let result;
 
-    let headerDataTable = ExportMapHelper(name);
+    let headerDataTable = getExportHeader(name);
 
     const columnDelimiter = ',';
     const lineDelimiter = '\n';
@@ -61,7 +61,7 @@ const convertArrayOfObjectsToCSV = (array, name) => {
 };
 
 // Объект настроек таблицы
-const tableOptions = {
+const tableSettings = {
     pagination: {
         showSizeChanger: true,
         pageSizeOptions: ["5", "10", "20", "30"]
@@ -71,4 +71,4 @@ const tableOptions = {
     scroll: {x: 500}
 }
 
-export default tableOptions;
+export default tableSettings;

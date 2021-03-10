@@ -1,13 +1,14 @@
-import store from "../../redux/store";
-import {ActionCreator} from "../../redux/combineActions";
+// Создание новой вкладки
+import store from "../../../redux/store";
+import {ActionCreator} from "../../../redux/combineActions";
 
 /**
- * Создает новую вкладку раздела с отображением спиннера загрузки
+ * Создание новой вкладки
  * @param title - заголовок вкладки
  * @param content - контент вкладки (UI-компонент)
  * @param key - ключ вкладки
  */
-export const getEmptyTabWithLoading = (title, content, key) => {
+export default function emptyTab(title, content, key) {
     // Получаем текущие вкладки и акивную вкладку из redux
     const tabs = store.getState().reducerTab.tabs;
     const activeKey = store.getState().reducerTab.activeKey;
