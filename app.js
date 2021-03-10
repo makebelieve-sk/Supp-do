@@ -2,7 +2,7 @@ const express = require("express");
 const config = require("./config/default.json");
 const mongoose = require("mongoose");
 const fileUpload = require("express-fileupload");
-const {path} = require("path");
+const path = require("path");
 
 const app = express();
 
