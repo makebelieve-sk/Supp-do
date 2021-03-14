@@ -3,7 +3,6 @@ import moment from "moment";
 import {message} from "antd";
 
 import {LogDO} from "../model/LogDO";
-import {DepartmentRoute} from "./route.Department";
 import {PersonRoute} from "./route.Person";
 import {EquipmentRoute} from "./route.Equipment";
 import {TaskStatusRoute} from "./route.taskStatus";
@@ -11,7 +10,6 @@ import {TaskStatusRoute} from "./route.taskStatus";
 import store from "../redux/store";
 import {ActionCreator} from "../redux/combineActions";
 import {request} from "../components/helpers/request.helper";
-import getParents from "../components/helpers/getRowParents.helper";
 import TabOptions from "../options/tab.options/tab.options";
 
 export const LogDORoute = {
@@ -26,44 +24,17 @@ export const LogDORoute = {
             // Устанавливаем спиннер загрузки данных в таблицу
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(true));
 
-            // Получаем все записи разделов "Журнал дефектов и отказов", "Оборудование", "Подразделения", "Персонал" и "Состояние заявок"
-            const items = await request(this.base_url + date);
-            const itemsEquipment = await request(EquipmentRoute.base_url);
-            const itemsDepartments = await request(DepartmentRoute.base_url);
-            const itemsPeople = await request(PersonRoute.base_url);
-            const itemsTasks = await request(TaskStatusRoute.base_url);
+            // Получаем все записи разделов "Журнал дефектов и отказов", "Персонал" (который получает разделы:
+            // "Профессии", "Подразделения" и "Персонал") "Оборудование" (который получает разделы:
+            // "Характеристики оборудования" и "Оборудование")  и "Состояние заявок"
+            const itemsLogDO = await request(this.base_url + date);
+            await PersonRoute.getAll();
+            await EquipmentRoute.getAll();
+            await TaskStatusRoute.getAll();
 
             // Записываем все записи в хранилище
-            if (items) {
-                store.dispatch(ActionCreator.ActionCreatorLogDO.getAllLogDO(items));
-            }
-
-            if (itemsEquipment && itemsEquipment.length) {
-                itemsEquipment.forEach(item => {
-                    if (item.parent) {
-                        item.nameWithParent = getParents(item, itemsEquipment) + item.name;
-                    }
-                })
-
-                store.dispatch(ActionCreator.ActionCreatorEquipment.getAllEquipment(itemsEquipment));
-            }
-
-            if (itemsDepartments && itemsDepartments.length) {
-                itemsDepartments.forEach(item => {
-                    if (item.parent) {
-                        item.nameWithParent = getParents(item, itemsDepartments) + item.name;
-                    }
-                })
-
-                store.dispatch(ActionCreator.ActionCreatorDepartment.getAllDepartments(itemsDepartments));
-            }
-
-            if (itemsPeople) {
-                store.dispatch(ActionCreator.ActionCreatorPerson.getAllPeople(itemsPeople));
-            }
-
-            if (itemsTasks) {
-                store.dispatch(ActionCreator.ActionCreatorTask.getAllTasks(itemsTasks));
+            if (itemsLogDO) {
+                store.dispatch(ActionCreator.ActionCreatorLogDO.getAllLogDO(itemsLogDO));
             }
 
             // Останавливаем спиннер загрузки данных в таблицу

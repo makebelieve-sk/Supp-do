@@ -1,7 +1,7 @@
 // Создание запроса
 import {message} from "antd";
 
-export const request = async (url, method = 'GET', body = null, headers = {}) => {
+export const request = async (url, method = "GET", body = null, headers = {}) => {
     try {
         if (body) {
             body = JSON.stringify(body);

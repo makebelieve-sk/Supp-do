@@ -3,9 +3,9 @@ import moment from "moment";
 import React, {useState} from "react";
 import {useSelector} from "react-redux";
 import {Button, Card, Form, Input, Row, Col, Select, Skeleton, Tabs, DatePicker, Checkbox} from "antd";
-import {CheckOutlined, PlusOutlined, StopOutlined,} from "@ant-design/icons";
+import {PlusOutlined} from "@ant-design/icons";
 
-import {CheckTypeTab, getOptions, onFailed} from "./tab.functions/tab.functions";
+import {dropdownRender, getOptions, onFailed, TabButtons} from "./tab.functions/tab.functions";
 import TabOptions from "../../options/tab.options/tab.options";
 import {ActionCreator} from "../../redux/combineActions";
 import {openRecordTab} from "../helpers/table.helpers/table.helper.js";
@@ -124,23 +124,6 @@ export const LogDOTab = ({specKey, onRemove}) => {
 
     const cancelHandler = () => LogDORoute.cancel(onRemove, specKey, setLoadingCancel);
 
-    // Обновление выпадающих списков
-    const dropDownRenderHandler = async (open, setLoadingSelect, model, setOptions, dataStore) => {
-        try {
-            if (open) {
-                setLoadingSelect(true);
-
-                await model.getAll();
-
-                setOptions(getOptions(dataStore));
-
-                setLoadingSelect(false);
-            }
-        } catch (e) {
-            setLoadingSelect(false);
-        }
-    }
-
     // Настройка компонента UploadComponent (вкладка "Файлы")
     const uploadProps = {
         files,
@@ -149,6 +132,8 @@ export const LogDOTab = ({specKey, onRemove}) => {
         actionCreatorAdd: ActionCreator.ActionCreatorLogDO.addFile,
         actionCreatorDelete: ActionCreator.ActionCreatorLogDO.deleteFile
     };
+
+    const [form] = Form.useForm();
 
     return (
         <Row className="container-tab" justify="center">
@@ -159,6 +144,7 @@ export const LogDOTab = ({specKey, onRemove}) => {
                             title={title}
                             description={
                                 <Form
+                                    form={form}
                                     className="form-styles"
                                     name="logDO-item"
                                     layout="vertical"
@@ -215,7 +201,7 @@ export const LogDOTab = ({specKey, onRemove}) => {
                                                                     <Select
                                                                         options={applicantToOptions}
                                                                         onDropdownVisibleChange={async open => {
-                                                                            await dropDownRenderHandler(open, setLoadingSelectApplicant, PersonRoute, setApplicantToOptions, people);
+                                                                            await dropdownRender(open, setLoadingSelectApplicant, PersonRoute, setApplicantToOptions, people);
                                                                         }}
                                                                         loading={loadingSelectApplicant}
                                                                     />
@@ -245,7 +231,7 @@ export const LogDOTab = ({specKey, onRemove}) => {
                                                             <Select
                                                                 options={equipmentToOptions}
                                                                 onDropdownVisibleChange={async open => {
-                                                                    await dropDownRenderHandler(open, setLoadingSelectEquipment, EquipmentRoute, setEquipmentToOptions, equipment);
+                                                                    await dropdownRender(open, setLoadingSelectEquipment, EquipmentRoute, setEquipmentToOptions, equipment);
                                                                 }}
                                                                 loading={loadingSelectEquipment}
                                                             />
@@ -289,9 +275,17 @@ export const LogDOTab = ({specKey, onRemove}) => {
                                                                     <Select
                                                                         options={responsibleToOptions}
                                                                         onDropdownVisibleChange={async open => {
-                                                                            await dropDownRenderHandler(open, setLoadingSelectResponsible, PersonRoute, setResponsibleToOptions, people);
+                                                                            await dropdownRender(open, setLoadingSelectResponsible, PersonRoute, setResponsibleToOptions, people);
                                                                         }}
                                                                         loading={loadingSelectResponsible}
+                                                                        onChange={_id => {
+                                                                            const foundPerson = people.find(person => {
+                                                                                return person._id === _id;
+                                                                            });
+
+                                                                            foundPerson ? form.setFieldsValue({department: foundPerson.department._id}) :
+                                                                                form.setFieldsValue({department: null})
+                                                                        }}
                                                                     />
                                                                 </Form.Item>
                                                             </Col>
@@ -314,7 +308,7 @@ export const LogDOTab = ({specKey, onRemove}) => {
                                                                     <Select
                                                                         options={departmentsToOptions}
                                                                         onDropdownVisibleChange={async open => {
-                                                                            await dropDownRenderHandler(open, setLoadingSelectDep, DepartmentRoute, setDepartmentsToOptions, departments);
+                                                                            await dropdownRender(open, setLoadingSelectDep, DepartmentRoute, setDepartmentsToOptions, departments);
                                                                         }}
                                                                         loading={loadingSelectDep}
                                                                     />
@@ -343,7 +337,7 @@ export const LogDOTab = ({specKey, onRemove}) => {
                                                             <Select
                                                                 options={stateToOptions}
                                                                 onDropdownVisibleChange={async open => {
-                                                                    await dropDownRenderHandler(open, setLoadingSelectState, TaskStatusRoute, setStateToOptions, tasks);
+                                                                    await dropdownRender(open, setLoadingSelectState, TaskStatusRoute, setStateToOptions, tasks);
                                                                 }}
                                                                 loading={loadingSelectState}
                                                             />
@@ -400,29 +394,13 @@ export const LogDOTab = ({specKey, onRemove}) => {
                                         </TabPane>
                                     </Tabs>
 
-                                    <Row justify="end" xs={{gutter: [8, 8]}}>
-                                        <Button
-                                            className="button-style"
-                                            type="primary"
-                                            htmlType="submit"
-                                            loading={loadingSave}
-                                            icon={<CheckOutlined/>}
-                                        >
-                                            Сохранить
-                                        </Button>
-
-                                        {CheckTypeTab(item, deleteHandler)}
-
-                                        <Button
-                                            className="button-style"
-                                            type="secondary"
-                                            onClick={cancelHandler}
-                                            loading={loadingCancel}
-                                            icon={<StopOutlined/>}
-                                        >
-                                            Отмена
-                                        </Button>
-                                    </Row>
+                                    <TabButtons
+                                        loadingSave={loadingSave}
+                                        item={item}
+                                        deleteHandler={deleteHandler}
+                                        cancelHandler={cancelHandler}
+                                        loadingCancel={loadingCancel}
+                                    />
                                 </Form>
                             }
                         />

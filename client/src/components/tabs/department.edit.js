@@ -1,12 +1,10 @@
 // Вкладка "Подразделения"
-import React, {useState, useMemo} from "react";
+import React, {useState} from "react";
 import {useSelector} from "react-redux";
-import {Button, Card, Form, Input, Row, Col, Select, Skeleton} from "antd";
-import {CheckOutlined, StopOutlined} from "@ant-design/icons";
+import {Card, Form, Input, Row, Col, Select, Skeleton} from "antd";
 
 import {DepartmentRoute} from "../../routes/route.Department";
-import {getOptions, CheckTypeTab, onFailed} from "./tab.functions/tab.functions";
-import getParents from "../helpers/getRowParents.helper";
+import {dropdownRender, getOptions, onFailed, TabButtons} from "./tab.functions/tab.functions";
 
 const {Meta} = Card;
 
@@ -22,18 +20,6 @@ export const DepartmentTab = ({specKey, onRemove}) => {
     // выпадающего списка
     const [loadingSave, setLoadingSave] = useState(false);
     const [loadingSelect, setLoadingSelect] = useState(false);
-
-    // Добавляем поле nameWithParent новым записям
-    useMemo(() => {
-        // Устанавливаем доп. поле: полное наименование
-        if (departments && departments.length) {
-            departments.forEach(item => {
-                if (item.parent) {
-                    item.nameWithParent = getParents(item, departments) + item.name;
-                }
-            })
-        }
-    }, [departments]);
 
     // Создание состояния для значений в выпадающем списке "Принадлежит"
     const [options, setOptions] = useState(getOptions(departments));
@@ -60,7 +46,7 @@ export const DepartmentTab = ({specKey, onRemove}) => {
 
         values.parent = foundDepartment ? foundDepartment : null;
 
-        await DepartmentRoute.save(values, setLoadingSave, onRemove, specKey);
+        await DepartmentRoute.save(values, setLoadingSave, onRemove, specKey, departments);
     };
 
     // Обработка нажатия на кнопку "Удалить"
@@ -69,23 +55,6 @@ export const DepartmentTab = ({specKey, onRemove}) => {
     };
 
     const cancelHandler = () => DepartmentRoute.cancel(onRemove, specKey);
-
-    // Обновление выпадающего списка "Подразделения"
-    const dropDownRenderHandler = async (open) => {
-        try {
-            if (open) {
-                setLoadingSelect(true);
-
-                await DepartmentRoute.getAll();
-
-                setOptions(getOptions(departments));
-
-                setLoadingSelect(false);
-            }
-        } catch (e) {
-            setLoadingSelect(false);
-        }
-    }
 
     return (
         <Row className="container-tab" justify="center">
@@ -118,7 +87,9 @@ export const DepartmentTab = ({specKey, onRemove}) => {
                                     <Form.Item name="parent" label="Принадлежит">
                                         <Select
                                             options={options}
-                                            onDropdownVisibleChange={dropDownRenderHandler}
+                                            onDropdownVisibleChange={async open => {
+                                                await dropdownRender(open, setLoadingSelect, DepartmentRoute, setOptions, departments)
+                                            }}
                                             loading={loadingSelect}
                                         />
                                     </Form.Item>
@@ -126,7 +97,7 @@ export const DepartmentTab = ({specKey, onRemove}) => {
                                     <Form.Item
                                         label="Наименование"
                                         name="name"
-                                        rules={[{required: true, message: 'Введите название подразделения!'}]}
+                                        rules={[{required: true, message: "Введите название подразделения!"}]}
                                     >
                                         <Input maxLength={255} type="text"/>
                                     </Form.Item>
@@ -135,28 +106,12 @@ export const DepartmentTab = ({specKey, onRemove}) => {
                                         <Input maxLength={255} type="text"/>
                                     </Form.Item>
 
-                                    <Row justify="end" style={{marginTop: 20}} xs={{gutter: [8, 8]}}>
-                                        <Button
-                                            className="button-style"
-                                            type="primary"
-                                            htmlType="submit"
-                                            loading={loadingSave}
-                                            icon={<CheckOutlined/>}
-                                        >
-                                            Сохранить
-                                        </Button>
-
-                                        {CheckTypeTab(item, deleteHandler)}
-
-                                        <Button
-                                            className="button-style"
-                                            type="secondary"
-                                            onClick={cancelHandler}
-                                            icon={<StopOutlined/>}
-                                        >
-                                            Отмена
-                                        </Button>
-                                    </Row>
+                                    <TabButtons
+                                        loadingSave={loadingSave}
+                                        item={item}
+                                        deleteHandler={deleteHandler}
+                                        cancelHandler={cancelHandler}
+                                    />
                                 </Form>
                             }
                         />

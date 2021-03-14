@@ -3,10 +3,10 @@ import React, {useEffect, useState} from 'react';
 import {useSelector} from "react-redux";
 import {SketchPicker} from 'react-color';
 import {Card, Form, Input, Row, Col, Button, Skeleton, Checkbox, Dropdown} from 'antd';
-import {CheckOutlined, EditOutlined, StopOutlined} from '@ant-design/icons';
+import {EditOutlined} from '@ant-design/icons';
 
 import {TaskStatusRoute} from "../../routes/route.taskStatus";
-import {CheckTypeTab, onFailed} from "./tab.functions/tab.functions";
+import {onFailed, TabButtons} from "./tab.functions/tab.functions";
 
 const {Meta} = Card;
 
@@ -136,30 +136,12 @@ export const TaskTab = ({specKey, onRemove}) => {
                                         <Checkbox>Завершено</Checkbox>
                                     </Form.Item>
 
-                                    <Form.Item>
-                                        <Row justify="end" style={{marginTop: 20}} xs={{gutter: [8, 8]}}>
-                                            <Button
-                                                className="button-style"
-                                                type="primary"
-                                                htmlType="submit"
-                                                loading={loadingSave}
-                                                icon={<CheckOutlined/>}
-                                            >
-                                                Сохранить
-                                            </Button>
-
-                                            {CheckTypeTab(item, deleteHandler)}
-
-                                            <Button
-                                                className="button-style"
-                                                type="secondary"
-                                                onClick={cancelHandler}
-                                                icon={<StopOutlined/>}
-                                            >
-                                                Отмена
-                                            </Button>
-                                        </Row>
-                                    </Form.Item>
+                                    <TabButtons
+                                        loadingSave={loadingSave}
+                                        item={item}
+                                        deleteHandler={deleteHandler}
+                                        cancelHandler={cancelHandler}
+                                    />
                                 </Form>
                             }
                         />

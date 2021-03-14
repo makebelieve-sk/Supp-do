@@ -1,3 +1,4 @@
+// Константы модели "Персонал"
 const CREATE_PERSON = 'CREATE_PERSON';
 const EDIT_PERSON = 'EDIT_PERSON';
 const DELETE_PERSON = 'DELETE_PERSON';

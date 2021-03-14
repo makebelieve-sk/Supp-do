@@ -1,3 +1,4 @@
+// Действия модели "Персонал"
 import {
     CREATE_PERSON,
     EDIT_PERSON,
@@ -8,10 +9,10 @@ import {
 
 const ActionCreatorPerson = {
     // Добавление сотрудника
-    createPerson: (profession) => {
+    createPerson: (person) => {
         return {
             type: CREATE_PERSON,
-            payload: profession
+            payload: person
         }
     },
     // Изменение сотрудника

@@ -4,6 +4,7 @@ import store from "../redux/store";
 import {ActionCreator} from "../redux/combineActions";
 import {message} from "antd";
 import {Profession} from "../model/Profession";
+import setFieldRecord from "../components/helpers/tab.helpers/setFieldRecord";
 
 export const ProfessionRoute = {
     // Адрес для работы с разделом "Профессии"
@@ -78,10 +79,17 @@ export const ProfessionRoute = {
                         store.dispatch(ActionCreator.ActionCreatorProfession.editProfession(indexProfession, data.item));
                     }
                 }
+
+                // Изменение поля редактируемой записи
+                const prevActiveTab = store.getState().reducerTab.prevActiveTab;
+
+                if (prevActiveTab === "personItem" || prevActiveTab === "logDOItem") {
+                    setFieldRecord(prevActiveTab, data.item);
+                }
             }
 
             // Удаление текущей вкладки
-            onRemove(specKey, 'remove');
+            onRemove(specKey, "remove");
         } catch (e) {
             // Останавливаем спиннер загрузки
             setLoading(false);

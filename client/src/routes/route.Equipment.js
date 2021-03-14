@@ -20,16 +20,13 @@ export const EquipmentRoute = {
             // Устанавливаем спиннер загрузки данных в таблицу
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(true));
 
-            // Получаем все записи разделов "Оборудование" и "Характеристики оборудования"
-            const itemsEquipmentProperty = await request(EquipmentPropertyRoute.base_url);
+            // Получаем все записи разделов "Характеристики оборудования" и "Оборудование"
+            await EquipmentPropertyRoute.getAll();
             const itemsEquipment = await request(this.base_url);
 
             // Записываем все записи в хранилище
-            if (itemsEquipmentProperty) {
-                store.dispatch(ActionCreator.ActionCreatorEquipmentProperty.getAllEquipmentProperties(itemsEquipmentProperty));
-            }
-
             if (itemsEquipment && itemsEquipment.length) {
+                // Добавление поля nameWithParent
                 itemsEquipment.forEach(item => {
                     if (item.parent) {
                         item.nameWithParent = getParents(item, itemsEquipment) + item.name;
@@ -62,7 +59,7 @@ export const EquipmentRoute = {
         }
     },
     // Сохранение записи
-    save: async function (item, setLoading, onRemove, specKey) {
+    save: async function (item, setLoading, onRemove, specKey, equipment) {
         try {
             // Устанавливаем спиннер загрузки
             setLoading(true);
@@ -79,6 +76,11 @@ export const EquipmentRoute = {
             if (data) {
                 // Выводим сообщение от сервера
                 message.success(data.message);
+
+                // Добавление поля nameWithParent
+                if (data.item.parent) {
+                    data.item.nameWithParent = getParents(data.item, equipment) + data.item.name;
+                }
 
                 // Редактирование записи - изменение записи в хранилище redux,
                 // Сохранение записи - создание записи в хранилище redux

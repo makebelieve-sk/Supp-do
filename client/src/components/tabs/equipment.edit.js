@@ -1,13 +1,11 @@
 // Раздел "Оборудование"
 import React, {useMemo, useState} from "react";
 import {useSelector} from "react-redux";
-import {Button, Card, Form, Input, Row, Col, Select, Skeleton, Tabs} from "antd";
-import {CheckOutlined, StopOutlined} from "@ant-design/icons";
+import {Card, Form, Input, Row, Col, Select, Skeleton, Tabs} from "antd";
 
 import {EquipmentRoute} from "../../routes/route.Equipment";
 import {ActionCreator} from "../../redux/combineActions";
-import {CheckTypeTab, getOptions, onFailed} from "./tab.functions/tab.functions";
-import {openRecordTab} from "../helpers/table.helpers/table.helper";
+import {dropdownRender, getOptions, onFailed, TabButtons} from "./tab.functions/tab.functions";
 import {CharacteristicComponent} from "../contentComponent/tab.components/characteristic.component";
 import {UploadComponent} from "../contentComponent/tab.components/uploadComponent";
 import getParents from "../helpers/getRowParents.helper";
@@ -108,27 +106,10 @@ export const EquipmentTab = ({specKey, onRemove}) => {
 
     const cancelHandler = () => EquipmentRoute.cancel(onRemove, specKey, setLoadingCancel);
 
-    // Обновление выпадающего списка "Подразделения"
-    const dropDownRenderHandler = async (open, setLoadingSelect, model, setOptions, dataStore) => {
-        try {
-            if (open) {
-                setLoadingSelect(true);
-
-                await model.getAll();
-
-                setOptions(getOptions(dataStore));
-
-                setLoadingSelect(false);
-            }
-        } catch (e) {
-            setLoadingSelect(false);
-        }
-    }
-
     // Настройка компонента CharacteristicComponent (вкладка "Характеристики")
     const characteristicProps = {
         equipmentPropertyToOptions,
-        dropDownRenderHandler,
+        dropdownRender,
         loadingSelectCharacteristics,
         setLoadingSelectCharacteristics,
         equipmentProperties,
@@ -181,7 +162,7 @@ export const EquipmentTab = ({specKey, onRemove}) => {
                                                     <Select
                                                         options={options}
                                                         onDropdownVisibleChange={async open => {
-                                                            await dropDownRenderHandler(open, setLoadingSelectEquipment, EquipmentRoute, setOptions, equipment);
+                                                            await dropdownRender(open, setLoadingSelectEquipment, EquipmentRoute, setOptions, equipment);
                                                         }}
                                                         loading={loadingSelectEquipment}
                                                     />
@@ -204,13 +185,6 @@ export const EquipmentTab = ({specKey, onRemove}) => {
                                             </TabPane>
 
                                             <TabPane tab="Характеристики" key="characteristics" className="tabPane-styles">
-                                                <Row className="button-add-equipmentProperty" justify="end">
-                                                    <Button
-                                                        type="primary"
-                                                        onClick={() => openRecordTab("equipmentProperties", "-1")}
-                                                    >Добавить характеристику</Button>
-                                                </Row>
-
                                                 <CharacteristicComponent {...characteristicProps} />
                                             </TabPane>
 
@@ -221,29 +195,13 @@ export const EquipmentTab = ({specKey, onRemove}) => {
                                             </TabPane>
                                         </Tabs>
 
-                                        <Row justify="end" style={{marginTop: 20}} xs={{gutter: [8, 8]}}>
-                                            <Button
-                                                className="button-style"
-                                                type="primary"
-                                                htmlType="submit"
-                                                loading={loadingSave}
-                                                icon={<CheckOutlined/>}
-                                            >
-                                                Сохранить
-                                            </Button>
-
-                                            {CheckTypeTab(item, deleteHandler)}
-
-                                            <Button
-                                                className="button-style"
-                                                type="secondary"
-                                                onClick={cancelHandler}
-                                                loading={loadingCancel}
-                                                icon={<StopOutlined/>}
-                                            >
-                                                Отмена
-                                            </Button>
-                                        </Row>
+                                        <TabButtons
+                                            loadingSave={loadingSave}
+                                            item={item}
+                                            deleteHandler={deleteHandler}
+                                            cancelHandler={cancelHandler}
+                                            loadingCancel={loadingCancel}
+                                        />
                                     </Form>
                                 </>
                             }

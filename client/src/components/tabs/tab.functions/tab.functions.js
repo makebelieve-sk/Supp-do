@@ -1,13 +1,13 @@
 // Помощник по созданию вкладки записи
 import React, {useState} from "react";
-import {Button, message, Popconfirm} from "antd";
-import {DeleteOutlined, PrinterOutlined, QuestionCircleOutlined} from "@ant-design/icons";
+import {Button, message, Popconfirm, Row} from "antd";
+import {CheckOutlined, DeleteOutlined, PrinterOutlined, QuestionCircleOutlined, StopOutlined} from "@ant-design/icons";
 
 // Получение выпадающего списка
 const getOptions = (items) => {
     let valuesToOptions = [{label: "Не выбрано", value: null}];
 
-    if (items) {
+    if (items && items.length) {
         items.forEach(item => {
             valuesToOptions.push({
                 label: item.nameWithParent ?? item.name,
@@ -19,7 +19,34 @@ const getOptions = (items) => {
     return valuesToOptions;
 };
 
-// Инициализация кнопок, появляющихся при редактировании записи
+// Компонент кнопок записи
+const TabButtons = ({loadingSave, item, deleteHandler, cancelHandler, loadingCancel = false}) => (
+    <Row justify="end" style={{marginTop: 20}} xs={{gutter: [8, 8]}}>
+        <Button
+            className="button-style"
+            type="primary"
+            htmlType="submit"
+            loading={loadingSave}
+            icon={<CheckOutlined/>}
+        >
+            Сохранить
+        </Button>
+
+        {CheckTypeTab(item, deleteHandler)}
+
+        <Button
+            className="button-style"
+            type="secondary"
+            onClick={cancelHandler}
+            loading={loadingCancel}
+            icon={<StopOutlined/>}
+        >
+            Отмена
+        </Button>
+    </Row>
+)
+
+// Компонент кнопок редактирования записи
 const CheckTypeTab = (item, deleteHandler) => {
     const [loadingDelete, setLoadingDelete] = useState(false);
     const [visiblePopConfirm, setVisiblePopConfirm] = useState(false);
@@ -58,4 +85,23 @@ const CheckTypeTab = (item, deleteHandler) => {
 // Вывод сообщения валидации формы
 const onFailed = () => message.error("Заполните обязательные поля").then(null);
 
-export {getOptions, CheckTypeTab, onFailed}
+// Обновление выпадающего списка
+const dropdownRender = async (open, setLoadingSelect, model, setOptions, dataStore) => {
+    try {
+        if (open) {
+            setLoadingSelect(true);
+
+            await model.getAll();
+
+            setOptions(getOptions(dataStore));
+
+            setLoadingSelect(false);
+
+            console.log("Ререндер выпадающего списка")
+        }
+    } catch (e) {
+        setLoadingSelect(false);
+    }
+}
+
+export {getOptions, TabButtons, onFailed, dropdownRender}

@@ -1,11 +1,10 @@
 // Вкладка "Профессии"
 import React, {useState} from "react";
 import {useSelector} from "react-redux";
-import {Card, Form, Input, Row, Col, Button, Skeleton} from "antd";
-import {CheckOutlined, StopOutlined} from "@ant-design/icons";
+import {Card, Form, Input, Row, Col, Skeleton} from "antd";
 
 import {ProfessionRoute} from "../../routes/route.profession";
-import {CheckTypeTab, onFailed} from "./tab.functions/tab.functions";
+import {onFailed, TabButtons} from "./tab.functions/tab.functions";
 
 const {Meta} = Card;
 
@@ -73,30 +72,12 @@ export const ProfessionTab = ({specKey, onRemove}) => {
                                         <Input maxLength={255} type="text"/>
                                     </Form.Item>
 
-                                    <Form.Item>
-                                        <Row justify="end" style={{marginTop: 20}}>
-                                            <Button
-                                                className="button-style"
-                                                type="primary"
-                                                htmlType="submit"
-                                                loading={loadingSave}
-                                                icon={<CheckOutlined/>}
-                                            >
-                                                Сохранить
-                                            </Button>
-
-                                            {CheckTypeTab(item, deleteHandler)}
-
-                                            <Button
-                                                className="button-style"
-                                                type="secondary"
-                                                onClick={cancelHandler}
-                                                icon={<StopOutlined/>}
-                                            >
-                                                Отмена
-                                            </Button>
-                                        </Row>
-                                    </Form.Item>
+                                    <TabButtons
+                                        loadingSave={loadingSave}
+                                        item={item}
+                                        deleteHandler={deleteHandler}
+                                        cancelHandler={cancelHandler}
+                                    />
                                 </Form>
                             }
                         />

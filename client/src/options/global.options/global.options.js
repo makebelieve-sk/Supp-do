@@ -45,7 +45,7 @@ const menuItems = [
                 ]
             },
             {
-                title: "Оборудования",
+                title: "Оборудование",
                 key: "equipmentKey",
                 children: [
                     {

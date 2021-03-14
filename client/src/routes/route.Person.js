@@ -7,7 +7,7 @@ import {DepartmentRoute} from "./route.Department";
 import store from "../redux/store";
 import {ActionCreator} from "../redux/combineActions";
 import {request} from "../components/helpers/request.helper";
-import getParents from "../components/helpers/getRowParents.helper";
+import {getShortName, getShortNameRecord} from "../components/helpers/getShortName";
 
 export const PersonRoute = {
     // Адрес для работы с разделом "Персонал"
@@ -18,28 +18,14 @@ export const PersonRoute = {
             // Устанавливаем спиннер загрузки данных в таблицу
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(true));
 
-            // Получаем все записи разделов "Подразделения", "Персонал" и "Оборудование"
-            const itemsProfessions = await request(ProfessionRoute.base_url);
-            const itemsDepartments = await request(DepartmentRoute.base_url);
+            // Получаем все записи разделов "Профессии", "Подразделения" и "Персонал"
+            await ProfessionRoute.getAll();
+            await DepartmentRoute.getAll();
             const itemsPeople = await request(this.base_url);
 
             // Записываем все записи в хранилище
-            if (itemsProfessions) {
-                store.dispatch(ActionCreator.ActionCreatorProfession.getAllProfessions(itemsProfessions));
-            }
-
-            if (itemsDepartments && itemsDepartments.length) {
-                itemsDepartments.forEach(item => {
-                    if (item.parent) {
-                        item.nameWithParent = getParents(item, itemsDepartments) + item.name;
-                    }
-                })
-
-                store.dispatch(ActionCreator.ActionCreatorDepartment.getAllDepartments(itemsDepartments));
-            }
-
             if (itemsPeople) {
-                store.dispatch(ActionCreator.ActionCreatorPerson.getAllPeople(itemsPeople));
+                store.dispatch(ActionCreator.ActionCreatorPerson.getAllPeople(getShortName(itemsPeople)));
             }
 
             // Останавливаем спиннер загрузки данных в таблицу
@@ -83,6 +69,9 @@ export const PersonRoute = {
                 // Выводим сообщение от сервера
                 message.success(data.message);
 
+                // Изменяем поле name только что сохраненной записи
+                data.item = getShortNameRecord(data.item);
+
                 // Редактирование записи - изменение записи в хранилище redux,
                 // Сохранение записи - создание записи в хранилище redux
                 if (method === "POST") {
@@ -90,7 +79,7 @@ export const PersonRoute = {
                 } else {
                     const people = store.getState().reducerPerson.people;
                     const foundPerson = people.find(person => {
-                        return person._id === item._id;
+                        return person._id === data.item._id;
                     });
                     const indexPerson = people.indexOf(foundPerson);
 
@@ -101,7 +90,7 @@ export const PersonRoute = {
             }
 
             // Удаление текущей вкладки
-            onRemove(specKey, 'remove');
+            onRemove(specKey, "remove");
         } catch (e) {
             // Останавливаем спиннер загрузки
             setLoading(false);
@@ -147,7 +136,7 @@ export const PersonRoute = {
     },
     // Нажатие на кнопку "Отмена"
     cancel: function (onRemove, specKey) {
-        onRemove(specKey, 'remove');
+        onRemove(specKey, "remove");
     },
     // Заполнение модели "Персонал"
     fillItem: function (item) {

@@ -1,11 +1,10 @@
 // Вкладка раздела "Характеристики оборудования"
-import React, {useState} from 'react';
-import {Card, Form, Input, Row, Col, Button, Skeleton} from 'antd';
+import React, {useState} from "react";
+import {Card, Form, Input, Row, Col, Skeleton} from "antd";
 import {useSelector} from "react-redux";
-import {CheckOutlined, StopOutlined} from '@ant-design/icons';
 
 import {EquipmentPropertyRoute} from "../../routes/route.EquipmentProperty";
-import {CheckTypeTab, onFailed} from "./tab.functions/tab.functions";
+import {onFailed, TabButtons} from "./tab.functions/tab.functions";
 
 const {Meta} = Card;
 
@@ -67,7 +66,7 @@ export const EquipmentPropertyTab = ({specKey, onRemove}) => {
                                     <Form.Item
                                         label="Наименование"
                                         name="name"
-                                        rules={[{required: true, message: 'Введите наименование!'}]}
+                                        rules={[{required: true, message: "Введите наименование!"}]}
                                     >
                                         <Input maxLength={255} type="text"/>
                                     </Form.Item>
@@ -76,30 +75,12 @@ export const EquipmentPropertyTab = ({specKey, onRemove}) => {
                                         <Input maxLength={255} type="text"/>
                                     </Form.Item>
 
-                                    <Form.Item>
-                                        <Row justify="end" style={{marginTop: 20}}>
-                                            <Button
-                                                className="button-style"
-                                                type="primary"
-                                                htmlType="submit"
-                                                loading={loadingSave}
-                                                icon={<CheckOutlined/>}
-                                            >
-                                                Сохранить
-                                            </Button>
-
-                                            {CheckTypeTab(item, deleteHandler)}
-
-                                            <Button
-                                                className="button-style"
-                                                type="secondary"
-                                                onClick={cancelHandler}
-                                                icon={<StopOutlined/>}
-                                            >
-                                                Отмена
-                                            </Button>
-                                        </Row>
-                                    </Form.Item>
+                                    <TabButtons
+                                        loadingSave={loadingSave}
+                                        item={item}
+                                        deleteHandler={deleteHandler}
+                                        cancelHandler={cancelHandler}
+                                    />
                                 </Form>
                             }
                         />

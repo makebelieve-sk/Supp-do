@@ -1,3 +1,4 @@
+// Создание глобального объекта ActionCreator
 import ActionCreatorProfession from "./professionSection/profession.actions";
 import ActionCreatorDepartment from "./departmentSection/department.actions";
 import ActionCreatorPerson from "./personSection/person.actions";

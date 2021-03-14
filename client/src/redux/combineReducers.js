@@ -1,3 +1,4 @@
+// Создание глобального объекта reducer
 import {combineReducers} from "redux";
 
 import reducerProfession from "./professionSection/profession.reducer";

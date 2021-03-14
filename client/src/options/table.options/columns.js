@@ -203,37 +203,20 @@ const EquipmentPropertyColumns = [
 // Создание колонок для раздела "Перечень оборудования"
 const EquipmentColumns = [
     {
-        title: "Принадлежит",
-        dataIndex: "parent",
-        key: "parent",
-        width: 100,
-        sorter: (a, b) => {
-            if (a.parent && b.parent) {
-                return a.parent.name.length - b.parent.name.length
-            }
-        },
-        sortDirections: ['descend', 'ascend'],
-        render(text, record) {
-            return {
-                children: <div>{record.parent ? record.parent.name : ""}</div>
-            };
-        }
-    },
-    {
-        title: 'Наименование',
-        dataIndex: 'name',
-        key: 'name',
+        title: "Наименование",
+        dataIndex: "name",
+        key: "name",
         width: 100,
         sorter: (a, b) => a.name.length - b.name.length,
-        sortDirections: ['descend', 'ascend'],
+        sortDirections: ["descend", "ascend"],
     },
     {
-        title: 'Примечание',
-        dataIndex: 'notes',
-        key: 'notes',
+        title: "Примечание",
+        dataIndex: "notes",
+        key: "notes",
         width: 100,
         sorter: (a, b) => a.notes.length - b.notes.length,
-        sortDirections: ['descend', 'ascend'],
+        sortDirections: ["descend", "ascend"],
     }
 ];
 

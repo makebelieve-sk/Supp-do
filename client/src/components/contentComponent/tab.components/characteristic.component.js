@@ -6,7 +6,7 @@ import {DeleteOutlined, PlusOutlined} from "@ant-design/icons";
 import {EquipmentProperty} from "../../../model/EquipmentProperty";
 import {openRecordTab} from "../../helpers/table.helpers/table.helper";
 
-export const CharacteristicComponent = ({equipmentPropertyToOptions, dropDownRenderHandler, loadingSelectCharacteristics, setLoadingSelectCharacteristics, equipmentProperties, setEquipmentPropertyToOptions}) => {
+export const CharacteristicComponent = ({equipmentPropertyToOptions, dropdownRender, loadingSelectCharacteristics, setLoadingSelectCharacteristics, equipmentProperties, setEquipmentPropertyToOptions}) => {
     // Добавление строки во вкладке "Характеристики"
     const addRowProperty = (index, add, fields) => {
         if (index === fields.length - 1) {
@@ -34,7 +34,7 @@ export const CharacteristicComponent = ({equipmentPropertyToOptions, dropDownRen
                                                 onClick={() => addRowProperty(index, add, fields)}
                                                 options={equipmentPropertyToOptions}
                                                 onDropdownVisibleChange={async open => {
-                                                    await dropDownRenderHandler(open, setLoadingSelectCharacteristics, EquipmentProperty, setEquipmentPropertyToOptions, equipmentProperties);
+                                                    await dropdownRender(open, setLoadingSelectCharacteristics, EquipmentProperty, setEquipmentPropertyToOptions, equipmentProperties);
                                                 }}
                                                 loading={loadingSelectCharacteristics}
                                             />
@@ -44,7 +44,7 @@ export const CharacteristicComponent = ({equipmentPropertyToOptions, dropDownRen
                                         <Form.Item label=" ">
                                             <Button
                                                 className="button-add-select"
-                                                onClick={() => openRecordTab("equipment", "-1")}
+                                                onClick={() => openRecordTab("equipmentProperties", "-1")}
                                                 icon={<PlusOutlined/>}
                                                 type="secondary"
                                             />
@@ -75,5 +75,5 @@ export const CharacteristicComponent = ({equipmentPropertyToOptions, dropDownRen
                 </>
             }}
         </Form.List>
-    ), [equipmentPropertyToOptions, dropDownRenderHandler, loadingSelectCharacteristics, equipmentProperties, setEquipmentPropertyToOptions, setLoadingSelectCharacteristics])
+    ), [equipmentPropertyToOptions, dropdownRender, loadingSelectCharacteristics, equipmentProperties, setEquipmentPropertyToOptions, setLoadingSelectCharacteristics])
 }

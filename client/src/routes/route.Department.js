@@ -7,6 +7,7 @@ import store from "../redux/store";
 import {ActionCreator} from "../redux/combineActions";
 import {request} from "../components/helpers/request.helper";
 import getParents from "../components/helpers/getRowParents.helper";
+import setFieldRecord from "../components/helpers/tab.helpers/setFieldRecord";
 
 export const DepartmentRoute = {
     // Адрес для работы с разделом "Подразделения"
@@ -54,7 +55,7 @@ export const DepartmentRoute = {
         }
     },
     // Сохранение записи
-    save: async function (item, setLoading, onRemove, specKey) {
+    save: async function (item, setLoading, onRemove, specKey, departments) {
         try {
             // Устанавливаем спиннер загрузки
             setLoading(true);
@@ -72,6 +73,11 @@ export const DepartmentRoute = {
                 // Выводим сообщение от сервера
                 message.success(data.message);
 
+                // Добавление поля nameWithParent
+                if (data.item.parent) {
+                    data.item.nameWithParent = getParents(data.item, departments) + data.item.name;
+                }
+
                 // Редактирование записи - изменение записи в хранилище redux,
                 // Сохранение записи - создание записи в хранилище redux
                 if (method === "POST") {
@@ -87,10 +93,17 @@ export const DepartmentRoute = {
                         store.dispatch(ActionCreator.ActionCreatorDepartment.editDepartment(indexDepartment, data.item));
                     }
                 }
+
+                // Изменение поля редактируемой записи
+                const prevActiveTab = store.getState().reducerTab.prevActiveTab;
+
+                if (prevActiveTab === "personItem" || prevActiveTab === "logDOItem") {
+                    setFieldRecord(prevActiveTab, null, data.item);
+                }
             }
 
             // Удаление текущей вкладки
-            onRemove(specKey, 'remove');
+            onRemove(specKey, "remove");
         } catch (e) {
             // Останавливаем спиннер загрузки
             setLoading(false);

@@ -1,3 +1,4 @@
+// Редьюсер модели "Персонал"
 import initialState from "./person.state";
 import {
     CREATE_PERSON,
