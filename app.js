@@ -27,11 +27,11 @@ const PORT = process.env.PORT || config.port || 5000;
 
 if (process.env.NODE_ENV === "production") {
     // При запуске на сервере необходимо регистрировать фронтенд
-    app.use("/", express.static(path.join(__dirname, "../client/build")));
+    app.use("/", express.static(path.join(__dirname, "/client/build")));
 
     // Любой get запрос будет отправляться в файл index.html (в билд)
     app.get("*", (req, res) => {
-        res.sendFile(path.join(__dirname + "../client/build/index.html"));
+        res.sendFile(path.join(__dirname + "/client/build/index.html"));
     })
 }
 
