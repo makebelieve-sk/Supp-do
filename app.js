@@ -54,7 +54,7 @@ async function start() {
             useUnifiedTopology: true,
             useCreateIndex: true
         })
-
+        //  "mongoUri": "mongodb://localhost:27017",
         app.listen(PORT, () => console.log(`App has been started on port: ${PORT}`));
     } catch (e) {
         console.log("Server error: ", e);

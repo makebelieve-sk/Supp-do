@@ -1,6 +1,4 @@
 // Изменение одного поля редактируемой записи
-import {message} from "antd";
-
 import store from "../../../redux/store";
 import {ActionCreator} from "../../../redux/combineActions";
 

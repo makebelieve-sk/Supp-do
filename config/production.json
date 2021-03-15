@@ -1,5 +1,5 @@
 {
   "port": 5000,
   "jwtSecret": "supp do mern",
-  "mongoUri": "mongodb://localhost:27017"
+  "mongoUri": "mongodb+srv://alexey:228Psinka228@cluster0.kje7j.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
 }
