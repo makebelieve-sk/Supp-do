@@ -22,22 +22,22 @@ app.use(fileUpload({createParentPath: true}));
 app.use("/public", express.static('public'));
 app.use('/files', require("./routes/route.upload"));
 
+const PORT = process.env.PORT || config.port || 5000;
+
 if (process.env.NODE_ENV === "production") {
     // При запуске на сервере необходимо регистрировать фронтенд
-    app.use("/", express.static(path.join(__dirname, "client", "build")));
+    app.use("/", express.static(path.join(__dirname, "../client/build")));
 
     // Любой get запрос будет отправляться в файл index.html (в билд)
     app.get("*", (req, res) => {
-        res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
+        res.sendFile(path.join(__dirname + "../client/build/index.html"));
     })
 }
-
-const PORT = config.port || 5000;
 
 async function start() {
     try {
         // Подключаемся к базе данных
-        await mongoose.connect(config.mongoUri, {
+        await mongoose.connect(process.env.MONGODB_URI || config.mongoUri, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
             useCreateIndex: true
