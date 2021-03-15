@@ -49,7 +49,7 @@ app.options("*", cors());
 async function start() {
     try {
         // Подключаемся к базе данных
-        await mongoose.connect(process.env.MONGODB_URI || config.mongoUri, {
+        await mongoose.connect(process.env.MONGODB_URI || process.env.MONGOLAB_URI || config.mongoUri, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
             useCreateIndex: true
