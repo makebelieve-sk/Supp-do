@@ -1,4 +1,5 @@
-import React, {useState, useContext} from 'react';
+// Компонент регистрации пользователя
+import React, {useState, useContext} from "react";
 import {Button, Card, Col, Form, Input, message, Row} from "antd";
 import {LockOutlined, UserOutlined} from "@ant-design/icons";
 
@@ -10,11 +11,12 @@ export const RegistrationComponent = () => {
 
     const auth = useContext(AuthContext);
 
-    const onFinish = async (values) => {
+    // Нажатие на кнопку "Зарегистрироваться"
+    const register = async (values) => {
         try {
             setLoadingReg(true);
 
-            const data = await request('/api/auth/register', 'POST', values);
+            const data = await request("/api/auth/register", "POST", values);
 
             setLoadingReg(false);
 
@@ -29,7 +31,7 @@ export const RegistrationComponent = () => {
     };
 
     return (
-        <Row align="middle" justify="center" style={{height: '100vh'}}>
+        <Row align="middle" justify="center" style={{height: "100vh"}}>
             <Col>
                 <Card title="Регистрация" style={{width: 400}}>
                     <Form
@@ -38,29 +40,29 @@ export const RegistrationComponent = () => {
                         initialValues={{
                             remember: true,
                         }}
-                        onFinish={onFinish}
+                        onFinish={register}
                     >
-                        <Form.Item name="login" rules={[{required: true, message: 'Введите логин'}]}>
+                        <Form.Item name="login" rules={[{required: true, message: "Введите логин"}]}>
                             <Input prefix={<UserOutlined className="site-form-item-icon"/>} placeholder="Логин"/>
                         </Form.Item>
-                        <Form.Item name="password" rules={[{required: true, message: 'Введите пароль'}]} hasFeedback>
+                        <Form.Item name="password" rules={[{required: true, message: "Введите пароль"}]} hasFeedback>
                             <Input.Password prefix={<LockOutlined className="site-form-item-icon"/>}
                                             placeholder="Введите пароль"/>
                         </Form.Item>
 
                         <Form.Item
                             name="confirm"
-                            dependencies={['password']}
+                            dependencies={["password"]}
                             hasFeedback
                             rules={[
-                                {required: true, message: 'Подтвердите пароль'},
+                                {required: true, message: "Подтвердите пароль"},
                                 ({getFieldValue}) => ({
                                     validator(_, value) {
-                                        if (!value || getFieldValue('password') === value) {
+                                        if (!value || getFieldValue("password") === value) {
                                             return Promise.resolve();
                                         }
 
-                                        return Promise.reject('Введенные пароли не совпадают!');
+                                        return Promise.reject("Введенные пароли не совпадают!");
                                     },
                                 }),
                             ]}

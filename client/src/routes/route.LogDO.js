@@ -11,6 +11,7 @@ import store from "../redux/store";
 import {ActionCreator} from "../redux/combineActions";
 import {request} from "../components/helpers/request.helper";
 import TabOptions from "../options/tab.options/tab.options";
+import {getShortNameRecord} from "../components/helpers/getShortName";
 
 export const LogDORoute = {
     // Адрес для работы с разделом "Журнал дефектов и отказов"
@@ -24,9 +25,13 @@ export const LogDORoute = {
             // Устанавливаем спиннер загрузки данных в таблицу
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(true));
 
-            // Получаем все записи разделов "Журнал дефектов и отказов", "Персонал" (который получает разделы:
-            // "Профессии", "Подразделения" и "Персонал") "Оборудование" (который получает разделы:
-            // "Характеристики оборудования" и "Оборудование")  и "Состояние заявок"
+            /**
+             * Получаем все записи разделов
+             * "Журнал дефектов и отказов"
+             * "Персонал" (который получает разделы: "Профессии", "Подразделения" и "Персонал")
+             * "Оборудование" (который получает разделы: "Характеристики оборудования" и "Оборудование")
+             * "Состояние заявок"
+             */
             const itemsLogDO = await request(this.base_url + date);
             await PersonRoute.getAll();
             await EquipmentRoute.getAll();
@@ -34,6 +39,15 @@ export const LogDORoute = {
 
             // Записываем все записи в хранилище
             if (itemsLogDO) {
+                // Добавляем поле formattedDate
+                if (itemsLogDO.length) {
+                    itemsLogDO.forEach(logDO => {
+                        logDO.formattedDate = moment(logDO.date).format(TabOptions.dateFormat);
+                        logDO.responsible = getShortNameRecord(logDO.responsible);
+                        logDO.applicant = getShortNameRecord(logDO.applicant);
+                    })
+                }
+
                 store.dispatch(ActionCreator.ActionCreatorLogDO.getAllLogDO(itemsLogDO));
             }
 

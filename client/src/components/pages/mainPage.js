@@ -7,6 +7,7 @@ import {LogDORoute} from "../../routes/route.LogDO";
 import {AuthContext} from "../../context/authContext";
 import {ContentComponent} from "../contentComponent/contentComponent";
 import {SiderComponent} from "../contentComponent/siderComponent";
+import {Link} from "react-router-dom";
 
 const {Header, Content, Footer} = Layout;
 
@@ -30,7 +31,7 @@ export const MainPage = () => {
     // Компонент выпадающего списка, содержит действия для управления учетной записью пользователя
     const dropdownMenu = <Menu>
         <Menu.Item key="changePassword">Сменить пароль</Menu.Item>
-        <Menu.Item key="logout" onClick={() => auth.logout()}>Выйти</Menu.Item>
+        <Menu.Item key="logout"><Link to="/login" onClick={() => auth.logout()}>Выйти</Link></Menu.Item>
     </Menu>;
 
     return (

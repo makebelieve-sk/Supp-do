@@ -1,4 +1,5 @@
-import React, {useState, useContext} from 'react';
+// Компонент авторизации пользователя
+import React, {useState, useContext} from "react";
 import {Button, Card, Checkbox, Col, Form, Input, Row} from "antd";
 import {LockOutlined, UserOutlined} from "@ant-design/icons";
 import {Link} from "react-router-dom";
@@ -11,12 +12,12 @@ export const AuthComponent = ({setRegForm, setChangePass}) => {
 
     const auth = useContext(AuthContext);
 
-    // Функция входа пользователя
+    // Нажатие на кнопку "Войти"
     const login = async (values) => {
         try {
             setLoadingLogin(true);
 
-            const data = await request('/api/auth/login', 'POST', values);
+            const data = await request("/api/auth/login", "POST", values);
 
             setLoadingLogin(false);
 
@@ -30,7 +31,7 @@ export const AuthComponent = ({setRegForm, setChangePass}) => {
     };
 
     return (
-        <Row align="middle" justify="center" style={{height: '100vh'}}>
+        <Row align="middle" justify="center" style={{height: "100vh"}}>
             <Col>
                 <Card title="Авторизация" style={{width: 400}}>
                     <Form
@@ -39,10 +40,10 @@ export const AuthComponent = ({setRegForm, setChangePass}) => {
                         initialValues={{remember: true,}}
                         onFinish={login}
                     >
-                        <Form.Item name="login" rules={[{required: true, message: 'Введите логин'}]}>
+                        <Form.Item name="login" rules={[{required: true, message: "Введите логин"}]}>
                             <Input prefix={<UserOutlined className="site-form-item-icon"/>} placeholder="Логин"/>
                         </Form.Item>
-                        <Form.Item name="password" rules={[{required: true, message: 'Введите пароль'}]}>
+                        <Form.Item name="password" rules={[{required: true, message: "Введите пароль"}]}>
                             <Input
                                 prefix={<LockOutlined className="site-form-item-icon"/>}
                                 type="password"
@@ -66,7 +67,7 @@ export const AuthComponent = ({setRegForm, setChangePass}) => {
                             <Button loading={loadingLogin} type="primary" htmlType="submit" className="login-form-button">
                                 Войти
                             </Button>
-                            Или <Link to="/registration" onClick={() => {
+                            Или <Link to="/register" onClick={() => {
                             setRegForm(true);
                             setChangePass(false);
                         }}>зарегистрируйтесь сейчас</Link>

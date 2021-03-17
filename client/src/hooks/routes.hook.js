@@ -1,3 +1,4 @@
+// Хук, отвечающий за роутинг приложения
 import React from "react";
 import {Switch, Route, Redirect} from "react-router-dom";
 
@@ -10,10 +11,8 @@ export const useRoutes = (isAuthenticated) => {
     if (isAuthenticated) {
         return (
             <Switch>
-                <Route path="/" exact>
-                    <MainPage/>
-                </Route>
-                <Route path="/public/:fileName" render={() => {
+                <Route path="/" exact component={MainPage}/>
+                <Route strict path="/public/" render={() => {
                     // Меняем порт для корректной загрузки
                     window.location.port = 5000;
                     // Закрываем вкладку после 100мс
@@ -26,16 +25,15 @@ export const useRoutes = (isAuthenticated) => {
 
     return (
         <Switch>
-            <Route path="/authorization" exact>
-                <AuthPage/>
-            </Route>
-            <Route path="/registration" exact>
-                <RegistrationComponent/>
-            </Route>
-            <Route path="/change-password" exact>
-                <ChangePasswordComponent/>
-            </Route>
-            {/*<Redirect to="/authorization" exact/>*/}
+            <Route path="/login" component={AuthPage}/>
+            <Route path="/register" component={RegistrationComponent}/>
+            <Route path="/change-password" component={ChangePasswordComponent}/>
+            {
+                window.location.pathname === "/" ?
+                    <Redirect to="/login"/> :
+                    // TODO Написать страницу 404!!
+                    <Route path="*" render={() => <div>Страница не найдена!</div>}/>
+            }
         </Switch>
     )
 }

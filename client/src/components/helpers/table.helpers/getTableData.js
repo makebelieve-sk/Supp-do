@@ -1,24 +1,24 @@
 // Получение данных для таблицы
 import {message} from "antd";
 
-import store from "../../../redux/store";
 import {createTreeData} from "./createTreeData.helper";
 
 /**
  * Фукнция получения данных для таблицы
  * @param key - ключ раздела
+ * @param dataStore - данные раздела
  * @returns Возвращает массив записей таблицы
  */
-export default function getTableData(key) {
+export default function getTableData(key, dataStore) {
     // Создание карты соответствия ключа раздела и массивов записей таблиц
     const map = new Map([
-        ["professions", store.getState().reducerProfession.professions],
-        ["departments", createTreeData(store.getState().reducerDepartment.departments)],
-        ["people", store.getState().reducerPerson.people],
-        ["tasks", store.getState().reducerTask.tasks],
-        ["equipmentProperties", store.getState().reducerEquipmentProperty.equipmentProperties],
-        ["equipment", createTreeData(store.getState().reducerEquipment.equipment)],
-        ["logDO", store.getState().reducerLogDO.logDO]
+        ["professions", dataStore],
+        ["departments", createTreeData(dataStore)],
+        ["people", dataStore],
+        ["tasks", dataStore],
+        ["equipmentProperties", dataStore],
+        ["equipment", createTreeData(dataStore)],
+        ["logDO", dataStore]
     ]);
 
     if (map.has(key)) {

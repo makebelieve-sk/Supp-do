@@ -1,49 +1,49 @@
-import React from 'react';
+// Компонент смены пароля
+import React from "react";
 import {Button, Card, Col, Form, Input, Row} from "antd";
 import {LockOutlined, UserOutlined} from "@ant-design/icons";
 import {useHistory} from "react-router-dom";
 
 export const ChangePasswordComponent = () => {
-    let history = useHistory();
+    const history = useHistory();
 
-    const onFinish = (values) => {
-        console.log('Received values of form: ', values);
-        history.push("/authorization")
+    // Нажатие на кнопку "Изменить пароль"
+    const changePassword = (values) => {
+        console.log("Received values of form: ", values);
+        history.push("/authorization");
     };
 
     return (
-        <Row align="middle" justify="center" style={{height: '100vh'}}>
+        <Row align="middle" justify="center" style={{height: "100vh"}}>
             <Col>
                 <Card title="Смена пароля" style={{width: 400}}>
                     <Form
                         name="normal_login"
                         className="login-form"
-                        initialValues={{
-                            remember: true,
-                        }}
-                        onFinish={onFinish}
+                        initialValues={{remember: true,}}
+                        onFinish={changePassword}
                     >
-                        <Form.Item name="login" rules={[{required: true, message: 'Введите логин'}]}>
+                        <Form.Item name="login" rules={[{required: true, message: "Введите логин"}]}>
                             <Input prefix={<UserOutlined className="site-form-item-icon"/>} placeholder="Логин"/>
                         </Form.Item>
-                        <Form.Item name="password" rules={[{required: true, message: 'Введите пароль'}]} hasFeedback>
+                        <Form.Item name="password" rules={[{required: true, message: "Введите пароль"}]} hasFeedback>
                             <Input.Password prefix={<LockOutlined className="site-form-item-icon"/>}
                                             placeholder="Введите новый пароль"/>
                         </Form.Item>
 
                         <Form.Item
                             name="confirm"
-                            dependencies={['password']}
+                            dependencies={["password"]}
                             hasFeedback
                             rules={[
-                                {required: true, message: 'Подтвердите пароль'},
+                                {required: true, message: "Подтвердите пароль"},
                                 ({getFieldValue}) => ({
                                     validator(_, value) {
-                                        if (!value || getFieldValue('password') === value) {
+                                        if (!value || getFieldValue("password") === value) {
                                             return Promise.resolve();
                                         }
 
-                                        return Promise.reject('Введенные пароли не совпадают!');
+                                        return Promise.reject("Введенные пароли не совпадают!");
                                     },
                                 }),
                             ]}

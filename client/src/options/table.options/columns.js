@@ -1,11 +1,9 @@
 // Создание колонок таблиц
-import moment from "moment";
 import React from "react";
 import {Tooltip} from "antd";
 import {CheckOutlined} from "@ant-design/icons";
 
 import store from "../../redux/store";
-import TabOptions from "../tab.options/tab.options";
 
 // Создание колонок для раздела "Профессии"
 const ProfessionColumns = [
@@ -224,24 +222,22 @@ const EquipmentColumns = [
 const LogDOColumns = [
     {
         title: "Дата заявки",
-        dataIndex: "date",
-        key: "date",
+        dataIndex: "formattedDate",
+        key: "formattedDate",
         width: 150,
         sorter: (a, b) => a.date > b.date,
         sortDirections: ["descend", "ascend"],
         render(text, record) {
-            const formattedDate = moment(record.date).format(TabOptions.dateFormat);
-
             if (record.state && record.state.color) {
                 return {
                     props: {
                         style: {background: record.state.color},
                     },
-                    children: <div>{formattedDate}</div>,
+                    children: <div>{text}</div>,
                 };
             } else {
                 return {
-                    children: <div>{formattedDate}</div>,
+                    children: <div>{text}</div>,
                 };
             }
         },

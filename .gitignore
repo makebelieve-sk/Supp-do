@@ -1,7 +1,4 @@
 node_modules
 .idea
-.eslintcache
-debug.log
-client/.eslintcache
 public
-.gradle
+ecosystem.config.js
