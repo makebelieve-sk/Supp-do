@@ -1,8 +1,8 @@
 // Маршруты для загрузки файлов
 const {Router} = require("express");
-const LogDO = require("../models/LogDO");
-const Equipment = require("../models/Equipment");
-const File = require("../models/File");
+const LogDO = require("../schemes/LogDO");
+const Equipment = require("../schemes/Equipment");
+const File = require("../schemes/File");
 const fs = require('fs');
 
 const router = Router();

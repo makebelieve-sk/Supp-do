@@ -1,7 +1,7 @@
 // Маршруты для раздела "Профессии"
 const {Router} = require("express");
 const {check, validationResult} = require("express-validator");
-const Profession = require("../models/Profession");
+const Profession = require("../schemes/Profession");
 const router = Router();
 
 // Валидация полей раздела "Профессии"

@@ -1,15 +1,16 @@
 // Создание глобального объекта reducer
 import {combineReducers} from "redux";
 
-import reducerProfession from "./professionSection/profession.reducer";
-import reducerDepartment from "./departmentSection/department.reducer";
-import reducerPerson from "./personSection/person.reducer";
-import reducerTask from "./taskSection/task.reducer";
-import reducerEquipmentProperty from "./equipmentPropertySection/equipmentProperty.reducer";
-import reducerTab from "./tab/tab.reducer";
-import reducerLoading from "./loading/loading.reducer";
-import reducerEquipment from "./equipmentSection/equipment.reducer";
-import reducerLogDO from "./logDOSection/logDO.reducer";
+import reducerProfession from "./tabs.reducers/profession/profession.reducer";
+import reducerDepartment from "./tabs.reducers/department/department.reducer";
+import reducerPerson from "./tabs.reducers/person/person.reducer";
+import reducerTask from "./tabs.reducers/state/task.reducer";
+import reducerEquipmentProperty from "./tabs.reducers/equipmentProperty/equipmentProperty.reducer";
+import reducerTab from "./general.reducers/tab/tab.reducer";
+import reducerLoading from "./general.reducers/loading/loading.reducer";
+import reducerEquipment from "./tabs.reducers/equipment/equipment.reducer";
+import reducerLogDO from "./tabs.reducers/logDo/logDO.reducer";
+import reducerReplaceField from "./general.reducers/replaceField/replaceField.reducer";
 
 export const reducer = combineReducers({
     reducerProfession,
@@ -20,5 +21,6 @@ export const reducer = combineReducers({
     reducerTab,
     reducerLoading,
     reducerEquipment,
-    reducerLogDO
+    reducerLogDO,
+    reducerReplaceField
 });

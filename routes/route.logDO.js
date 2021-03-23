@@ -2,8 +2,13 @@
 const moment = require("moment");
 const {Router} = require("express");
 const {check, validationResult} = require("express-validator");
-const File = require("../models/File");
-const LogDO = require("../models/LogDO");
+
+const File = require("../schemes/File");
+const LogDO = require("../schemes/LogDO");
+const Department = require("../schemes/Department");
+const Equipment = require("../schemes/Equipment");
+const LogDoDto = require("../dto/LogDoDto");
+
 const router = Router();
 
 const dateFormat = "DD.MM.YYYY HH:mm";
@@ -13,7 +18,10 @@ const checkMiddleware = [
     check("date", "Некорректный формат поля 'Дата заявки'").notEmpty().isString(),
     check("applicant", "Некорректный формат поля 'Заявитель'").notEmpty(),
     check("equipment", "Некорректный формат поля 'Оборудование'").notEmpty(),
-    check("notes", "Максимальная длина поля 'Описание' составляет 1000 символов").notEmpty().isString().isLength({min: 0, max: 1000}),
+    check("notes", "Максимальная длина поля 'Описание' составляет 1000 символов").notEmpty().isString().isLength({
+        min: 0,
+        max: 1000
+    }),
     check("sendEmail", "Некорректное формат поля 'Оперативное уведомление сотрудников'").isBoolean(),
     check("productionCheck", "Некорректное формат поля 'Производство остановлено'").isBoolean(),
     // check("task", "Максимальная длина поля 'Задание' составляет 1000 символов").isString().isLength({min: 0, max: 1000}),
@@ -55,8 +63,21 @@ router.get("/log-do/:id", async (req, res) => {
             // Редактирование существующей записи
             item = await LogDO.findById({_id})
                 .populate("applicant")
-                .populate("equipment")
-                .populate("department")
+                .populate({
+                    path: "equipment",
+                    populate: {
+                        path: "parent",
+                        model: "Equipment"
+                    }
+                })
+                .populate({
+                        path: "department",
+                        populate: {
+                            path: "parent",
+                            model: "Department"
+                        }
+                    }
+                )
                 .populate("responsible")
                 .populate("state")
                 .populate("files");
@@ -68,14 +89,14 @@ router.get("/log-do/:id", async (req, res) => {
             return res.status(400).json({message: `Запись с кодом ${_id} не существует`});
         }
 
-        res.status(201).json({isNewItem, logDO: item});
+        res.status(201).json({logDo: item, isNewItem});
     } catch (e) {
         res.status(500).json({message: `Ошибка при открытии записи с кодом ${_id}`})
     }
 });
 
 // Возвращает все записи
-router.get("/log-do/:dateStart/:dateEnd", async (req, res) => {
+router.get("/log-do/dto/:dateStart/:dateEnd", async (req, res) => {
     const dateStart = req.params.dateStart;
     const dateEnd = req.params.dateEnd;
 
@@ -83,17 +104,40 @@ router.get("/log-do/:dateStart/:dateEnd", async (req, res) => {
     const millisecondsEnd = moment(dateEnd, dateFormat).valueOf();
 
     try {
-        const items = await LogDO.find({date: { $gte: millisecondsStart, $lte: millisecondsEnd }})
-            .sort({ date: 1 })
-            .populate('applicant')
-            .populate("equipment")
-            .populate("department")
+        const departments = await Department.find({}).populate("parent");
+        const equipment = await Equipment.find({}).populate("parent");
+
+        const items = await LogDO.find({date: {$gte: millisecondsStart, $lte: millisecondsEnd}})
+            .sort({date: 1})
+            .populate("applicant")
+            .populate({
+                path: "equipment",
+                populate: {
+                    path: "parent",
+                    model: "Equipment"
+                }
+            })
+            .populate({
+                    path: "department",
+                    populate: {
+                        path: "parent",
+                        model: "Department"
+                    }
+                }
+            )
             .populate("responsible")
             .populate("state")
             .populate("files");
 
-        res.json(items);
+        let itemsDto = [];
+
+        if (items && items.length) {
+            itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
+        }
+
+        res.json(itemsDto);
     } catch (e) {
+        console.log(e);
         res.status(500).json({message: "Ошибка при получении данных"})
     }
 });
@@ -110,7 +154,7 @@ router.post("/log-do", checkMiddleware, async (req, res) => {
 
         let resFileArr = [];
 
-        let {date, applicant, equipment, notes, sendEmail, productionCheck, department, responsible, task, state,
+        const {date, applicant, equipment, notes, sendEmail, productionCheck, department, responsible, task, state,
             dateDone, planDateDone, content, downtime, acceptTask, files} = req.body;
 
         if (files && files.length >= 0) {
@@ -126,28 +170,46 @@ router.post("/log-do", checkMiddleware, async (req, res) => {
         }
 
         const item = new LogDO({
-            date, equipment, notes, applicant, responsible, department, task, state, dateDone,
-            content, acceptTask, files: resFileArr, sendEmail, productionCheck, planDateDone, downtime
+            date, equipment, notes, applicant, responsible, department, task, state, planDateDone, dateDone, content,
+            acceptTask, files: resFileArr, sendEmail, productionCheck, downtime
         });
 
         await item.save();
 
-        let currentItem = await LogDO.findById({_id: item._id})
+        const departmentsItems = await Department.find({}).populate("parent");
+        const equipmentItems = await Equipment.find({}).populate("parent");
+        const currentItem = await LogDO.findById({_id: item._id})
             .populate("applicant")
-            .populate("equipment")
-            .populate("department")
+            .populate({
+                path: "equipment",
+                populate: {
+                    path: "parent",
+                    model: "Equipment"
+                }
+            })
+            .populate({
+                    path: "department",
+                    populate: {
+                        path: "parent",
+                        model: "Department"
+                    }
+                }
+            )
             .populate("responsible")
             .populate("state")
             .populate("files");
 
-        res.status(201).json({message: "Запись сохранена", item: currentItem});
+        const savedItem = new LogDoDto(currentItem, departmentsItems, equipmentItems);
+
+        res.status(201).json({message: "Запись сохранена", item: savedItem});
     } catch (e) {
         res.status(500).json({message: "Ошибка при создании записи"})
     }
 });
 
 // Изменяет запись
-router.put('/log-do', checkMiddleware, async (req, res) => {
+router.put("/log-do", checkMiddleware, async (req, res) => {
+    console.log(req.body)
     try {
         const errors = validationResult(req);
 
@@ -156,8 +218,10 @@ router.put('/log-do', checkMiddleware, async (req, res) => {
         }
 
         let resFileArr = [];
-        const {_id, date, applicant, equipment, notes, sendEmail, productionCheck, department, responsible, task, state,
-            dateDone, planDateDone, content, downtime, acceptTask, files} = req.body;
+
+        const {_id, date, equipment, notes, applicant, responsible, department, task, state, planDateDone, dateDone,
+            content, sendEmail, productionCheck, downtime, acceptTask, files} = req.body;
+
         const item = await LogDO.findById({_id});
 
         if (!item) {
@@ -199,22 +263,40 @@ router.put('/log-do', checkMiddleware, async (req, res) => {
 
         await item.save();
 
-        let savedItem = await LogDO.findById({_id})
+        const departmentsItems = await Department.find({}).populate("parent");
+        const equipmentItems = await Equipment.find({}).populate("parent");
+        const currentItem = await LogDO.findById({_id})
             .populate("applicant")
-            .populate("equipment")
-            .populate("department")
+            .populate({
+                path: "equipment",
+                populate: {
+                    path: "parent",
+                    model: "Equipment"
+                }
+            })
+            .populate({
+                    path: "department",
+                    populate: {
+                        path: "parent",
+                        model: "Department"
+                    }
+                }
+            )
             .populate("responsible")
             .populate("state")
             .populate("files");
 
+        const savedItem = new LogDoDto(currentItem, departmentsItems, equipmentItems);
+
         res.status(201).json({message: "Запись сохранена", item: savedItem});
     } catch (e) {
+        console.log(e)
         res.status(500).json({message: "Ошибка при обновлении записи"})
     }
 });
 
 // Удаляет запись
-router.delete('/log-do/:id', async (req, res) => {
+router.delete("/log-do/:id", async (req, res) => {
     const _id = req.params.id;
 
     try {

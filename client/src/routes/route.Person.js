@@ -2,12 +2,12 @@
 import {message} from "antd";
 
 import {Person} from "../model/Person";
-import {ProfessionRoute} from "./route.profession";
-import {DepartmentRoute} from "./route.Department";
 import store from "../redux/store";
 import {ActionCreator} from "../redux/combineActions";
-import {request} from "../components/helpers/request.helper";
-import {getShortName, getShortNameRecord} from "../components/helpers/getShortName";
+import {request} from "../helpers/functions/general.functions/request.helper";
+import {getParents} from "../helpers/functions/general.functions/replaceField";
+import setFieldRecord from "../helpers/mappers/general.mappers/setFieldRecord";
+import {compareArrays, compareObjects} from "../helpers/functions/general.functions/compare";
 
 export const PersonRoute = {
     // Адрес для работы с разделом "Персонал"
@@ -19,13 +19,18 @@ export const PersonRoute = {
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(true));
 
             // Получаем все записи разделов "Профессии", "Подразделения" и "Персонал"
-            await ProfessionRoute.getAll();
-            await DepartmentRoute.getAll();
             const itemsPeople = await request(this.base_url);
 
             // Записываем все записи в хранилище
             if (itemsPeople) {
-                store.dispatch(ActionCreator.ActionCreatorPerson.getAllPeople(getShortName(itemsPeople)));
+                const reduxPeople = store.getState().reducerPerson.people;
+
+                // Если массивы не равны, то обновляем хранилище redux
+                const shouldUpdate = compareArrays(itemsPeople, reduxPeople);
+
+                if (shouldUpdate) {
+                    store.dispatch(ActionCreator.ActionCreatorPerson.getAllPeople(itemsPeople));
+                }
             }
 
             // Останавливаем спиннер загрузки данных в таблицу
@@ -41,6 +46,34 @@ export const PersonRoute = {
         try {
             // Получаем редактируемую запись
             const item = await request(this.base_url + id);
+            const professions = await request("/api/directory/professions/");
+            const departments = await request("/api/directory/departments/");
+
+            if (professions && professions.length) {
+                const reduxProfessions = store.getState().reducerProfession.professions;
+
+                // Если массивы не равны, то обновляем хранилище redux
+                const shouldUpdate = compareArrays(professions, reduxProfessions);
+
+                if (shouldUpdate) {
+                    store.dispatch(ActionCreator.ActionCreatorProfession.getAllProfessions(professions));
+                }
+            }
+
+            if (departments && departments.length) {
+                const reduxDepartments = store.getState().reducerDepartment.departments;
+
+                // Если массивы не равны, то обновляем хранилище redux
+                const shouldUpdate = compareArrays(departments, reduxDepartments);
+
+                if (shouldUpdate) {
+                    departments.forEach(department => {
+                        department.nameWithParent = getParents(department, departments) + department.name;
+                    });
+
+                    store.dispatch(ActionCreator.ActionCreatorDepartment.getAllDepartments(departments));
+                }
+            }
 
             if (item) {
                 // Заполняем модель записи
@@ -51,7 +84,7 @@ export const PersonRoute = {
         }
     },
     // Сохранение записи
-    save: async function (item, setLoading, onRemove, specKey) {
+    save: async function (item, setLoading, onRemove) {
         try {
             // Устанавливаем спиннер загрузки
             setLoading(true);
@@ -62,15 +95,9 @@ export const PersonRoute = {
             // Получаем сохраненную запись
             const data = await request(this.base_url, method, item);
 
-            // Останавливаем спиннер загрузки
-            setLoading(false);
-
             if (data) {
                 // Выводим сообщение от сервера
                 message.success(data.message);
-
-                // Изменяем поле name только что сохраненной записи
-                data.item = getShortNameRecord(data.item);
 
                 // Редактирование записи - изменение записи в хранилище redux,
                 // Сохранение записи - создание записи в хранилище redux
@@ -78,36 +105,49 @@ export const PersonRoute = {
                     store.dispatch(ActionCreator.ActionCreatorPerson.createPerson(data.item));
                 } else {
                     const people = store.getState().reducerPerson.people;
-                    const foundPerson = people.find(person => {
-                        return person._id === data.item._id;
-                    });
+
+                    const foundPerson = people.find(person => person._id === data.item._id);
                     const indexPerson = people.indexOf(foundPerson);
 
                     if (indexPerson >= 0 && foundPerson) {
                         store.dispatch(ActionCreator.ActionCreatorPerson.editPerson(indexPerson, data.item));
                     }
                 }
+
+                // Получаем объект поля "Персонал", он есть, если мы нажали на "+"
+                const replaceField = store.getState().reducerReplaceField.replaceFieldPerson;
+
+                if (replaceField.key) {
+                    // Обновляем поле
+                    setFieldRecord(replaceField, data.item);
+                }
             }
 
+            // Останавливаем спиннер загрузки
+            setLoading(false);
+
+            // Обнуляем объект поля "Персонал" (при нажатии на "+")
+            store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldPerson({
+                key: null,
+                formValues: null
+            }));
+
             // Удаление текущей вкладки
-            onRemove(specKey, "remove");
+            this.cancel(onRemove);
         } catch (e) {
             // Останавливаем спиннер загрузки
             setLoading(false);
+            console.log(e)
         }
     },
     // Удаление записи
-    delete: async function (_id, setLoadingDelete, setVisiblePopConfirm, onRemove, specKey) {
+    delete: async function (_id, setLoadingDelete, setVisiblePopConfirm, onRemove) {
         try {
             // Устанавливаем спиннер загрузки
             setLoadingDelete(true);
 
             // Удаляем запись
             const data = await request(this.base_url + _id, "DELETE");
-
-            // Останавливаем спиннер, и скрываем всплывающее окно
-            setLoadingDelete(false);
-            setVisiblePopConfirm(false);
 
             if (data) {
                 // Вывод сообщения
@@ -116,18 +156,20 @@ export const PersonRoute = {
                 const people = store.getState().reducerPerson.people;
 
                 // Удаляем запись из хранилища redux
-                let foundPerson = people.find(person => {
-                    return person._id === _id;
-                });
-                let indexPerson = people.indexOf(foundPerson);
+                const foundPerson = people.find(person => person._id === _id);
+                const indexPerson = people.indexOf(foundPerson);
 
                 if (foundPerson && indexPerson >= 0) {
                     store.dispatch(ActionCreator.ActionCreatorPerson.deletePerson(indexPerson));
                 }
             }
 
+            // Останавливаем спиннер, и скрываем всплывающее окно
+            setLoadingDelete(false);
+            setVisiblePopConfirm(false);
+
             // Удаление текущей вкладки
-            onRemove(specKey, "remove");
+            this.cancel(onRemove);
         } catch (e) {
             // Останавливаем спиннер, и скрываем всплывающее окно
             setLoadingDelete(false);
@@ -135,8 +177,8 @@ export const PersonRoute = {
         }
     },
     // Нажатие на кнопку "Отмена"
-    cancel: function (onRemove, specKey) {
-        onRemove(specKey, "remove");
+    cancel: function (onRemove) {
+        onRemove("personItem", "remove");
     },
     // Заполнение модели "Персонал"
     fillItem: function (item) {
@@ -144,10 +186,18 @@ export const PersonRoute = {
             return;
 
         // Создаем объект редактируемой записи
-        let personItem = new Person(item.person);
-        personItem.isNewItem = item.isNewItem;
+        const personRecord = new Person(item.person);
+        personRecord.isNewItem = item.isNewItem;
 
-        // Сохраняем объект редактируемой записи в хранилище
-        store.dispatch(ActionCreator.ActionCreatorPerson.setRowDataPerson(personItem));
+        // Получаем запись из редакса
+        const reduxPersonRecord = store.getState().reducerPerson.rowDataPerson;
+
+        // Проверяем полученный с сервера объект и объект из редакса на равенство
+        const shouldUpdate = compareObjects(personRecord, reduxPersonRecord);
+
+        if (shouldUpdate) {
+            // Сохраняем объект редактируемой записи в хранилище
+            store.dispatch(ActionCreator.ActionCreatorPerson.setRowDataPerson(personRecord));
+        }
     }
 }

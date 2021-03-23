@@ -1,6 +1,6 @@
 // Глобальные настройки приложения
 import React from "react";
-import {LaptopOutlined, UserOutlined} from "@ant-design/icons";
+import {MenuUnfoldOutlined, LaptopOutlined, UserOutlined} from "@ant-design/icons";
 import {ActionCreator} from "../../redux/combineActions";
 
 import {ProfessionRoute} from "../../routes/route.profession";
@@ -15,7 +15,7 @@ const menuItems = [
     {
         title: "Справочники",
         key: "directory",
-        icon: <UserOutlined/>,
+        icon: <MenuUnfoldOutlined />,
         children: [
             {
                 title: "Управление персоналом",
@@ -133,7 +133,37 @@ const menuItems = [
                 ]
             }
         ]
+    },
+    {
+        title: "Личный кабинет",
+        key: "personal-area",
+        icon: <UserOutlined/>,
+        children: [
+            {
+                title: "Сменить пароль",
+                key: "change-password",
+                url: "/change-password"
+            },
+            {
+                title: "Выйти",
+                key: "logout",
+                url: "/login"
+            }
+        ]
     }
 ];
 
-export {menuItems};
+/**
+ * Функция фильтрации полей массива данных
+ * @param data - массив данных
+ * @returns массив данных с отфильтрованными полями
+ */
+const getFilteredData = (data) => {
+    return data.filter(key => {
+        return key !== "_id" && key !== "key" && key !== "__v" && key !== "files" && key !== "isFinish" &&
+            key !== "sendEmail" && key !== "productionCheck" && key !== "downtime" && key !== "acceptTask" &&
+            key !== "equipmentTooltip" && key !== "departmentTooltip" && key !== "color";
+    });
+}
+
+export {menuItems, getFilteredData};

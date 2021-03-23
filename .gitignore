@@ -1,4 +1,4 @@
 node_modules
 .idea
 public
-ecosystem.config.js
+config/ecosystem.config.js

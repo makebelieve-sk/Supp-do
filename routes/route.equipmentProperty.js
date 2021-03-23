@@ -1,7 +1,7 @@
 // Маршруты для характеристик оборудования
 const {Router} = require("express");
 const {check, validationResult} = require("express-validator");
-const EquipmentProperty = require("../models/EquipmentProperty");
+const EquipmentProperty = require("../schemes/EquipmentProperty");
 const router = Router();
 
 // Валидация полей раздела "Профессии"

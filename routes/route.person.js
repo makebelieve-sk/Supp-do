@@ -1,7 +1,9 @@
 // Маршруты для персонала
 const {Router} = require("express");
 const {check, validationResult} = require("express-validator");
-const Person = require("../models/Person");
+const Person = require("../schemes/Person");
+const Department = require("../schemes/Department");
+const PersonDto = require("../dto/PersonDto");
 const router = Router();
 
 // Валидация полей раздела "Персонал"
@@ -22,7 +24,15 @@ router.get("/people/:id", async (req, res) => {
             item = new Person({isCreated: true, tabNumber: null, name: "", notes: "", department: null, profession: null});
         } else {
             // Редактирование существующей записи
-            item = await Person.findById({_id}).populate("department").populate("profession");
+            item = await Person.findById({_id})
+                .populate({
+                    path: "department",
+                    populate: {
+                        path: "parent",
+                        model: "Department"
+                    }
+                })
+                .populate("profession");
             isNewItem = false;
         }
 
@@ -37,11 +47,28 @@ router.get("/people/:id", async (req, res) => {
 });
 
 // Возвращает все записи
-router.get("/people", async (req, res) => {
+router.get("/people/", async (req, res) => {
     try {
-        const items = await Person.find({}).populate("department").populate("profession");
-        res.json(items);
+        const departments = await Department.find({}).populate("parent");
+        const items = await Person.find({})
+            .populate({
+                path: "department",
+                populate: {
+                    path: "parent",
+                    model: "Department"
+                }
+            })
+            .populate("profession");
+
+        let itemsDto = [];
+
+        if (items && items.length) {
+            itemsDto = items.map(item => new PersonDto(item, departments));
+        }
+
+        res.json(itemsDto);
     } catch (e) {
+        console.log(e);
         res.status(500).json({message: "Ошибка при получении записей о сотрудниках"})
     }
 });
@@ -67,17 +94,28 @@ router.post("/people", checkMiddleware, async (req, res) => {
             return res.status(400).json({message: "Поле 'Наименование' должно быть заполнено"});
         }
 
-        const newItem = new Person({name, department, profession, notes});
-
-        await newItem.save();
-
-        const currentPerson = await Person.findOne({name}).populate("department").populate("profession");
-
         if (!department || !profession) {
             return res.status(400).json({message: "Заполните обязательные поля"});
         }
 
-        res.status(201).json({message: "Запись о сотруднике сохранена", item: currentPerson});
+        const newItem = new Person({name, department, profession, notes});
+
+        await newItem.save();
+
+        const departments = await Department.find({}).populate("parent");
+        const currentPerson = await Person.findOne({name})
+            .populate({
+                path: "department",
+                populate: {
+                    path: "parent",
+                    model: "Department"
+                }
+            })
+            .populate("profession");
+
+        const savedItem = new PersonDto(currentPerson, departments);
+
+        res.status(201).json({message: "Запись о сотруднике сохранена", item: savedItem});
     } catch (e) {
         res.status(500).json({message: "Ошибка при создании записи"})
     }
@@ -110,7 +148,18 @@ router.put("/people", checkMiddleware, async (req, res) => {
 
         await item.save();
 
-        let savedItem = await Person.findById({_id}).populate("department").populate("profession");
+        const departments = await Department.find({}).populate("parent");
+        const currentItem = await Person.findById({_id})
+            .populate({
+                path: "department",
+                populate: {
+                    path: "parent",
+                    model: "Department"
+                }
+            })
+            .populate("profession");
+
+        const savedItem = new PersonDto(currentItem, departments);
 
         res.status(201).json({message: "Запись о сотруднике успешно изменена", item: savedItem});
     } catch (e) {

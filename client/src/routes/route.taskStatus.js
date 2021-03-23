@@ -3,8 +3,10 @@ import {message} from "antd";
 
 import store from "../redux/store";
 import {ActionCreator} from "../redux/combineActions";
-import {request} from "../components/helpers/request.helper";
 import {TaskStatus} from "../model/TaskStatus";
+import {request} from "../helpers/functions/general.functions/request.helper";
+import {compareArrays, compareObjects} from "../helpers/functions/general.functions/compare";
+import setFieldRecord from "../helpers/mappers/general.mappers/setFieldRecord";
 
 export const TaskStatusRoute = {
     // Адрес для работы с разделом "Состояние заявок"
@@ -19,8 +21,15 @@ export const TaskStatusRoute = {
             const items = await request(this.base_url);
 
             if (items) {
-                // Записываем все записи в хранилище
-                store.dispatch(ActionCreator.ActionCreatorTask.getAllTasks(items));
+                const reduxTaskStatus = store.getState().reducerTask.tasks;
+
+                // Если массивы не равны, то обновляем хранилище redux
+                const shouldUpdate = compareArrays(items, reduxTaskStatus);
+
+                if (shouldUpdate) {
+                    // Записываем все записи в хранилище
+                    store.dispatch(ActionCreator.ActionCreatorTask.getAllTasks(items));
+                }
             }
 
             // Останавливаем спиннер загрузки данных в таблицу
@@ -46,7 +55,7 @@ export const TaskStatusRoute = {
         }
     },
     // Сохранение записи
-    save: async function (item, setLoading, onRemove, specKey) {
+    save: async function (item, setLoading, onRemove) {
         try {
             // Устанавливаем спиннер загрузки
             setLoading(true);
@@ -56,9 +65,6 @@ export const TaskStatusRoute = {
 
             // Получаем сохраненную запись
             const data = await request(this.base_url, method, item);
-
-            // Останавливаем спиннер загрузки
-            setLoading(false);
 
             if (data) {
                 // Выводим сообщение от сервера
@@ -79,10 +85,27 @@ export const TaskStatusRoute = {
                         store.dispatch(ActionCreator.ActionCreatorTask.editTask(indexTask, data.item));
                     }
                 }
+
+                // Получаем объект поля "Состояние заявки", он есть, если мы нажали на "+"
+                const replaceField = store.getState().reducerReplaceField.replaceFieldState;
+
+                if (replaceField.key) {
+                    // Обновляем поле
+                    setFieldRecord(replaceField, data.item);
+                }
             }
 
+            // Останавливаем спиннер загрузки
+            setLoading(false);
+
+            // Обнуляем объект поля "Состояние заявки" (при нажатии на "+")
+            store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldState({
+                key: null,
+                formValues: null
+            }));
+
             // Удаление текущей вкладки
-            onRemove(specKey, 'remove');
+            this.cancel(onRemove);
         } catch (e) {
             // Останавливаем спиннер загрузки
             setLoading(false);
@@ -90,17 +113,13 @@ export const TaskStatusRoute = {
 
     },
     // Удаление записи
-    delete: async function (_id, setLoadingDelete, setVisiblePopConfirm, onRemove, specKey) {
+    delete: async function (_id, setLoadingDelete, setVisiblePopConfirm, onRemove) {
         try {
             // Устанавливаем спиннер загрузки
             setLoadingDelete(true);
 
             // Удаляем запись
             const data = await request(this.base_url + _id, "DELETE");
-
-            // Останавливаем спиннер, и скрываем всплывающее окно
-            setLoadingDelete(false);
-            setVisiblePopConfirm(false);
 
             if (data) {
                 // Вывод сообщения
@@ -119,8 +138,12 @@ export const TaskStatusRoute = {
                 }
             }
 
+            // Останавливаем спиннер, и скрываем всплывающее окно
+            setLoadingDelete(false);
+            setVisiblePopConfirm(false);
+
             // Удаление текущей вкладки
-            onRemove(specKey, "remove");
+            this.cancel(onRemove);
         } catch (e) {
             // Останавливаем спиннер, и скрываем всплывающее окно
             setLoadingDelete(false);
@@ -129,9 +152,9 @@ export const TaskStatusRoute = {
 
     },
     // Нажатие на кнопку "Отмена"
-    cancel: function (onRemove, specKey) {
+    cancel: function (onRemove) {
         // Удаление текущей вкладки
-        onRemove(specKey, 'remove');
+        onRemove("taskStatusItem", "remove");
     },
     // Заполнение модели "Состояние заявок"
     fillItem: function (item) {
@@ -139,10 +162,17 @@ export const TaskStatusRoute = {
             return;
 
         // Создаем объект редактируемой записи
-        let taskItem = new TaskStatus(item.task);
-        taskItem.isNewItem = item.isNewItem;
+        const taskRecord = new TaskStatus(item.task);
+        taskRecord.isNewItem = item.isNewItem;
 
-        // Сохраняем объект редактируемой записи в хранилище
-        store.dispatch(ActionCreator.ActionCreatorTask.setRowDataTask(taskItem));
+        const reduxTaskStatusRecord = store.getState().reducerTask.rowDataTask;
+
+        // Проверяем полученный с сервера объект и объект из редакса на равенство
+        const shouldUpdate = compareObjects(taskRecord, reduxTaskStatusRecord);
+
+        if (shouldUpdate) {
+            // Сохраняем объект редактируемой записи в хранилище
+            store.dispatch(ActionCreator.ActionCreatorTask.setRowDataTask(taskRecord));
+        }
     }
 }

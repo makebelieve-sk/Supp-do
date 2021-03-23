@@ -5,9 +5,10 @@ import {Department} from "../model/Department";
 
 import store from "../redux/store";
 import {ActionCreator} from "../redux/combineActions";
-import {request} from "../components/helpers/request.helper";
-import getParents from "../components/helpers/getRowParents.helper";
-import setFieldRecord from "../components/helpers/tab.helpers/setFieldRecord";
+import {request} from "../helpers/functions/general.functions/request.helper";
+import {getParents} from "../helpers/functions/general.functions/replaceField";
+import setFieldRecord from "../helpers/mappers/general.mappers/setFieldRecord";
+import {compareArrays, compareObjects} from "../helpers/functions/general.functions/compare";
 
 export const DepartmentRoute = {
     // Адрес для работы с разделом "Подразделения"
@@ -23,13 +24,18 @@ export const DepartmentRoute = {
 
             // Устанавливаем доп. поле: полное наименование
             if (items && items.length) {
-                items.forEach(item => {
-                    if (item.parent) {
-                        item.nameWithParent = getParents(item, items) + item.name;
-                    }
-                })
+                const reduxDepartments = store.getState().reducerDepartment.departments;
 
-                store.dispatch(ActionCreator.ActionCreatorDepartment.getAllDepartments(items));
+                // Если массивы не равны, то обновляем хранилище redux
+                const shouldUpdate = compareArrays(items, reduxDepartments);
+
+                if (shouldUpdate) {
+                    items.forEach(department => {
+                        department.nameWithParent = getParents(department, items) + department.name;
+                    });
+
+                    store.dispatch(ActionCreator.ActionCreatorDepartment.getAllDepartments(items));
+                }
             }
 
             // Останавливаем спиннер загрузки данных в таблицу
@@ -55,7 +61,7 @@ export const DepartmentRoute = {
         }
     },
     // Сохранение записи
-    save: async function (item, setLoading, onRemove, specKey, departments) {
+    save: async function (item, setLoading, onRemove, departments) {
         try {
             // Устанавливаем спиннер загрузки
             setLoading(true);
@@ -65,9 +71,6 @@ export const DepartmentRoute = {
 
             // Получаем сохраненную запись
             const data = await request(this.base_url, method, item);
-
-            // Останавливаем спиннер загрузки
-            setLoading(false);
 
             if (data) {
                 // Выводим сообщение от сервера
@@ -84,9 +87,8 @@ export const DepartmentRoute = {
                     store.dispatch(ActionCreator.ActionCreatorDepartment.createDepartment(data.item));
                 } else {
                     const departments = store.getState().reducerDepartment.departments;
-                    const foundDepartment = departments.find(department => {
-                        return department._id === item._id;
-                    });
+
+                    const foundDepartment = departments.find(department => department._id === item._id);
                     const indexDepartment = departments.indexOf(foundDepartment);
 
                     if (indexDepartment >= 0 && foundDepartment) {
@@ -94,33 +96,39 @@ export const DepartmentRoute = {
                     }
                 }
 
-                // Изменение поля редактируемой записи
-                const prevActiveTab = store.getState().reducerTab.prevActiveTab;
+                // Получаем объект поля "Подразделения", он есть, если мы нажали на "+"
+                const replaceField = store.getState().reducerReplaceField.replaceFieldDepartment;
 
-                if (prevActiveTab === "personItem" || prevActiveTab === "logDOItem") {
-                    setFieldRecord(prevActiveTab, null, data.item);
+                if (replaceField.key) {
+                    // Обновляем поле
+                    setFieldRecord(replaceField, data.item);
                 }
             }
 
+            // Останавливаем спиннер загрузки
+            setLoading(false);
+
+            // Обнуляем объект поля "Подразделения" (при нажатии на "+")
+            store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldDepartment({
+                key: null,
+                formValues: null
+            }));
+
             // Удаление текущей вкладки
-            onRemove(specKey, "remove");
+            this.cancel(onRemove);
         } catch (e) {
             // Останавливаем спиннер загрузки
             setLoading(false);
         }
     },
     // Удаление записи
-    delete: async function (_id, setLoadingDelete, setVisiblePopConfirm, onRemove, specKey) {
+    delete: async function (_id, setLoadingDelete, setVisiblePopConfirm, onRemove) {
         try {
             // Устанавливаем спиннер загрузки
             setLoadingDelete(true);
 
             // Удаляем запись
             const data = await request(this.base_url + _id, "DELETE");
-
-            // Останавливаем спиннер, и скрываем всплывающее окно
-            setLoadingDelete(false);
-            setVisiblePopConfirm(false);
 
             if (data) {
                 // Вывод сообщения
@@ -129,18 +137,20 @@ export const DepartmentRoute = {
                 const departments = store.getState().reducerDepartment.departments;
 
                 // Удаляем запись из хранилища redux
-                let foundDepartment = departments.find(department => {
-                    return department._id === _id;
-                });
-                let indexDepartment = departments.indexOf(foundDepartment);
+                const foundDepartment = departments.find(department => department._id === _id);
+                const indexDepartment = departments.indexOf(foundDepartment);
 
                 if (foundDepartment && indexDepartment >= 0) {
                     store.dispatch(ActionCreator.ActionCreatorDepartment.deleteDepartment(indexDepartment));
                 }
             }
 
+            // Останавливаем спиннер, и скрываем всплывающее окно
+            setLoadingDelete(false);
+            setVisiblePopConfirm(false);
+
             // Удаление текущей вкладки
-            onRemove(specKey, 'remove');
+            this.cancel(onRemove);
         } catch (e) {
             // Останавливаем спиннер, и скрываем всплывающее окно
             setLoadingDelete(false);
@@ -148,8 +158,8 @@ export const DepartmentRoute = {
         }
     },
     // Нажатие на кнопку "Отмена"
-    cancel: function (onRemove, specKey) {
-        onRemove(specKey, 'remove');
+    cancel: function (onRemove) {
+        onRemove("departmentItem", "remove");
     },
     // Заполнение модели "Подразделения"
     fillItem: function (item) {
@@ -157,9 +167,17 @@ export const DepartmentRoute = {
             return;
 
         // Создаем объект редактируемой записи
-        let departmentItem = new Department(item.department);
-        departmentItem.isNewItem = item.isNewItem;
+        const departmentRecord = new Department(item.department);
+        departmentRecord.isNewItem = item.isNewItem;
 
-        store.dispatch(ActionCreator.ActionCreatorDepartment.setRowDataDepartment(departmentItem));
+        // Получаем запись из редакса
+        const reduxDepartmentRecord = store.getState().reducerDepartment.rowDataDepartment;
+
+        // Проверяем полученный с сервера объект и объект из редакса на равенство
+        const shouldUpdate = compareObjects(departmentRecord, reduxDepartmentRecord);
+
+        if (shouldUpdate) {
+            store.dispatch(ActionCreator.ActionCreatorDepartment.setRowDataDepartment(departmentRecord));
+        }
     }
 }

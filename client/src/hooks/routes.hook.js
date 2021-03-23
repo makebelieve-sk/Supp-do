@@ -2,10 +2,10 @@
 import React from "react";
 import {Switch, Route, Redirect} from "react-router-dom";
 
-import {MainPage} from "../components/pages/mainPage";
-import {AuthPage} from "../components/pages/authPage";
-import {RegistrationComponent} from "../components/authComponents/regComponent";
-import {ChangePasswordComponent} from "../components/authComponents/changePassword";
+import {MainPage} from "../pages/mainPage";
+import {AuthPage} from "../pages/authPage";
+import {RegistrationComponent} from "../components/auth.components/reg/reg.component";
+import {ChangePasswordComponent} from "../components/auth.components/changePassword/changePassword.component";
 
 export const useRoutes = (isAuthenticated) => {
     if (isAuthenticated) {

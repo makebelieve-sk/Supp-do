@@ -1,13 +1,14 @@
 // Создание глобального объекта ActionCreator
-import ActionCreatorProfession from "./professionSection/profession.actions";
-import ActionCreatorDepartment from "./departmentSection/department.actions";
-import ActionCreatorPerson from "./personSection/person.actions";
-import ActionCreatorTask from "./taskSection/task.actions";
-import ActionCreatorEquipmentProperty from "./equipmentPropertySection/equipmentProperty.actions";
-import ActionCreatorTab from "./tab/tab.actions";
-import ActionCreatorLoading from "./loading/loading.actions";
-import ActionCreatorEquipment from "./equipmentSection/equipment.actions";
-import ActionCreatorLogDO from "./logDOSection/logDO.actions";
+import ActionCreatorProfession from "./tabs.reducers/profession/profession.actions";
+import ActionCreatorDepartment from "./tabs.reducers/department/department.actions";
+import ActionCreatorPerson from "./tabs.reducers/person/person.actions";
+import ActionCreatorTask from "./tabs.reducers/state/task.actions";
+import ActionCreatorEquipmentProperty from "./tabs.reducers/equipmentProperty/equipmentProperty.actions";
+import ActionCreatorTab from "./general.reducers/tab/tab.actions";
+import ActionCreatorLoading from "./general.reducers/loading/loading.actions";
+import ActionCreatorEquipment from "./tabs.reducers/equipment/equipment.actions";
+import ActionCreatorLogDO from "./tabs.reducers/logDo/logDO.actions";
+import ActionCreatorReplaceField from "./general.reducers/replaceField/replaceField.actions";
 
 export const ActionCreator = {
     ActionCreatorProfession,
@@ -18,5 +19,6 @@ export const ActionCreator = {
     ActionCreatorTab,
     ActionCreatorLoading,
     ActionCreatorEquipment,
-    ActionCreatorLogDO
+    ActionCreatorLogDO,
+    ActionCreatorReplaceField
 }

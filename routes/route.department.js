@@ -1,7 +1,7 @@
 // Маршруты для подразделений
 const {Router} = require("express");
 const {check, validationResult} = require("express-validator");
-const Department = require("../models/Department");
+const Department = require("../schemes/Department");
 const router = Router();
 
 // Валидация полей раздела "Подразделения"
@@ -19,7 +19,7 @@ router.get("/departments/:id", async (req, res) => {
 
         if (_id === "-1") {
             // Создание новой записи
-            item = new Department({isCreated: true, name: "", notes: "", parent: null});
+            item = new Department({name: "", notes: "", parent: null});
         } else {
             // Редактирование существующей записи
             item = await Department.findById({_id}).populate("parent");
@@ -122,7 +122,7 @@ router.put("/departments", checkMiddleware, async (req, res) => {
 
         await item.save();
 
-        let savedItem = await Department.findById({_id}).populate("parent");
+        const savedItem = await Department.findById({_id}).populate("parent");
 
         res.status(201).json({message: "Подразделение сохранено", item: savedItem});
     } catch (e) {
@@ -135,7 +135,17 @@ router.delete("/departments/:id", async (req, res) => {
     const _id = req.params.id;
 
     try {
-        await Department.deleteOne({_id});
+        const departments = await Department.find({}).populate("parent");
+
+        if (departments && departments.length) {
+            departments.forEach(async department => {
+                if (department.parent && (department.parent._id).toString() === _id.toString()) {
+                    return res.status(400).json({message: "Невозможно удалить подразделение, т.к. у него есть подчинённые подразделения"});
+                } else {
+                    await Department.deleteOne({_id});
+                }
+            })
+        }
 
         res.status(201).json({message: "Подразделение успешно удалено"});
     } catch (e) {

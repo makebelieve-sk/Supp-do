@@ -7,7 +7,7 @@ import "moment/locale/ru";
 
 import {useRoutes} from "./hooks/routes.hook";
 import {useAuth} from "./hooks/auth.hook";
-import {AuthContext} from "./context/authContext";
+import {AuthContext} from "./context/auth.context";
 import store from "./redux/store";
 
 import "./App.css";
@@ -23,9 +23,7 @@ export default function App() {
     return (
         <Provider store={store}>
             <ConfigProvider locale={ruRU}>
-                <AuthContext.Provider value={{
-                    token, login, logout, userId, isAuthenticated, user
-                }}>
+                <AuthContext.Provider value={{token, login, logout, userId, isAuthenticated, user}}>
                     <Router>
                         {routes}
                     </Router>

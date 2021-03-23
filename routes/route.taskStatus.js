@@ -1,7 +1,7 @@
 // Маршруты для состоянии заявок
 const {Router} = require("express");
 const {check, validationResult} = require("express-validator");
-const TaskStatus = require("../models/TaskStatus");
+const TaskStatus = require("../schemes/TaskStatus");
 const router = Router();
 
 // Валидация полей раздела "Состояние заявки"

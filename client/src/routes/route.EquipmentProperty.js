@@ -4,13 +4,15 @@ import {EquipmentProperty} from "../model/EquipmentProperty";
 
 import store from "../redux/store";
 import {ActionCreator} from "../redux/combineActions";
-import {request} from "../components/helpers/request.helper";
+import {request} from "../helpers/functions/general.functions/request.helper";
+import {compareArrays, compareObjects} from "../helpers/functions/general.functions/compare";
+import setFieldRecord from "../helpers/mappers/general.mappers/setFieldRecord";
 
 export const EquipmentPropertyRoute = {
     // Адрес для работы с разделом "Характеристики оборудования"
     base_url: "/api/directory/equipment-property/",
     // Получение всех записей
-    getAll: async function (setLoading) {
+    getAll: async function () {
         try {
             // Устанавливаем спиннер загрузки данных в таблицу
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(true));
@@ -19,8 +21,15 @@ export const EquipmentPropertyRoute = {
             const items = await request(this.base_url);
 
             if (items) {
-                // Записываем все записи в хранилище
-                store.dispatch(ActionCreator.ActionCreatorEquipmentProperty.getAllEquipmentProperties(items));
+                const reduxEquipmentProperty = store.getState().reducerEquipmentProperty.equipmentProperties;
+
+                // Если массивы не равны, то обновляем хранилище redux
+                const shouldUpdate = compareArrays(items, reduxEquipmentProperty);
+
+                if (shouldUpdate) {
+                    // Записываем все записи в хранилище
+                    store.dispatch(ActionCreator.ActionCreatorEquipmentProperty.getAllEquipmentProperties(items));
+                }
             }
 
             // Останавливаем спиннер загрузки данных в таблицу
@@ -29,7 +38,6 @@ export const EquipmentPropertyRoute = {
             // Останавливаем спиннер загрузки данных в таблицу
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
             message.error("Возникла ошибка при получении характеристик оборудования: ", e);
-            setLoading(false);
         }
     },
     // Получение редактируемой записи
@@ -47,7 +55,7 @@ export const EquipmentPropertyRoute = {
         }
     },
     // Сохранение записи
-    save: async function (item, setLoading, onRemove, specKey) {
+    save: async function (item, setLoading, onRemove) {
         try {
             // Устанавливаем спиннер загрузки
             setLoading(true);
@@ -57,9 +65,6 @@ export const EquipmentPropertyRoute = {
 
             // Получаем сохраненную запись
             const data = await request(this.base_url, method, item);
-
-            // Останавливаем спиннер загрузки
-            setLoading(false);
 
             if (data) {
                 // Выводим сообщение от сервера
@@ -80,27 +85,41 @@ export const EquipmentPropertyRoute = {
                         store.dispatch(ActionCreator.ActionCreatorEquipmentProperty.editEquipmentProperty(indexEquipmentProperty, data.item));
                     }
                 }
+
+                // Получаем объект поля "Характеристика оборудования", он есть, если мы нажали на "+"
+                const replaceField = store.getState().reducerReplaceField.replaceFieldEquipmentProperty;
+
+                if (replaceField.key) {
+                    // Обновляем поле
+                    setFieldRecord(replaceField, data.item);
+                }
             }
 
+            // Останавливаем спиннер загрузки
+            setLoading(false);
+
+            // Обнуляем объект поля "Характеристика оборудования" (при нажатии на "+")
+            store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldEquipmentProperty({
+                key: null,
+                formValues: null,
+                index: null
+            }));
+
             // Удаление текущей вкладки
-            onRemove(specKey, 'remove');
+            this.cancel(onRemove);
         } catch (e) {
             // Останавливаем спиннер загрузки
             setLoading(false);
         }
     },
     // Удаление записи
-    delete: async function (_id, setLoadingDelete, setVisiblePopConfirm, onRemove, specKey) {
+    delete: async function (_id, setLoadingDelete, setVisiblePopConfirm, onRemove) {
         try {
             // Устанавливаем спиннер загрузки
             setLoadingDelete(true);
 
             // Удаляем запись
             const data = await request(this.base_url + _id, "DELETE");
-
-            // Останавливаем спиннер, и скрываем всплывающее окно
-            setLoadingDelete(false);
-            setVisiblePopConfirm(false);
 
             if (data) {
                 // Вывод сообщения
@@ -119,8 +138,12 @@ export const EquipmentPropertyRoute = {
                 }
             }
 
+            // Останавливаем спиннер, и скрываем всплывающее окно
+            setLoadingDelete(false);
+            setVisiblePopConfirm(false);
+
             // Удаление текущей вкладки
-            onRemove(specKey, "remove");
+            this.cancel(onRemove);
         } catch (e) {
             // Останавливаем спиннер, и скрываем всплывающее окно
             setLoadingDelete(false);
@@ -128,8 +151,8 @@ export const EquipmentPropertyRoute = {
         }
     },
     // Нажатие на кнопку "Отмена"
-    cancel: function (onRemove, specKey) {
-        onRemove(specKey, 'remove');
+    cancel: function (onRemove) {
+        onRemove("equipmentPropertyItem", "remove");
     },
     // Заполнение модели "Характеристики оборудования"
     fillItem: function (item) {
@@ -137,10 +160,17 @@ export const EquipmentPropertyRoute = {
             return;
 
         // Создаем объект редактируемой записи
-        let equipmentPropertyItem = new EquipmentProperty(item.equipmentProperty);
-        equipmentPropertyItem.isNewItem = item.isNewItem;
+        const equipmentPropertyRecord = new EquipmentProperty(item.equipmentProperty);
+        equipmentPropertyRecord.isNewItem = item.isNewItem;
 
-        // Сохраняем объект редактируемой записи в хранилище
-        store.dispatch(ActionCreator.ActionCreatorEquipmentProperty.setRowDataEquipmentProperty(equipmentPropertyItem));
+        const reduxEquipmentPropertyRecord = store.getState().reducerEquipmentProperty.equipmentProperties;
+
+        // Проверяем полученный с сервера объект и объект из редакса на равенство
+        const shouldUpdate = compareObjects(equipmentPropertyRecord, reduxEquipmentPropertyRecord);
+
+        if (shouldUpdate) {
+            // Сохраняем объект редактируемой записи в хранилище
+            store.dispatch(ActionCreator.ActionCreatorEquipmentProperty.setRowDataEquipmentProperty(equipmentPropertyRecord));
+        }
     }
 }

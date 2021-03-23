@@ -3,7 +3,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require('jsonwebtoken');
 const config = require("../config/default.json");
 const {check, validationResult} = require("express-validator");
-const User = require("../models/User");
+const User = require("../schemes/User");
 const router = Router();
 
 // Валидация полей авторизации

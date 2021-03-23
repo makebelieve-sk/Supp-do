@@ -1,10 +1,12 @@
 // Методы модели "Профессии"
-import {request} from "../components/helpers/request.helper";
+import {message} from "antd";
+
+import {Profession} from "../model/Profession";
 import store from "../redux/store";
 import {ActionCreator} from "../redux/combineActions";
-import {message} from "antd";
-import {Profession} from "../model/Profession";
-import setFieldRecord from "../components/helpers/tab.helpers/setFieldRecord";
+import {request} from "../helpers/functions/general.functions/request.helper";
+import {compareArrays, compareObjects} from "../helpers/functions/general.functions/compare";
+import setFieldRecord from "../helpers/mappers/general.mappers/setFieldRecord";
 
 export const ProfessionRoute = {
     // Адрес для работы с разделом "Профессии"
@@ -19,8 +21,15 @@ export const ProfessionRoute = {
             const items = await request(this.base_url);
 
             if (items) {
-                // Записываем все профессии в хранилище
-                store.dispatch(ActionCreator.ActionCreatorProfession.getAllProfessions(items));
+                const reduxProfessions = store.getState().reducerProfession.professions;
+
+                // Если массивы не равны, то обновляем хранилище redux
+                const shouldUpdate = compareArrays(items, reduxProfessions);
+
+                if (shouldUpdate) {
+                    // Записываем все профессии в хранилище
+                    store.dispatch(ActionCreator.ActionCreatorProfession.getAllProfessions(items));
+                }
             }
 
             // Останавливаем спиннер загрузки данных в таблицу
@@ -46,7 +55,7 @@ export const ProfessionRoute = {
         }
     },
     // Сохранение профессии
-    save: async function (item, setLoading, onRemove, specKey) {
+    save: async function (item, setLoading, onRemove) {
         try {
             // Устанавливаем спиннер загрузки
             setLoading(true);
@@ -56,9 +65,6 @@ export const ProfessionRoute = {
 
             // Получаем сохраненную запись
             const data = await request(this.base_url, method, item);
-
-            // Останавливаем спиннер загрузки
-            setLoading(false);
 
             if (data) {
                 // Выводим сообщение от сервера
@@ -70,9 +76,8 @@ export const ProfessionRoute = {
                     store.dispatch(ActionCreator.ActionCreatorProfession.createProfession(data.item));
                 } else {
                     const professions = store.getState().reducerProfession.professions;
-                    const foundProfession = professions.find(profession => {
-                        return profession._id === item._id;
-                    });
+
+                    const foundProfession = professions.find(profession => profession._id === item._id);
                     const indexProfession = professions.indexOf(foundProfession);
 
                     if (indexProfession >= 0 && foundProfession) {
@@ -80,16 +85,26 @@ export const ProfessionRoute = {
                     }
                 }
 
-                // Изменение поля редактируемой записи
-                const prevActiveTab = store.getState().reducerTab.prevActiveTab;
+                // Получаем объект поля "Профессии", он есть, если мы нажали на "+"
+                const replaceField = store.getState().reducerReplaceField.replaceFieldProfession;
 
-                if (prevActiveTab === "personItem" || prevActiveTab === "logDOItem") {
-                    setFieldRecord(prevActiveTab, data.item);
+                if (replaceField.key) {
+                    // Обновляем поле
+                    setFieldRecord(replaceField, data.item);
                 }
             }
 
+            // Останавливаем спиннер загрузки
+            setLoading(false);
+
+            // Обнуляем объект поля "Профессии" (при нажатии на "+")
+            store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldProfession({
+                key: null,
+                formValues: null
+            }));
+
             // Удаление текущей вкладки
-            onRemove(specKey, "remove");
+            this.cancel(onRemove);
         } catch (e) {
             // Останавливаем спиннер загрузки
             setLoading(false);
@@ -97,17 +112,13 @@ export const ProfessionRoute = {
 
     },
     // Удаление профессии
-    delete: async function (_id, setLoadingDelete, setVisiblePopConfirm, onRemove, specKey) {
+    delete: async function (_id, setLoadingDelete, setVisiblePopConfirm, onRemove) {
         try {
             // Устанавливаем спиннер загрузки
             setLoadingDelete(true);
 
             // Удаляем запись
             const data = await request(this.base_url + _id, "DELETE");
-
-            // Останавливаем спиннер, и скрываем всплывающее окно
-            setLoadingDelete(false);
-            setVisiblePopConfirm(false);
 
             if (data) {
                 // Вывод сообщения
@@ -117,18 +128,20 @@ export const ProfessionRoute = {
                 const professions = store.getState().reducerProfession.professions;
 
                 // Удаляем запись из хранилища redux
-                let foundProfession = professions.find(profession => {
-                    return profession._id === _id;
-                });
-                let indexProfession = professions.indexOf(foundProfession);
+                const foundProfession = professions.find(profession => profession._id === _id);
+                const indexProfession = professions.indexOf(foundProfession);
 
                 if (foundProfession && indexProfession >= 0) {
                     store.dispatch(ActionCreator.ActionCreatorProfession.deleteProfession(indexProfession));
                 }
             }
 
+            // Останавливаем спиннер, и скрываем всплывающее окно
+            setLoadingDelete(false);
+            setVisiblePopConfirm(false);
+
             // Удаление текущей вкладки
-            onRemove(specKey, 'remove');
+            this.cancel(onRemove)
         } catch (e) {
             // Останавливаем спиннер, и скрываем всплывающее окно
             setLoadingDelete(false);
@@ -137,9 +150,9 @@ export const ProfessionRoute = {
 
     },
     // Нажатие на кнопку "Отмена"
-    cancel: function (onRemove, specKey) {
+    cancel: function (onRemove) {
         // Удаление текущей вкладки
-        onRemove(specKey, 'remove');
+        onRemove("professionItem", "remove");
     },
     // Заполнение модели "Профессия"
     fillItem: function (item) {
@@ -147,10 +160,17 @@ export const ProfessionRoute = {
             return;
 
         // Создаем объект редактируемой записи
-        let professionItem = new Profession(item.profession);
-        professionItem.isNewItem = item.isNewItem;
+        const professionRecord = new Profession(item.profession);
+        professionRecord.isNewItem = item.isNewItem;
 
-        // Сохраняем объект редактируемой записи в хранилище
-        store.dispatch(ActionCreator.ActionCreatorProfession.setRowDataProfession(professionItem));
+        const reduxProfessionRecord = store.getState().reducerProfession.rowDataProfession;
+
+        // Проверяем полученный с сервера объект и объект из редакса на равенство
+        const shouldUpdate = compareObjects(professionRecord, reduxProfessionRecord);
+
+        if (shouldUpdate) {
+            // Сохраняем объект редактируемой записи в хранилище
+            store.dispatch(ActionCreator.ActionCreatorProfession.setRowDataProfession(professionRecord));
+        }
     }
 }

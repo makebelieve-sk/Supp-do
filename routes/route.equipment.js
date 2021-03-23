@@ -1,9 +1,9 @@
 // Маршруты для "Перечень оборудования"
 const {Router} = require("express");
 const {check, validationResult} = require("express-validator");
-const Equipment = require("../models/Equipment");
-const EquipmentProperty = require("../models/EquipmentProperty");
-const File = require("../models/File");
+const Equipment = require("../schemes/Equipment");
+const EquipmentProperty = require("../schemes/EquipmentProperty");
+const File = require("../schemes/File");
 const router = Router();
 
 // Валидация полей раздела "Оборудование"
@@ -208,7 +208,17 @@ router.delete('/equipment/:id', async (req, res) => {
     const _id = req.params.id;
 
     try {
-        await Equipment.deleteOne({_id});
+        const equipment = await Equipment.find({}).populate("parent");
+
+        if (equipment && equipment.length) {
+            equipment.forEach(async eq => {
+                if (eq.parent && (eq.parent._id).toString() === _id.toString()) {
+                    return res.status(400).json({message: "Невозможно удалить оборудование, т.к. у него есть дочернее оборудование"});
+                } else {
+                    await Equipment.deleteOne({_id});
+                }
+            })
+        }
 
         res.status(201).json({message: "Запись успешно удалена"});
     } catch (e) {
