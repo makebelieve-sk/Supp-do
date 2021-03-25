@@ -20,19 +20,14 @@ export const SiderComponent = ({collapsed}) => {
 
     return (
         <Layout.Sider trigger={null} collapsible collapsed={collapsed} width={300}>
-            <div className="logo">
-                <img
-                    src={logo}
-                    alt="Лого"
-                    className="logo-image"
-                    onClick={() => OpenTableTab(
-                        "Журнал дефектов и отказов",
-                        "logDO",
-                        "log-do",
-                        ActionCreator.ActionCreatorLogDO.getAllLogDO,
-                        LogDORoute
-                    )}
-                />
+            <div className="logo" onClick={() => OpenTableTab(
+                "Журнал дефектов и отказов",
+                "logDO",
+                "log-do",
+                ActionCreator.ActionCreatorLogDO.getAllLogDO,
+                LogDORoute
+            )}>
+                <img src={logo} alt="Лого" className="logo-image"/>
 
                 {collapsed ? null : "СУПП ДО"}
             </div>

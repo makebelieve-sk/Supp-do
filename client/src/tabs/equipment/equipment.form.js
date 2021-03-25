@@ -152,7 +152,7 @@ export const EquipmentForm = ({item}) => {
 
                                         const foundEquipment = equipment.find(eq => eq._id === value);
 
-                                        form.setFieldsValue({parent: foundEquipment._id,});
+                                        form.setFieldsValue({parent: foundEquipment ? foundEquipment._id : null});
                                     }}
                                 />
                             </Form.Item>

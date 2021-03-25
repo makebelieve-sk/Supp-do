@@ -109,7 +109,7 @@ export const PersonForm = ({item}) => {
 
                                             const foundDepartment = departments.find(department => department._id === _id);
 
-                                            form.setFieldsValue({department: foundDepartment._id});
+                                            form.setFieldsValue({department: foundDepartment ? foundDepartment._id : null});
                                         }}
                                     />
                                 </Form.Item>
@@ -145,7 +145,7 @@ export const PersonForm = ({item}) => {
 
                                             const foundProfession = professions.find(profession => profession._id === _id);
 
-                                            form.setFieldsValue({profession: foundProfession._id});
+                                            form.setFieldsValue({profession: foundProfession ? foundProfession._id : null});
                                         }}
                                     />
                                 </Form.Item>

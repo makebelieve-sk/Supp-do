@@ -1,7 +1,8 @@
 // Создание колонок таблиц
 import React from "react";
-import {Tooltip} from "antd";
-import {CheckOutlined} from "@ant-design/icons";
+import {Button, Input, Space, Tooltip} from "antd";
+import {CheckOutlined, SearchOutlined} from "@ant-design/icons";
+import Highlighter from "react-highlight-words";
 
 // Создание колонок для раздела "Профессии"
 const ProfessionColumns = [
@@ -178,23 +179,63 @@ const EquipmentColumns = [
     }
 ];
 
+// Создание рефов для текстовых полей поиска
+const refDate = React.createRef();
+const refEquipment = React.createRef();
+const refNotes = React.createRef();
+const refApplicant = React.createRef();
+const refResponsible = React.createRef();
+const refDepartment = React.createRef();
+const refTask = React.createRef();
+const refState = React.createRef();
+const refPlanDateDone = React.createRef();
+const refDateDone = React.createRef();
+const refContent = React.createRef();
+
 // Создание колонок для раздела "Журнал дефектов и отказов"
 const LogDOColumns = [
     {
         title: "Дата заявки",
         dataIndex: "date",
         key: "date",
-        width: 110,
+        width: 100,
         sorter: (a, b) => a.date > b.date,
         sortDirections: ["descend", "ascend"],
-        render(text, record) {
-            return {
-                props: {
-                    style: {background: record.color},
-                },
-                children: text,
-            };
-        },
+        filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}) => (
+            <div style={{padding: 8}}>
+                <Input
+                    ref={refDate}
+                    placeholder="Поиск по дате"
+                    value={selectedKeys[0]}
+                    onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                    onPressEnter={confirm}
+                    style={{width: 188, marginBottom: 8, display: "block"}}
+                />
+                <Space>
+                    <Button type="primary" onClick={confirm} icon={<SearchOutlined/>} size="small" style={{width: 90}}>
+                        Найти
+                    </Button>
+
+                    <Button onClick={clearFilters} size="small" style={{width: 90}}>
+                        Сбросить
+                    </Button>
+                </Space>
+            </div>
+        ),
+        filterIcon: filtered => <SearchOutlined style={{color: filtered ? "#1890ff" : undefined}}/>,
+        onFilter: (value, record) => record["date"].toString().toLowerCase().includes(value.toLowerCase()),
+        onFilterDropdownVisibleChange: visible =>
+            visible ? setTimeout(() => refDate.current.select(), 100) : null,
+        render: (text, record) => ({
+            props: {style: {background: record.color}},
+            children: refDate.current && refDate.current.props.value && refDate.current.props.value.length ?
+                <Highlighter
+                    highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+                    searchWords={[refDate.current.props.value]}
+                    autoEscape
+                    textToHighlight={text ? text.toString() : ""}
+                /> : text,
+        })
     },
     {
         title: "Оборудование",
@@ -203,14 +244,41 @@ const LogDOColumns = [
         width: 120,
         sorter: (a, b) => a.equipment.length - b.equipment.length,
         sortDirections: ["descend", "ascend"],
-        render(text, record) {
-            return {
-                props: {
-                    style: {background: record.color},
-                },
-                children: <Tooltip placement="topLeft" title={record.equipmentTooltip}>{text}</Tooltip>,
-            };
-        }
+        filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}) => (
+            <div style={{padding: 8}}>
+                <Input
+                    ref={refEquipment}
+                    placeholder="Поиск по оборудованию"
+                    value={selectedKeys[0]}
+                    onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                    onPressEnter={confirm}
+                    style={{width: 188, marginBottom: 8, display: "block"}}
+                />
+                <Space>
+                    <Button type="primary" onClick={confirm} icon={<SearchOutlined/>} size="small" style={{width: 90}}>
+                        Найти
+                    </Button>
+
+                    <Button onClick={clearFilters} size="small" style={{width: 90}}>
+                        Сбросить
+                    </Button>
+                </Space>
+            </div>
+        ),
+        filterIcon: filtered => <SearchOutlined style={{color: filtered ? "#1890ff" : undefined}}/>,
+        onFilter: (value, record) => record["equipment"].toString().toLowerCase().includes(value.toLowerCase()),
+        onFilterDropdownVisibleChange: visible =>
+            visible ? setTimeout(() => refEquipment.current.select(), 100) : null,
+        render: (text, record) => ({
+            props: {style: {background: record.color}},
+            children: refEquipment.current && refEquipment.current.props.value && refEquipment.current.props.value.length ?
+                <Highlighter
+                    highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+                    searchWords={[refEquipment.current.props.value]}
+                    autoEscape
+                    textToHighlight={text ? text.toString() : ""}
+                /> : <Tooltip placement="topLeft" title={record.equipmentTooltip}>{text}</Tooltip>,
+        })
     },
     {
         title: "Описание",
@@ -220,46 +288,127 @@ const LogDOColumns = [
         sorter: (a, b) => a.notes.length - b.notes.length,
         sortDirections: ["descend", "ascend"],
         ellipsis: {showTitle: false},
-        render(text, record) {
-            return {
-                props: {
-                    style: {background: record.color},
-                },
-                children: <Tooltip placement="topLeft" title={text}>{text}</Tooltip>,
-            };
-        },
+        filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}) => (
+            <div style={{padding: 8}}>
+                <Input
+                    ref={refNotes}
+                    placeholder="Поиск по описанию"
+                    value={selectedKeys[0]}
+                    onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                    onPressEnter={confirm}
+                    style={{width: 188, marginBottom: 8, display: "block"}}
+                />
+                <Space>
+                    <Button type="primary" onClick={confirm} icon={<SearchOutlined/>} size="small" style={{width: 90}}>
+                        Найти
+                    </Button>
+
+                    <Button onClick={clearFilters} size="small" style={{width: 90}}>
+                        Сбросить
+                    </Button>
+                </Space>
+            </div>
+        ),
+        filterIcon: filtered => <SearchOutlined style={{color: filtered ? "#1890ff" : undefined}}/>,
+        onFilter: (value, record) => record["notes"].toString().toLowerCase().includes(value.toLowerCase()),
+        onFilterDropdownVisibleChange: visible =>
+            visible ? setTimeout(() => refNotes.current.select(), 100) : null,
+        render: (text, record) => ({
+            props: {style: {background: record.color}},
+            children: refNotes.current && refNotes.current.props.value && refNotes.current.props.value.length ?
+                <Highlighter
+                    highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+                    searchWords={[refNotes.current.props.value]}
+                    autoEscape
+                    textToHighlight={text ? text.toString() : ""}
+                /> : <Tooltip placement="topLeft" title={text}>{text}</Tooltip>,
+        })
     },
     {
         title: "Заявитель",
         dataIndex: "applicant",
         key: "applicant",
-        width: 100,
+        width: 110,
         sorter: (a, b) => a.applicant.length - b.applicant.length,
         sortDirections: ["descend", "ascend"],
-        render(text, record) {
-            return {
-                props: {
-                    style: {background: record.color},
-                },
-                children: text,
-            };
-        },
+        filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}) => (
+            <div style={{padding: 8}}>
+                <Input
+                    ref={refApplicant}
+                    placeholder="Поиск по заявителям"
+                    value={selectedKeys[0]}
+                    onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                    onPressEnter={confirm}
+                    style={{width: 188, marginBottom: 8, display: "block"}}
+                />
+                <Space>
+                    <Button type="primary" onClick={confirm} icon={<SearchOutlined/>} size="small" style={{width: 90}}>
+                        Найти
+                    </Button>
+
+                    <Button onClick={clearFilters} size="small" style={{width: 90}}>
+                        Сбросить
+                    </Button>
+                </Space>
+            </div>
+        ),
+        filterIcon: filtered => <SearchOutlined style={{color: filtered ? "#1890ff" : undefined}}/>,
+        onFilter: (value, record) => record["applicant"].toString().toLowerCase().includes(value.toLowerCase()),
+        onFilterDropdownVisibleChange: visible =>
+            visible ? setTimeout(() => refApplicant.current.select(), 100) : null,
+        render: (text, record) => ({
+            props: {style: {background: record.color}},
+            children: refApplicant.current && refApplicant.current.props.value && refApplicant.current.props.value.length ?
+                <Highlighter
+                    highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+                    searchWords={[refApplicant.current.props.value]}
+                    autoEscape
+                    textToHighlight={text ? text.toString() : ""}
+                /> : text,
+        })
     },
     {
         title: "Исполнитель",
         dataIndex: "responsible",
         key: "responsible",
-        width: 120,
+        width: 110,
         sorter: (a, b) => a.responsible.length - b.responsible.length,
         sortDirections: ["descend", "ascend"],
-        render(text, record) {
-            return {
-                props: {
-                    style: {background: record.color},
-                },
-                children: text,
-            };
-        },
+        filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}) => (
+            <div style={{padding: 8}}>
+                <Input
+                    ref={refResponsible}
+                    placeholder="Поиск по заявителям"
+                    value={selectedKeys[0]}
+                    onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                    onPressEnter={confirm}
+                    style={{width: 188, marginBottom: 8, display: "block"}}
+                />
+                <Space>
+                    <Button type="primary" onClick={confirm} icon={<SearchOutlined/>} size="small" style={{width: 90}}>
+                        Найти
+                    </Button>
+
+                    <Button onClick={clearFilters} size="small" style={{width: 90}}>
+                        Сбросить
+                    </Button>
+                </Space>
+            </div>
+        ),
+        filterIcon: filtered => <SearchOutlined style={{color: filtered ? "#1890ff" : undefined}}/>,
+        onFilter: (value, record) => record["responsible"].toString().toLowerCase().includes(value.toLowerCase()),
+        onFilterDropdownVisibleChange: visible =>
+            visible ? setTimeout(() => refResponsible.current.select(), 100) : null,
+        render: (text, record) => ({
+            props: {style: {background: record.color}},
+            children: refResponsible.current && refResponsible.current.props.value && refResponsible.current.props.value.length ?
+                <Highlighter
+                    highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+                    searchWords={[refResponsible.current.props.value]}
+                    autoEscape
+                    textToHighlight={text ? text.toString() : ""}
+                /> : text,
+        })
     },
     {
         title: "Подразделение",
@@ -268,31 +417,85 @@ const LogDOColumns = [
         width: 120,
         sorter: (a, b) => a.department.length - b.department.length,
         sortDirections: ["descend", "ascend"],
-        render(text, record) {
-            return {
-                props: {
-                    style: {background: record.color},
-                },
-                children: <Tooltip placement="topLeft" title={record.departmentTooltip}>{text}</Tooltip>,
-            };
-        }
+        filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}) => (
+            <div style={{padding: 8}}>
+                <Input
+                    ref={refDepartment}
+                    placeholder="Поиск по заявителям"
+                    value={selectedKeys[0]}
+                    onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                    onPressEnter={confirm}
+                    style={{width: 188, marginBottom: 8, display: "block"}}
+                />
+                <Space>
+                    <Button type="primary" onClick={confirm} icon={<SearchOutlined/>} size="small" style={{width: 90}}>
+                        Найти
+                    </Button>
+
+                    <Button onClick={clearFilters} size="small" style={{width: 90}}>
+                        Сбросить
+                    </Button>
+                </Space>
+            </div>
+        ),
+        filterIcon: filtered => <SearchOutlined style={{color: filtered ? "#1890ff" : undefined}}/>,
+        onFilter: (value, record) => record["department"].toString().toLowerCase().includes(value.toLowerCase()),
+        onFilterDropdownVisibleChange: visible =>
+            visible ? setTimeout(() => refDepartment.current.select(), 100) : null,
+        render: (text, record) => ({
+            props: {style: {background: record.color}},
+            children: refDepartment.current && refDepartment.current.props.value && refDepartment.current.props.value.length ?
+                <Highlighter
+                    highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+                    searchWords={[refDepartment.current.props.value]}
+                    autoEscape
+                    textToHighlight={text ? text.toString() : ""}
+                /> : <Tooltip placement="topLeft" title={record.departmentTooltip}>{text}</Tooltip>,
+        })
     },
     {
         title: "Задание",
         dataIndex: "task",
         key: "task",
-        width: 90,
+        width: 110,
         ellipsis: {showTitle: false},
         sorter: (a, b) => a.task.length - b.task.length,
         sortDirections: ["descend", "ascend"],
-        render(text, record) {
-            return {
-                props: {
-                    style: {background: record.color},
-                },
-                children: <Tooltip placement="topLeft" title={text}>{text}</Tooltip>,
-            };
-        },
+        filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}) => (
+            <div style={{padding: 8}}>
+                <Input
+                    ref={refTask}
+                    placeholder="Поиск по заявителям"
+                    value={selectedKeys[0]}
+                    onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                    onPressEnter={confirm}
+                    style={{width: 188, marginBottom: 8, display: "block"}}
+                />
+                <Space>
+                    <Button type="primary" onClick={confirm} icon={<SearchOutlined/>} size="small" style={{width: 90}}>
+                        Найти
+                    </Button>
+
+                    <Button onClick={clearFilters} size="small" style={{width: 90}}>
+                        Сбросить
+                    </Button>
+                </Space>
+            </div>
+        ),
+        filterIcon: filtered => <SearchOutlined style={{color: filtered ? "#1890ff" : undefined}}/>,
+        onFilter: (value, record) => record["task"].toString().toLowerCase().includes(value.toLowerCase()),
+        onFilterDropdownVisibleChange: visible =>
+            visible ? setTimeout(() => refTask.current.select(), 100) : null,
+        render: (text, record) => ({
+            props: {style: {background: record.color}},
+            children: refTask.current && refTask.current.props.value && refTask.current.props.value.length ?
+                <Highlighter
+                    highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+                    searchWords={[refTask.current.props.value]}
+                    autoEscape
+                    textToHighlight={text ? text.toString() : ""}
+                /> : <Tooltip placement="topLeft" title={record.departmentTooltip}>{text}</Tooltip>,
+        })
     },
     {
         title: "Состояние",
@@ -301,14 +504,41 @@ const LogDOColumns = [
         width: 110,
         sorter: (a, b) => a.state.length - b.state.length,
         sortDirections: ["descend", "ascend"],
-        render(text, record) {
-            return {
-                props: {
-                    style: {background: record.color},
-                },
-                children: text,
-            };
-        },
+        filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}) => (
+            <div style={{padding: 8}}>
+                <Input
+                    ref={refState}
+                    placeholder="Поиск по заявителям"
+                    value={selectedKeys[0]}
+                    onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                    onPressEnter={confirm}
+                    style={{width: 188, marginBottom: 8, display: "block"}}
+                />
+                <Space>
+                    <Button type="primary" onClick={confirm} icon={<SearchOutlined/>} size="small" style={{width: 90}}>
+                        Найти
+                    </Button>
+
+                    <Button onClick={clearFilters} size="small" style={{width: 90}}>
+                        Сбросить
+                    </Button>
+                </Space>
+            </div>
+        ),
+        filterIcon: filtered => <SearchOutlined style={{color: filtered ? "#1890ff" : undefined}}/>,
+        onFilter: (value, record) => record["state"].toString().toLowerCase().includes(value.toLowerCase()),
+        onFilterDropdownVisibleChange: visible =>
+            visible ? setTimeout(() => refState.current.select(), 100) : null,
+        render: (text, record) => ({
+            props: {style: {background: record.color}},
+            children: refState.current && refState.current.props.value && refState.current.props.value.length ?
+                <Highlighter
+                    highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+                    searchWords={[refState.current.props.value]}
+                    autoEscape
+                    textToHighlight={text ? text.toString() : ""}
+                /> : text,
+        })
     },
     {
         title: "Планируемая дата выполнения",
@@ -317,14 +547,41 @@ const LogDOColumns = [
         width: 120,
         sorter: (a, b) => a.planDateDone.length - b.planDateDone.length,
         sortDirections: ["descend", "ascend"],
-        render(text, record) {
-            return {
-                props: {
-                    style: {background: record.color},
-                },
-                children: text,
-            };
-        },
+        filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}) => (
+            <div style={{padding: 8}}>
+                <Input
+                    ref={refPlanDateDone}
+                    placeholder="Поиск по заявителям"
+                    value={selectedKeys[0]}
+                    onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                    onPressEnter={confirm}
+                    style={{width: 188, marginBottom: 8, display: "block"}}
+                />
+                <Space>
+                    <Button type="primary" onClick={confirm} icon={<SearchOutlined/>} size="small" style={{width: 90}}>
+                        Найти
+                    </Button>
+
+                    <Button onClick={clearFilters} size="small" style={{width: 90}}>
+                        Сбросить
+                    </Button>
+                </Space>
+            </div>
+        ),
+        filterIcon: filtered => <SearchOutlined style={{color: filtered ? "#1890ff" : undefined}}/>,
+        onFilter: (value, record) => record["planDateDone"].toString().toLowerCase().includes(value.toLowerCase()),
+        onFilterDropdownVisibleChange: visible =>
+            visible ? setTimeout(() => refPlanDateDone.current.select(), 100) : null,
+        render: (text, record) => ({
+            props: {style: {background: record.color}},
+            children: refPlanDateDone.current && refPlanDateDone.current.props.value && refPlanDateDone.current.props.value.length ?
+                <Highlighter
+                    highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+                    searchWords={[refPlanDateDone.current.props.value]}
+                    autoEscape
+                    textToHighlight={text ? text.toString() : ""}
+                /> : text,
+        })
     },
     {
         title: "Дата выполнения",
@@ -333,14 +590,41 @@ const LogDOColumns = [
         width: 120,
         sorter: (a, b) => a.dateDone.length - b.dateDone.length,
         sortDirections: ["descend", "ascend"],
-        render(text, record) {
-            return {
-                props: {
-                    style: {background: record.color},
-                },
-                children: text,
-            };
-        },
+        filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}) => (
+            <div style={{padding: 8}}>
+                <Input
+                    ref={refDateDone}
+                    placeholder="Поиск по заявителям"
+                    value={selectedKeys[0]}
+                    onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                    onPressEnter={confirm}
+                    style={{width: 188, marginBottom: 8, display: "block"}}
+                />
+                <Space>
+                    <Button type="primary" onClick={confirm} icon={<SearchOutlined/>} size="small" style={{width: 90}}>
+                        Найти
+                    </Button>
+
+                    <Button onClick={clearFilters} size="small" style={{width: 90}}>
+                        Сбросить
+                    </Button>
+                </Space>
+            </div>
+        ),
+        filterIcon: filtered => <SearchOutlined style={{color: filtered ? "#1890ff" : undefined}}/>,
+        onFilter: (value, record) => record["dateDone"].toString().toLowerCase().includes(value.toLowerCase()),
+        onFilterDropdownVisibleChange: visible =>
+            visible ? setTimeout(() => refDateDone.current.select(), 100) : null,
+        render: (text, record) => ({
+            props: {style: {background: record.color}},
+            children: refDateDone.current && refDateDone.current.props.value && refDateDone.current.props.value.length ?
+                <Highlighter
+                    highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+                    searchWords={[refDateDone.current.props.value]}
+                    autoEscape
+                    textToHighlight={text ? text.toString() : ""}
+                /> : text,
+        })
     },
     {
         title: "Содержание работ",
@@ -350,16 +634,41 @@ const LogDOColumns = [
         ellipsis: {showTitle: false},
         sorter: (a, b) => a.content.length - b.content.length,
         sortDirections: ["descend", "ascend"],
-        render(text, record) {
-            return {
-                props: {
-                    style: {background: record.color},
-                },
-                children: <Tooltip placement="topLeft" title={text}>
-                    {text}
-                </Tooltip>,
-            };
-        },
+        filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}) => (
+            <div style={{padding: 8}}>
+                <Input
+                    ref={refContent}
+                    placeholder="Поиск по заявителям"
+                    value={selectedKeys[0]}
+                    onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                    onPressEnter={confirm}
+                    style={{width: 188, marginBottom: 8, display: "block"}}
+                />
+                <Space>
+                    <Button type="primary" onClick={confirm} icon={<SearchOutlined/>} size="small" style={{width: 90}}>
+                        Найти
+                    </Button>
+
+                    <Button onClick={clearFilters} size="small" style={{width: 90}}>
+                        Сбросить
+                    </Button>
+                </Space>
+            </div>
+        ),
+        filterIcon: filtered => <SearchOutlined style={{color: filtered ? "#1890ff" : undefined}}/>,
+        onFilter: (value, record) => record["content"].toString().toLowerCase().includes(value.toLowerCase()),
+        onFilterDropdownVisibleChange: visible =>
+            visible ? setTimeout(() => refContent.current.select(), 100) : null,
+        render: (text, record) => ({
+            props: {style: {background: record.color}},
+            children: refContent.current && refContent.current.props.value && refContent.current.props.value.length ?
+                <Highlighter
+                    highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+                    searchWords={[refContent.current.props.value]}
+                    autoEscape
+                    textToHighlight={text ? text.toString() : ""}
+                /> : <Tooltip placement="topLeft" title={text}>{text}</Tooltip>,
+        })
     }
 ];
 

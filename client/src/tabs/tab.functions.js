@@ -17,7 +17,7 @@ const getOptions = (items) => {
         })
     }
 
-    return valuesToOptions;
+    return valuesToOptions.sort((a, b) => a.value < b.value);
 };
 
 // Компонент кнопок записи
@@ -111,8 +111,6 @@ const dropdownRender = (open, setLoadingSelect, setOptions, key) => {
         setOptions(getOptions(items));
 
         setLoadingSelect(false);
-
-        console.log("Ререндер выпадающего списка")
     }
 }
 

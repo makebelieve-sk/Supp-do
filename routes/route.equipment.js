@@ -86,7 +86,7 @@ router.post("/equipment", checkMiddleware, async (req, res) => {
             }
         }
 
-        if (name === "" || !name) {
+        if (!name) {
             return res.status(400).json({message: "Поле 'Наименование' должно быть заполнено"});
         }
 
@@ -140,6 +140,8 @@ router.put("/equipment", checkMiddleware, async (req, res) => {
 
         const {_id, name, notes, parent, properties, files} = req.body;
         const item = await Equipment.findById({_id});
+        const equipment = await Equipment.find({}).populate("parent");
+
         let resFileArr = [];
 
         if (!item) {
@@ -152,8 +154,32 @@ router.put("/equipment", checkMiddleware, async (req, res) => {
 
         if (parent) {
             if (name === parent.name) {
-                return res.status(400).json({message: "Объект не может принадлежать сам себе"});
+                return res.status(400).json({message: "Отдел не может принадлежать сам себе"});
             }
+        }
+
+        item.parent = parent;
+
+        if (parent) {
+            const checkCycl = (parent) => {
+                if (parent && parent.parent) {
+                    if (parent.parent._id.toString() === _id.toString()) {
+                        item.parent = null;
+                        return res.status(400).json({message: "Отдел не может принадлежать сам себе (циклическая ссылка)"});
+                    } else {
+                        const parentItem = equipment.find(eq => eq._id.toString() === parent.parent._id.toString());
+
+                        // Вызов рекурсии с найденным родителем
+                        checkCycl(parentItem ? parentItem : null);
+                    }
+                }
+            }
+
+            // Объект, установленный в качестве родителя
+            const equipmentWithParent = equipment.find(eq => eq._id.toString() === parent._id.toString());
+
+            // Вызов рекурсии с объектом, установленным в качестве родителя
+            checkCycl(equipmentWithParent);
         }
 
         if (files && files.length >= 0) {
@@ -184,7 +210,6 @@ router.put("/equipment", checkMiddleware, async (req, res) => {
             }
         });
 
-        item.parent = parent;
         item.name = name;
         item.notes = notes;
         item.properties = properties;
@@ -211,14 +236,14 @@ router.delete('/equipment/:id', async (req, res) => {
         const equipment = await Equipment.find({}).populate("parent");
 
         if (equipment && equipment.length) {
-            equipment.forEach(async eq => {
-                if (eq.parent && (eq.parent._id).toString() === _id.toString()) {
+            for (let i = 0; i < equipment.length; i++) {
+                if (equipment[i].parent && equipment[i].parent._id.toString() === _id.toString()) {
                     return res.status(400).json({message: "Невозможно удалить оборудование, т.к. у него есть дочернее оборудование"});
-                } else {
-                    await Equipment.deleteOne({_id});
                 }
-            })
+            }
         }
+
+        await Equipment.deleteOne({_id});
 
         res.status(201).json({message: "Запись успешно удалена"});
     } catch (e) {

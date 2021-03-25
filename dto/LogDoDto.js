@@ -20,10 +20,10 @@ class LogDoDto {
         this.content = logDo.content ? logDo.content : "";
 
         this.equipmentTooltip = equipment && equipment.length ? logDo.equipment && logDo.equipment.parent ?
-            getNameWithParent(logDo.equipment, equipment) + logDo.equipment.name : "" : logDo.equipment.name;
+            getNameWithParent(logDo.equipment, equipment) + logDo.equipment.name : "" : "";
 
         this.departmentTooltip = departments && departments.length ? logDo.department && logDo.department.parent ?
-            getNameWithParent(logDo.department, departments) + logDo.department.name : "" : logDo.department.name;
+            getNameWithParent(logDo.department, departments) + logDo.department.name : "" : "";
 
         this.color = logDo.state ? logDo.state.color : "#FFFFFF";
     }

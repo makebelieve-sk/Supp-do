@@ -9,8 +9,8 @@ class PersonDto {
         this.department = person.department ? person.department.name : "";
         this.profession = person.profession ? person.profession.name : "";
 
-        this.departmentTooltip = departments && departments.length ? person.department && person.department.parent ?
-            getNameWithParent(person.department, departments) + person.department.name : "" : person.department.name;
+        this.departmentTooltip = departments && departments.length && person.department && person.department.parent ?
+            getNameWithParent(person.department, departments) + person.department.name : "";
 
         this.departmentId = person.department ? person.department._id : null;
     }

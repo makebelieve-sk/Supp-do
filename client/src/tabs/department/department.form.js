@@ -32,7 +32,9 @@ export const DepartmentForm = ({item}) => {
 
     // При обновлении item устанавливаем форме начальные значения
     useEffect(() => {
-        setDepartments(item.parent ? [{label: item.parent.name, value: item.parent._id}] : emptyDropdown);
+        const departments = store.getState().reducerDepartment.departments;
+
+        setDepartments(item.parent ? [{label: getParents(item.parent, departments) + item.parent.name, value: item.parent._id}] : emptyDropdown);
 
         form.setFieldsValue({
             _id: item._id,
@@ -87,7 +89,7 @@ export const DepartmentForm = ({item}) => {
 
                                 const foundDepartment = departments.find(department => department._id === value);
 
-                                form.setFieldsValue({department: foundDepartment._id});
+                                form.setFieldsValue({department: foundDepartment ? foundDepartment._id : null});
                             }}
                         />
                     </Form.Item>

@@ -15,7 +15,7 @@ function getNameWithParent(item, items) {
             retVal = concat(getNameWithParent(item.parent, items), retVal);
         } else {
             //Случай, когда родитель содержит только код
-            let parent = items.find(p => p._id === item.parent);
+            const parent = items.find(p => p._id.toString() === item.parent.toString());
 
             if (parent) {
                 retVal = concat(parent.name, retVal);
@@ -49,14 +49,14 @@ function getShortName(name = null) {
         let retVal = fio[0];
 
         if (fio[1]) {
-            retVal += " " + fio[1][0] + ".";
+            retVal += " " + fio[1][0].toUpperCase() + ".";
         }
 
         if (fio[2]) {
-            retVal += " " + fio[2][0] + ".";
+            retVal += " " + fio[2][0].toUpperCase() + ".";
         }
 
-        return retVal;
+        return retVal[0].toUpperCase() + retVal.slice(1);
     }
 }
 

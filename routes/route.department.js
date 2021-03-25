@@ -101,12 +101,13 @@ router.put("/departments", checkMiddleware, async (req, res) => {
 
         const {_id, name, notes, parent} = req.body;
         const item = await Department.findById({_id}).populate("parent");
+        const departments = await Department.find({}).populate("parent");
 
         if (!item) {
             return res.status(400).json({message: `Подразделение с кодом ${_id} не найдено`});
         }
 
-        if (name === "" || !name) {
+        if (!name) {
             return res.status(400).json({message: "Поле 'Наименование' должно быть заполнено"});
         }
 
@@ -117,6 +118,29 @@ router.put("/departments", checkMiddleware, async (req, res) => {
         }
 
         item.parent = parent;
+
+        if (parent) {
+            const checkCycl = (parent) => {
+                if (parent && parent.parent) {
+                    if (parent.parent._id.toString() === _id.toString()) {
+                        item.parent = null;
+                        return res.status(400).json({message: "Отдел не может принадлежать сам себе (циклическая ссылка)"});
+                    } else {
+                        const parentItem = departments.find(department => department._id.toString() === parent.parent._id.toString());
+
+                        // Вызов рекурсии с найденным родителем
+                        checkCycl(parentItem ? parentItem : null);
+                    }
+                }
+            }
+
+            // Объект, установленный в качестве родителя
+            const departmentWithParent = departments.find(department => department._id.toString() === parent._id.toString());
+
+            // Вызов рекурсии с объектом, установленным в качестве родителя
+            checkCycl(departmentWithParent);
+        }
+
         item.name = name;
         item.notes = notes;
 
@@ -126,7 +150,8 @@ router.put("/departments", checkMiddleware, async (req, res) => {
 
         res.status(201).json({message: "Подразделение сохранено", item: savedItem});
     } catch (e) {
-        res.status(500).json({message: "Ошибка при обновлении  подразделения"})
+        console.log(e)
+        res.status(500).json({message: "Ошибка при обновлении подразделения"})
     }
 });
 
@@ -138,14 +163,14 @@ router.delete("/departments/:id", async (req, res) => {
         const departments = await Department.find({}).populate("parent");
 
         if (departments && departments.length) {
-            departments.forEach(async department => {
-                if (department.parent && (department.parent._id).toString() === _id.toString()) {
-                    return res.status(400).json({message: "Невозможно удалить подразделение, т.к. у него есть подчинённые подразделения"});
-                } else {
-                    await Department.deleteOne({_id});
+            for (let i = 0; i < departments.length; i++) {
+                if (departments[i].parent && departments[i].parent._id.toString() === _id.toString()) {
+                    return res.status(400).json({message: "Невозможно удалить оборудование, т.к. у него есть дочернее оборудование"});
                 }
-            })
+            }
         }
+
+        await Department.deleteOne({_id});
 
         res.status(201).json({message: "Подразделение успешно удалено"});
     } catch (e) {

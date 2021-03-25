@@ -141,6 +141,10 @@
 .ant-card-body {
     padding: 20px;
 }
+/* класс, убирающий иконку сортировки*/
+.card-dto-logDo .ant-table-column-sorter {
+    display: none;
+}
 .card-dto-logDo .ant-card-body {
     padding: 10px !important;
 }

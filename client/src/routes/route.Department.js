@@ -43,7 +43,8 @@ export const DepartmentRoute = {
         } catch (e) {
             // Останавливаем спиннер загрузки данных в таблицу
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
-            message.error("Возникла ошибка при получении характеристик оборудования: ", e);
+            message.error("Возникла ошибка при получении подразделений: ", e);
+            console.log(e)
         }
     },
     // Получение редактируемой записи

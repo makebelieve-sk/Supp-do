@@ -83,7 +83,7 @@ export const TableComponent = ({specKey}) => {
         });
     }
 
-    // Экспорт данных
+    // Реализация экспорта
     const onExport = () => data && data.length > 0 ?
         tableSettings.export(data, specKey) : message.error("Записи в таблице отсутствуют");
 
@@ -96,8 +96,6 @@ export const TableComponent = ({specKey}) => {
         // Записываем текущий диапазон даты в хранилище
         dispatch(ActionCreator.ActionCreatorLogDO.setDate(date));
     }
-
-    // console.log(`Обновление таблицы ${specKey} с данными ${Array.from(filteredItems)}`)
 
     return (
         <>

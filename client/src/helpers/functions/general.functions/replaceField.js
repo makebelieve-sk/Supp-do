@@ -67,14 +67,14 @@ const helper = (name) => {
     let retVal = fio[0];
 
     if (fio[1]) {
-        retVal += " " + fio[1][0] + ".";
+        retVal += " " + fio[1][0].toUpperCase() + ".";
     }
 
     if (fio[2]) {
-        retVal += " " + fio[2][0] + ".";
+        retVal += " " + fio[2][0].toUpperCase() + ".";
     }
 
-    return retVal;
+    return retVal[0].toUpperCase() + retVal.slice(1);
 }
 
 export {getParents, getShortName, getShortNameRecord};

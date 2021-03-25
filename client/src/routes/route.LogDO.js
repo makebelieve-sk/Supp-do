@@ -43,6 +43,7 @@ export const LogDORoute = {
             // Останавливаем спиннер загрузки данных в таблицу
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
             message.error("Возникла ошибка при получении записей журнала дефектов и отказов: ", e);
+            console.log(e)
         }
     },
     // Получение записи
