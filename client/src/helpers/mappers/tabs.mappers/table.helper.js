@@ -38,6 +38,7 @@ import {EquipmentTab} from "../../../tabs/equipment/equipment.edit";
 import {LogDOTab} from "../../../tabs/logDo/logDO.edit";
 
 import openRecord from "../../functions/tabs.functions/openRecordTab";
+import store from "../../../redux/store";
 
 // Карта соответствия ключей и вкладок, колонок и заголовков экспорта
 const map = new Map([
@@ -51,7 +52,9 @@ const map = new Map([
             ProfessionRoute
         ),
         getColumns: ProfessionColumns,
-        getExportHeader: headerProfession
+        getTableHeader: headerProfession,
+        getPrintName: "Профессии",
+        getPrintData: () => store.getState().reducerProfession.professions
     }],
     ["departments", {
         openRecordTab: (_id) => openRecord(
@@ -63,7 +66,9 @@ const map = new Map([
             DepartmentRoute
         ),
         getColumns: DepartmentColumns,
-        getExportHeader: headerDepartment
+        getTableHeader: headerDepartment,
+        getPrintName: "Подразделения",
+        getPrintData: () => store.getState().reducerDepartment.departments
     }],
     ["people", {
         openRecordTab: (_id) => openRecord(
@@ -75,7 +80,9 @@ const map = new Map([
             PersonRoute
         ),
         getColumns: PersonColumns,
-        getExportHeader: headerPerson
+        getTableHeader: headerPerson,
+        getPrintName: "Персонал",
+        getPrintData: () => store.getState().reducerPerson.people
     }],
     ["tasks", {
         openRecordTab: (_id) => openRecord(
@@ -87,7 +94,9 @@ const map = new Map([
             TaskStatusRoute
         ),
         getColumns: TasksColumns,
-        getExportHeader: headerTasks
+        getTableHeader: headerTasks,
+        getPrintName: "Состояния заявок",
+        getPrintData: () => store.getState().reducerTask.tasks
     }],
     ["equipmentProperties", {
         openRecordTab: (_id) => openRecord(
@@ -99,7 +108,9 @@ const map = new Map([
             EquipmentPropertyRoute
         ),
         getColumns: EquipmentPropertyColumns,
-        getExportHeader: headerEquipmentProperty
+        getTableHeader: headerEquipmentProperty,
+        getPrintName: "Характеристики оборудования",
+        getPrintData: () => store.getState().reducerEquipmentProperty.equipmentProperties
     }],
     ["equipment", {
         openRecordTab: (_id) => openRecord(
@@ -111,7 +122,9 @@ const map = new Map([
             EquipmentRoute
         ),
         getColumns: EquipmentColumns,
-        getExportHeader: headerEquipment
+        getTableHeader: headerEquipment,
+        getPrintName: "Перечень оборудования",
+        getPrintData: () => store.getState().reducerEquipment.equipment
     }],
     ["logDO", {
         openRecordTab: (_id) => openRecord(
@@ -123,7 +136,9 @@ const map = new Map([
             LogDORoute
         ),
         getColumns: LogDOColumns,
-        getExportHeader: headerLogDO
+        getTableHeader: headerLogDO,
+        getPrintName: "Журнал дефектов и отказов",
+        getPrintData: () => store.getState().reducerLogDO.logDO
     }],
 ]);
 
@@ -152,24 +167,38 @@ const getColumns = (key) => {
     if (map.has(key)) {
         return map.get(key).getColumns;
     } else {
-        message.error(`Раздел с ключём ${key} не существует (создание колонок)`)
-            .then(null);
+        message.error(`Раздел с ключём ${key} не существует (создание колонок)`).then(null);
     }
 };
 
 /**
- * Фукнция получения заголовка таблицы
- * @param key - ключ раздела
- * @returns строку заголовка таблицы
+ * Функция получения шапки таблицы
+ * @param key - ключ таблицы
+ * @returns строку шапки таблицы
  * @constructor
  */
-const getExportHeader = (key) => {
+const getTableHeader = (key) => {
     if (map.has(key)) {
-        return map.get(key).getExportHeader;
+        return map.get(key).getTableHeader;
     } else {
-        message.error(`Раздел с ключём ${key} не существует (создание заголовков экспорта)`)
-            .then(null);
+        message.error(`Раздел с ключём ${key} не существует (создание заголовков экспорта)`).then(null);
     }
 };
 
-export {openRecordTab, getColumns, getExportHeader}
+/**
+ * Функция наименования файла и данных для печати таблицы
+ * @param key - ключ таблицы
+ * @returns объект с наименоваием файла и данными для печати таблицы
+ */
+const getPrintTable = (key) => {
+    if (map.has(key)) {
+        return {
+            name: map.get(key).getPrintName,
+            getData: map.get(key).getPrintData,
+        };
+    } else {
+        message.error(`Раздел с ключём ${key} не существует (создание заголовков экспорта)`).then(null);
+    }
+};
+
+export {openRecordTab, getColumns, getTableHeader, getPrintTable}

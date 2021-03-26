@@ -1,4 +1,4 @@
-import {getExportHeader} from "../../../helpers/mappers/tabs.mappers/table.helper";
+import {getTableHeader} from "../../../helpers/mappers/tabs.mappers/table.helper";
 import {getFilteredData} from "../../global.options/global.options";
 
 // Экспорт в эксель
@@ -20,7 +20,7 @@ const downloadCSV = (array, name) => {
 const convertArrayOfObjectsToCSV = (array, name) => {
     let result;
 
-    const headerDataTable = getExportHeader(name);
+    const headerDataTable = getTableHeader(name);
 
     const columnDelimiter = ",";
     const lineDelimiter = "\n";

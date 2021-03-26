@@ -162,8 +162,23 @@ const getFilteredData = (data) => {
     return data.filter(key => {
         return key !== "_id" && key !== "key" && key !== "__v" && key !== "files" && key !== "isFinish" &&
             key !== "sendEmail" && key !== "productionCheck" && key !== "downtime" && key !== "acceptTask" &&
-            key !== "equipmentTooltip" && key !== "departmentTooltip" && key !== "color";
+            key !== "equipmentTooltip" && key !== "departmentTooltip" && key !== "color" && key !== "departmentId" &&
+            key !== "equipmentId";
     });
 }
 
-export {menuItems, getFilteredData};
+/**
+ * Функция фильтрации полей массива данных для печати
+ * @param data - массив данных
+ * @returns массив данных с отфильтрованными полями
+ */
+const getPrintFilteredData = (data) => {
+    return data.filter(key => {
+        return key !== "_id" && key !== "key" && key !== "__v" && key !== "files" &&
+            key !== "sendEmail" && key !== "productionCheck" && key !== "downtime" && key !== "acceptTask" &&
+            key !== "equipmentTooltip" && key !== "departmentTooltip" && key !== "color" && key !== "departmentId" &&
+            key !== "equipmentId";
+    });
+}
+
+export {menuItems, getFilteredData, getPrintFilteredData};

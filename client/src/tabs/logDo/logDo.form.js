@@ -291,7 +291,7 @@ export const LogDoForm = ({item}) => {
                                                             const foundResponsible = people.find(person => person._id === value);
 
                                                             const foundDepartment = departments.find(department => {
-                                                                if (foundResponsible.department) {
+                                                                if (foundResponsible && foundResponsible.department) {
                                                                     return department._id === foundResponsible.departmentId;
                                                                 } else {
                                                                     return null;
@@ -301,15 +301,20 @@ export const LogDoForm = ({item}) => {
                                                             // Устанавливаем значение в выпадающий список
                                                             if (foundDepartment) {
                                                                 setDepartments([{
-                                                                    label: foundDepartment.name,
+                                                                    label: getParents(foundDepartment, departments) + foundDepartment.name,
                                                                     value: foundDepartment._id
+                                                                }])
+                                                            } else {
+                                                                setDepartments([{
+                                                                    label: "Не выбрано",
+                                                                    value: null
                                                                 }])
                                                             }
 
                                                             form.setFieldsValue({
                                                                 responsible: foundResponsible,
                                                                 responsibleId: value,
-                                                                department: foundDepartment,
+                                                                department: foundDepartment ? foundDepartment : null,
                                                                 departmentId: foundDepartment ? foundDepartment._id : null
                                                             });
                                                         }}
