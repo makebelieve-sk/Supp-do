@@ -12,14 +12,17 @@ export default class PrintTable extends React.Component {
         const headersTable = headers ? headers.split(", ") : null;
 
         return (
-            <div style={{padding: 15}}>
+            <div style={{padding: 10}}>
                 <h3 style={{textAlign: "center"}}>{name}</h3>
 
                 <table style={{fontSize: 10, width: "100%"}}>
                     <thead>
                         <tr>
                             {headersTable.map((header, index) =>
-                                <th key={`${header}-${index}`} style={{textAlign: "center"}}>{header}</th>)}
+                                <th key={`${header}-${index}`} style={{border: "1px solid black", textAlign: "center"}}>
+                                    {header}
+                                </th>
+                            )}
                         </tr>
                     </thead>
                     <tbody>
@@ -31,7 +34,6 @@ export default class PrintTable extends React.Component {
 
                                     // Фильтруем нужные для печати поля
                                     const filteredDataKeys = getPrintFilteredData(cellsArray);
-                                    // console.log(filteredDataKeys)
 
                                     return <tr key={`${record}-${index}`}>
                                         {filteredDataKeys.map(key => {
@@ -39,7 +41,7 @@ export default class PrintTable extends React.Component {
                                                 record[key] = record[key] ? <CheckOutlined/> : "";
                                             }
 
-                                            return <td key={`${key}`} style={{textAlign: "center", padding: 0, margin: 0}}>
+                                            return <td key={`${key}`} style={{border: "1px solid black", textAlign: "center", padding: 0, margin: 0}}>
                                                 {record[key]}
                                             </td>
                                         })}

@@ -73,7 +73,7 @@ router.post("/departments", checkMiddleware, async (req, res) => {
             }
         }
 
-        const newItem = new Department({parent, name, notes});
+        const newItem = new Department({name, notes, parent});
         await newItem.save();
 
         let currentDepartment;

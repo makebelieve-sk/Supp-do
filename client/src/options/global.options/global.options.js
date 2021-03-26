@@ -177,7 +177,7 @@ const getPrintFilteredData = (data) => {
         return key !== "_id" && key !== "key" && key !== "__v" && key !== "files" &&
             key !== "sendEmail" && key !== "productionCheck" && key !== "downtime" && key !== "acceptTask" &&
             key !== "equipmentTooltip" && key !== "departmentTooltip" && key !== "color" && key !== "departmentId" &&
-            key !== "equipmentId";
+            key !== "equipmentId" && key !== "parent" && key !== "properties" && key !== "nameWithParent";
     });
 }
 
