@@ -4,16 +4,17 @@ import ReactToPrint from "react-to-print";
 import {Button} from "antd";
 import {PrinterOutlined} from "@ant-design/icons";
 
-import PrintTable from "../../../options/tab.options/table.options/print-table";
-import {getPrintTable} from "../../../helpers/mappers/tabs.mappers/table.helper";
+import PrintEquipment from "./equipment/equipment.print";
+import {getPrintRecord} from "../helpers/mappers/tabs.mappers/printRecord";
+import PrintLogDO from "./logDo/logDO.print";
 
-export default class PrintButton extends React.Component {
+export default class PrintButtonRecord extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
             name: "",
-            data: null,
+            record: null,
             display: "none"
         };
     };
@@ -23,8 +24,8 @@ export default class PrintButton extends React.Component {
             <div>
                 <ReactToPrint
                     documentTitle={this.state.name}
-                    trigger={() => <Button className="button-style" icon={<PrinterOutlined/>} size="middle">Печать</Button>}
-                    content={() => this.tableRef}
+                    trigger={() => <Button className="button-style" type="secondary" icon={<PrinterOutlined/>}>Печать</Button>}
+                    content={() => this.recordRef}
                     onBeforePrint={() => {
                         setTimeout(() => this.setState({display: "block"}), 500);
 
@@ -36,22 +37,21 @@ export default class PrintButton extends React.Component {
                         return Promise.resolve();
                     }}
                     onBeforeGetContent={() => {
-                        const {name, getData} = getPrintTable(this.props.specKey);
+                        const {name, getRecord} = getPrintRecord(this.props.specKey);
 
                         // Обновляем состояние данных таблицы
-                        this.setState({name, data: getData()});
+                        this.setState({name, record: getRecord()});
 
                         return Promise.resolve();
                     }}
                 />
 
                 <div style={{position: "absolute", display: this.state.display, opacity: 0}}>
-                    <PrintTable
-                        ref={el => this.tableRef = el}
-                        headers={this.props.headers}
-                        data={this.state.data}
-                        name={this.state.name}
-                    />
+                    {
+                        this.props.specKey === "equipmentItem"
+                            ? <PrintEquipment ref={el => this.recordRef = el} record={this.state.record}/>
+                            : <PrintLogDO ref={el => this.recordRef = el} record={this.state.record}/>
+                    }
                 </div>
             </div>
         )

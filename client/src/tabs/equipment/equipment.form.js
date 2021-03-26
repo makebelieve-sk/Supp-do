@@ -187,6 +187,7 @@ export const EquipmentForm = ({item}) => {
                         deleteHandler={deleteHandler}
                         cancelHandler={cancelHandler}
                         loadingCancel={loadingCancel}
+                        specKey="equipmentItem"
                     />
                 </Form>
             }

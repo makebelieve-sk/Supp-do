@@ -197,7 +197,7 @@ const getPrintTable = (key) => {
             getData: map.get(key).getPrintData,
         };
     } else {
-        message.error(`Раздел с ключём ${key} не существует (создание заголовков экспорта)`).then(null);
+        message.error(`Раздел с ключём ${key} не существует (печать таблицы)`).then(null);
     }
 };
 

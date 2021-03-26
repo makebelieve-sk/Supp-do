@@ -1,8 +1,10 @@
 // Помощник по созданию вкладки записи
 import React, {useState} from "react";
 import {Button, message, Popconfirm, Row} from "antd";
-import {CheckOutlined, DeleteOutlined, PrinterOutlined, QuestionCircleOutlined, StopOutlined} from "@ant-design/icons";
+import {CheckOutlined, DeleteOutlined, QuestionCircleOutlined, StopOutlined} from "@ant-design/icons";
+
 import store from "../redux/store";
+import PrintButtonRecord from "./printButtonRecord";
 
 // Получение выпадающего списка
 const getOptions = (items) => {
@@ -21,7 +23,7 @@ const getOptions = (items) => {
 };
 
 // Компонент кнопок записи
-const TabButtons = ({loadingSave, item, deleteHandler, cancelHandler, loadingCancel = false}) => (
+const TabButtons = ({loadingSave, item, deleteHandler, cancelHandler, loadingCancel = false, specKey = null}) => (
     <Row justify="end" style={{marginTop: 20}} xs={{gutter: [8, 8]}}>
         <Button
             className="button-style"
@@ -33,7 +35,7 @@ const TabButtons = ({loadingSave, item, deleteHandler, cancelHandler, loadingCan
             Сохранить
         </Button>
 
-        {CheckTypeTab(item, deleteHandler)}
+        {CheckTypeTab(item, deleteHandler, specKey)}
 
         <Button
             className="button-style"
@@ -48,7 +50,7 @@ const TabButtons = ({loadingSave, item, deleteHandler, cancelHandler, loadingCan
 )
 
 // Компонент кнопок редактирования записи
-const CheckTypeTab = (item, deleteHandler) => {
+const CheckTypeTab = (item, deleteHandler, specKey = null) => {
     const [loadingDelete, setLoadingDelete] = useState(false);
     const [visiblePopConfirm, setVisiblePopConfirm] = useState(false);
 
@@ -72,14 +74,8 @@ const CheckTypeTab = (item, deleteHandler) => {
                     Удалить
                 </Button>
             </Popconfirm>
-            <Button
-                className="button-style"
-                type="secondary"
-                onClick={() => alert("Печать")}
-                icon={<PrinterOutlined/>}
-            >
-                Печать
-            </Button>
+
+            {specKey ? <PrintButtonRecord specKey={specKey} /> : null}
         </> : null;
 }
 

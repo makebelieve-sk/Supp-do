@@ -493,6 +493,7 @@ export const LogDoForm = ({item}) => {
                         deleteHandler={deleteHandler}
                         cancelHandler={cancelHandler}
                         loadingCancel={loadingCancel}
+                        specKey="logDOItem"
                     />
                 </Form>
             }
