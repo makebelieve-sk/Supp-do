@@ -1,0 +1,5 @@
+const GET_ALL_ANALYTIC = "GET_ALL_ANALYTIC";
+
+export {
+    GET_ALL_ANALYTIC,
+}

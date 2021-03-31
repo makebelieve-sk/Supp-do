@@ -169,6 +169,10 @@ export const LogDoForm = ({item}) => {
                                             <Col xs={{span: 18}} sm={{span: 18}} md={{span: 20}} lg={{span: 20}} xl={{span: 20}}>
                                                 <Form.Item name="applicantId" noStyle>
                                                     <Select
+                                                        showSearch
+                                                        filterOption={(input, option) =>
+                                                            option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                                        }
                                                         options={applicant}
                                                         onDropdownVisibleChange={open => dropdownRender(open, setLoadingApplicant, setApplicant, "people")}
                                                         loading={loadingApplicant}
@@ -214,6 +218,10 @@ export const LogDoForm = ({item}) => {
                                     <Col xs={{span: 21}} sm={{span: 21}} md={{span: 22}} lg={{span: 22}} xl={{span: 22}}>
                                         <Form.Item name="equipmentId" noStyle>
                                             <Select
+                                                showSearch
+                                                filterOption={(input, option) =>
+                                                    option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                                }
                                                 options={equipment}
                                                 onDropdownVisibleChange={open => dropdownRender(open, setLoadingEquipment, setEquipment, "equipment")}
                                                 loading={loadingEquipment}
@@ -281,6 +289,10 @@ export const LogDoForm = ({item}) => {
                                             <Col xs={{span: 18}} sm={{span: 18}} md={{span: 20}} lg={{span: 20}} xl={{span: 20}}>
                                                 <Form.Item noStyle name="responsibleId">
                                                     <Select
+                                                        showSearch
+                                                        filterOption={(input, option) =>
+                                                            option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                                        }
                                                         options={responsible}
                                                         loading={loadingResponsible}
                                                         onDropdownVisibleChange={open => dropdownRender(open, setLoadingResponsible, setResponsible, "people")}
@@ -345,6 +357,10 @@ export const LogDoForm = ({item}) => {
                                             <Col xs={{span: 18}} sm={{span: 18}} md={{span: 20}} lg={{span: 20}} xl={{span: 20}}>
                                                 <Form.Item noStyle name="departmentId">
                                                     <Select
+                                                        showSearch
+                                                        filterOption={(input, option) =>
+                                                            option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                                        }
                                                         options={departments}
                                                         loading={loadingDepartment}
                                                         onDropdownVisibleChange={open => dropdownRender(open, setLoadingDepartment, setDepartments, "departments")}
@@ -393,6 +409,10 @@ export const LogDoForm = ({item}) => {
                                     <Col xs={{span: 21}} sm={{span: 21}} md={{span: 22}} lg={{span: 22}} xl={{span: 22}}>
                                         <Form.Item noStyle name="stateId">
                                             <Select
+                                                showSearch
+                                                filterOption={(input, option) =>
+                                                    option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                                }
                                                 options={state}
                                                 loading={loadingState}
                                                 onDropdownVisibleChange={open => dropdownRender(open, setLoadingState, setState, "state")}

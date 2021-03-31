@@ -35,6 +35,10 @@ export const CharacteristicComponent = ({equipmentPropertyToOptions, dropdownRen
                                             initialValue={null}
                                         >
                                             <Select
+                                                showSearch
+                                                filterOption={(input, option) =>
+                                                    option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                                }
                                                 onClick={() => addRowProperty(index, add, fields)}
                                                 options={equipmentPropertyToOptions}
                                                 onDropdownVisibleChange={open => dropdownRender(open, setLoadingSelectCharacteristics, setEquipmentPropertyToOptions, "equipmentProperty")}

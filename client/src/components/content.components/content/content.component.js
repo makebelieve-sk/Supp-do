@@ -1,11 +1,11 @@
 // Компонент ContentComponent, отвечающий за показ вкладок и их содержимого
-import React from "react";
+import React, {useEffect} from "react";
 import {useSelector} from "react-redux";
 import {message, Tabs} from "antd";
 
-import {ActionCreator} from "../../../../redux/combineActions";
-import {DeleteTabContext} from "../../../../context/deleteTab.context";
-import store from "../../../../redux/store";
+import {ActionCreator} from "../../../redux/combineActions";
+import {DeleteTabContext} from "../../../context/deleteTab.context";
+import store from "../../../redux/store";
 
 import "./content.css";
 
@@ -57,15 +57,22 @@ export const ContentComponent = () => {
         store.dispatch(ActionCreator.ActionCreatorTab.setActiveKey(activeKey));
     }
 
-    return tabs && tabs.length > 0 ?
-        <DeleteTabContext.Provider value={onRemove}>
-            <Tabs hideAdd onChange={onChange} activeKey={activeKey} type="editable-card" onEdit={onRemove}>
-                {tabs.map(tab => (
-                    <Tabs.TabPane tab={tab.title} key={tab.key}>
-                        {<tab.content specKey={tab.key}/>}
-                    </Tabs.TabPane>
-                ))}
-            </Tabs>
-        </DeleteTabContext.Provider> :
-        <div style={{textAlign: "center", padding: 10}}>Нет открытых вкладок.</div>
+    // Отключаем возможность удалить первую вкладку
+    useEffect(() => {
+        if (tabs && tabs.length === 1) {
+            const button = document.querySelector(".ant-tabs-tab-remove");
+
+            if (button) button.style.display = "none";
+        }
+    }, [tabs]);
+
+    return <DeleteTabContext.Provider value={onRemove}>
+        <Tabs hideAdd onChange={onChange} activeKey={activeKey} type="editable-card" onEdit={onRemove} tabPosition="top">
+            {tabs.map(tab => (
+                <Tabs.TabPane tab={tab.title} key={tab.key}>
+                    {<tab.content specKey={tab.key}/>}
+                </Tabs.TabPane>
+            ))}
+        </Tabs>
+        </DeleteTabContext.Provider>
 }

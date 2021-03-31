@@ -11,6 +11,8 @@ import reducerLoading from "./general.reducers/loading/loading.reducer";
 import reducerEquipment from "./tabs.reducers/equipment/equipment.reducer";
 import reducerLogDO from "./tabs.reducers/logDo/logDO.reducer";
 import reducerReplaceField from "./general.reducers/replaceField/replaceField.reducer";
+import reducerAnalytic from "./tabs.reducers/analytic/analytic.reducer";
+import reducerStatistic from "./tabs.reducers/statistic/statistic.reducer";
 
 export const reducer = combineReducers({
     reducerProfession,
@@ -22,5 +24,7 @@ export const reducer = combineReducers({
     reducerLoading,
     reducerEquipment,
     reducerLogDO,
-    reducerReplaceField
+    reducerReplaceField,
+    reducerAnalytic,
+    reducerStatistic
 });

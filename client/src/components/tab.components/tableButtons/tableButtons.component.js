@@ -5,7 +5,7 @@ import {PlusOutlined, FileExcelOutlined, EditOutlined} from "@ant-design/icons";
 import {getColumns, getTableHeader, openRecordTab} from "../../../helpers/mappers/tabs.mappers/table.helper";
 import PrintButton from "./printButton";
 
-import "./tabsButtons.css";
+import "./tableButtons.css";
 
 export const ButtonsComponent = ({specKey, onExport, setColumnsTable}) => {
     // Получение колонок и шапки таблицы
@@ -60,10 +60,8 @@ export const ButtonsComponent = ({specKey, onExport, setColumnsTable}) => {
                 {columns.map(column => {
                     return (
                         <Menu.Item key={column.key + "-checkbox"}>
-                            <Checkbox
-                                id={column.key}
-                                onChange={onChange}
-                                defaultChecked>{column.title}
+                            <Checkbox id={column.key} onChange={onChange} defaultChecked>
+                                {column.title}
                             </Checkbox>
                         </Menu.Item>
                     )

@@ -9,6 +9,8 @@ import ActionCreatorLoading from "./general.reducers/loading/loading.actions";
 import ActionCreatorEquipment from "./tabs.reducers/equipment/equipment.actions";
 import ActionCreatorLogDO from "./tabs.reducers/logDo/logDO.actions";
 import ActionCreatorReplaceField from "./general.reducers/replaceField/replaceField.actions";
+import ActionCreatorAnalytic from "./tabs.reducers/analytic/analytic.actions";
+import ActionCreatorStatistic from "./tabs.reducers/statistic/statistic.actions";
 
 export const ActionCreator = {
     ActionCreatorProfession,
@@ -20,5 +22,7 @@ export const ActionCreator = {
     ActionCreatorLoading,
     ActionCreatorEquipment,
     ActionCreatorLogDO,
-    ActionCreatorReplaceField
+    ActionCreatorReplaceField,
+    ActionCreatorAnalytic,
+    ActionCreatorStatistic,
 }

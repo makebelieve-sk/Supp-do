@@ -101,6 +101,10 @@ export const PersonForm = ({item}) => {
                             <Col xs={{span: 21}} sm={{span: 21}} md={{span: 22}} lg={{span: 22}} xl={{span: 22}}>
                                 <Form.Item name="department" noStyle>
                                     <Select
+                                        showSearch
+                                        filterOption={(input, option) =>
+                                            option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                        }
                                         options={departmentsOptions}
                                         onDropdownVisibleChange={open => dropdownRender(open, setLoadingDepartment, setDepartmentsOptions, "departments")}
                                         loading={loadingDepartment}
@@ -137,6 +141,10 @@ export const PersonForm = ({item}) => {
                             <Col xs={{span: 21}} sm={{span: 21}} md={{span: 22}} lg={{span: 22}} xl={{span: 22}}>
                                 <Form.Item name="profession" noStyle>
                                     <Select
+                                        showSearch
+                                        filterOption={(input, option) =>
+                                            option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                        }
                                         options={professionsOptions}
                                         onDropdownVisibleChange={open => dropdownRender(open, setLoadingSelectProfession, setProfessionsOptions, "professions")}
                                         loading={loadingSelectProfession}

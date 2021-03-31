@@ -1,7 +1,7 @@
 // Создания вкладки раздела
 import store from "../../../redux/store";
 import {ActionCreator} from "../../../redux/combineActions";
-import {BodyManager} from "../../../components/content.components/content.components/body/body.component";
+import {BodyManager} from "../../../components/content.components/body/body.component";
 import emptyTab from "./emptyTab";
 
 /**

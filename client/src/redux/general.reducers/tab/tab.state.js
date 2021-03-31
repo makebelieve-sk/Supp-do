@@ -1,4 +1,4 @@
-import {BodyManager} from "../../../components/content.components/content.components/body/body.component";
+import {BodyManager} from "../../../components/content.components/body/body.component";
 
 const initialState = {
     tabs: [{title: "Журнал дефектов и отказов", content: BodyManager, key: "logDO"}],

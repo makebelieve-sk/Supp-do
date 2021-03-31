@@ -13,6 +13,8 @@ import TabOptions from "../../options/tab.options/record.options/record.options"
 import tableSettings from "../../options/tab.options/table.options/settings";
 import {getFilteredData} from "../../options/global.options/global.options";
 
+import "./table.css";
+
 const {RangePicker} = DatePicker;
 
 export const TableComponent = ({specKey}) => {
@@ -100,18 +102,20 @@ export const TableComponent = ({specKey}) => {
     return (
         <>
             <Row className="container-row-dto" justify="space-between" align="bottom">
-                <Header filterText={filterText} setFilterText={setFilterText}/>
+                <Row justify="space-between" align="bottom">
+                    <Header filterText={filterText} setFilterText={setFilterText}/>
 
-                {
-                    specKey === "logDO" ?
-                        <RangePicker
-                            allowClear={false}
-                            showTime={{format: "HH:mm"}}
-                            format={TabOptions.dateFormat}
-                            onChange={onChange}
-                            defaultValue={[moment().startOf("month"), moment().endOf("month")]}
-                        /> : null
-                }
+                    {
+                        specKey === "logDO" ?
+                            <RangePicker
+                                allowClear={false}
+                                showTime={{format: "HH:mm"}}
+                                format={TabOptions.dateFormat}
+                                onChange={onChange}
+                                defaultValue={[moment().startOf("month"), moment().endOf("month")]}
+                            /> : null
+                    }
+                </Row>
 
                 <ButtonsComponent specKey={specKey} onExport={onExport} setColumnsTable={setColumnsTable}/>
             </Row>

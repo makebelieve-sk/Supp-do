@@ -4,7 +4,7 @@ import {Layout, Button, Row, Col, Modal} from "antd";
 import {MenuUnfoldOutlined, MenuFoldOutlined, QuestionCircleOutlined} from "@ant-design/icons";
 
 import {LogDORoute} from "../routes/route.LogDO";
-import {ContentComponent} from "../components/content.components/content.components/content/content.component";
+import {ContentComponent} from "../components/content.components/content/content.component";
 import {SiderComponent} from "../components/content.components/sider/sider.component";
 
 const {Header, Content, Footer} = Layout;
@@ -27,7 +27,7 @@ export const MainPage = () => {
         <Layout>
             <SiderComponent collapsed={collapsed}/>
 
-            <Layout className="site-layout">
+            <Layout style={{backgroundColor: "#fff"}}>
                 <Header className="site-layout-background header-component">
                     <div>
                         <Button type="primary" onClick={() => setCollapsed(!collapsed)} style={{marginLeft: 15}}>
@@ -36,28 +36,28 @@ export const MainPage = () => {
                     </div>
                 </Header>
 
-                <Content className="site-layout-background content-component">
+                <Content className="content-component">
                     <ContentComponent />
                 </Content>
 
-                <Footer>
-                    <Row>
+                <Footer style={{backgroundColor: "#F5F5F5"}}>
+                    <Row align="middle">
                         <Col span={18} className="footer_text">
                             Система управления производственным процессом. Дефекты и отказы. 2021. Версия 1.0.0
                         </Col>
-                        <Col span={6}>
-                            <p onClick={() => setIsModalVisible(true)} className="footer_text cursor">
-                                <QuestionCircleOutlined/> Помощь
-                            </p>
-                            <Modal
-                                title="Помощь"
-                                visible={isModalVisible}
-                                onCancel={() => setIsModalVisible(false)}
-                                cancelText="Закрыть"
-                            >
-                                <p>Помощь!</p>
-                            </Modal>
+
+                        <Col span={6} onClick={() => setIsModalVisible(true)} className="footer_text cursor">
+                            <QuestionCircleOutlined/> Помощь
                         </Col>
+
+                        <Modal
+                            title="Помощь"
+                            visible={isModalVisible}
+                            onCancel={() => setIsModalVisible(false)}
+                            cancelText="Закрыть"
+                        >
+                            Помощь!
+                        </Modal>
                     </Row>
                 </Footer>
             </Layout>

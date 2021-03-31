@@ -1,0 +1,19 @@
+.column-chart-title {
+    border-bottom: 1px solid grey;
+    padding: 0 !important;
+}
+
+.column-chart-title h3 {
+    margin: 0;
+    text-align: center;
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+.column-chart-wrapper {
+    padding-top: 5%;
+}
+
+.column-chart canvas {
+    height: 200px !important;
+}

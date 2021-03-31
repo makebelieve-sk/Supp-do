@@ -1,0 +1,32 @@
+.circle-component {
+    height: 50%;
+}
+
+.circle-title {
+    border-bottom: 1px solid grey;
+    padding: 0 !important;
+}
+
+.circle-title h3 {
+    margin: 0;
+    text-align: center;
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+.circle-wrapper {
+    height: 50%;
+}
+
+.circle {
+    margin: auto;
+    /*border-width: 10px;*/
+    border-style: solid;
+    border-radius: 50%;
+    /*width: 100px;*/
+    /*height: 100px;*/
+    text-align: center;
+    /*line-height: 80px;*/
+    /*font-size: 50px;*/
+    font-weight: bold;
+}

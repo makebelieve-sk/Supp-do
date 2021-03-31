@@ -81,6 +81,10 @@ export const DepartmentForm = ({item}) => {
 
                     <Form.Item name="parent" label="Принадлежит">
                         <Select
+                            showSearch
+                            filterOption={(input, option) =>
+                                option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                            }
                             options={departmentsOptions}
                             onDropdownVisibleChange={open => dropdownRender(open, setLoadingSelect, setDepartments, "departments")}
                             loading={loadingSelect}

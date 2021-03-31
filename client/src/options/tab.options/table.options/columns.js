@@ -241,7 +241,7 @@ const LogDOColumns = [
         title: "Оборудование",
         dataIndex: "equipment",
         key: "equipment",
-        width: 120,
+        width: 125,
         sorter: (a, b) => a.equipment.length - b.equipment.length,
         sortDirections: ["descend", "ascend"],
         filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}) => (
@@ -284,7 +284,7 @@ const LogDOColumns = [
         title: "Описание",
         dataIndex: "notes",
         key: "notes",
-        width: 110,
+        width: 100,
         sorter: (a, b) => a.notes.length - b.notes.length,
         sortDirections: ["descend", "ascend"],
         ellipsis: {showTitle: false},
@@ -328,7 +328,7 @@ const LogDOColumns = [
         title: "Заявитель",
         dataIndex: "applicant",
         key: "applicant",
-        width: 110,
+        width: 100,
         sorter: (a, b) => a.applicant.length - b.applicant.length,
         sortDirections: ["descend", "ascend"],
         filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}) => (
@@ -371,14 +371,14 @@ const LogDOColumns = [
         title: "Исполнитель",
         dataIndex: "responsible",
         key: "responsible",
-        width: 110,
+        width: 115,
         sorter: (a, b) => a.responsible.length - b.responsible.length,
         sortDirections: ["descend", "ascend"],
         filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}) => (
             <div style={{padding: 8}}>
                 <Input
                     ref={refResponsible}
-                    placeholder="Поиск по заявителям"
+                    placeholder="Поиск по исполнителям"
                     value={selectedKeys[0]}
                     onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
                     onPressEnter={confirm}
@@ -414,14 +414,14 @@ const LogDOColumns = [
         title: "Подразделение",
         dataIndex: "department",
         key: "department",
-        width: 120,
+        width: 130,
         sorter: (a, b) => a.department.length - b.department.length,
         sortDirections: ["descend", "ascend"],
         filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}) => (
             <div style={{padding: 8}}>
                 <Input
                     ref={refDepartment}
-                    placeholder="Поиск по заявителям"
+                    placeholder="Поиск по подразделениям"
                     value={selectedKeys[0]}
                     onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
                     onPressEnter={confirm}
@@ -457,7 +457,7 @@ const LogDOColumns = [
         title: "Задание",
         dataIndex: "task",
         key: "task",
-        width: 110,
+        width: 95,
         ellipsis: {showTitle: false},
         sorter: (a, b) => a.task.length - b.task.length,
         sortDirections: ["descend", "ascend"],
@@ -465,7 +465,7 @@ const LogDOColumns = [
             <div style={{padding: 8}}>
                 <Input
                     ref={refTask}
-                    placeholder="Поиск по заявителям"
+                    placeholder="Поиск по заданиям"
                     value={selectedKeys[0]}
                     onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
                     onPressEnter={confirm}
@@ -494,21 +494,21 @@ const LogDOColumns = [
                     searchWords={[refTask.current.props.value]}
                     autoEscape
                     textToHighlight={text ? text.toString() : ""}
-                /> : <Tooltip placement="topLeft" title={record.departmentTooltip}>{text}</Tooltip>,
+                /> : <Tooltip placement="topLeft" title={text}>{text}</Tooltip>,
         })
     },
     {
         title: "Состояние",
         dataIndex: "state",
         key: "state",
-        width: 110,
+        width: 105,
         sorter: (a, b) => a.state.length - b.state.length,
         sortDirections: ["descend", "ascend"],
         filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}) => (
             <div style={{padding: 8}}>
                 <Input
                     ref={refState}
-                    placeholder="Поиск по заявителям"
+                    placeholder="Поиск по состояниям"
                     value={selectedKeys[0]}
                     onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
                     onPressEnter={confirm}
@@ -551,7 +551,7 @@ const LogDOColumns = [
             <div style={{padding: 8}}>
                 <Input
                     ref={refPlanDateDone}
-                    placeholder="Поиск по заявителям"
+                    placeholder="Поиск по планируемой дате выполнения"
                     value={selectedKeys[0]}
                     onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
                     onPressEnter={confirm}
@@ -594,7 +594,7 @@ const LogDOColumns = [
             <div style={{padding: 8}}>
                 <Input
                     ref={refDateDone}
-                    placeholder="Поиск по заявителям"
+                    placeholder="Поиск по дате выполнения"
                     value={selectedKeys[0]}
                     onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
                     onPressEnter={confirm}
@@ -630,7 +630,7 @@ const LogDOColumns = [
         title: "Содержание работ",
         dataIndex: "content",
         key: "content",
-        width: 140,
+        width: 150,
         ellipsis: {showTitle: false},
         sorter: (a, b) => a.content.length - b.content.length,
         sortDirections: ["descend", "ascend"],
@@ -638,7 +638,7 @@ const LogDOColumns = [
             <div style={{padding: 8}}>
                 <Input
                     ref={refContent}
-                    placeholder="Поиск по заявителям"
+                    placeholder="Поиск по содержаниям работ"
                     value={selectedKeys[0]}
                     onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
                     onPressEnter={confirm}

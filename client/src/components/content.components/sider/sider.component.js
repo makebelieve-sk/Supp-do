@@ -35,36 +35,42 @@ export const SiderComponent = ({collapsed}) => {
             <Menu theme="dark" mode="inline">
                 {
                     menuItems.map(group => (
-                        <SubMenu key={group.key} icon={group.icon} title={group.title}>
-                            {
-                                group.children.map(subgroup => (
-                                    subgroup.children && subgroup.children.length ?
-                                        <SubMenu title={subgroup.title} key={subgroup.key}>
-                                            {
-                                                subgroup.children.map(item => (
-                                                    <Menu.Item
-                                                        key={item.key}
-                                                        onClick={() => OpenTableTab(
-                                                            item.title,
-                                                            item.key,
-                                                            item.url,
-                                                            item.dispatchAction,
-                                                            item.model
-                                                        )}
-                                                    >{item.title}</Menu.Item>
-                                                ))
-                                            }
-                                        </SubMenu> :
-                                        <Menu.Item key={subgroup.key}>
-                                            <Link to={subgroup.url} onClick={() => {
-                                                subgroup.key === "logout" ? auth.logout() : alert("Смена пароля");
-                                            }}>
-                                                {subgroup.title}
-                                            </Link>
-                                        </Menu.Item>
-                                ))
-                            }
-                        </SubMenu>
+                        group.children && group.children.length
+                            ? <SubMenu key={group.key} icon={group.icon} title={group.title}>
+                                {
+                                    group.children.map(subgroup => (
+                                        subgroup.children && subgroup.children.length ?
+                                            <SubMenu title={subgroup.title} key={subgroup.key}>
+                                                {
+                                                    subgroup.children.map(item => (
+                                                        <Menu.Item
+                                                            key={item.key}
+                                                            onClick={() => OpenTableTab(
+                                                                item.title,
+                                                                item.key,
+                                                                item.url,
+                                                                item.dispatchAction,
+                                                                item.model
+                                                            )}
+                                                        >{item.title}</Menu.Item>
+                                                    ))
+                                                }
+                                            </SubMenu> :
+                                            <Menu.Item key={subgroup.key}>
+                                                <Link to={subgroup.url} onClick={() => {
+                                                    subgroup.key === "logout" ? auth.logout() : alert("Смена пароля");
+                                                }}>
+                                                    {subgroup.title}
+                                                </Link>
+                                            </Menu.Item>
+                                    ))
+                                }
+                            </SubMenu>
+                            : <SubMenu title={group.title} key={group.key} icon={group.icon}>
+                                <Menu.Item onClick={() =>
+                                    OpenTableTab(group.title, group.key, group.url, group.dispatchAction, group.route)}
+                                >{group.title}</Menu.Item>
+                            </SubMenu>
                     ))
                 }
             </Menu>

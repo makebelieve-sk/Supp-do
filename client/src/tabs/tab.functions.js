@@ -8,7 +8,7 @@ import PrintButtonRecord from "./printButtonRecord";
 
 // Получение выпадающего списка
 const getOptions = (items) => {
-    let valuesToOptions = [{label: "Не выбрано", value: null}];
+    let valuesToOptions = [];
 
     if (items && items.length) {
         items.forEach(item => {
@@ -19,7 +19,11 @@ const getOptions = (items) => {
         })
     }
 
-    return valuesToOptions.sort((a, b) => a.value < b.value);
+    valuesToOptions.sort((a, b) => a.label > b.label ? 1 : -1);
+
+    valuesToOptions.unshift({label: "Не выбрано", value: null});
+
+    return valuesToOptions;
 };
 
 // Компонент кнопок записи

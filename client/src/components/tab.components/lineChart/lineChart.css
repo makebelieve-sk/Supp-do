@@ -1,0 +1,21 @@
+.line-chart-title {
+    border-bottom: 1px solid grey;
+    padding: 0 !important;
+}
+
+.line-chart-title h3 {
+    margin: 0;
+    text-align: center;
+    border-right: 1px solid grey;
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+.line-chart-wrapper {
+    padding-top: 2%;
+    border-right: 1px solid grey;
+}
+
+.line-chart canvas {
+    height: 200px !important;
+}

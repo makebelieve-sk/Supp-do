@@ -142,6 +142,10 @@ export const EquipmentForm = ({item}) => {
 
                             <Form.Item name="parent" label="Принадлежит">
                                 <Select
+                                    showSearch
+                                    filterOption={(input, option) =>
+                                        option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                    }
                                     options={options}
                                     onDropdownVisibleChange={async open => {
                                         await dropdownRender(open, setLoadingEquipment, setOptions, "equipment");

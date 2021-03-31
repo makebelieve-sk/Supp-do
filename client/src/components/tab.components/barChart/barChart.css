@@ -1,0 +1,18 @@
+.bar-chart-title {
+    border-bottom: 1px solid grey;
+    padding: 0 !important;
+}
+
+.bar-chart-title h3 {
+    margin: 0;
+    text-align: center;
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+.bar-chart canvas {
+    height: 200px !important;
+}
+.my-chart {
+    padding: 10px;
+}
