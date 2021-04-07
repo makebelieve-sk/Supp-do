@@ -1,6 +1,7 @@
 .rating-title {
     border-bottom: 1px solid grey;
     padding: 0 !important;
+    height: 10%;
 }
 
 .rating-title h3 {
@@ -11,5 +12,15 @@
 }
 
 .rating-table {
+    height: 90%;
     padding: 5%;
+}
+
+.table-block {
+    margin: auto 0;
+}
+
+.table {
+    width: 100%;
+    font-size: 16px;
 }

@@ -3,9 +3,10 @@ import React, {useEffect} from "react";
 import {useSelector} from "react-redux";
 import {message, Tabs} from "antd";
 
+import store from "../../../redux/store";
 import {ActionCreator} from "../../../redux/combineActions";
 import {DeleteTabContext} from "../../../context/deleteTab.context";
-import store from "../../../redux/store";
+import {AnalyticRoute} from "../../../routes/route.Analytic";
 
 import "./content.css";
 
@@ -38,7 +39,10 @@ export const ContentComponent = () => {
     };
 
     // Изменяем активную вкладку
-    const onChange = activeKey => {
+    const onChange = async activeKey => {
+        // Обновляем вкладку "Аналитика"
+        if (activeKey === "analytic") await AnalyticRoute.getAll();
+
         // Установка истории вкладок
         const findHistoryTab = historyTabs.find(tab => tab === activeKey);
         const indexOfHistoryTab = historyTabs.indexOf(findHistoryTab);

@@ -1,6 +1,6 @@
 // Глобальные настройки приложения
 import React from "react";
-import {MenuUnfoldOutlined, LaptopOutlined, UserOutlined, StockOutlined, BarChartOutlined} from "@ant-design/icons";
+import {MenuUnfoldOutlined, LaptopOutlined, UserOutlined, StockOutlined} from "@ant-design/icons";
 import {ActionCreator} from "../../redux/combineActions";
 
 import {ProfessionRoute} from "../../routes/route.profession";
@@ -156,18 +156,23 @@ const menuItems = [
     {
         title: "Аналитика",
         key: "analytic",
-        url: "analytic",
-        dispatchAction: ActionCreator.ActionCreatorAnalytic.getAllAnalytic,
-        route: AnalyticRoute,
-        icon: <StockOutlined />
-    },
-    {
-        title: "Статистика",
-        key: "statistic",
-        url: "statistic",
-        dispatchAction: ActionCreator.ActionCreatorStatistic.getAllStatistic,
-        route: StatisticRoute,
-        icon: <BarChartOutlined />
+        icon: <StockOutlined />,
+        children: [
+            {
+                title: "Аналитика",
+                key: "analytic",
+                url: "analytic",
+                dispatchAction: ActionCreator.ActionCreatorAnalytic.getAllAnalytic,
+                route: AnalyticRoute
+            },
+            {
+                title: "Статистика",
+                key: "statistic",
+                url: "statistic",
+                dispatchAction: ActionCreator.ActionCreatorStatistic.getAllStatistic,
+                route: StatisticRoute
+            }
+        ]
     }
 ];
 

@@ -63,7 +63,7 @@ const tableSettings = {
     },
     export: downloadCSV,
     size: "small",
-    scroll: {x: 500}
+    scroll: { x: 500 }
 }
 
 export default tableSettings;

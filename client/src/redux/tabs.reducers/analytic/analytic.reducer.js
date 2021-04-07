@@ -1,6 +1,7 @@
 import initialState from "./analytic.state";
 import {
     GET_ALL_ANALYTIC,
+    GET_PREV_ANALYTIC_DATA
 } from "./analytic.constants";
 
 export default function reducerAnalytic(state = initialState, action) {
@@ -9,6 +10,11 @@ export default function reducerAnalytic(state = initialState, action) {
             return {
                 ...state,
                 analytic: action.payload
+            };
+        case GET_PREV_ANALYTIC_DATA:
+            return {
+                ...state,
+                prevAnalyticData: action.payload
             };
         default:
             return state;

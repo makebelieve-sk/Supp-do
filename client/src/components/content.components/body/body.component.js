@@ -8,7 +8,7 @@ import getContentToTab from "../../../helpers/mappers/tabs.mappers/getContentToT
 import "./body.css";
 
 export const BodyManager = ({specKey}) => {
-    const {loadingSkeleton} = useSelector(state => state.reducerLoading.loadingSkeleton);
+    const loadingSkeleton = useSelector(state => state.reducerLoading.loadingSkeleton);
 
     // Получаем контент вкладки
     const component = useMemo(() => getContentToTab(specKey), [specKey]);

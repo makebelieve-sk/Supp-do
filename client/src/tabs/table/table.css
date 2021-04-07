@@ -33,4 +33,13 @@
 /* класс, убирающий иконку сортировки*/
 .card-dto-logDo .ant-table-column-sorter {
     display: none;
+    position: absolute;
+}
+
+.table-logDo .ant-table-thead {
+    padding-right: 0;
+}
+
+.table-logDo .ant-table.ant-table-small .ant-table-thead .ant-table-filter-column {
+    margin: 0 !important;
 }

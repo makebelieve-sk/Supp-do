@@ -1,6 +1,11 @@
 .bar-chart-title {
     border-bottom: 1px solid grey;
     padding: 0 !important;
+    height: 10%;
+}
+
+.content {
+    height: 90%;
 }
 
 .bar-chart-title h3 {
