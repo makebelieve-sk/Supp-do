@@ -5,7 +5,7 @@ import {Line} from "@ant-design/charts";
 
 import "./lineChart.css";
 
-export const LineChartComponent = ({data}) => {
+export const LineChartComponent = ({data, goToLogDO}) => {
     // Объект настроек графика
     const config = {
         data: data,
@@ -51,6 +51,15 @@ export const LineChartComponent = ({data}) => {
         meta: { value: { alias: "Количество" } },
     };
 
+    /**
+     * Функция клика на линейную диаграмму
+     * @param event - событие мыши
+     */
+    const onClick = (event) => {
+        if (event.type === "click" && event.data && !Array.isArray(event.data.data))
+            goToLogDO("/line", event.data.data);
+    }
+
     return (
         <>
             <Row className="line-chart-title">
@@ -61,7 +70,7 @@ export const LineChartComponent = ({data}) => {
 
             <Row className="line-chart-wrapper">
                 <Col span={24} className="line-chart my-chart">
-                    <Line {...config} />
+                    <Line {...config} onEvent={(chart, event) => onClick(event)} />
                 </Col>
             </Row>
         </>

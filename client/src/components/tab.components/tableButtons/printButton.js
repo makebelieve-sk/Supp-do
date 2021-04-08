@@ -23,7 +23,7 @@ export default class PrintButton extends React.Component {
             <div>
                 <ReactToPrint
                     documentTitle={this.state.name}
-                    trigger={() => <Button className="button-style" icon={<PrinterOutlined/>} size="middle">Печать</Button>}
+                    trigger={() => <Button className="button-style" icon={<PrinterOutlined/>}>Печать</Button>}
                     content={() => this.tableRef}
                     onBeforePrint={() => {
                         setTimeout(() => this.setState({display: "block"}), 500);

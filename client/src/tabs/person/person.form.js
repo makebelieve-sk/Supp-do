@@ -1,6 +1,6 @@
 // Компонент формы записи раздела "Персонал"
 import React, {useContext, useEffect, useMemo, useState} from "react";
-import {Card, Button, Col, Form, Input, Row, Select} from "antd";
+import {Button, Card, Col, Form, Input, Row, Select} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
 
 import store from "../../redux/store";
@@ -92,7 +92,14 @@ export const PersonForm = ({item}) => {
                     <Form.Item name="_id" hidden={true}><Input/></Form.Item>
                     <Form.Item name="isNewItem" hidden={true}><Input/></Form.Item>
 
-                    <Form.Item label="ФИО" name="name" rules={[{required: true, message: "Введите ФИО"}]}>
+                    <Form.Item label="ФИО" name="name" rules={[{
+                        required: true,
+                        transform: (value) => {
+                            value = value.trim();
+                            return value;
+                        },
+                        message: "Введите ФИО"
+                    }]}>
                         <Input maxLength={255} type="text" onChange={e => form.setFieldsValue({name: e.target.value})}/>
                     </Form.Item>
 

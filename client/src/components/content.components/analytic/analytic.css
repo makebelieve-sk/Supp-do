@@ -1,7 +1,3 @@
-.analytic {
-    /*font-family: "Times New Roman", serif;*/
-}
-
 .col-circle-1 {
     border-top: 1px solid grey;
     border-left: 1px solid grey;
@@ -15,6 +11,10 @@
 
 .col-circle-3 {
     border-top: 1px solid grey;
+}
+
+.col-circle-1:hover, .col-circle-2:hover, .col-circle-3:hover, .col-rating-1:hover, .col-rating-2:hover {
+    cursor: pointer;
 }
 
 .bar-char-border {

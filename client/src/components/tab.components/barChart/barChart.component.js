@@ -5,7 +5,7 @@ import {Bar} from '@ant-design/charts';
 
 import "./barChart.css";
 
-export const BarChartComponent = ({data}) => {
+export const BarChartComponent = ({data, goToLogDO}) => {
     // Объект настроек графика
     const config = {
         data: data,
@@ -23,6 +23,14 @@ export const BarChartComponent = ({data}) => {
         },
     };
 
+    /**
+     * Функция клика на гистограмму
+     * @param event - событие мыши
+     */
+    const onClick = (event) => {
+        if (event.type === "click") goToLogDO("/bar", event.data.data);
+    }
+
     return (
         <>
             <Row className="bar-chart-title">
@@ -33,7 +41,7 @@ export const BarChartComponent = ({data}) => {
 
             <Row className="content">
                 <Col span={24} className="bar-chart my-chart">
-                    <Bar {...config} />
+                    <Bar {...config} onEvent={(chart, event) => onClick(event)} />
                 </Col>
             </Row>
         </>

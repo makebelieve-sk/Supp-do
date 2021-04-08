@@ -6,6 +6,7 @@ import {
     GET_ALL_LOGDO,
     SET_ROW_DATA_LOGDO,
     SET_DATE,
+    SET_DATE_FROM_ANALYTIC,
     ADD_FILE,
     DELETE_FILE,
     GET_ALL_FILES
@@ -44,6 +45,11 @@ export default function reducerLogDO(state = initialState, action) {
             return {
                 ...state,
                 date:  action.payload
+            };
+        case SET_DATE_FROM_ANALYTIC:
+            return {
+                ...state,
+                dateFromAnalytic:  action.payload
             };
         case ADD_FILE:
             return {

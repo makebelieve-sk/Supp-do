@@ -157,6 +157,10 @@ router.post("/log-do", checkMiddleware, async (req, res) => {
         const {date, applicant, equipment, notes, sendEmail, productionCheck, department, responsible, task, state,
             dateDone, planDateDone, content, downtime, acceptTask, files} = req.body;
 
+        // При сохранении записи время реагирования 0, время выполнения 0
+        const chooseResponsibleTime = 0;
+        const chooseStateTime = 0;
+
         if (files && files.length >= 0) {
             for (const file of files) {
                 const findFile = await File.findOne({originUid: file.originUid});
@@ -171,7 +175,7 @@ router.post("/log-do", checkMiddleware, async (req, res) => {
 
         const item = new LogDO({
             date, equipment, notes, applicant, responsible, department, task, state, planDateDone, dateDone, content,
-            acceptTask, files: resFileArr, sendEmail, productionCheck, downtime
+            acceptTask, files: resFileArr, sendEmail, productionCheck, downtime, chooseResponsibleTime, chooseStateTime
         });
 
         await item.save();
@@ -209,7 +213,6 @@ router.post("/log-do", checkMiddleware, async (req, res) => {
 
 // Изменяет запись
 router.put("/log-do", checkMiddleware, async (req, res) => {
-    console.log(req.body)
     try {
         const errors = validationResult(req);
 
@@ -228,7 +231,15 @@ router.put("/log-do", checkMiddleware, async (req, res) => {
             return res.status(400).json({message: `Запись с кодом ${_id} не найдена`});
         }
 
-        if (files && files.length >= 0) {
+        // Если исполнитель не существует, то высчитываем время с момента назначения до момента создания заявки
+        if (!item.responsible && responsible)
+            item.chooseResponsibleTime = moment().valueOf() - moment(item.date).valueOf();
+
+        // Если состояние не выбрано, то высчитываем время с момента выбора состояния со статусом "Завершено" до момента создания заявки
+        if ((!item.state || (item.state && !item.state.isFinish)) && state && state.isFinish)
+            item.chooseStateTime = moment().valueOf() - moment(item.date).valueOf();
+
+        if (files && files.length) {
             for (const file of files) {
                 if (file.uid.slice(0, 3) === "-1-") {
                     const findFile = await File.findOne({originUid: file.originUid});
@@ -290,7 +301,7 @@ router.put("/log-do", checkMiddleware, async (req, res) => {
 
         res.status(201).json({message: "Запись сохранена", item: savedItem});
     } catch (e) {
-        console.log(e)
+        console.log(e);
         res.status(500).json({message: "Ошибка при обновлении записи"})
     }
 });

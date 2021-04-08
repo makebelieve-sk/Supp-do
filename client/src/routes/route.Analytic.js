@@ -4,11 +4,13 @@ import {message} from "antd";
 import store from "../redux/store";
 import {ActionCreator} from "../redux/combineActions";
 import {request} from "../helpers/functions/general.functions/request.helper";
-import {compareObjects} from "../helpers/functions/general.functions/compare";
+import {compareArrays, compareObjects} from "../helpers/functions/general.functions/compare";
 
 export const AnalyticRoute = {
     // Адрес для работы с разделом "Аналитика"
     base_url: "/api/analytic/current-state",
+    // Адрес для работы с разделом "Аналитика"
+    url_to_logDO: "/api/analytic/go-to-logDO",
     // Получение всех данных для раздела "Аналитика"
     getAll: async function () {
         try {
@@ -43,23 +45,31 @@ export const AnalyticRoute = {
         }
     },
     // Переход в раздел ЖДО
-    goToLogDO: async function (param) {
+    goToLogDO: async function (url, filter) {
         try {
             // Устанавливаем спиннер загрузки данных в таблицу
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(true));
 
             // Получаем все данные
-            const items = await request(this.base_url, "POST", param);
+            const items = !filter
+                ? await request(this.url_to_logDO + url)
+                : await request(this.url_to_logDO + url, "POST", filter);
 
             if (items) {
                 const reduxLogDO = store.getState().reducerLogDO.logDO;
 
                 // Если массивы не равны, то обновляем хранилище redux
-                const shouldUpdate = compareObjects(items, reduxLogDO);
+                const shouldUpdate = compareArrays(items.itemsDto, reduxLogDO);
+
+                // Устанавливаем дату
+                const date = items.startDate && items.endDate ? items.startDate + "/" + items.endDate : null;
+
+                // Устанавливаем начальную дату в датапикере
+                store.dispatch(ActionCreator.ActionCreatorLogDO.setDate(date));
 
                 if (shouldUpdate) {
                     // Записываем данные аналитики в хранилище
-                    store.dispatch(ActionCreator.ActionCreatorLogDO.getAllLogDO(items));
+                    store.dispatch(ActionCreator.ActionCreatorLogDO.getAllLogDO(items.itemsDto));
                 }
             }
 

@@ -43,20 +43,15 @@ function concat(parent, itemName) {
  * @returns сокращенное наименование сотрудника
  */
 function getShortName(name = null) {
-    // Изменяем поле name для только что сохраненной записи
+    // Сокращаем поле name для только что сохраненной записи
     if (name) {
         const fio = name.split(" ");
-        let retVal = fio[0];
 
-        if (fio[1]) {
-            retVal += " " + fio[1][0].toUpperCase() + ".";
+        if (fio.length === 3) {
+            return fio[0] + " " + fio[1][0].toUpperCase() + "." + fio[2][0].toUpperCase() + ".";
+        } else {
+            return name;
         }
-
-        if (fio[2]) {
-            retVal += " " + fio[2][0].toUpperCase() + ".";
-        }
-
-        return retVal[0].toUpperCase() + retVal.slice(1);
     }
 }
 

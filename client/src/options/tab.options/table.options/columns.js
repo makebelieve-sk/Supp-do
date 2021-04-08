@@ -3,6 +3,8 @@ import React from "react";
 import {Button, Input, Space, Tooltip} from "antd";
 import {CheckOutlined, SearchOutlined} from "@ant-design/icons";
 import Highlighter from "react-highlight-words";
+import moment from "moment";
+import TabOptions from "../record.options/record.options";
 
 // Создание колонок для раздела "Профессии"
 const ProfessionColumns = [
@@ -199,7 +201,12 @@ const LogDOColumns = [
         dataIndex: "date",
         key: "date",
         width: 100,
-        sorter: (a, b) => a.date > b.date,
+        sorter: (a, b) => {
+            const start = moment(a.date, TabOptions.dateFormat);
+            const end = moment(b.date, TabOptions.dateFormat);
+            
+            return start.diff(end, "milliseconds") > 0;
+        },
         sortDirections: ["descend", "ascend"],
         filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}) => (
             <div style={{padding: 8}}>

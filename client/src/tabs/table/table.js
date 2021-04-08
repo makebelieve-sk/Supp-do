@@ -31,9 +31,18 @@ export const TableComponent = ({specKey}) => {
         equipment: state.reducerEquipment.equipment,
         tasks: state.reducerTask.tasks,
         logDO: state.reducerLogDO.logDO,
+        date: state.reducerLogDO.date,
         activeKey: state.reducerTab.activeKey
     }));
     const dispatch = useDispatch();
+
+    // Установка времени в датапикере
+    const date = stateObject.date
+        ? [
+            moment(stateObject.date.split("/")[0], TabOptions.dateFormat),
+            moment(stateObject.date.split("/")[1], TabOptions.dateFormat)
+        ]
+        : [moment().startOf(("month")), moment().endOf(("month"))];
 
     // Создание стейта для текстового поля, отфильтрованных колонок, выбранных колонок и начальных колонок
     const [filterText, setFilterText] = useState("");
@@ -112,7 +121,7 @@ export const TableComponent = ({specKey}) => {
                                 showTime={{format: "HH:mm"}}
                                 format={TabOptions.dateFormat}
                                 onChange={onChange}
-                                defaultValue={[moment().startOf("month"), moment().endOf("month")]}
+                                value={date}
                             /> : null
                     }
                 </Row>

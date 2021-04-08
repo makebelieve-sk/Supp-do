@@ -5,6 +5,7 @@ import {
     GET_ALL_LOGDO,
     SET_ROW_DATA_LOGDO,
     SET_DATE,
+    SET_DATE_FROM_ANALYTIC,
     ADD_FILE,
     DELETE_FILE,
     GET_ALL_FILES
@@ -51,6 +52,13 @@ const ActionCreatorLogDO = {
     setDate: (date) => {
         return {
             type: SET_DATE,
+            payload: date
+        }
+    },
+    // Установка даты
+    setDateFromAnalytic: (date) => {
+        return {
+            type: SET_DATE_FROM_ANALYTIC,
             payload: date
         }
     },

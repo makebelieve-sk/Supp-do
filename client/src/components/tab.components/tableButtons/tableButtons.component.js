@@ -73,13 +73,13 @@ export const ButtonsComponent = ({specKey, onExport, setColumnsTable}) => {
             <Row align="middle">
                 <Button className="button-style" icon={<PlusOutlined/>} type="primary"
                         onClick={() => openRecordTab(specKey, "-1")}>Добавить</Button>
-                <Button className="button-style" icon={<FileExcelOutlined/>} size="middle"
+                <Button className="button-style" icon={<FileExcelOutlined/>}
                         onClick={e => onExport(e.target.value)}>Экспорт</Button>
 
                 <PrintButton headers={headers} specKey={specKey}/>
 
                 <Dropdown overlay={dropdownMenu} onVisibleChange={handleVisibleChange} visible={visible}>
-                    <Button className="button-style" icon={<EditOutlined/>} size="middle">Колонки</Button>
+                    <Button className="button-style" icon={<EditOutlined/>}>Колонки</Button>
                 </Dropdown>
             </Row>
         );

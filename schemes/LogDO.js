@@ -17,7 +17,9 @@ const schema = new Schema({
     content: {type: String},
     downtime: {type: String},
     acceptTask: {type: Boolean},
-    files: [{ type: Types.ObjectId, ref: "File" }]
+    files: [{ type: Types.ObjectId, ref: "File" }],
+    chooseResponsibleTime: {type: Number},
+    chooseStateTime: {type: Number}
 });
 
 module.exports = model("LogDO", schema);

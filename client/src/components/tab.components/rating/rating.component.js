@@ -16,7 +16,7 @@ export const RatingComponent = ({title, param, data}) => {
             <Row className="rating-table">
                 <Col span={24} className="table-block">
                     <div>
-                        <table border="1" className="table">
+                        <table className="table">
                             <thead>
                             <tr>
                                 <th style={{textAlign: "center"}}>Оборудование</th>
