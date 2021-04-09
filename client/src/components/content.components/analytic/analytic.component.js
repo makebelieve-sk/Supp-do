@@ -65,14 +65,13 @@ export const AnalyticComponent = () => {
                 <Col
                     span={4}
                     className="col-circle-1"
-                    onClick={() => goToLogDO("/circle", {unassignedTasks: true, inWorkTasks: false})}
+                    onClick={() => goToLogDO("/unassignedTasks")}
                 >
                     <CircleComponent
                         title="Неназначенные заявки"
-                        value={analytic && analytic.unassignedTasks ? analytic.unassignedTasks.length : 0}
-                        borderColor={analytic && prevAnalyticData && analytic.unassignedTasks && analytic.unassignedTasks.length
-                        && prevAnalyticData.unassignedTasks && prevAnalyticData.unassignedTasks.length
-                        && prevAnalyticData.unassignedTasks.length > analytic.unassignedTasks.length ? "red" : "green"}
+                        value={analytic ? analytic.unassignedTasks : 0}
+                        borderColor={analytic && prevAnalyticData &&
+                        prevAnalyticData.unassignedTasks > analytic.unassignedTasks ? "red" : "green"}
                     />
                 </Col>
 
@@ -80,14 +79,13 @@ export const AnalyticComponent = () => {
                 <Col
                     span={4}
                     className="col-circle-2"
-                    onClick={() => goToLogDO("/circle", {unassignedTasks: false, inWorkTasks: true})}
+                    onClick={() => goToLogDO("/inWorkTasks")}
                 >
                     <CircleComponent
                         title="Заявки в работе"
-                        value={analytic && analytic.inWorkTasks ? analytic.inWorkTasks.length : 0}
-                        borderColor={analytic && prevAnalyticData && analytic.inWorkTasks && analytic.inWorkTasks.length
-                        && prevAnalyticData.inWorkTasks && prevAnalyticData.inWorkTasks.length
-                        && prevAnalyticData.inWorkTasks.length > analytic.inWorkTasks.length ? "red" : "green"}
+                        value={analytic ? analytic.inWorkTasks : 0}
+                        borderColor={analytic && prevAnalyticData
+                        && prevAnalyticData.inWorkTasks > analytic.inWorkTasks ? "red" : "green"}
                     />
                 </Col>
 
@@ -95,14 +93,13 @@ export const AnalyticComponent = () => {
                 <Col
                     span={4}
                     className="col-circle-3"
-                    onClick={() => goToLogDO("/circle", {unassignedTasks: false, inWorkTasks: false})}
+                    onClick={() => goToLogDO("/notAccepted")}
                 >
                     <CircleComponent
                         title="Непринятые заявки"
-                        value={analytic && analytic.notAccepted ? analytic.notAccepted.length : 0}
-                        borderColor={analytic && prevAnalyticData && analytic.notAccepted && analytic.notAccepted.length
-                        && prevAnalyticData.notAccepted && prevAnalyticData.notAccepted.length
-                        && prevAnalyticData.notAccepted.length > analytic.notAccepted.length ? "red" : "green"}
+                        value={analytic ? analytic.notAccepted : 0}
+                        borderColor={analytic && prevAnalyticData
+                        && prevAnalyticData.notAccepted > analytic.notAccepted ? "red" : "green"}
                     />
                 </Col>
 
