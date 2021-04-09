@@ -29,11 +29,13 @@ export const LogDORoute = {
             if (itemsLogDoDto) {
                 const reduxItemsLogDoDto = store.getState().reducerLogDO.logDO;
 
-                const shouldUpdate = compareArrays(itemsLogDoDto, reduxItemsLogDoDto);
+                const shouldUpdate = compareArrays(itemsLogDoDto.itemsDto, reduxItemsLogDoDto);
 
-                console.log("Обновление записей ", shouldUpdate);
+                // Обновление легенды статусов
+                store.dispatch(ActionCreator.ActionCreatorLogDO.setLegend(itemsLogDoDto.statusLegend));
+
                 if (shouldUpdate) {
-                    store.dispatch(ActionCreator.ActionCreatorLogDO.getAllLogDO(itemsLogDoDto));
+                    store.dispatch(ActionCreator.ActionCreatorLogDO.getAllLogDO(itemsLogDoDto.itemsDto));
                 }
             }
 

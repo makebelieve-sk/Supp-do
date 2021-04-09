@@ -8,6 +8,7 @@ const LogDO = require("../schemes/LogDO");
 const Department = require("../schemes/Department");
 const Equipment = require("../schemes/Equipment");
 const LogDoDto = require("../dto/LogDoDto");
+const TaskStatus = require("../schemes/TaskStatus");
 
 const router = Router();
 
@@ -123,11 +124,49 @@ router.get("/log-do/dto/:dateStart/:dateEnd", async (req, res) => {
                         path: "parent",
                         model: "Department"
                     }
-                }
-            )
+                })
             .populate("responsible")
             .populate("state")
             .populate("files");
+
+        let statuses
+        try {
+            statuses = await TaskStatus.find({});
+        } catch (err) {
+            res.status(500).json({
+                message: "Возникла ошибка при получении записей из базы данных Состояния заявок (/log-do/dto)",
+                error: err
+            });
+        }
+
+        let statusLegend = [];  // Инициализация массива легенд статусов
+
+        if (statuses && statuses.length) {
+            statuses.forEach(task => {
+                const countTasks = items.filter(logDO =>
+                    logDO.state && logDO.state._id.toString() === task._id.toString());
+
+                statusLegend.push({
+                    id: task._id,
+                    name: task.name,
+                    count: countTasks.length,
+                    color: task.color
+                });
+            });
+
+            // Сколько записей без статуса
+            const countWithoutStatus = await LogDO
+                .find({state: null, date: {$gte: millisecondsStart, $lte: millisecondsEnd}})
+                .countDocuments();
+
+            statusLegend.push({
+                id: millisecondsEnd,
+                name: "Без статуса",
+                count: countWithoutStatus,
+                color: "#FFFFFF",
+                borderColor: "black"
+            });
+        }
 
         let itemsDto = [];
 
@@ -135,7 +174,7 @@ router.get("/log-do/dto/:dateStart/:dateEnd", async (req, res) => {
             itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
         }
 
-        res.json(itemsDto);
+        res.json({itemsDto, statusLegend});
     } catch (e) {
         console.log(e);
         res.status(500).json({message: "Ошибка при получении данных"})

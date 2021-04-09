@@ -10,7 +10,9 @@ const initialState = {
     files: [],
     // Дата с ... по ...
     date: moment().startOf("month").format(TabOptions.dateFormat) + "/" +
-        moment().endOf("month").format(TabOptions.dateFormat)
+        moment().endOf("month").format(TabOptions.dateFormat),
+    legend: null,
+    alert: null
 };
 
 export default initialState;

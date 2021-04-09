@@ -8,7 +8,9 @@ import {
     SET_DATE_FROM_ANALYTIC,
     ADD_FILE,
     DELETE_FILE,
-    GET_ALL_FILES
+    GET_ALL_FILES,
+    SET_LEGEND,
+    SET_ALERT
 } from "./logDO.constants";
 
 const ActionCreatorLogDO = {
@@ -82,8 +84,21 @@ const ActionCreatorLogDO = {
             type: GET_ALL_FILES,
             payload: files
         }
+    },
+    // Установка легенды статусов
+    setLegend: (legend) => {
+        return {
+            type: SET_LEGEND,
+            payload: legend
+        }
+    },
+    // Установка фильтра таблицы после перехода с раздела аналитики
+    setAlert: (alert) => {
+        return {
+            type: SET_ALERT,
+            payload: alert
+        }
     }
-
 }
 
 export default ActionCreatorLogDO;

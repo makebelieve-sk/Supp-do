@@ -1,7 +1,8 @@
 import moment from "moment";
 import React, {useState, useMemo} from "react";
 import {useSelector, useDispatch} from "react-redux";
-import {message, Row, Table, DatePicker} from "antd";
+import {message, Row, Table, DatePicker, Col, Badge, Alert} from "antd";
+import {FilterOutlined} from "@ant-design/icons";
 
 import {ActionCreator} from "../../redux/combineActions";
 import {LogDORoute} from "../../routes/route.LogDO";
@@ -32,6 +33,8 @@ export const TableComponent = ({specKey}) => {
         tasks: state.reducerTask.tasks,
         logDO: state.reducerLogDO.logDO,
         date: state.reducerLogDO.date,
+        legend: state.reducerLogDO.legend,
+        alert: state.reducerLogDO.alert,
         activeKey: state.reducerTab.activeKey
     }));
     const dispatch = useDispatch();
@@ -128,6 +131,36 @@ export const TableComponent = ({specKey}) => {
 
                 <ButtonsComponent specKey={specKey} onExport={onExport} setColumnsTable={setColumnsTable}/>
             </Row>
+
+            <Row className="row-badges">
+                {
+                    stateObject.legend ? stateObject.legend.map(legend => (
+                        <Col key={legend.id} style={{textAlign: "center", marginRight: 5}}>
+                            <Badge
+                                count={`${legend.name} ${legend.count}`}
+                                style={{
+                                    backgroundColor: legend.color,
+                                    borderColor: legend.borderColor ?  legend.borderColor : "#FFFFFF",
+                                    color: legend.borderColor ?  legend.borderColor : "#FFFFFF"
+                                }}
+                            />
+                        </Col>
+                    )) : null
+                }
+            </Row>
+
+            {stateObject.alert ? <Row className="row-badges">
+                <Col span={24}>
+                    <Alert
+                        message={stateObject.alert}
+                        type="warning"
+                        icon={<FilterOutlined/>}
+                        showIcon
+                        closable
+                        onClose={async () => await LogDORoute.getAll()}
+                    />
+                </Col>
+            </Row> : null}
 
             <Table
                 bordered

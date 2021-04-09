@@ -9,7 +9,9 @@ import {
     SET_DATE_FROM_ANALYTIC,
     ADD_FILE,
     DELETE_FILE,
-    GET_ALL_FILES
+    GET_ALL_FILES,
+    SET_LEGEND,
+    SET_ALERT
 } from "./logDO.constants";
 
 export default function reducerLogDO(state = initialState, action) {
@@ -66,6 +68,16 @@ export default function reducerLogDO(state = initialState, action) {
             return {
                 ...state,
                 files: action.payload
+            };
+        case SET_LEGEND:
+            return {
+                ...state,
+                legend: action.payload
+            };
+        case SET_ALERT:
+            return {
+                ...state,
+                alert: action.payload
             };
         default:
             return state;

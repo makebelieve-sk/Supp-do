@@ -67,6 +67,9 @@ export const AnalyticRoute = {
                 // Устанавливаем начальную дату в датапикере
                 store.dispatch(ActionCreator.ActionCreatorLogDO.setDate(date));
 
+                // Устанавливаем подсказку (какой фильтр сейчас есть у таблицы)
+                store.dispatch(ActionCreator.ActionCreatorLogDO.setAlert(items.alert));
+
                 if (shouldUpdate) {
                     // Записываем данные аналитики в хранилище
                     store.dispatch(ActionCreator.ActionCreatorLogDO.getAllLogDO(items.itemsDto));

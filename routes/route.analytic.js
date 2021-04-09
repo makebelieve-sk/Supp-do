@@ -284,6 +284,9 @@ const getBounceRating = async (equipment) => {
     try {
         let result = [];    // Результирующий массив
 
+        // Сортируем записи по полю "Оборудование.Наименование"
+        equipment = equipment.sort((a, b) => a.name < b.name ? 1 : -1);
+
         for (const eq of equipment) {
             // const countEqs = logDOsYear.filter(logDO => logDO.equipment.toString() === eq._id.toString());
 
@@ -506,7 +509,7 @@ router.get("/go-to-logDO/unassignedTasks", async (req, res) => {
             const itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
 
             // Отправляем ответ
-            res.status(201).json({itemsDto, startDate, endDate});
+            res.status(201).json({itemsDto, startDate, endDate, alert: "Неназначенные заявки"});
         })
             .sort({date: 1})
             .populate("applicant")
@@ -566,7 +569,7 @@ router.get("/go-to-logDO/inWorkTasks", async (req, res) => {
                 const itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
 
                 // Отправляем ответ
-                res.status(201).json({itemsDto, startDate, endDate});
+                res.status(201).json({itemsDto, startDate, endDate, alert: "Заявки в работе"});
             })
                 .sort({date: 1})
                 .populate("applicant")
@@ -595,7 +598,7 @@ router.get("/go-to-logDO/inWorkTasks", async (req, res) => {
     }
 });
 
-// Возвращает записи ЖДО при клике на "Непинятые заявки"
+// Возвращает записи ЖДО при клике на "Непринятые заявки"
 router.get("/go-to-logDO/notAccepted", async (req, res) => {
     try {
         const departments = await Department.find({}).populate("parent");   // Получаем все подразделения
@@ -629,7 +632,7 @@ router.get("/go-to-logDO/notAccepted", async (req, res) => {
                     const itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
 
                     // Отправляем ответ
-                    res.status(201).json({itemsDto, startDate, endDate});
+                    res.status(201).json({itemsDto, startDate, endDate, alert: "Непринятые заявки"});
                 })
                 .sort({date: 1})
                 .populate("applicant")
@@ -705,7 +708,7 @@ router.post("/go-to-logDO/bar", async (req, res) => {
                         const itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
 
                         // Отправляем ответ
-                        res.status(201).json({itemsDto, startDate, endDate});
+                        res.status(201).json({itemsDto, startDate, endDate, alert: "Гистограмма"});
                     }
                 )
                     .sort({date: 1})
@@ -766,7 +769,7 @@ router.post("/go-to-logDO/line", async (req, res) => {
                 const itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
 
                 // Отправляем ответ
-                res.status(201).json({itemsDto, startDate, endDate});
+                res.status(201).json({itemsDto, startDate, endDate, alert: "Динамика отказов"});
             }
         )
             .sort({date: 1})
@@ -836,7 +839,7 @@ router.get("/go-to-logDO/rating/bounceRating", async (req, res) => {
                 const itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
 
                 // Отправляем ответ
-                res.status(201).json({itemsDto, startDate, endDate});
+                res.status(201).json({itemsDto, startDate, endDate, alert: "Рейтинг отказов за 12 месяцев (Топ-5)"});
             }
         )
             .sort({date: 1})
@@ -953,7 +956,7 @@ router.get("/go-to-logDO/rating/ratingOrders", async (req, res) => {
         const itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
 
         // Отправляем ответ
-        res.status(201).json({itemsDto, startDate, endDate});
+        res.status(201).json({itemsDto, startDate, endDate, alert: "Рейтинг незакрытых заявок (Топ-5)"});
     } catch (err) {
         console.log(err);
         res.status(500).json({

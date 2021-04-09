@@ -43,3 +43,7 @@
 .table-logDo .ant-table.ant-table-small .ant-table-thead .ant-table-filter-column {
     margin: 0 !important;
 }
+
+.row-badges {
+    margin-bottom: 20px;
+}
