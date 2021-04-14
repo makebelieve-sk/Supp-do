@@ -3,7 +3,8 @@ const bcrypt = require("bcryptjs");
 const jwt = require('jsonwebtoken');
 const config = require("../config/default.json");
 const {check, validationResult} = require("express-validator");
-const User = require("../schemes/User");
+const Auth = require("../schemes/Auth");
+
 const router = Router();
 
 // Валидация полей авторизации
@@ -22,7 +23,7 @@ router.post("/register", checkMiddleware, async (req, res) => {
 
         const {login, password} = req.body;
 
-        const candidate = await User.findOne({login});
+        const candidate = await Auth.findOne({login});
 
         if (candidate) {
             return res.status(400).json({message: "Такой пользователь уже существует"});
@@ -30,16 +31,16 @@ router.post("/register", checkMiddleware, async (req, res) => {
 
         const hashedPassword = await bcrypt.hash(password, 12);
 
-        const newCandidate = new User({login, password: hashedPassword});
+        const newCandidate = new Auth({login, password: hashedPassword});
 
         await newCandidate.save();
 
-        let currentCandidate = await User.findOne({login});
+        let currentCandidate = await Auth.findOne({login});
 
         const token = jwt.sign(
             {userId: currentCandidate.id},
             config.jwtSecret,
-            {expiresIn: '1h'}
+            {expiresIn: "1h"}
         );
 
         res.status(201).json({
@@ -63,7 +64,7 @@ router.post("/login", checkMiddleware, async (req, res) => {
 
         const {login, password} = req.body;
 
-        const user = await User.findOne({login});
+        const user = await Auth.findOne({login});
 
         if (!user) {
             return res.status(400).json({message: "Такой пользователь не существует"});
@@ -78,7 +79,7 @@ router.post("/login", checkMiddleware, async (req, res) => {
         const token = jwt.sign(
             {userId: user.id},
             config.jwtSecret,
-            {expiresIn: '1h'}
+            {expiresIn: "1h"}
         );
 
         res.status(200).json({token, userId: user.id, user});

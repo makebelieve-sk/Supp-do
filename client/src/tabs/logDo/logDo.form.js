@@ -55,14 +55,14 @@ export const LogDoForm = ({item}) => {
             _id: item._id,
             date: item.date ? moment(item.date, TabOptions.dateFormat) : moment(),
             isNewItem: item.isNewItem,
-            notes: item.notes,
+            notes: item.notes.trim(),
             sendEmail: item.sendEmail,
             productionCheck: item.productionCheck,
-            task: item.task,
+            task: item.task.trim(),
             dateDone: item.dateDone ? moment(item.dateDone, TabOptions.dateFormat) : null,
             planDateDone: item.planDateDone ? moment(item.planDateDone, TabOptions.dateFormat) : null,
-            content: item.content,
-            downtime: item.downtime,
+            content: item.content.trim(),
+            downtime: item.downtime.trim(),
             acceptTask: item.acceptTask,
 
             applicant: item.applicant,
@@ -256,10 +256,11 @@ export const LogDoForm = ({item}) => {
                                 </Row>
                             </Form.Item>
 
-                            <Form.Item
-                                label="Описание"
-                                name="notes"
-                                rules={[{required: true, message: "Введите описание заявки!"}]}
+                            <Form.Item label="Описание" name="notes" rules={[{
+                                required: true,
+                                transform: value => value.trim(),
+                                message: "Введите описание заявки!"
+                            }]}
                             >
                                 <Input.TextArea
                                     onChange={(e) => form.setFieldsValue({notes: e.target.value})}

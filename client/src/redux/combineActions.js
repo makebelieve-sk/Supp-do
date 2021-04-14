@@ -11,6 +11,9 @@ import ActionCreatorLogDO from "./tabs.reducers/logDo/logDO.actions";
 import ActionCreatorReplaceField from "./general.reducers/replaceField/replaceField.actions";
 import ActionCreatorAnalytic from "./tabs.reducers/analytic/analytic.actions";
 import ActionCreatorStatistic from "./tabs.reducers/statistic/statistic.actions";
+import ActionCreatorHelp from "./tabs.reducers/help/help.actions";
+import ActionCreatorUser from "./tabs.reducers/user/user.actions";
+import ActionCreatorRole from "./tabs.reducers/role/role.actions";
 
 export const ActionCreator = {
     ActionCreatorProfession,
@@ -25,4 +28,7 @@ export const ActionCreator = {
     ActionCreatorReplaceField,
     ActionCreatorAnalytic,
     ActionCreatorStatistic,
+    ActionCreatorHelp,
+    ActionCreatorUser,
+    ActionCreatorRole,
 }

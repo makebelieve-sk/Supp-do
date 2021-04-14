@@ -18,6 +18,9 @@ app.use("/api/directory", require("./routes/route.person"));
 app.use("/api/directory", require("./routes/route.taskStatus"));
 app.use("/api/directory", require("./routes/route.equipmentProperty"));
 app.use("/api/directory", require("./routes/route.equipment"));
+app.use("/api/admin", require("./routes/route.help"));
+app.use("/api/admin", require("./routes/route.user"));
+// app.use("/api/admin", require("./routes/route.role"));
 
 app.use(fileUpload({createParentPath: true}));
 app.use("/public", express.static("public"));

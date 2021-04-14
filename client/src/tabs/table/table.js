@@ -15,6 +15,7 @@ import tableSettings from "../../options/tab.options/table.options/settings";
 import {getFilteredData} from "../../options/global.options/global.options";
 
 import "./table.css";
+import store from "../../redux/store";
 
 const {RangePicker} = DatePicker;
 
@@ -32,12 +33,15 @@ export const TableComponent = ({specKey}) => {
         equipment: state.reducerEquipment.equipment,
         tasks: state.reducerTask.tasks,
         logDO: state.reducerLogDO.logDO,
+        help: state.reducerHelp.help,
         date: state.reducerLogDO.date,
         legend: state.reducerLogDO.legend,
         alert: state.reducerLogDO.alert,
         activeKey: state.reducerTab.activeKey
     }));
     const dispatch = useDispatch();
+
+    const [marginBottomAlert, setMarginBottomAlert] = useState("20px");
 
     // Установка времени в датапикере
     const date = stateObject.date
@@ -71,18 +75,28 @@ export const TableComponent = ({specKey}) => {
                     if (item[key]) {
                         // поле - массив объектов (древовидная структура данных)
                         if (Array.isArray(item[key])) {
-                            const itemArray = item[key];
+                            const rek = (value, item) => {
+                                const itemArray = value;
 
-                            if (itemArray && itemArray.length) {
-                                itemArray.forEach(object => {
-                                    if (typeof object === "object" && filterText.length && !item.name.toLowerCase().includes(filterText.toLowerCase())) {
-                                        if ((object.name && object.name.toLowerCase().includes(filterText.toLowerCase())) ||
-                                            (object.notes && object.notes.toLowerCase().includes(filterText.toLowerCase()))) {
-                                            filteredItems.add(object);
+                                if (itemArray && itemArray.length) {
+                                    itemArray.forEach(object => {
+                                        if (typeof object === "object") {
+                                            if (filterText.length && !item.name.toLowerCase().includes(filterText.toLowerCase())) {
+                                                if ((object.name && object.name.toLowerCase().includes(filterText.toLowerCase())) ||
+                                                    (object.notes && object.notes.toLowerCase().includes(filterText.toLowerCase()))) {
+                                                    filteredItems.add(object);
+                                                }
+                                            }
                                         }
-                                    }
-                                })
+
+                                        if (Array.isArray(object.children)) {
+                                            rek(object.children, object);
+                                        }
+                                    })
+                                }
                             }
+
+                            rek(item[key], item);
                         }
 
                         // поле - строка
@@ -111,69 +125,96 @@ export const TableComponent = ({specKey}) => {
         dispatch(ActionCreator.ActionCreatorLogDO.setDate(date));
     }
 
+    /**
+     * Функция закрытия алерта
+     * @returns {Promise<void>}
+     */
+    const closeAlert = async () => {
+        setMarginBottomAlert("0px");      // Убираем отступ после алерта
+        store.dispatch(ActionCreator.ActionCreatorLogDO.setAlert(null));    // Обновляем фильтр таблицы
+        await LogDORoute.getAll();              // Обновляем данные в таблице
+    }
+
     return (
         <>
-            <Row className="container-row-dto" justify="space-between" align="bottom">
-                <Row justify="space-between" align="bottom">
+            <Row className="container-row-dto" justify="space-between" align="middle">
+                <Col span={4}>
                     <Header filterText={filterText} setFilterText={setFilterText}/>
+                </Col>
 
-                    {
-                        specKey === "logDO" ?
-                            <RangePicker
-                                allowClear={false}
-                                showTime={{format: "HH:mm"}}
-                                format={TabOptions.dateFormat}
-                                onChange={onChange}
-                                value={date}
-                            /> : null
-                    }
-                </Row>
+                {
+                    specKey === "logDO"
+                        ? <Col span={10}>
+                            <div style={{width: "70%"}}>
+                                <RangePicker
+                                    allowClear={false}
+                                    showTime={{format: "HH:mm"}}
+                                    format={TabOptions.dateFormat}
+                                    onChange={onChange}
+                                    value={date}
+                                />
+                            </div>
+                        </Col>
+                        : null
+                }
 
-                <ButtonsComponent specKey={specKey} onExport={onExport} setColumnsTable={setColumnsTable}/>
+                <Col span={10}>
+                    <ButtonsComponent specKey={specKey} onExport={onExport} setColumnsTable={setColumnsTable}/>
+                </Col>
             </Row>
 
-            <Row className="row-badges">
-                {
-                    stateObject.legend ? stateObject.legend.map(legend => (
-                        <Col key={legend.id} style={{textAlign: "center", marginRight: 5}}>
-                            <Badge
-                                count={`${legend.name} ${legend.count}`}
-                                style={{
-                                    backgroundColor: legend.color,
-                                    borderColor: legend.borderColor ?  legend.borderColor : "#FFFFFF",
-                                    color: legend.borderColor ?  legend.borderColor : "#FFFFFF"
-                                }}
+            {
+                stateObject.legend && specKey === "logDO"
+                    ? <Row className="row-badges">
+                        {stateObject.legend.map(legend => (
+                            <Col key={legend.id} style={{textAlign: "center", marginRight: 5}}>
+                                <Badge
+                                    count={`${legend.name} ${legend.count}`}
+                                    style={{
+                                        backgroundColor: legend.color,
+                                        borderColor: legend.borderColor ?  legend.borderColor : "#FFFFFF",
+                                        color: legend.borderColor ?  legend.borderColor : "#FFFFFF"
+                                    }}
+                                />
+                            </Col>
+                        ))}
+                    </Row>
+                    : null
+            }
+
+            {
+                stateObject.alert && specKey === "logDO"
+                    ? <Row style={{marginBottom: marginBottomAlert}}>
+                        <Col>
+                            <Alert
+                                message={stateObject.alert}
+                                type="warning"
+                                icon={<FilterOutlined/>}
+                                showIcon
+                                closable
+                                onClose={closeAlert}
                             />
                         </Col>
-                    )) : null
-                }
-            </Row>
+                    </Row>
+                    : null
+            }
 
-            {stateObject.alert ? <Row className="row-badges">
+            <Row>
                 <Col span={24}>
-                    <Alert
-                        message={stateObject.alert}
-                        type="warning"
-                        icon={<FilterOutlined/>}
-                        showIcon
-                        closable
-                        onClose={async () => await LogDORoute.getAll()}
+                    <Table
+                        bordered
+                        size={tableSettings.size}
+                        scroll={tableSettings.scroll}
+                        pagination={tableSettings.pagination}
+                        dataSource={columnsTable && columnsTable.length === 0 ? null : Array.from(filteredItems)}
+                        columns={columnsTable}
+                        rowKey={record => record._id.toString()}
+                        onRow={row => ({onClick: () => openRecordTab(specKey, row._id)})}
+                        loading={stateObject.loadingTable}
+                        className={specKey === "logDO" ? "table-logDo" : "table-usual"}
                     />
                 </Col>
-            </Row> : null}
-
-            <Table
-                bordered
-                size={tableSettings.size}
-                scroll={tableSettings.scroll}
-                pagination={tableSettings.pagination}
-                dataSource={columnsTable && columnsTable.length === 0 ? null : Array.from(filteredItems)}
-                columns={columnsTable}
-                rowKey={record => record._id.toString()}
-                onRow={row => ({onClick: () => openRecordTab(specKey, row._id)})}
-                loading={stateObject.loadingTable}
-                className={specKey === "logDO" ? "table-logDo" : "table-usual"}
-            />
+            </Row>
         </>
     );
 }

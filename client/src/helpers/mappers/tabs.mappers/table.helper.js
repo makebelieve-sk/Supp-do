@@ -9,6 +9,9 @@ import {
     EquipmentPropertyColumns,
     EquipmentColumns,
     LogDOColumns,
+    HelpColumns,
+    UserColumns,
+    RoleColumns,
 } from "../../../options/tab.options/table.options/columns";
 
 import {
@@ -19,6 +22,9 @@ import {
     headerEquipmentProperty,
     headerEquipment,
     headerLogDO,
+    headerHelp,
+    headerUser,
+    headerRole,
 } from "../../../options/tab.options/table.options/exportHeaders";
 
 import {ProfessionRoute} from "../../../routes/route.profession";
@@ -28,6 +34,9 @@ import {TaskStatusRoute} from "../../../routes/route.taskStatus";
 import {EquipmentPropertyRoute} from "../../../routes/route.EquipmentProperty";
 import {EquipmentRoute} from "../../../routes/route.Equipment";
 import {LogDORoute} from "../../../routes/route.LogDO";
+import {HelpRoute} from "../../../routes/route.Help";
+import {RoleRoute} from "../../../routes/route.Role";
+import {UserRoute} from "../../../routes/route.User";
 
 import {ProfessionTab} from "../../../tabs/profession/profession.edit";
 import {DepartmentTab} from "../../../tabs/department/department.edit";
@@ -36,9 +45,11 @@ import {TaskTab} from "../../../tabs/taskStatus/taskStatus.edit";
 import {EquipmentPropertyTab} from "../../../tabs/equipmentProperty/equipmentProperty.edit";
 import {EquipmentTab} from "../../../tabs/equipment/equipment.edit";
 import {LogDOTab} from "../../../tabs/logDo/logDO.edit";
+import {HelpTab} from "../../../tabs/help/help";
 
 import openRecord from "../../functions/tabs.functions/openRecordTab";
 import store from "../../../redux/store";
+import {UserTab} from "../../../tabs/user/user";
 
 // Карта соответствия ключей и вкладок, колонок и заголовков экспорта
 const map = new Map([
@@ -140,6 +151,48 @@ const map = new Map([
         getPrintName: "Журнал дефектов и отказов",
         getPrintData: () => store.getState().reducerLogDO.logDO
     }],
+    ["help", {
+        openRecordTab: (_id) => openRecord(
+            _id,
+            "Создание записи помощи",
+            "Редактирование записи помощи",
+            HelpTab,
+            "helpItem",
+            HelpRoute
+        ),
+        getColumns: HelpColumns,
+        getTableHeader: headerHelp,
+        getPrintName: "Помощь",
+        getPrintData: () => store.getState().reducerHelp.help
+    }],
+    ["users", {
+        openRecordTab: (_id) => openRecord(
+            _id,
+            "Создание пользователя",
+            "Редактирование пользователя",
+            UserTab,
+            "helpItem",
+            UserRoute
+        ),
+        getColumns: UserColumns,
+        getTableHeader: headerUser,
+        getPrintName: "Пользователи",
+        getPrintData: () => store.getState().reducerUser.users
+    }],
+    // ["roles", {
+    //     openRecordTab: (_id) => openRecord(
+    //         _id,
+    //         "Создание роли",
+    //         "Редактирование роли",
+    //         RoleTab,
+    //         "roleItem",
+    //         RoleRoute
+    //     ),
+    //     getColumns: RoleColumns,
+    //     getTableHeader: headerRole,
+    //     getPrintName: "Роли",
+    //     getPrintData: () => store.getState().reducerRole.roles
+    // }],
 ]);
 
 /**

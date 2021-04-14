@@ -105,7 +105,16 @@ export default function setFieldRecord(replaceField, item) {
                 state: item,
                 stateId: item._id
             }));
-        }]
+        }],
+        ["userPerson", () => {
+            const formValues = store.getState().reducerReplaceField.replaceFieldPerson.formValues;
+            const people = store.getState().reducerPerson.people;
+
+            store.dispatch(ActionCreator.ActionCreatorUser.setRowDataUser({
+                ...formValues,
+                person: formValues.person ? people.find(person => person._id === formValues.person) : null,
+            }));
+        }],
     ]);
 
     if (map.has(replaceField.key)) {

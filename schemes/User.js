@@ -1,9 +1,16 @@
-const {Schema, model} = require("mongoose");
+//Модель для справочника Пользователь
+const {Schema, model, Types} = require("mongoose");
 
-// Создаем модель Профессии
 const schema = new Schema({
-    login: { type: String, required: true, unique: true },
-    password: { type: String, required: true }
+    name: {type: String, required: true},
+    surName: {type: String, required: true},
+    email: {type: String},
+    mailing: {type: Boolean},
+    approved: {type: Boolean},
+    roleAdmin: {type: Boolean},
+    roleUser: {type: Boolean},
+    userName: {type: String, required: true},
+    person: {type: Types.ObjectId, ref: "Person", required: true}
 });
 
 module.exports = model("User", schema);

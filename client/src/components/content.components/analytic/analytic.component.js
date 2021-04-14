@@ -24,14 +24,20 @@ export const AnalyticComponent = () => {
         prevAnalyticData: state.reducerAnalytic.prevAnalyticData,
     }));
 
-    // Единицы измерения ср. время реагирования
-    const unitsAverageResponseTime = analytic && analytic.averageResponseTime
-        ? analytic.averageResponseTime.toString().length === 2
-            ? "мин"
-            : analytic.averageResponseTime.toString().length === 5
-                ? "час"
-                : "сут"
-        : "сут";
+    /**
+     * Функция расчета единиц измерения
+     * @param field - поле объекта аналитики
+     * @returns {string} - единицы измерерния
+     */
+    const getUnits = (field) => {
+        return analytic && field
+            ? field.toString().length === 2
+                ? "мин"
+                : field.toString().length === 5
+                    ? "чч:мм"
+                    : "сут"
+            : "сут";
+    }
 
     /**
      * Функция обработки перехода в раздел ЖДО
@@ -126,7 +132,7 @@ export const AnalyticComponent = () => {
                 {/*Ср. время реагирования, Ср. время выполнения*/}
                 <Col span={6} className="block-2">
                     <CircleComponent
-                        title={"Ср. время реагирования, " + unitsAverageResponseTime}
+                        title={"Ср. время реагирования, " + getUnits(analytic.averageResponseTime)}
                         value={analytic && analytic.averageResponseTime ? analytic.averageResponseTime : 0}
                         borderColor={analytic && prevAnalyticData && analytic.averageResponseTime
                         && analytic.averageResponseTime.length
@@ -136,7 +142,7 @@ export const AnalyticComponent = () => {
                         size={true}
                     />
                     <CircleComponent
-                        title="Ср. время выполнения, сут."
+                        title={"Ср. время выполнения, " + getUnits(analytic.averageClosingTime)}
                         value={analytic && analytic.averageClosingTime ? analytic.averageClosingTime : 0}
                         borderColor={analytic && prevAnalyticData && analytic.averageClosingTime
                         && analytic.averageClosingTime.length

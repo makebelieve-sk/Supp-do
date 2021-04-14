@@ -44,8 +44,8 @@ export const PersonForm = ({item}) => {
         form.setFieldsValue({
             _id: item._id,
             isNewItem: item.isNewItem,
-            name: item.name,
-            notes: item.notes,
+            name: item.name.trim(),
+            notes: item.notes.trim(),
             department: item.department ? item.department._id : null,
             profession: item.profession ? item.profession._id : null
         });
@@ -75,8 +75,6 @@ export const PersonForm = ({item}) => {
 
     const cancelHandler = () => PersonRoute.cancel(onRemove);
 
-    console.log("Ререндер вкладки Person");
-
     return (
         <Card.Meta
             title={title}
@@ -94,10 +92,7 @@ export const PersonForm = ({item}) => {
 
                     <Form.Item label="ФИО" name="name" rules={[{
                         required: true,
-                        transform: (value) => {
-                            value = value.trim();
-                            return value;
-                        },
+                        transform: value => value.trim(),
                         message: "Введите ФИО"
                     }]}>
                         <Input maxLength={255} type="text" onChange={e => form.setFieldsValue({name: e.target.value})}/>

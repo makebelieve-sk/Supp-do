@@ -18,7 +18,10 @@ export default function getTableData(key, dataStore) {
         ["tasks", dataStore],
         ["equipmentProperties", dataStore],
         ["equipment", createTreeData(dataStore)],
-        ["logDO", dataStore]
+        ["logDO", dataStore],
+        ["help", dataStore],
+        ["users", dataStore],
+        ["roles", dataStore],
     ]);
 
     if (map.has(key)) {

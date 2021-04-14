@@ -23,8 +23,8 @@ export const ProfessionForm = ({item}) => {
         form.setFieldsValue({
             _id: item._id,
             isNewItem: item.isNewItem,
-            name: item.name,
-            notes: item.notes,
+            name: item.name.trim(),
+            notes: item.notes.trim(),
         });
     }, [item, form]);
 
@@ -37,8 +37,6 @@ export const ProfessionForm = ({item}) => {
     };
 
     const cancelHandler = () => ProfessionRoute.cancel(onRemove);
-
-    console.log("Обновление вкладки Profession");
 
     return (
         <Card.Meta
@@ -54,7 +52,12 @@ export const ProfessionForm = ({item}) => {
                     <Form.Item name="_id" hidden={true}><Input/></Form.Item>
                     <Form.Item name="isNewItem" hidden={true}><Input/></Form.Item>
 
-                    <Form.Item label="Профессия" name="name" rules={[{required: true, message: "Введите название профессии!"}]}>
+                    <Form.Item label="Профессия" name="name" rules={[
+                        {
+                            required: true,
+                            transform: value => value.trim(),
+                            message: "Введите название профессии!"
+                        }]}>
                         <Input onChange={(e) => form.setFieldsValue({name: e.target.value})} maxLength={255} type="text"/>
                     </Form.Item>
 

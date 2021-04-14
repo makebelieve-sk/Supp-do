@@ -54,7 +54,7 @@ export const EquipmentForm = ({item}) => {
             item.properties.forEach(property => {
                 const obj = {
                     equipmentProperty: property && property.equipmentProperty ? property.equipmentProperty._id : null,
-                    value: property ? property.value : ""
+                    value: property ? property.value.trim() : ""
                 };
 
                 characteristicArr.push(obj);
@@ -65,8 +65,8 @@ export const EquipmentForm = ({item}) => {
         form.setFieldsValue({
             _id: item._id,
             isNewItem: item.isNewItem,
-            name: item.name,
-            notes: item.notes,
+            name: item.name.trim(),
+            notes: item.notes.trim(),
             parent: item.parent ? item.parent._id : null,
             properties: item.properties && item.properties.length ? characteristicArr : [{equipmentProperty: null, value: ""}]
         });
@@ -121,8 +121,6 @@ export const EquipmentForm = ({item}) => {
         actionCreatorDelete: ActionCreator.ActionCreatorEquipment.deleteFile
     };
 
-    console.log("Ререндер вкладки Equipment");
-
     return (
         <Card.Meta
             title={title}
@@ -161,10 +159,11 @@ export const EquipmentForm = ({item}) => {
                                 />
                             </Form.Item>
 
-                            <Form.Item
-                                label="Наименование"
-                                name="name"
-                                rules={[{required: true, message: "Введите название подразделения!"}]}
+                            <Form.Item label="Наименование" name="name" rules={[{
+                                required: true,
+                                transform: value => value.trim(),
+                                message: "Введите название подразделения!"
+                            }]}
                             >
                                 <Input onChange={e => form.setFieldsValue({name: e.target.value})} maxLength={255} type="text"/>
                             </Form.Item>

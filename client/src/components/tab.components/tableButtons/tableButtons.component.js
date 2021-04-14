@@ -1,5 +1,5 @@
 import React, {useState, useMemo} from "react";
-import {Button, Row, Menu, Dropdown, Checkbox} from "antd";
+import {Button, Menu, Dropdown, Checkbox} from "antd";
 import {PlusOutlined, FileExcelOutlined, EditOutlined} from "@ant-design/icons";
 
 import {getColumns, getTableHeader, openRecordTab} from "../../../helpers/mappers/tabs.mappers/table.helper";
@@ -70,18 +70,18 @@ export const ButtonsComponent = ({specKey, onExport, setColumnsTable}) => {
         </Menu>;
 
         return (
-            <Row align="middle">
-                <Button className="button-style" icon={<PlusOutlined/>} type="primary"
+            <div style={{display: "flex", justifyContent: "space-between"}}>
+                <Button className="button" icon={<PlusOutlined/>} type="primary"
                         onClick={() => openRecordTab(specKey, "-1")}>Добавить</Button>
-                <Button className="button-style" icon={<FileExcelOutlined/>}
+                <Button className="button" icon={<FileExcelOutlined/>}
                         onClick={e => onExport(e.target.value)}>Экспорт</Button>
 
                 <PrintButton headers={headers} specKey={specKey}/>
 
                 <Dropdown overlay={dropdownMenu} onVisibleChange={handleVisibleChange} visible={visible}>
-                    <Button className="button-style" icon={<EditOutlined/>}>Колонки</Button>
+                    <Button className="button" icon={<EditOutlined/>}>Колонки</Button>
                 </Dropdown>
-            </Row>
+            </div>
         );
     }, [specKey, onExport, visible, columns, checkedColumns, setCheckedColumns, setColumnsTable, headers]);
 };

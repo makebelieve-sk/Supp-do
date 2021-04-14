@@ -21,8 +21,8 @@ export const EquipmentPropertyForm = ({item}) => {
         form.setFieldsValue({
             _id: item._id,
             isNewItem: item.isNewItem,
-            name: item.name,
-            notes: item.notes,
+            name: item.name.trim(),
+            notes: item.notes.trim(),
         });
     }, [item, form]);
 
@@ -39,8 +39,6 @@ export const EquipmentPropertyForm = ({item}) => {
 
     const cancelHandler = () => EquipmentPropertyRoute.cancel(onRemove);
 
-    console.log("Обновление вкладки EquipmentProperty");
-
     return (
         <Card.Meta
             title={title}
@@ -56,7 +54,11 @@ export const EquipmentPropertyForm = ({item}) => {
                     <Form.Item name="_id" hidden={true}><Input/></Form.Item>
                     <Form.Item name="isNewItem" hidden={true}><Input/></Form.Item>
 
-                    <Form.Item label="Наименование" name="name" rules={[{required: true, message: "Введите наименование!"}]}>
+                    <Form.Item label="Наименование" name="name" rules={[{
+                        required: true,
+                        transform: value => value.trim(),
+                        message: "Введите наименование!"
+                    }]}>
                         <Input onChange={(e) => form.setFieldsValue({name: e.target.value})} maxLength={255} type="text"/>
                     </Form.Item>
 

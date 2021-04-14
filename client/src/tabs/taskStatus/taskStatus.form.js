@@ -1,11 +1,11 @@
 // Компонент формы записи раздела "Состояние заявки"
 import React, {useContext, useEffect, useState} from "react";
+import {SketchPicker} from "react-color";
 import {Card, Button, Checkbox, Col, Dropdown, Form, Input, Row} from "antd";
 import {EditOutlined} from "@ant-design/icons";
 
 import {onFailed, TabButtons} from "../tab.functions";
 import {TaskStatusRoute} from "../../routes/route.taskStatus";
-import {SketchPicker} from "react-color";
 import {DeleteTabContext} from "../../context/deleteTab.context";
 
 export const TaskStatusForm = ({item}) => {
@@ -27,8 +27,8 @@ export const TaskStatusForm = ({item}) => {
         form.setFieldsValue({
             _id: item._id,
             isNewItem: item.isNewItem,
-            name: item.name,
-            notes: item.notes,
+            name: item.name.trim(),
+            notes: item.notes.trim(),
             color: item.color,
             isFinish: item.isFinish,
         });
@@ -50,20 +50,17 @@ export const TaskStatusForm = ({item}) => {
     // Создание компонента цветового пикера
     const colorPickerComponent = <SketchPicker
         color={color}
-        onChangeComplete={(newColor, event) => {
-            if (event.type === "mousedown") {
-                // Обновляем значение инпута цвета с помощью хука useForm
-                form.setFieldsValue({color: newColor.hex.toUpperCase()});
-                // Обновляем стейт цвета
-                setColor(newColor.hex.toUpperCase());
-            }
+        disableAlpha={true}
+        onChange={newColor => {
+            // Обновляем значение инпута цвета с помощью хука useForm
+            form.setFieldsValue({color: newColor.hex.toUpperCase()});
+            // Обновляем стейт цвета
+            setColor(newColor.hex.toUpperCase());
         }}
     />;
 
     // Функция для изменения стейта отображения цветового пикера
     const handleVisibleChange = isVisible => setVisible(isVisible);
-
-    console.log("Обновление вкладки TaskStatus");
 
     return (
         <Card.Meta
@@ -80,7 +77,11 @@ export const TaskStatusForm = ({item}) => {
                     <Form.Item name="_id" hidden={true}><Input/></Form.Item>
                     <Form.Item name="isNewItem" hidden={true}><Input/></Form.Item>
 
-                    <Form.Item label="Наименование" name="name" rules={[{required: true, message: "Введите наименование"}]}>
+                    <Form.Item label="Наименование" name="name" rules={[{
+                        required: true,
+                        transform: value => value.trim(),
+                        message: "Введите наименование"
+                    }]}>
                         <Input onChange={(e) => form.setFieldsValue({name: e.target.value})} maxLength={255} type="text"/>
                     </Form.Item>
 
@@ -93,6 +94,7 @@ export const TaskStatusForm = ({item}) => {
                             </Col>
                             <Col xs={{span: 4}} sm={{span: 4}} md={{span: 2}} lg={{span: 2}} xl={{span: 2}}>
                                 <Dropdown
+                                    trigger={["click"]}
                                     overlay={colorPickerComponent}
                                     onVisibleChange={handleVisibleChange}
                                     visible={visible}

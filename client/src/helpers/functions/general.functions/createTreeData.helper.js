@@ -1,5 +1,9 @@
 // Функция построения древовидной структуры данных
 export const createTreeData = (dataStore) => {
+    if (!dataStore || !dataStore.length) {
+        return [];
+    }
+
     // Сортируем массив по полю "parent"
     dataStore.sort((a, b) => a.parent && b.parent && a.parent.name > b.parent.name ? 1 : -1);
 

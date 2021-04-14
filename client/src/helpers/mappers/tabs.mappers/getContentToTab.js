@@ -22,6 +22,9 @@ export default function getContentToTab(key) {
         ["logDO", <TableComponent specKey={key}/>],
         ["analytic", <AnalyticComponent />],
         ["statistic", <StatisticComponent />],
+        ["help", <TableComponent specKey={key}/>],
+        ["users", <TableComponent specKey={key}/>],
+        ["roles", <TableComponent specKey={key}/>],
     ]);
 
     if (map.has(key)) {

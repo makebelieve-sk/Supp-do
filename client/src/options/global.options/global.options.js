@@ -11,6 +11,9 @@ import {EquipmentRoute} from "../../routes/route.Equipment";
 import {TaskStatusRoute} from "../../routes/route.taskStatus";
 import {AnalyticRoute} from "../../routes/route.Analytic";
 import {StatisticRoute} from "../../routes/route.Statistic";
+import {HelpRoute} from "../../routes/route.Help";
+import {UserRoute} from "../../routes/route.User";
+import {RoleRoute} from "../../routes/route.Role";
 
 // Инициализация меню приложения
 const menuItems = [
@@ -73,18 +76,6 @@ const menuItems = [
                     }
                 ]
             },
-            {
-                title: "Прочее",
-                key: "other",
-                children: [
-                    {
-                        title: "Информация о предприятии",
-                        key: "companyInfo",
-                        url: "company-info",
-                        dispatchAction: ActionCreator.ActionCreatorEquipmentProperty.getAllEquipmentProperties
-                    }
-                ]
-            }
         ]
     },
     {
@@ -106,7 +97,8 @@ const menuItems = [
                         title: "Помощь",
                         key: "help",
                         url: "help",
-                        dispatchAction: ActionCreator.ActionCreatorDepartment.getAllDepartments
+                        dispatchAction: ActionCreator.ActionCreatorHelp.getAllHelp,
+                        model: HelpRoute
                     }
                 ]
             },
@@ -118,38 +110,24 @@ const menuItems = [
                         title: "Пользователи",
                         key: "users",
                         url: "users",
-                        dispatchAction: ActionCreator.ActionCreatorEquipmentProperty.getAllEquipmentProperties
+                        dispatchAction: ActionCreator.ActionCreatorUser.getAllUsers,
+                        model: UserRoute
                     },
                     {
                         title: "Роли",
                         key: "roles",
                         url: "roles",
-                        dispatchAction: ActionCreator.ActionCreatorEquipment.getAllEquipment
+                        dispatchAction: ActionCreator.ActionCreatorRole.getAllRoles,
+                        model: RoleRoute
                     },
                     {
                         title: "Журнал действий пользователя",
-                        key: "actions",
-                        url: "actions",
-                        dispatchAction: ActionCreator.ActionCreatorTask.getAllTasks
+                        key: "logs",
+                        url: "logs",
+                        // dispatchAction: ActionCreator.ActionCreatorLogs.getAllLogs,
+                        // model: LogRoute
                     }
                 ]
-            }
-        ]
-    },
-    {
-        title: "Личный кабинет",
-        key: "personal-area",
-        icon: <UserOutlined/>,
-        children: [
-            {
-                title: "Сменить пароль",
-                key: "change-password",
-                url: "/change-password"
-            },
-            {
-                title: "Выйти",
-                key: "logout",
-                url: "/login"
             }
         ]
     },
@@ -173,8 +151,44 @@ const menuItems = [
                 route: StatisticRoute
             }
         ]
-    }
+    },
+    {
+        title: "Личный кабинет",
+        key: "personal-area",
+        icon: <UserOutlined/>,
+        children: [
+            {
+                title: "Сменить пароль",
+                key: "change-password",
+                url: "/change-password"
+            },
+            {
+                title: "Выйти",
+                key: "logout",
+                url: "/login"
+            }
+        ]
+    },
 ];
+
+// Инициализация массива существующих разделов проекта
+const sections = [
+    {label: "Не выбрано", value: null},
+    {label: "Профессии", value: "professions"},
+    {label: "Подразделения", value: "departments"},
+    {label: "Персонал", value: "people"},
+    {label: "Характеристики оборудования", value: "equipmentProperties"},
+    {label: "Оборудование", value: "equipment"},
+    {label: "Состояние заявок", value: "tasks"},
+    {label: "Журнал дефектов и отказов", value: "logDO"},
+    {label: "Аналитика", value: "analytic"},
+    {label: "Статистика", value: "statistic"},
+    {label: "Помощь", value: "help"},
+    {label: "Пользователи", value: "users"},
+    {label: "Роли", value: "roles"},
+    {label: "Журнал действий пользователя", value: "logs"},
+    {label: "Информация о предприятии", value: "companiesInfo"},
+]
 
 /**
  * Функция фильтрации полей массива данных
@@ -204,4 +218,4 @@ const getPrintFilteredData = (data) => {
     });
 }
 
-export {menuItems, getFilteredData, getPrintFilteredData};
+export {menuItems, sections, getFilteredData, getPrintFilteredData};

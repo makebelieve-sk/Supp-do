@@ -551,7 +551,12 @@ const LogDOColumns = [
         dataIndex: "planDateDone",
         key: "planDateDone",
         width: 120,
-        sorter: (a, b) => a.planDateDone.length - b.planDateDone.length,
+        sorter: (a, b) => {
+            const start = moment(a.planDateDone, TabOptions.dateFormat);
+            const end = moment(b.planDateDone, TabOptions.dateFormat);
+
+            return start.diff(end, "milliseconds") > 0;
+        },
         sortDirections: ["descend", "ascend"],
         filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}) => (
             <div style={{padding: 8}}>
@@ -635,6 +640,111 @@ const LogDOColumns = [
     // }
 ];
 
+// Создание колонок для раздела "Помощь"
+const HelpColumns = [
+    {
+        title: "Название раздела",
+        dataIndex: ["name", "label"],
+        key: "name",
+        width: 100,
+        sorter: (a, b) => a.name.label.length - b.name.label.length,
+        sortDirections: ["descend", "ascend"],
+    },
+    {
+        title: "Текст",
+        dataIndex: "text",
+        key: "text",
+        width: 100,
+        sorter: (a, b) => a.text.length - b.text.length,
+        sortDirections: ["descend", "ascend"],
+    },
+    {
+        title: "Дата изменения",
+        dataIndex: "date",
+        key: "date",
+        width: 100,
+        sorter: (a, b) => {
+            const start = moment(a.date, TabOptions.dateFormat);
+            const end = moment(b.date, TabOptions.dateFormat);
+
+            return start.diff(end, "milliseconds") > 0;
+        },
+        sortDirections: ["descend", "ascend"],
+        render: (text, record) => ({children: moment(record.date).format(TabOptions.dateFormat)})
+    }
+];
+
+// Создание колонок для раздела "Пользователи"
+const UserColumns = [
+    {
+        title: "Имя пользователя",
+        dataIndex: "userName",
+        key: "userName",
+        width: 100,
+        sorter: (a, b) => a.userName.length - b.userName.length,
+        sortDirections: ["descend", "ascend"],
+    },
+    {
+        title: "Имя",
+        dataIndex: "name",
+        key: "name",
+        width: 100,
+        sorter: (a, b) => a.name.length - b.name.length,
+        sortDirections: ["descend", "ascend"],
+    },
+    {
+        title: "Фамилия",
+        dataIndex: "surName",
+        key: "surName",
+        width: 100,
+        sorter: (a, b) => a.surName.length - b.surName.length,
+        sortDirections: ["descend", "ascend"],
+    },
+    {
+        title: "Роли",
+        dataIndex: "roles",
+        key: "roles",
+        width: 100,
+        sorter: (a, b) => a.roles.length - b.roles.length,
+        sortDirections: ["descend", "ascend"],
+    },
+    {
+        title: "Электронная почта",
+        dataIndex: "email",
+        key: "email",
+        width: 100,
+        sorter: (a, b) => a.email.length - b.email.length,
+        sortDirections: ["descend", "ascend"],
+    },
+    {
+        title: "Одобрен",
+        dataIndex: "approved",
+        key: "approved",
+        width: 100,
+        render: (text, record) => ({children: record.approved ? <CheckOutlined/> : ""})
+    },
+];
+
+// Создание колонок для раздела "Роли"
+const RoleColumns = [
+    {
+        title: "Наименование",
+        dataIndex: "name",
+        key: "name",
+        width: 100,
+        sorter: (a, b) => a.name.length - b.name.length,
+        sortDirections: ["descend", "ascend"],
+    },
+    {
+        title: "Описание",
+        dataIndex: "notes",
+        key: "notes",
+        width: 100,
+        sorter: (a, b) => a.notes.length - b.notes.length,
+        sortDirections: ["descend", "ascend"],
+    }
+];
+
 export {
     ProfessionColumns,
     DepartmentColumns,
@@ -642,5 +752,8 @@ export {
     TasksColumns,
     EquipmentPropertyColumns,
     EquipmentColumns,
-    LogDOColumns
+    LogDOColumns,
+    HelpColumns,
+    UserColumns,
+    RoleColumns,
 };

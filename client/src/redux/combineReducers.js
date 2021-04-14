@@ -13,6 +13,9 @@ import reducerLogDO from "./tabs.reducers/logDo/logDO.reducer";
 import reducerReplaceField from "./general.reducers/replaceField/replaceField.reducer";
 import reducerAnalytic from "./tabs.reducers/analytic/analytic.reducer";
 import reducerStatistic from "./tabs.reducers/statistic/statistic.reducer";
+import reducerHelp from "./tabs.reducers/help/help.reducer";
+import reducerUser from "./tabs.reducers/user/user.reducer";
+import reducerRole from "./tabs.reducers/role/role.reducer";
 
 export const reducer = combineReducers({
     reducerProfession,
@@ -26,5 +29,8 @@ export const reducer = combineReducers({
     reducerLogDO,
     reducerReplaceField,
     reducerAnalytic,
-    reducerStatistic
+    reducerStatistic,
+    reducerHelp,
+    reducerUser,
+    reducerRole,
 });

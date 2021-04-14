@@ -13,19 +13,19 @@ moment.locale("ru");            // Русифицируем библиотеку
 /**
  * Функция преобразования миллисекунд в сек/мин/сут
  * @param result - среднее значение времени
- * @param arr - массив записей (нужен для количества)
+ * @param count - количество записей
  * @returns string - возвращаем строку
  */
-const transformTime = (result, arr) => {
+const transformTime = (result, count) => {
     if (result) {
-        const hours = Math.floor(result / arr.length / 1000 / 60 / 60);     // Находим часы
-        const minutes = Math.floor(result / arr.length / 1000 / 60 % 60);   // Находим минуты
+        const hours = Math.floor(result / count / 1000 / 60 / 60);     // Находим часы
+        const minutes = Math.floor(result / count / 1000 / 60 % 60);   // Находим минуты
 
         // Форматируем конечное значение
         if (hours === 0) {
             result = minutes;
         } else if (hours.toString().length >= 3) {
-            result = (result / arr.length / 1000 / 60 / 60 / 24).toFixed(1);
+            result = (result / count / 1000 / 60 / 60 / 24).toFixed(1);
         } else {
             result = `${hours}:${minutes < 10 ? `0${minutes}` : minutes}`;
         }
@@ -156,17 +156,22 @@ const getFailureDynamics = (logDOs) => {
  * @returns среднее время реагирования
  */
 const getAverageResponseTime = async () => {
-    try {
-        let result = 0;    // Результат
+    try {let result = 0;    // Результат
 
         const logDOs = await LogDO
             .find({$and: [{chooseResponsibleTime: {$ne: null}}, {chooseResponsibleTime: {$ne: 0}}]})
             .select("chooseResponsibleTime")
-            // .aggregate([{"$project": {"TotalChooseResponsibleTime": {"$sum": "chooseResponsibleTime"}}}]);
+            // .aggregate([
+            //     {$match: {$and: [{chooseResponsibleTime: {$ne: null}}, {chooseResponsibleTime: {$ne: 0}}]}},
+            //     {$group: {
+            //             _id: "$_id",
+            //             sum: {$sum: "$chooseResponsibleTime"}
+            //         }}
+            // ]);
 
         logDOs.forEach(logDO => result += +logDO.chooseResponsibleTime);
 
-        return transformTime(result, logDOs);
+        return transformTime(result, logDOs.length);
     } catch (err) {
         throw new Error(err);
     }
@@ -182,11 +187,18 @@ const getAverageClosingTime = async () => {
 
         const logDOs = await LogDO
             .find({$and: [{acceptTask: true}, {chooseStateTime: {$ne: null}}, {chooseStateTime: {$ne: 0}}]})
-            .select("chooseStateTime");
+            .select("chooseStateTime")
+            // .aggregate([
+            //     {$match: {$and: [{acceptTask: true}, {chooseStateTime: {$ne: null}}, {chooseStateTime: {$ne: 0}}]}},
+            //     {$group: {
+            //             _id: "$_id",
+            //             sum: {$sum: "$chooseStateTime"}
+            //         }}
+            // ]);
 
         logDOs.forEach(logDO => result += +logDO.chooseStateTime);
 
-        return transformTime(result, logDOs);
+        return transformTime(result, logDOs.length);
     } catch (err) {
         throw new Error(err);
     }
@@ -288,8 +300,6 @@ const getBounceRating = async (equipment) => {
         equipment = equipment.sort((a, b) => a.name < b.name ? 1 : -1);
 
         for (const eq of equipment) {
-            // const countEqs = logDOsYear.filter(logDO => logDO.equipment.toString() === eq._id.toString());
-
             // Количество миллисекунд до "сейчас"/до прошлого года
             const currentDate = moment().valueOf();
             const prevYear = moment().subtract(1, "year").valueOf();
@@ -708,7 +718,7 @@ router.post("/go-to-logDO/bar", async (req, res) => {
                         const itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
 
                         // Отправляем ответ
-                        res.status(201).json({itemsDto, startDate, endDate, alert: "Гистограмма"});
+                        res.status(201).json({itemsDto, startDate, endDate, alert: "Загруженность подразделений"});
                     }
                 )
                     .sort({date: 1})
