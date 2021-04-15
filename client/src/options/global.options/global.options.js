@@ -1,7 +1,6 @@
 // Глобальные настройки приложения
 import React from "react";
 import {MenuUnfoldOutlined, LaptopOutlined, UserOutlined, StockOutlined} from "@ant-design/icons";
-import {ActionCreator} from "../../redux/combineActions";
 
 import {ProfessionRoute} from "../../routes/route.profession";
 import {DepartmentRoute} from "../../routes/route.Department";
@@ -29,22 +28,16 @@ const menuItems = [
                     {
                         title: "Профессии",
                         key: "professions",
-                        url: "professions",
-                        dispatchAction: ActionCreator.ActionCreatorProfession.getAllProfessions,
                         model: ProfessionRoute
                     },
                     {
                         title: "Подразделения",
                         key: "departments",
-                        url: "departments",
-                        dispatchAction: ActionCreator.ActionCreatorDepartment.getAllDepartments,
                         model: DepartmentRoute
                     },
                     {
                         title: "Персонал",
                         key: "people",
-                        url: "people",
-                        dispatchAction: ActionCreator.ActionCreatorPerson.getAllPeople,
                         model: PersonRoute
                     }
                 ]
@@ -56,22 +49,16 @@ const menuItems = [
                     {
                         title: "Характеристики оборудования",
                         key: "equipmentProperties",
-                        url: "equipment-property",
-                        dispatchAction: ActionCreator.ActionCreatorEquipmentProperty.getAllEquipmentProperties,
                         model: EquipmentPropertyRoute
                     },
                     {
                         title: "Перечень оборудования",
                         key: "equipment",
-                        url: "equipment",
-                        dispatchAction: ActionCreator.ActionCreatorEquipment.getAllEquipment,
                         model: EquipmentRoute
                     },
                     {
                         title: "Состояние заявок",
                         key: "tasks",
-                        url: "taskStatus",
-                        dispatchAction: ActionCreator.ActionCreatorTask.getAllTasks,
                         model: TaskStatusRoute
                     }
                 ]
@@ -84,50 +71,30 @@ const menuItems = [
         icon: <LaptopOutlined/>,
         children: [
             {
-                title: "Общее",
-                key: "general",
-                children: [
-                    {
-                        title: "Страницы приложения",
-                        key: "pages",
-                        url: "pages",
-                        dispatchAction: ActionCreator.ActionCreatorProfession.getAllProfessions
-                    },
-                    {
-                        title: "Помощь",
-                        key: "help",
-                        url: "help",
-                        dispatchAction: ActionCreator.ActionCreatorHelp.getAllHelp,
-                        model: HelpRoute
-                    }
-                ]
-            },
-            {
                 title: "Управление пользователями",
                 key: "userManagement",
                 children: [
                     {
                         title: "Пользователи",
                         key: "users",
-                        url: "users",
-                        dispatchAction: ActionCreator.ActionCreatorUser.getAllUsers,
                         model: UserRoute
                     },
                     {
                         title: "Роли",
                         key: "roles",
-                        url: "roles",
-                        dispatchAction: ActionCreator.ActionCreatorRole.getAllRoles,
                         model: RoleRoute
                     },
                     {
                         title: "Журнал действий пользователя",
                         key: "logs",
-                        url: "logs",
-                        // dispatchAction: ActionCreator.ActionCreatorLogs.getAllLogs,
                         // model: LogRoute
                     }
                 ]
+            },
+            {
+                title: "Помощь",
+                key: "help",
+                model: HelpRoute
             }
         ]
     },
@@ -139,15 +106,11 @@ const menuItems = [
             {
                 title: "Аналитика",
                 key: "analytic",
-                url: "analytic",
-                dispatchAction: ActionCreator.ActionCreatorAnalytic.getAllAnalytic,
                 route: AnalyticRoute
             },
             {
                 title: "Статистика",
                 key: "statistic",
-                url: "statistic",
-                dispatchAction: ActionCreator.ActionCreatorStatistic.getAllStatistic,
                 route: StatisticRoute
             }
         ]
@@ -197,10 +160,11 @@ const sections = [
  */
 const getFilteredData = (data) => {
     return data.filter(key => {
-        return key !== "_id" && key !== "key" && key !== "__v" && key !== "files" && key !== "isFinish" &&
+        return key !== "_id" && key !== "key" && key !== "__v" && key !== "files" &&
             key !== "sendEmail" && key !== "productionCheck" && key !== "downtime" && key !== "acceptTask" &&
             key !== "equipmentTooltip" && key !== "departmentTooltip" && key !== "color" && key !== "departmentId" &&
-            key !== "equipmentId";
+            key !== "equipmentId" && key !== "mailing" && key !== "password" &&
+            key !== "permissions";
     });
 }
 

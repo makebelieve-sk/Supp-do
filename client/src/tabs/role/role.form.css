@@ -1,0 +1,16 @@
+.table {
+    width: 100%;
+}
+
+.center {
+    text-align: center;
+}
+
+.link {
+    color: #007BFF;
+}
+
+.link:hover {
+    cursor: pointer;
+    text-decoration: underline;
+}

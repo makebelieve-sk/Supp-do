@@ -3,7 +3,6 @@ import React, {useContext} from "react";
 import {Link} from "react-router-dom";
 import {Layout, Menu} from "antd";
 
-import {ActionCreator} from "../../../redux/combineActions";
 import {LogDORoute} from "../../../routes/route.LogDO";
 import {AuthContext} from "../../../context/auth.context";
 import OpenTableTab from "../../../helpers/functions/tabs.functions/openTableTab";
@@ -23,8 +22,6 @@ export const SiderComponent = ({collapsed}) => {
             <div className="logo" onClick={() => OpenTableTab(
                 "Журнал дефектов и отказов",
                 "logDO",
-                "log-do",
-                ActionCreator.ActionCreatorLogDO.getAllLogDO,
                 LogDORoute
             )}>
                 <img src={logo} alt="Лого" className="logo-image"/>
@@ -44,13 +41,7 @@ export const SiderComponent = ({collapsed}) => {
                                                 subgroup.children.map(item => (
                                                     <Menu.Item
                                                         key={item.key}
-                                                        onClick={() => OpenTableTab(
-                                                            item.title,
-                                                            item.key,
-                                                            item.url,
-                                                            item.dispatchAction,
-                                                            item.model
-                                                        )}
+                                                        onClick={() => OpenTableTab(item.title, item.key, item.model)}
                                                     >
                                                         {item.title}
                                                     </Menu.Item>
@@ -59,22 +50,22 @@ export const SiderComponent = ({collapsed}) => {
                                         </SubMenu>
                                         : subgroup.route
                                         ? <Menu.Item key={subgroup.key} onClick={() =>
-                                                OpenTableTab(
-                                                    subgroup.title,
-                                                    subgroup.key,
-                                                    subgroup.url,
-                                                    subgroup.dispatchAction,
-                                                    subgroup.route
-                                                )}
-                                            >
+                                            OpenTableTab(subgroup.title, subgroup.key, subgroup.route)}
+                                        >
                                             {subgroup.title}
                                         </Menu.Item>
-                                        : <Menu.Item key={subgroup.key}>
+                                        : subgroup.url
+                                        ? <Menu.Item key={subgroup.key}>
                                             <Link to={subgroup.url} onClick={() =>
                                                 subgroup.key === "logout" ? auth.logout() : alert("Смена пароля")}
                                             >
                                                 {subgroup.title}
                                             </Link>
+                                        </Menu.Item>
+                                        : <Menu.Item key={subgroup.key} onClick={() =>
+                                            OpenTableTab(subgroup.title, subgroup.key, subgroup.model)}
+                                        >
+                                            {subgroup.title}
                                         </Menu.Item>
                                 ))
                             }

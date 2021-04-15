@@ -37,6 +37,8 @@ import {LogDORoute} from "../../../routes/route.LogDO";
 import {HelpRoute} from "../../../routes/route.Help";
 import {RoleRoute} from "../../../routes/route.Role";
 import {UserRoute} from "../../../routes/route.User";
+import {AnalyticRoute} from "../../../routes/route.Analytic";
+import {StatisticRoute} from "../../../routes/route.Statistic";
 
 import {ProfessionTab} from "../../../tabs/profession/profession.edit";
 import {DepartmentTab} from "../../../tabs/department/department.edit";
@@ -46,10 +48,11 @@ import {EquipmentPropertyTab} from "../../../tabs/equipmentProperty/equipmentPro
 import {EquipmentTab} from "../../../tabs/equipment/equipment.edit";
 import {LogDOTab} from "../../../tabs/logDo/logDO.edit";
 import {HelpTab} from "../../../tabs/help/help";
-
-import openRecord from "../../functions/tabs.functions/openRecordTab";
-import store from "../../../redux/store";
 import {UserTab} from "../../../tabs/user/user";
+import {RoleTab} from "../../../tabs/role/role";
+
+import store from "../../../redux/store";
+import openRecord from "../../functions/tabs.functions/openRecordTab";
 
 // Карта соответствия ключей и вкладок, колонок и заголовков экспорта
 const map = new Map([
@@ -65,7 +68,8 @@ const map = new Map([
         getColumns: ProfessionColumns,
         getTableHeader: headerProfession,
         getPrintName: "Профессии",
-        getPrintData: () => store.getState().reducerProfession.professions
+        getPrintData: () => store.getState().reducerProfession.professions,
+        model: ProfessionRoute
     }],
     ["departments", {
         openRecordTab: (_id) => openRecord(
@@ -79,7 +83,8 @@ const map = new Map([
         getColumns: DepartmentColumns,
         getTableHeader: headerDepartment,
         getPrintName: "Подразделения",
-        getPrintData: () => store.getState().reducerDepartment.departments
+        getPrintData: () => store.getState().reducerDepartment.departments,
+        model: DepartmentRoute
     }],
     ["people", {
         openRecordTab: (_id) => openRecord(
@@ -93,7 +98,8 @@ const map = new Map([
         getColumns: PersonColumns,
         getTableHeader: headerPerson,
         getPrintName: "Персонал",
-        getPrintData: () => store.getState().reducerPerson.people
+        getPrintData: () => store.getState().reducerPerson.people,
+        model: PersonRoute
     }],
     ["tasks", {
         openRecordTab: (_id) => openRecord(
@@ -107,7 +113,8 @@ const map = new Map([
         getColumns: TasksColumns,
         getTableHeader: headerTasks,
         getPrintName: "Состояния заявок",
-        getPrintData: () => store.getState().reducerTask.tasks
+        getPrintData: () => store.getState().reducerTask.tasks,
+        model: TaskStatusRoute
     }],
     ["equipmentProperties", {
         openRecordTab: (_id) => openRecord(
@@ -121,7 +128,8 @@ const map = new Map([
         getColumns: EquipmentPropertyColumns,
         getTableHeader: headerEquipmentProperty,
         getPrintName: "Характеристики оборудования",
-        getPrintData: () => store.getState().reducerEquipmentProperty.equipmentProperties
+        getPrintData: () => store.getState().reducerEquipmentProperty.equipmentProperties,
+        model: EquipmentPropertyRoute
     }],
     ["equipment", {
         openRecordTab: (_id) => openRecord(
@@ -135,7 +143,8 @@ const map = new Map([
         getColumns: EquipmentColumns,
         getTableHeader: headerEquipment,
         getPrintName: "Перечень оборудования",
-        getPrintData: () => store.getState().reducerEquipment.equipment
+        getPrintData: () => store.getState().reducerEquipment.equipment,
+        model: EquipmentRoute
     }],
     ["logDO", {
         openRecordTab: (_id) => openRecord(
@@ -149,7 +158,8 @@ const map = new Map([
         getColumns: LogDOColumns,
         getTableHeader: headerLogDO,
         getPrintName: "Журнал дефектов и отказов",
-        getPrintData: () => store.getState().reducerLogDO.logDO
+        getPrintData: () => store.getState().reducerLogDO.logDO,
+        // model: LogDORoute
     }],
     ["help", {
         openRecordTab: (_id) => openRecord(
@@ -163,7 +173,8 @@ const map = new Map([
         getColumns: HelpColumns,
         getTableHeader: headerHelp,
         getPrintName: "Помощь",
-        getPrintData: () => store.getState().reducerHelp.help
+        getPrintData: () => store.getState().reducerHelp.help,
+        model: UserRoute
     }],
     ["users", {
         openRecordTab: (_id) => openRecord(
@@ -171,28 +182,32 @@ const map = new Map([
             "Создание пользователя",
             "Редактирование пользователя",
             UserTab,
-            "helpItem",
+            "userItem",
             UserRoute
         ),
         getColumns: UserColumns,
         getTableHeader: headerUser,
         getPrintName: "Пользователи",
-        getPrintData: () => store.getState().reducerUser.users
+        getPrintData: () => store.getState().reducerUser.users,
+        model: UserRoute
     }],
-    // ["roles", {
-    //     openRecordTab: (_id) => openRecord(
-    //         _id,
-    //         "Создание роли",
-    //         "Редактирование роли",
-    //         RoleTab,
-    //         "roleItem",
-    //         RoleRoute
-    //     ),
-    //     getColumns: RoleColumns,
-    //     getTableHeader: headerRole,
-    //     getPrintName: "Роли",
-    //     getPrintData: () => store.getState().reducerRole.roles
-    // }],
+    ["roles", {
+        openRecordTab: (_id) => openRecord(
+            _id,
+            "Создание роли",
+            "Редактирование роли",
+            RoleTab,
+            "roleItem",
+            RoleRoute
+        ),
+        getColumns: RoleColumns,
+        getTableHeader: headerRole,
+        getPrintName: "Роли",
+        getPrintData: () => store.getState().reducerRole.roles,
+        model: RoleRoute
+    }],
+    ["analytic", {model: AnalyticRoute}],
+    ["statistic", {model: StatisticRoute}],
 ]);
 
 /**
@@ -254,4 +269,19 @@ const getPrintTable = (key) => {
     }
 };
 
-export {openRecordTab, getColumns, getTableHeader, getPrintTable}
+/**
+ * Функция возврата модели раздела
+ * @param key - ключ раздела
+ * @returns {{cancel: function(*): void, fillItem: function(*): void, getAll: function(): Promise<void>,
+ * get: function(*): Promise<void>, base_url: string, save: function(*=, *, *=): Promise<void>,
+ * delete: function(*, *, *, *=): Promise<void>}} - модель раздела
+ */
+const getModel = (key) => {
+    if (map.has(key)) {
+        return map.get(key).model;
+    } else {
+        message.error(`Раздел с ключём ${key} не существует (модель раздела)`).then(null);
+    }
+}
+
+export {openRecordTab, getColumns, getTableHeader, getPrintTable, getModel}

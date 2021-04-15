@@ -40,6 +40,8 @@ const convertArrayOfObjectsToCSV = (array, name) => {
 
             if (item[key] && item[key].name) {
                 result += item[key].name;
+            } else if (item[key] && typeof item[key] === "boolean") {
+                result += item[key];
             } else if (item[key]) {
                 result += item[key];
             } else {

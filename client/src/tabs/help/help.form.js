@@ -81,7 +81,7 @@ export const HelpForm = ({item}) => {
                     </Form.Item>
 
                     <Form.Item label="Текст" name="text">
-                            <Input type="text" onChange={e => form.setFieldsValue({text: e.target.value})} />
+                            <Input.TextArea type="text" onChange={e => form.setFieldsValue({text: e.target.value})} />
                     </Form.Item>
 
                     {/*<CKEditor*/}

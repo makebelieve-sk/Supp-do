@@ -6,6 +6,7 @@ import {ActionCreator} from "../redux/combineActions";
 import {User} from "../model/User";
 import {request} from "../helpers/functions/general.functions/request.helper";
 import {compareArrays, compareObjects} from "../helpers/functions/general.functions/compare";
+import {getShortNameRecord} from "../helpers/functions/general.functions/replaceField";
 
 export const UserRoute = {
     // Адрес для работы с разделом "Пользователи"
@@ -34,6 +35,7 @@ export const UserRoute = {
             // Останавливаем спиннер загрузки данных в таблицу
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
         } catch (e) {
+            console.log(e);
             // Останавливаем спиннер загрузки данных в таблицу
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
             message.error("Возникла ошибка при получении записей помощи: ", e);
@@ -44,12 +46,40 @@ export const UserRoute = {
         try {
             // Получаем редактируемую запись о пользователе
             const item = await request(this.base_url + id);
+            const people = await request("/api/directory/people/");
+
+            // Заполняем хранилище "Персонал"
+            if (people && people.length) {
+                const reduxPeople = store.getState().reducerPerson.people;
+
+                // Если массивы не равны, то обновляем хранилище redux
+                const shouldUpdate = compareArrays(people, reduxPeople);
+
+                if (shouldUpdate) {
+                    people.forEach(person => {
+                        person.name = getShortNameRecord(person.name);
+                    });
+
+                    store.dispatch(ActionCreator.ActionCreatorPerson.getAllPeople(people));
+                }
+            }
 
             if (item) {
+                // Заполняем хранилище "Роли"
+                if (item.roles && item.roles.length) {
+                    const reduxRoles = store.getState().reducerRole.roles;
+
+                    // Если массивы не равны, то обновляем хранилище redux
+                    const shouldUpdate = compareArrays(item.roles, reduxRoles);
+
+                    if (shouldUpdate) store.dispatch(ActionCreator.ActionCreatorRole.getAllRoles(item.roles));
+                }
+
                 // Заполняем модель записи
                 this.fillItem(item);
             }
         } catch (e) {
+            console.log(e);
             message.error("Возникла ошибка при получении записи: ", e);
         }
     },
@@ -74,7 +104,7 @@ export const UserRoute = {
                 if (method === "POST") {
                     store.dispatch(ActionCreator.ActionCreatorUser.createUser(data.item));
                 } else {
-                    const users = store.getState().reducerUsers.users;
+                    const users = store.getState().reducerUser.users;
 
                     const foundUser = users.find(user => user._id === item._id);
                     const indexUser = users.indexOf(foundUser);
@@ -91,8 +121,10 @@ export const UserRoute = {
             // Удаление текущей вкладки
             this.cancel(onRemove);
         } catch (e) {
+            console.log(e);
             // Останавливаем спиннер загрузки
             setLoading(false);
+            message.error("Возникла ошибка при сохранении записи в хранилище: ", e);
         }
 
     },
@@ -128,9 +160,11 @@ export const UserRoute = {
             // Удаление текущей вкладки
             this.cancel(onRemove)
         } catch (e) {
+            console.log(e);
             // Останавливаем спиннер, и скрываем всплывающее окно
             setLoadingDelete(false);
             setVisiblePopConfirm(false);
+            message.error("Возникла ошибка при удалении записи из хранилища: ", e);
         }
 
     },
@@ -141,8 +175,7 @@ export const UserRoute = {
     },
     // Заполнение модели "Пользователи"
     fillItem: function (item) {
-        if (!item.help)
-            return;
+        if (!item.user) return;
 
         // Создаем объект редактируемой записи
         const userRecord = new User(item.user);

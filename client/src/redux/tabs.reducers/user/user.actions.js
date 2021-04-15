@@ -8,10 +8,10 @@ import {
 
 const ActionCreatorUser = {
     // Добавление пользователя
-    createUser: (profession) => {
+    createUser: (user) => {
         return {
             type: CREATE_USER,
-            payload: profession
+            payload: user
         }
     },
     // Изменение пользователя

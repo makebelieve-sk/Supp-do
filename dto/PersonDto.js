@@ -1,4 +1,4 @@
-// Модель таблицы "Персонал"=
+// Модель таблицы "Персонал"
 const {getNameWithParent, getShortName} = require("../helper");
 
 class PersonDto {
@@ -11,8 +11,6 @@ class PersonDto {
 
         this.departmentTooltip = departments && departments.length && person.department && person.department.parent ?
             getNameWithParent(person.department, departments) + person.department.name : "";
-
-        this.departmentId = person.department ? person.department._id : null;
     }
 }
 

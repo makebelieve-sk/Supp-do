@@ -6,7 +6,7 @@ import {Card, Row, Col, Skeleton} from "antd";
 import {UserForm} from "./user.form";
 
 export const UserTab = () => {
-    // Получение списка записей помощи и состояния загрузки записи
+    // Получение списка пользователей и состояния загрузки записи
     const {item, loadingSkeleton} = useSelector((state) => ({
         item: state.reducerUser.rowDataUser,
         loadingSkeleton: state.reducerLoading.loadingSkeleton

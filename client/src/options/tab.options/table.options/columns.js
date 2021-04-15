@@ -686,18 +686,18 @@ const UserColumns = [
     },
     {
         title: "Имя",
-        dataIndex: "name",
-        key: "name",
+        dataIndex: "firstName",
+        key: "firstName",
         width: 100,
-        sorter: (a, b) => a.name.length - b.name.length,
+        sorter: (a, b) => a.firstName.length - b.firstName.length,
         sortDirections: ["descend", "ascend"],
     },
     {
         title: "Фамилия",
-        dataIndex: "surName",
-        key: "surName",
+        dataIndex: "secondName",
+        key: "secondName",
         width: 100,
-        sorter: (a, b) => a.surName.length - b.surName.length,
+        sorter: (a, b) => a.secondName.length - b.secondName.length,
         sortDirections: ["descend", "ascend"],
     },
     {
@@ -721,7 +721,10 @@ const UserColumns = [
         dataIndex: "approved",
         key: "approved",
         width: 100,
-        render: (text, record) => ({children: record.approved ? <CheckOutlined/> : ""})
+        render: (text, record) => ({
+            props: {style: {textAlign: "center"}},
+            children: record.approved ? <CheckOutlined/> : ""
+        })
     },
 ];
 

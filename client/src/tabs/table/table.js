@@ -4,6 +4,7 @@ import {useSelector, useDispatch} from "react-redux";
 import {message, Row, Table, DatePicker, Col, Badge, Alert} from "antd";
 import {FilterOutlined} from "@ant-design/icons";
 
+import store from "../../redux/store";
 import {ActionCreator} from "../../redux/combineActions";
 import {LogDORoute} from "../../routes/route.LogDO";
 import {Header} from "../../components/tab.components/tabsHeader/tableHeader.component";
@@ -15,7 +16,6 @@ import tableSettings from "../../options/tab.options/table.options/settings";
 import {getFilteredData} from "../../options/global.options/global.options";
 
 import "./table.css";
-import store from "../../redux/store";
 
 const {RangePicker} = DatePicker;
 
@@ -34,6 +34,8 @@ export const TableComponent = ({specKey}) => {
         tasks: state.reducerTask.tasks,
         logDO: state.reducerLogDO.logDO,
         help: state.reducerHelp.help,
+        users: state.reducerUser.users,
+        roles: state.reducerRole.roles,
         date: state.reducerLogDO.date,
         legend: state.reducerLogDO.legend,
         alert: state.reducerLogDO.alert,

@@ -1,24 +1,27 @@
 // Маршруты для раздела "Пользователи"
 const {Router} = require("express");
 const {check, validationResult} = require("express-validator");
+const bcrypt = require("bcryptjs");
 const User = require("../schemes/User");
+const Role = require("../schemes/Role");
+const UserDto = require("../dto/UserDto");
 
 const router = Router();
 
 // Валидация полей раздела "Пользователи"
 const checkMiddleware = [
-    check("userName", "Некорректное наименование пользователя").isString().notEmpty().isString().isLength({
-        min: 0,
-        max: 255
-    }),
-    check("name", "Некорректное имя пользователя").isString().notEmpty().isString().isLength({
-        min: 0,
-        max: 255
-    }),
-    check("surName", "Некорректная фамилия пользователя").isString().notEmpty().isString().isLength({
-        min: 0,
-        max: 255
-    }),
+    check("userName", "Некорректное наименование пользователя")
+        .isString()
+        .notEmpty()
+        .isLength({min: 0, max: 255}),
+    check("firstName", "Некорректное имя пользователя")
+        .isString()
+        .notEmpty()
+        .isLength({min: 0, max: 255}),
+    check("secondName", "Некорректная фамилия пользователя")
+        .isString()
+        .notEmpty()
+        .isLength({min: 0, max: 255}),
 ];
 
 // Возвращает запись по коду
@@ -26,121 +29,143 @@ router.get("/users/:id", async (req, res) => {
     const _id = req.params.id;
 
     try {
-        let item, isNewItem = true;
+        let item, isNewItem = true, roles;
 
         if (_id === "-1") {
             // Создание новой записи
-            item = new User({name: "", surName: "", email: "", userName: "", person: null, mailing: false,
-                approved: false, roleAdmin: false, roleUser: false});
+            item = new User({userName: "", person: null, firstName: "", secondName: "", email: "", mailing: false,
+                approved: false, roles: []});
         } else {
             // Редактирование существующей записи
-            item = await Users.findById({_id});
+            item = await User.findById({_id}).populate("person").populate("roles").select("-password");
             isNewItem = false;
         }
 
-        if (!item) {
+        if (!item)
             return res.status(400).json({message: `Запись с кодом ${_id} не существует`});
+
+        // Получаем список ролей
+        try {
+            roles = await Role.find({});
+        } catch (e) {
+            console.log(e);
+            res.status(500).json({message: "Ошибка при получении записей из базы данных 'Роли'"});
         }
 
-        res.status(201).json({isNewItem, user: item});
+        res.status(201).json({isNewItem, user: item, roles});
     } catch (e) {
-        res.status(500).json({message: `Ошибка при открытии записи с кодом ${_id}`})
-    }
-});
-
-// Возвращает запись при клике на кнопку "Помощь"
-router.get("/help/get/:id", async (req, res) => {
-    const value = req.params.id;   // поле value объекта name
-
-    try {
-        const item = await Help.findOne({"name.value": value}); // Находим нужную запись
-
-        const response = item ? {title: item.name.label, text: item.text} : null;   // Составляем объект ответа
-
-        res.status(201).json(response); // Отправляем ответ
-    } catch (e) {
-        res.status(500).json({message: "Ошибка при получении записи помощи при клике на кнопку 'Помощь'"})
+        console.log(e);
+        res.status(500).json({message: `Ошибка при открытии записи с кодом ${_id}`});
     }
 });
 
 // Возвращает все записи
-router.get("/help", async (req, res) => {
+router.get("/users", async (req, res) => {
     try {
-        const items = await Help.find({});
+        const items = await User.find({}).populate("person").populate("roles").select("-password");
 
-        res.json(items);
+        let itemsDto = [];
+
+        if (items && items.length) itemsDto = items.map(item => new UserDto(item));
+
+        res.json(itemsDto);
     } catch (e) {
-        res.status(500).json({message: "Ошибка при получении записей помощи"})
+        console.log(e);
+        res.status(500).json({message: "Ошибка при получении пользователей"})
     }
 });
 
 // Сохраняет новую запись
-router.post("/help", checkMiddleware, async (req, res) => {
+router.post("/users", checkMiddleware, async (req, res) => {
     try {
         const errors = validationResult(req);
 
-        if (!errors.isEmpty()) {
-            return res.status(400).json({errors: errors.array(), message: "Некоректные данные при создании записи"});
-        }
+        if (!errors.isEmpty())
+            return res.status(400).json({
+                errors: errors.array(),
+                message: "Некоректные данные при создании записи"
+            });
 
-        const {name, text} = req.body;
+        const {userName, person, firstName, secondName, email, password, mailing, approved, roles} = req.body;
 
-        let item = await Help.findOne({name});
+        let item = await User.findOne({userName}).populate("person").populate("roles").select("-password");
 
-        if (item) {
-            return res.status(400).json({message: `Запись с наименованием ${name} уже существует`});
-        }
+        if (item)
+            return res.status(400).json({message: `Запись с наименованием ${userName} уже существует`});
 
-        item = new Help({name, text, date: Date.now()});
-        await item.save();
+        const hashedPassword = password ? await bcrypt.hash(password, 12) : null;   // Хешируем пароль
 
-        res.status(201).json({message: "Запись сохранена", item});
+        item = new User({userName, person, firstName, secondName, email, password: hashedPassword, mailing,
+            approved, roles});
+
+        await item.save();  // Сохраняем запись в бд
+
+        const currentItem = await User.findOne({_id: item._id})
+            .populate("person")
+            .populate("roles")
+            .select("-password");
+
+        const savedItem = new UserDto(currentItem);
+
+        res.status(201).json({message: "Запись сохранена", item: savedItem});
     } catch (e) {
-        res.status(500).json({message: "Ошибка при создании записи"})
+        console.log(e);
+        res.status(500).json({message: "Ошибка при создании записи"});
     }
 });
 
 // Изменяет запись
-router.put("/help", checkMiddleware, async (req, res) => {
+router.put("/users", checkMiddleware, async (req, res) => {
     try {
         const errors = validationResult(req);
 
-        if (!errors.isEmpty()) {
-            return res.status(400).json({errors: errors.array(), message: "Некоректные данные при изменении записи"});
-        }
+        if (!errors.isEmpty()) return res.status(400).json({
+            errors: errors.array(),
+            message: "Некоректные данные при изменении записи"
+        });
 
-        const {_id, name, text} = req.body;
-        const item = await Help.findById({_id});
+        const {_id, userName, person, firstName, secondName, email, password, mailing, approved, roles} = req.body;
 
-        if (!name) {
-            return res.status(400).json({message: "Поле 'Наименование' должно быть заполнено"});
-        }
+        const item = await User.findById({_id}).populate("person").populate("roles").select("-password");
 
-        if (!item) {
+        if (!item)
             return res.status(400).json({message: `Запись с кодом ${_id} не найдена`});
-        }
 
-        item.name = name;
-        item.text = text;
-        item.date = Date.now();
+        const hashedPassword = password ? await bcrypt.hash(password, 12) : null;   // Хешируем пароль
 
-        await item.save();
+        item.userName = userName;
+        item.person = person;
+        item.firstName = firstName;
+        item.secondName = secondName;
+        item.email = email;
+        item.password = hashedPassword;
+        item.mailing = mailing;
+        item.approved = approved;
+        item.roles = roles;
 
-        res.status(201).json({message: "Запись сохранена", item});
+        await item.save();  // Сохраняем запись в бд
+
+        const currentItem = await User.findOne({_id}).populate("person").populate("roles").select("-password");
+
+        const savedItem = new UserDto(currentItem);
+
+        res.status(201).json({message: "Запись сохранена", item: savedItem});
     } catch (e) {
+        console.log(e);
         res.status(500).json({message: "Ошибка при обновлении записи"})
     }
 });
 
 // Удаляет запись
-router.delete("/help/:id", async (req, res) => {
-    const _id = req.params.id;
+router.delete("/users/:id", async (req, res) => {
+    const _id = req.params.id;  // Получаем _id записи
 
     try {
-        await Help.deleteOne({_id});
+        await User.deleteOne({_id});
 
         res.status(201).json({message: "Запись успешно удалена"});
     } catch (e) {
+        console.log(e);
         res.status(500).json({message: `Ошибка при удалении записи с кодом ${_id}`})
     }
 });

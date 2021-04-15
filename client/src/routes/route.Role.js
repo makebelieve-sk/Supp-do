@@ -34,6 +34,7 @@ export const RoleRoute = {
             // Останавливаем спиннер загрузки данных в таблицу
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
         } catch (e) {
+            console.log(e);
             // Останавливаем спиннер загрузки данных в таблицу
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
             message.error("Возникла ошибка при получении записей помощи: ", e);
@@ -50,6 +51,7 @@ export const RoleRoute = {
                 this.fillItem(item);
             }
         } catch (e) {
+            console.log(e);
             message.error("Возникла ошибка при получении записи: ", e);
         }
     },
@@ -91,8 +93,10 @@ export const RoleRoute = {
             // Удаление текущей вкладки
             this.cancel(onRemove);
         } catch (e) {
+            console.log(e);
             // Останавливаем спиннер загрузки
             setLoading(false);
+            message.error("Произошла ошибка при сохранении записи в хранилище: ", e);
         }
 
     },
@@ -128,9 +132,11 @@ export const RoleRoute = {
             // Удаление текущей вкладки
             this.cancel(onRemove)
         } catch (e) {
+            console.log(e);
             // Останавливаем спиннер, и скрываем всплывающее окно
             setLoadingDelete(false);
             setVisiblePopConfirm(false);
+            message.error("Произошла ошибка при удалении записи из хранилища: ", e);
         }
     },
     // Нажатие на кнопку "Отмена"
