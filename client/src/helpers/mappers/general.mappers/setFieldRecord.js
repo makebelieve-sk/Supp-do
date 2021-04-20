@@ -102,8 +102,8 @@ export default function setFieldRecord(replaceField, item) {
 
             store.dispatch(ActionCreator.ActionCreatorLogDO.setRowDataLogDO({
                 ...formValues,
-                state: item,
-                stateId: item._id
+                taskStatus: item,
+                taskStatusId: item._id
             }));
         }],
         ["userPerson", () => {

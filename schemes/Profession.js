@@ -1,9 +1,9 @@
+// Схема для справочника "Профессии"
 const { Schema, model } = require("mongoose");
 
-// Создаем модель Профессии
 const schema = new Schema({
-    name: { type: String, required: true, unique: true },
-    notes: { type: String }
+    name: { type: String, required: true, unique: true },   // Наименование
+    notes: { type: String }                                 // Описание
 });
 
-module.exports = model('Profession', schema);
+module.exports = model("Profession", schema);

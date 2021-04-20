@@ -1,34 +1,37 @@
-// Маршруты для подразделений
+// Маршруты для раздела "Подразделения"
 const {Router} = require("express");
 const {check, validationResult} = require("express-validator");
 const Department = require("../schemes/Department");
+
 const router = Router();
 
 // Валидация полей раздела "Подразделения"
 const checkMiddleware = [
-    check("name", "Некорректное наименование подразделения").isString().notEmpty().isLength({ max: 255 }),
-    check("notes", "Максимальная длина поля 'Примечание' составляет 255 символов").isString().isLength({ max: 255 })
+    check("name", "Поле 'Наименование' должно содержать от 1 до 255 символов")
+        .isString()
+        .notEmpty()
+        .isLength({ min: 1, max: 255 }),
+    check("notes", "Поле 'Примечание' не должно превышать 255 символов")
+        .isString()
+        .isLength({ max: 255 })
 ];
 
 // Возвращает запись по коду
 router.get("/departments/:id", async (req, res) => {
-    const _id = req.params.id;
+    const _id = req.params.id;  // Получение id записи
 
     try {
         let item, isNewItem = true;
 
         if (_id === "-1") {
-            // Создание новой записи
-            item = new Department({name: "", notes: "", parent: null});
+            item = new Department({name: "", notes: "", parent: null});     // Создание нового экземпляра записи
         } else {
-            // Редактирование существующей записи
-            item = await Department.findById({_id}).populate("parent");
+            item = await Department.findById({_id}).populate("parent"); // Получение существующей записи
             isNewItem = false;
         }
 
-        if (!item) {
+        if (!item)
             return res.status(400).json({message: `Подразделение с кодом ${req.params.id} не существует`});
-        }
 
         res.status(201).json({isNewItem, department: item});
     } catch (e) {
@@ -39,6 +42,7 @@ router.get("/departments/:id", async (req, res) => {
 // Возвращает все записи
 router.get("/departments", async (req, res) => {
     try {
+        // Получаем все записи раздела "Подразделения"
         const items = await Department.find({}).populate("parent");
 
         res.json(items);
@@ -50,39 +54,31 @@ router.get("/departments", async (req, res) => {
 // Сохраняет новую запись
 router.post("/departments", checkMiddleware, async (req, res) => {
     try {
+        // Проверка валидации полей раздела "Характеристики оборудования"
         const errors = validationResult(req);
 
-        if (!errors.isEmpty()) {
+        if (!errors.isEmpty())
             return res.status(400).json({errors: errors.array(), message: "Некоректные данные при создании записи"});
-        }
 
-        const {name, notes, parent} = req.body;
-        const item = await Department.findOne({name});
+        const {name, notes, parent} = req.body; // Получаем объект записи с фронтенда
 
-        if (item) {
+        const item = await Department.findOne({name});  // Ищем запись в базе данных по наименованию
+
+        // Проверяем на существование характеристики с указанным именем
+        if (item)
             return res.status(400).json({message: `Подразделение с именем ${name} уже существует`});
-        }
 
-        if (name === "" || !name) {
-            return res.status(400).json({message: "Поле 'Наименование' должно быть заполнено"});
-        }
+        // Проверяем на принадлежность отдела
+        if (parent && name === parent.name)
+            return res.status(400).json({message: "Отдел не может принадлежать сам себе"});
 
-        if (parent) {
-            if (name === parent.name) {
-                return res.status(400).json({message: "Отдел не может принадлежать сам себе"});
-            }
-        }
+        const newItem = new Department({name, notes, parent});  // Создаем новый экземпляр записи
 
-        const newItem = new Department({name, notes, parent});
-        await newItem.save();
+        await newItem.save();   // Сохраняем запись в базе данных
 
-        let currentDepartment;
-
-        if (!parent) {
-            currentDepartment = await Department.findOne({name});
-        } else {
-            currentDepartment = await Department.findOne({name}).populate("parent");
-        }
+        const currentDepartment = !parent
+            ? await Department.findOne({name})
+            : await Department.findOne({name}).populate("parent");
 
         res.status(201).json({message: "Подразделение сохранено", item: currentDepartment});
     } catch (e) {
@@ -93,32 +89,31 @@ router.post("/departments", checkMiddleware, async (req, res) => {
 // Изменяет запись
 router.put("/departments", checkMiddleware, async (req, res) => {
     try {
+        // Проверка валидации полей раздела "Характеристики оборудования"
         const errors = validationResult(req);
 
-        if (!errors.isEmpty()) {
+        if (!errors.isEmpty())
             return res.status(400).json({errors: errors.array(), message: "Некоректные данные при создании записи"});
-        }
 
-        const {_id, name, notes, parent} = req.body;
+        const {_id, name, notes, parent} = req.body;    // Получаем объект записи с фронтенда
+
+        // Ищем запись в базе данных по уникальному идентификатору
         const item = await Department.findById({_id}).populate("parent");
+
+        // Ищем все подразделения
         const departments = await Department.find({}).populate("parent");
 
-        if (!item) {
+        // Проверяем на существование записи с уникальным идентификатором
+        if (!item)
             return res.status(400).json({message: `Подразделение с кодом ${_id} не найдено`});
-        }
 
-        if (!name) {
-            return res.status(400).json({message: "Поле 'Наименование' должно быть заполнено"});
-        }
-
-        if (parent) {
-            if (name === parent.name) {
-                return res.status(400).json({message: "Отдел не может принадлежать сам себе"});
-            }
-        }
+        // Проверяем на принадлежность отдела
+        if (parent && name === parent.name)
+            return res.status(400).json({message: "Отдел не может принадлежать сам себе"});
 
         item.parent = parent;
 
+        // Проверка на при надлежность отдела (циклические ссылки)
         if (parent) {
             const checkCycl = (parent) => {
                 if (parent && parent.parent) {
@@ -144,7 +139,7 @@ router.put("/departments", checkMiddleware, async (req, res) => {
         item.name = name;
         item.notes = notes;
 
-        await item.save();
+        await item.save();  // Сохраняем запись в базу данных
 
         const savedItem = await Department.findById({_id}).populate("parent");
 
@@ -157,11 +152,13 @@ router.put("/departments", checkMiddleware, async (req, res) => {
 
 // Удаляет запись
 router.delete("/departments/:id", async (req, res) => {
-    const _id = req.params.id;
+    const _id = req.params.id;  // Получение id записи
 
     try {
+        // Получение всех записей подразделений
         const departments = await Department.find({}).populate("parent");
 
+        // Проверка на дочерные отделы
         if (departments && departments.length) {
             for (let i = 0; i < departments.length; i++) {
                 if (departments[i].parent && departments[i].parent._id.toString() === _id.toString()) {
@@ -170,7 +167,7 @@ router.delete("/departments/:id", async (req, res) => {
             }
         }
 
-        await Department.deleteOne({_id});
+        await Department.deleteOne({_id});  // Удаление записи из базы данных по id записи
 
         res.status(201).json({message: "Подразделение успешно удалено"});
     } catch (e) {

@@ -83,6 +83,18 @@ export const UserRoute = {
             message.error("Возникла ошибка при получении записи: ", e);
         }
     },
+    // Получение данных о текущем пользователе
+    getCurrentUser: async function (id) {
+        try {
+            // Получаем редактируемую запись о пользователе
+            const item = await request(this.base_url + id);
+
+            return item ? item : null;
+        } catch (e) {
+            console.log(e);
+            message.error("Возникла ошибка при получении записи: ", e);
+        }
+    },
     // Сохранение записи о пользователе
     save: async function (item, setLoading, onRemove) {
         try {

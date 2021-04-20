@@ -2,7 +2,7 @@
 import React from "react";
 import {Button, Card, Col, Form, Input, Row} from "antd";
 import {LockOutlined, UserOutlined} from "@ant-design/icons";
-import {useHistory} from "react-router-dom";
+import {Link, useHistory} from "react-router-dom";
 
 import "./changePassword.css";
 
@@ -57,6 +57,12 @@ export const ChangePasswordComponent = () => {
                         <Form.Item>
                             <Button type="primary" htmlType="submit" className="login-form-button">
                                 Изменить пароль
+                            </Button>
+                        </Form.Item>
+
+                        <Form.Item>
+                            <Button type="secondary" className="login-form-button">
+                                <Link to="/login">Отмена</Link>
                             </Button>
                         </Form.Item>
                     </Form>

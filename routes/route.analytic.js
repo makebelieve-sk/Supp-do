@@ -1,11 +1,14 @@
+// Маршруты для раздела "Аналитика"
 const {Router} = require("express");
-const router = Router();
 const moment = require("moment");
+
 const Department = require("../schemes/Department");
 const Equipment = require("../schemes/Equipment");
 const TaskStatus = require("../schemes/TaskStatus");
 const LogDO = require("../schemes/LogDO");
 const LogDoDto = require("../dto/LogDoDto");
+
+const router = Router();
 
 const dateFormat = "DD.MM.YYYY HH:mm";  // Устанавливаем формат времени
 moment.locale("ru");            // Русифицируем библиотеку moment
@@ -40,7 +43,7 @@ const transformTime = (result, count) => {
  */
 const getUnassignedTasks = async () => {
     try {
-        return await LogDO.find({responsible: null, state: null}).countDocuments();
+        return await LogDO.find({responsible: null, taskStatus: null}).countDocuments();
     } catch (err) {
         throw new Error(err);
     }
@@ -54,7 +57,7 @@ const getUnassignedTasks = async () => {
 const getInWorkTasks = async (ids) => {
     try {
         return await LogDO
-            .find({$and: [{state: {$ne: null}, responsible: {$ne: null}}, {state: {$in: ids}}]})
+            .find({$and: [{taskStatus: {$ne: null}, responsible: {$ne: null}}, {taskStatus: {$in: ids}}]})
             .countDocuments();
     } catch (err) {
         throw new Error(err);
@@ -69,7 +72,7 @@ const getInWorkTasks = async (ids) => {
 const getNotAccepted = async (ids) => {
     try {
         return await LogDO
-            .find({$and: [{state: {$ne: null}, acceptTask: false}, {state: {$in: ids}}]})
+            .find({$and: [{taskStatus: {$ne: null}, acceptTask: false}, {taskStatus: {$in: ids}}]})
             .countDocuments();
     } catch (err) {
         throw new Error(err);
@@ -86,8 +89,8 @@ const getWorkloadDepartments = async (tasks, departments) => {
         let result = [];    // Результирующий массив
 
         const logDOs = await LogDO
-            .find({$and: [{department: {$ne: null}}, {state: {$ne: null}}, {state: {$in: tasks}}]})
-            .populate("state")
+            .find({$and: [{department: {$ne: null}}, {taskStatus: {$ne: null}}, {taskStatus: {$in: tasks}}]})
+            .populate("taskStatus")
             .populate("department");
 
         if (departments && departments.length && tasks && tasks.length) {
@@ -95,13 +98,13 @@ const getWorkloadDepartments = async (tasks, departments) => {
                 tasks.forEach(task => {
                     // Фильтруем подходящие записи
                     const currentRecords = logDOs.filter(logDO =>
-                        logDO.department.name === department.name && logDO.state.name === task.name);
+                        logDO.department.name === department.name && logDO.taskStatus.name === task.name);
 
                     if (currentRecords && currentRecords.length) {
                         // Пушим объект
                         result.push({
                             department: department.name,
-                            state: task.name,
+                            taskStatus: task.name,
                             value: currentRecords.length
                         });
                     }
@@ -335,7 +338,7 @@ const getRatingOrders = async (ids) => {
         let result = [];    // Результирующий массив
 
         const logDOs = await LogDO
-            .find({$or: [{state: null}, {state: {$in: ids}}]})
+            .find({$or: [{taskStatus: null}, {taskStatus: {$in: ids}}]})
             .populate("equipment");
 
         if (logDOs && logDOs.length) {
@@ -504,7 +507,7 @@ router.get("/go-to-logDO/unassignedTasks", async (req, res) => {
         const departments = await Department.find({}).populate("parent");   // Получаем все подразделения
 
         // Даем запрос в бд, передавая фильтр и нужные даты
-        await LogDO.find({responsible: null, state: null}, function (err, items) {
+        await LogDO.find({responsible: null, taskStatus: null}, function (err, items) {
             // Обработка ошибки
             if (err)
                 res.status(500).json({
@@ -539,7 +542,7 @@ router.get("/go-to-logDO/unassignedTasks", async (req, res) => {
                 }
             )
             .populate("responsible")
-            .populate("state")
+            .populate("taskStatus")
             .populate("files");
     } catch (e) {
         console.log(e);
@@ -564,7 +567,7 @@ router.get("/go-to-logDO/inWorkTasks", async (req, res) => {
             // Формируем массив удовлетворяющих записей с идентификатором (_id), где isFinish = false
             const ids = docs.map(doc => doc._id);
 
-            await LogDO.find({state: {$in: ids}}, function (err, items) {
+            await LogDO.find({taskStatus: {$in: ids}}, function (err, items) {
                 // Обработка ошибки
                 if (err)
                     res.status(500).json({
@@ -599,7 +602,7 @@ router.get("/go-to-logDO/inWorkTasks", async (req, res) => {
                     }
                 )
                 .populate("responsible")
-                .populate("state")
+                .populate("taskStatus")
                 .populate("files");
         })
     } catch (e) {
@@ -626,7 +629,7 @@ router.get("/go-to-logDO/notAccepted", async (req, res) => {
             const ids = docs.map(doc => doc._id);
 
             await LogDO.find(
-                {$and: [{state: {$in: ids}}, {acceptTask: false}]},
+                {$and: [{taskStatus: {$in: ids}}, {acceptTask: false}]},
                 function (err, items) {
                     // Обработка ошибки
                     if (err)
@@ -662,7 +665,7 @@ router.get("/go-to-logDO/notAccepted", async (req, res) => {
                     }
                 )
                 .populate("responsible")
-                .populate("state")
+                .populate("taskStatus")
                 .populate("files");
         })
     } catch (e) {
@@ -674,20 +677,20 @@ router.get("/go-to-logDO/notAccepted", async (req, res) => {
 // Возвращает записи ЖДО при клике на гистограмму
 router.post("/go-to-logDO/bar", async (req, res) => {
     try {
-        const {department, state} = req.body;   // Извлекаем объект из тела запроса
+        const {department, taskStatus} = req.body;   // Извлекаем объект из тела запроса
 
         const departments = await Department.find({}).populate("parent");   // Получаем все подразделения
         const equipment = await Equipment.find({}).populate("parent");      // Получаем всё оборудование
 
         // Выполняем поиск в базе данных "TaskStatus" по полю "name"
-        await TaskStatus.find({name: state}, async function (err, docs) {
+        await TaskStatus.find({name: taskStatus}, async function (err, docs) {
             // Обработка ошибки
             if (err)
                 res.status(500).json({
                     message: "Возникла ошибка при получении записей из базы данных Состояние заявки (bar)"
                 });
 
-            // Формируем массив удовлетворяющих записей с идентификатором (_id), где name = state
+            // Формируем массив удовлетворяющих записей с идентификатором (_id), где name = taskStatus
             const idsTasks = docs.map(doc => doc._id);
 
             // Выполняем поиск в базе данных "Department" по полю "name"
@@ -702,7 +705,7 @@ router.post("/go-to-logDO/bar", async (req, res) => {
                 const idsDepartments = docs.map(doc => doc._id);
 
                 await LogDO.find(
-                    {$and: [{state: {$in: idsTasks}}, {department: {$in: idsDepartments}}]},
+                    {$and: [{taskStatus: {$in: idsTasks}}, {department: {$in: idsDepartments}}]},
                     function (err, items) {
                         // Обработка ошибки
                         if (err)
@@ -739,7 +742,7 @@ router.post("/go-to-logDO/bar", async (req, res) => {
                         }
                     )
                     .populate("responsible")
-                    .populate("state")
+                    .populate("taskStatus")
                     .populate("files");
             })
         })
@@ -800,7 +803,7 @@ router.post("/go-to-logDO/line", async (req, res) => {
                 }
             )
             .populate("responsible")
-            .populate("state")
+            .populate("taskStatus")
             .populate("files");
     } catch (e) {
         console.log(e);
@@ -870,7 +873,7 @@ router.get("/go-to-logDO/rating/bounceRating", async (req, res) => {
                 }
             )
             .populate("responsible")
-            .populate("state")
+            .populate("taskStatus")
             .populate("files");
     } catch (e) {
         console.log(e);
@@ -920,9 +923,9 @@ router.get("/go-to-logDO/rating/ratingOrders", async (req, res) => {
 
         let items;
         try {
-            // Выполняем поиск в базе данных "LogDO" по полю "state"
+            // Выполняем поиск в базе данных "LogDO" по полю "taskStatus"
             items = await LogDO.find(
-                {$or: [{state: {$in: ids}}, {state: null}]})
+                {$or: [{taskStatus: {$in: ids}}, {taskStatus: null}]})
                 .sort({date: 1})
                 .populate("applicant")
                 .populate({
@@ -940,7 +943,7 @@ router.get("/go-to-logDO/rating/ratingOrders", async (req, res) => {
                         }
                     })
                 .populate("responsible")
-                .populate("state")
+                .populate("taskStatus")
                 .populate("files");
         } catch (err) {
             res.status(500).json({

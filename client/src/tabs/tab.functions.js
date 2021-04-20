@@ -99,7 +99,7 @@ const dropdownRender = (open, setLoadingSelect, setOptions, key) => {
             ["people", store.getState().reducerPerson.people],
             ["equipment", store.getState().reducerEquipment.equipment],
             ["equipmentProperty", store.getState().reducerEquipmentProperty.equipmentProperties],
-            ["state", store.getState().reducerTask.tasks],
+            ["taskStatus", store.getState().reducerTask.tasks],
         ]);
 
         if (map.has(key)) {

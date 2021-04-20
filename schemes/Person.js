@@ -1,12 +1,11 @@
-//Модель для справочника Персонал
-const {Schema, model, Types} = require("mongoose")
+// Схема для справочника "Персонал"
+const {Schema, model, Types} = require("mongoose");
 
 const schema = new Schema({
-    isCreated: {type: Boolean},
-    name: {type: String, required: true},
-    notes: {type: String},
-    department: {type: Types.ObjectId, ref: "Department"},
-    profession: {type: Types.ObjectId, ref: "Profession"}
+    name: {type: String, required: true},                   // Наименование
+    notes: {type: String},                                  // Описание
+    department: {type: Types.ObjectId, ref: "Department"},  // Подразделение
+    profession: {type: Types.ObjectId, ref: "Profession"}   // Профессия
 })
 
-module.exports = model("Person", schema)
+module.exports = model("Person", schema);

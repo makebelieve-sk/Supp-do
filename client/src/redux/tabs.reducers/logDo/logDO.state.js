@@ -12,7 +12,8 @@ const initialState = {
     date: moment().startOf("month").format(TabOptions.dateFormat) + "/" +
         moment().endOf("month").format(TabOptions.dateFormat),
     legend: null,
-    alert: null
+    alert: null,
+    error: null
 };
 
 export default initialState;

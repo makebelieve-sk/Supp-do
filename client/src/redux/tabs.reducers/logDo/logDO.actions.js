@@ -10,7 +10,8 @@ import {
     DELETE_FILE,
     GET_ALL_FILES,
     SET_LEGEND,
-    SET_ALERT
+    SET_ALERT,
+    SET_ERROR,
 } from "./logDO.constants";
 
 const ActionCreatorLogDO = {
@@ -97,6 +98,13 @@ const ActionCreatorLogDO = {
         return {
             type: SET_ALERT,
             payload: alert
+        }
+    },
+    // Установка ошибки
+    setError: (error) => {
+        return {
+            type: SET_ERROR,
+            payload: error
         }
     }
 }

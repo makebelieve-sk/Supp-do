@@ -11,7 +11,7 @@ export const BarChartComponent = ({data, goToLogDO}) => {
         data: data,
         xField: "value",
         yField: "department",
-        seriesField: "state",
+        seriesField: "taskStatus",
         // isPercent: true,
         isStack: true,
         label: {

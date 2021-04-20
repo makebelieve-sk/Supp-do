@@ -1,4 +1,4 @@
-// Маршруты для персонала
+// Маршруты для раздела "Персонал"
 const {Router} = require("express");
 const {check, validationResult} = require("express-validator");
 const Person = require("../schemes/Person");
@@ -8,22 +8,27 @@ const router = Router();
 
 // Валидация полей раздела "Персонал"
 const checkMiddleware = [
-    check("name", "Некорректное наименование сотрудника").isString().notEmpty().isLength({ max: 255 }),
-    check("notes", "Максимальная длина поля 'Примечание' составляет 255 символов").isString().isLength({ max: 255 }),
+    check("name", "Поле 'Наименование' должно содержать от 1 до 255 символов")
+        .isString()
+        .notEmpty()
+        .isLength({ min: 1, max: 255 }),
+    check("notes", "Поле 'Примечание' не должно превышать 255 символов")
+        .isString()
+        .isLength({ max: 255 })
 ];
 
 // Возвращает запись по коду
 router.get("/people/:id", async (req, res) => {
-    const _id = req.params.id;
+    const _id = req.params.id;  // Получение id записи
 
     try {
         let item, isNewItem = true;
 
         if (_id === "-1") {
             // Создание новой записи
-            item = new Person({isCreated: true, tabNumber: null, name: "", notes: "", department: null, profession: null});
+            item = new Person({tabNumber: null, name: "", notes: "", department: null, profession: null});
         } else {
-            // Редактирование существующей записи
+            // Получение существующей записи
             item = await Person.findById({_id})
                 .populate({
                     path: "department",
@@ -36,9 +41,7 @@ router.get("/people/:id", async (req, res) => {
             isNewItem = false;
         }
 
-        if (!item) {
-            return res.status(400).json({message: `Запись с кодом ${_id} не существует`});
-        }
+        if (!item) return res.status(400).json({message: `Запись с кодом ${_id} не существует`});
 
         res.status(201).json({isNewItem, person: item});
     } catch (e) {
@@ -49,7 +52,10 @@ router.get("/people/:id", async (req, res) => {
 // Возвращает все записи
 router.get("/people/", async (req, res) => {
     try {
+        // Получаем все записи подразделений
         const departments = await Department.find({}).populate("parent");
+
+        // Получаем все записи раздела "Персонал"
         const items = await Person.find({})
             .populate({
                 path: "department",
@@ -62,9 +68,8 @@ router.get("/people/", async (req, res) => {
 
         let itemsDto = [];
 
-        if (items && items.length) {
-            itemsDto = items.map(item => new PersonDto(item, departments));
-        }
+        // Изменяем запись для вывода в таблицу
+        if (items && items.length) itemsDto = items.map(item => new PersonDto(item, departments));
 
         res.json(itemsDto);
     } catch (e) {
@@ -76,33 +81,28 @@ router.get("/people/", async (req, res) => {
 // Сохраняет новую запись
 router.post("/people", checkMiddleware, async (req, res) => {
     try {
+        // Проверка валидации полей раздела "Персонал"
         const errors = validationResult(req);
 
-        if (!errors.isEmpty()) {
+        if (!errors.isEmpty())
             return res.status(400).json({errors: errors.array(), message: "Некоректные данные при создании записи"});
-        }
 
-        const {name, notes, department, profession} = req.body;
+        const {name, notes, department, profession} = req.body; // Получаем объект записи с фронтенда
 
-        const item = await Person.findOne({name});
+        const item = await Person.findOne({name});  // Ищем запись в базе данных по наименованию
 
-        if (item) {
+        // Проверяем на существование записи с указанным именем
+        if (item)
             return res.status(400).json({message: `Запись о сотруднике с именем ${name} уже существует`});
-        }
 
-        if (name === "" || !name) {
-            return res.status(400).json({message: "Поле 'Наименование' должно быть заполнено"});
-        }
+        const newItem = new Person({name, department, profession, notes});  // Создаем новый экземпляр записи
 
-        if (!department || !profession) {
-            return res.status(400).json({message: "Заполните обязательные поля"});
-        }
+        await newItem.save();   // Сохраняем запись в базе данных
 
-        const newItem = new Person({name, department, profession, notes});
-
-        await newItem.save();
-
+        // Получаем все записи подразделений
         const departments = await Department.find({}).populate("parent");
+
+        // Ищем запись в базе данных по наименованию
         const currentPerson = await Person.findOne({name})
             .populate({
                 path: "department",
@@ -113,6 +113,7 @@ router.post("/people", checkMiddleware, async (req, res) => {
             })
             .populate("profession");
 
+        // Изменяем запись для вывода в таблицу
         const savedItem = new PersonDto(currentPerson, departments);
 
         res.status(201).json({message: "Запись о сотруднике сохранена", item: savedItem});
@@ -124,31 +125,32 @@ router.post("/people", checkMiddleware, async (req, res) => {
 // Изменяет запись
 router.put("/people", checkMiddleware, async (req, res) => {
     try {
+        // Проверка валидации полей раздела "Характеристики оборудования"
         const errors = validationResult(req);
 
-        if (!errors.isEmpty()) {
+        if (!errors.isEmpty())
             return res.status(400).json({errors: errors.array(), message: "Некоректные данные при создании записи"});
-        }
 
-        const {_id, name, notes, department, profession} = req.body;
+        const {_id, name, notes, department, profession} = req.body;    // Получаем объект записи с фронтенда
+
+        // Ищем запись в базе данных по уникальному идентификатору
         const item = await Person.findById({_id}).populate("department").populate("profession");
 
-        if (!item) {
+        // Проверяем на существование записи с уникальным идентификатором
+        if (!item)
             return res.status(400).json({message: `Запись о сотруднике с кодом ${_id} не найдена`});
-        }
-
-        if (name === "" || !name) {
-            return res.status(400).json({message: "Поле 'Наименование' должно быть заполнено"});
-        }
 
         item.name = name;
         item.department = department;
         item.profession = profession;
         item.notes = notes;
 
-        await item.save();
+        await item.save();  // Сохраняем запись в базу данных
 
+        // Пролучаем все запиис подразделений
         const departments = await Department.find({}).populate("parent");
+
+        // Ищем запись в базе данных по уникальному идентификатору
         const currentItem = await Person.findById({_id})
             .populate({
                 path: "department",
@@ -159,6 +161,7 @@ router.put("/people", checkMiddleware, async (req, res) => {
             })
             .populate("profession");
 
+        // Изменяем запись для вывода в таблицу
         const savedItem = new PersonDto(currentItem, departments);
 
         res.status(201).json({message: "Запись о сотруднике успешно изменена", item: savedItem});
@@ -169,10 +172,10 @@ router.put("/people", checkMiddleware, async (req, res) => {
 
 // Удаляет запись
 router.delete("/people/:id", async (req, res) => {
-    const _id = req.params.id;
+    const _id = req.params.id;  // Получение id записи
 
     try {
-        await Person.deleteOne({_id});
+        await Person.deleteOne({_id});  // Удаление записи из базы данных по id записи
 
         res.status(201).json({message: "Запись о сотруднике успешно удалена"});
     } catch (e) {

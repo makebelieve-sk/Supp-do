@@ -14,6 +14,8 @@ const ADD_FILE = "ADD_FILE";
 const DELETE_FILE = "DELETE_FILE";
 const GET_ALL_FILES = "GET_ALL_FILES";
 
+const SET_ERROR = "SET_ERROR";
+
 export {
     CREATE_LOGDO,
     EDIT_LOGDO,
@@ -26,5 +28,6 @@ export {
     DELETE_FILE,
     GET_ALL_FILES,
     SET_LEGEND,
-    SET_ALERT
+    SET_ALERT,
+    SET_ERROR,
 }

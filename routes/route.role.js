@@ -10,7 +10,7 @@ const checkMiddleware = [
     check("name", "Поле 'Наименование' должно содержать от 1 до 255 символов")
         .isString()
         .notEmpty()
-        .isLength({min: 0, max: 255}),
+        .isLength({min: 1, max: 255}),
     check("notes", "Поле 'Описание' не должно превышать 255 символов")
         .isString()
         .isLength({max: 255})
@@ -18,7 +18,7 @@ const checkMiddleware = [
 
 // Возвращает запись по коду
 router.get("/roles/:id", async (req, res) => {
-    const _id = req.params.id;
+    const _id = req.params.id;  // Получение id записи
 
     try {
         let item, isNewItem = true;
@@ -38,20 +38,39 @@ router.get("/roles/:id", async (req, res) => {
             {title: "Журнал действий пользователей", read: false, edit: false, key: "logs"},
             {title: "Аналитика", read: false, edit: false, key: "analytic"},
             {title: "Статистика", read: false, edit: false, key: "statistic"},
-            {title: "Новый раздел", read: false, edit: false, key: "newSection"},
         ];
 
         if (_id === "-1") {
-            // Создание новой записи
-            item = new Role({name: "", notes: "", permissions});
+            item = new Role({name: "", notes: "", permissions});    // Создание новой записи
         } else {
-            // Редактирование существующей записи
-            item = await Role.findById({_id});
+            item = await Role.findById({_id});  // Получение существующей записи
             isNewItem = false;
         }
 
-        if (!item)
-            return res.status(400).json({message: `Запись с кодом ${_id} не существует`});
+        if (!item) return res.status(400).json({message: `Запись с кодом ${_id} не существует`});
+
+        // Проверка на равенство разделов
+        if (item.permissions.length !== permissions.length) {
+            if (item.permissions.length < permissions.length) {
+                // Если мы добавили раздел
+                permissions.forEach((permission, index) => {
+                    if (!item.permissions[index]) item.permissions.push(permission);
+                });
+            } else {
+                // Если мы удалили раздел
+                let result = [];
+
+                permissions.forEach(permission => {
+                    item.permissions.forEach(perm => {
+                        if (perm.key === permission.key) result.push(perm);
+                    });
+                });
+
+                item.permissions = result;
+            }
+
+            await item.save();  // Сохраняем запись с обновленными разрешениями
+        }
 
         res.status(201).json({isNewItem, role: item});
     } catch (e) {
@@ -63,7 +82,7 @@ router.get("/roles/:id", async (req, res) => {
 // Возвращает все записи
 router.get("/roles", async (req, res) => {
     try {
-        const items = await Role.find({});
+        const items = await Role.find({});  // Получаем все записи раздела "Роли"
 
         res.json(items);
     } catch (e) {
@@ -75,24 +94,22 @@ router.get("/roles", async (req, res) => {
 // Сохраняет новую запись
 router.post("/roles", checkMiddleware, async (req, res) => {
     try {
+        // Проверка валидации полей раздела "Характеристики оборудования"
         const errors = validationResult(req);
 
-        if (!errors.isEmpty())
-            return res.status(400).json({
-                errors: errors.array(),
-                message: "Некоректные данные при создании записи"
-            });
+        if (!errors.isEmpty()) return res.status(400).json({message: "Некоректные данные при создании записи"});
 
-        const {name, notes, permissions} = req.body;
+        const {name, notes, permissions} = req.body;    // Получаем объект записи с фронтенда
 
-        let item = await Role.findOne({name});
+        let item = await Role.findOne({name});  // Ищем запись в базе данных по наименованию
 
+        // Проверяем на существование записи с указанным именем
         if (item)
             return res.status(400).json({message: `Запись с наименованием ${name} уже существует`});
 
-        item = new Role({name, notes, permissions});
+        item = new Role({name, notes, permissions});    // Создаем новый экземпляр записи
 
-        await item.save();  // Сохраняем запись в бд
+        await item.save();  // Сохраняем запись в базе данных
 
         res.status(201).json({message: "Запись сохранена", item});
     } catch (e) {
@@ -104,24 +121,21 @@ router.post("/roles", checkMiddleware, async (req, res) => {
 // Изменяет запись
 router.put("/roles", checkMiddleware, async (req, res) => {
     try {
+        // Проверка валидации полей раздела "Характеристики оборудования"
         const errors = validationResult(req);
 
         if (!errors.isEmpty())
-            return res.status(400).json({
-                errors: errors.array(),
-                message: "Некоректные данные при изменении записи"
-            });
+            return res.status(400).json({message: "Некоректные данные при изменении записи"});
 
+        const {_id, name, notes, permissions} = req.body;   // Получаем объект записи с фронтенда
 
-        const {_id, name, notes, permissions} = req.body;
-
-        const item = await Role.findById({_id});
+        const item = await Role.findById({_id});    // Ищем запись в базе данных по уникальному идентификатору
 
         item.name = name;
         item.notes = notes;
         item.permissions = permissions;
 
-        await item.save();  // Сохраняем запись в бд
+        await item.save();  // Сохраняем запись в базу данных
 
         res.status(201).json({message: "Запись сохранена", item});
     } catch (e) {
@@ -135,7 +149,7 @@ router.delete("/roles/:id", async (req, res) => {
     const _id = req.params.id;  // Получаем _id записи
 
     try {
-        await Role.deleteOne({_id});
+        await Role.deleteOne({_id});    // Удаление записи из базы данных по id записи
 
         res.status(201).json({message: "Запись успешно удалена"});
     } catch (e) {

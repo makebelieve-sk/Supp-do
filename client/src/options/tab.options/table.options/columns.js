@@ -505,10 +505,10 @@ const LogDOColumns = [
     },
     {
         title: "Состояние",
-        dataIndex: "state",
-        key: "state",
+        dataIndex: "taskStatus",
+        key: "taskStatus",
         width: 100,
-        sorter: (a, b) => a.state.length - b.state.length,
+        sorter: (a, b) => a.taskStatus.length - b.taskStatus.length,
         sortDirections: ["descend", "ascend"],
         filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}) => (
             <div style={{padding: 8}}>
@@ -532,7 +532,7 @@ const LogDOColumns = [
             </div>
         ),
         filterIcon: filtered => <SearchOutlined style={{color: filtered ? "#1890ff" : undefined}}/>,
-        onFilter: (value, record) => record["state"].toString().toLowerCase().includes(value.toLowerCase()),
+        onFilter: (value, record) => record["taskStatus"].toString().toLowerCase().includes(value.toLowerCase()),
         onFilterDropdownVisibleChange: visible =>
             visible ? setTimeout(() => refState.current.select(), 100) : null,
         render: (text, record) => ({

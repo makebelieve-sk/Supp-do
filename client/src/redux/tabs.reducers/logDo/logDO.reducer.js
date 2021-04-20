@@ -11,7 +11,8 @@ import {
     DELETE_FILE,
     GET_ALL_FILES,
     SET_LEGEND,
-    SET_ALERT
+    SET_ALERT,
+    SET_ERROR,
 } from "./logDO.constants";
 
 export default function reducerLogDO(state = initialState, action) {
@@ -78,6 +79,11 @@ export default function reducerLogDO(state = initialState, action) {
             return {
                 ...state,
                 alert: action.payload
+            };
+        case SET_ERROR:
+            return {
+                ...state,
+                error: action.payload
             };
         default:
             return state;

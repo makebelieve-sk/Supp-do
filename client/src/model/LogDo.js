@@ -17,7 +17,7 @@ export class LogDoRecord {
         this.responsible = logDoRecord.responsible ? logDoRecord.responsible : null;
         this.department = logDoRecord.department ? logDoRecord.department : null;
         this.task = logDoRecord.task ? logDoRecord.task : "";
-        this.state = logDoRecord.state ? logDoRecord.state : null;
+        this.taskStatus = logDoRecord.taskStatus ? logDoRecord.taskStatus : null;
         this.dateDone = logDoRecord.dateDone ? moment(logDoRecord.dateDone).format(TabOptions.dateFormat) : "";
         this.planDateDone = logDoRecord.planDateDone ? moment(logDoRecord.planDateDone).format(TabOptions.dateFormat) : "";
         this.content = logDoRecord.content ? logDoRecord.content : "";
@@ -31,6 +31,6 @@ export class LogDoRecord {
         this.responsibleId = logDoRecord.responsible && logDoRecord.responsible._id ? logDoRecord.responsible._id : null;
         this.departmentId = logDoRecord.department && logDoRecord.department._id ? logDoRecord.department._id : null;
         this.equipmentId = logDoRecord.equipment && logDoRecord.equipment._id ? logDoRecord.equipment._id : null;
-        this.stateId = logDoRecord.state && logDoRecord.state._id ? logDoRecord.state._id : null;
+        this.taskStatusId = logDoRecord.taskStatus && logDoRecord.taskStatus._id ? logDoRecord.taskStatus._id : null;
     };
 }

@@ -1,6 +1,4 @@
 // Создание запроса
-import {message} from "antd";
-
 export const request = async (url, method = "GET", body = null, headers = {}) => {
     try {
         if (body) {
@@ -21,7 +19,7 @@ export const request = async (url, method = "GET", body = null, headers = {}) =>
 
         return data;
     } catch (e) {
-        message.error(e.message);
-        throw e;
+        console.log(e);
+        throw new Error(e);
     }
 };

@@ -14,15 +14,14 @@ import {getColumns, openRecordTab} from "../../helpers/mappers/tabs.mappers/tabl
 import TabOptions from "../../options/tab.options/record.options/record.options";
 import tableSettings from "../../options/tab.options/table.options/settings";
 import {getFilteredData} from "../../options/global.options/global.options";
+import {checkRoleUser} from "../../helpers/mappers/general.mappers/checkRoleUser";
+import {UserRoute} from "../../routes/route.User";
 
 import "./table.css";
 
 const {RangePicker} = DatePicker;
 
 export const TableComponent = ({specKey}) => {
-    // Получение колонок для таблицы
-    const columns = useMemo(() => getColumns(specKey), [specKey]);
-
     // Получение индикатора загрузки таблицы и записей всех разделов
     const stateObject = useSelector(state => ({
         loadingTable: state.reducerLoading.loadingTable,
@@ -39,11 +38,24 @@ export const TableComponent = ({specKey}) => {
         date: state.reducerLogDO.date,
         legend: state.reducerLogDO.legend,
         alert: state.reducerLogDO.alert,
-        activeKey: state.reducerTab.activeKey
+        activeKey: state.reducerTab.activeKey,
+        currentUser: state.reducerAuth.user
     }));
     const dispatch = useDispatch();
 
-    const [marginBottomAlert, setMarginBottomAlert] = useState("20px");
+    // Получение колонок для таблицы и состояния для редактирования записи
+    const columns = useMemo(() => getColumns(specKey), [specKey]);
+    useMemo(async () => {
+        if (stateObject.currentUser) {
+            // Обновляем данные о пользователе
+            const user = await UserRoute.getCurrentUser(stateObject.currentUser._id);
+
+            if (user) {
+                const data = checkRoleUser(specKey, user);
+                setEditRecord(data.edit);
+            }
+        }
+    }, [specKey, stateObject.currentUser]);
 
     // Установка времени в датапикере
     const date = stateObject.date
@@ -56,6 +68,10 @@ export const TableComponent = ({specKey}) => {
     // Создание стейта для текстового поля, отфильтрованных колонок, выбранных колонок и начальных колонок
     const [filterText, setFilterText] = useState("");
     const [columnsTable, setColumnsTable] = useState(columns);
+
+    // Инициализация состояний для отступа снизу алерта
+    const [marginBottomAlert, setMarginBottomAlert] = useState("20px");
+    const [editRecord, setEditRecord] = useState(true);
 
     // Получение данных для таблицы
     const data = getTableData(specKey, stateObject[specKey]);
@@ -211,7 +227,7 @@ export const TableComponent = ({specKey}) => {
                         dataSource={columnsTable && columnsTable.length === 0 ? null : Array.from(filteredItems)}
                         columns={columnsTable}
                         rowKey={record => record._id.toString()}
-                        onRow={row => ({onClick: () => openRecordTab(specKey, row._id)})}
+                        onRow={row => ({onClick: () => editRecord ? openRecordTab(specKey, row._id) : null})}
                         loading={stateObject.loadingTable}
                         className={specKey === "logDO" ? "table-logDo" : "table-usual"}
                     />

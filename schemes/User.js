@@ -1,9 +1,9 @@
-//Модель для справочника Пользователь
+//Модель для справочника "Пользователь"
 const {Schema, model, Types} = require("mongoose");
 
 const schema = new Schema({
     userName: {type: String, required: true, unique: true},         // Имя пользователя
-    person: {type: Types.ObjectId, ref: "Person", required: true},  // Сотрудник
+    person: {type: Types.ObjectId, ref: "Person"},                  // Сотрудник
     firstName: {type: String, required: true},                      // Имя
     secondName: {type: String, required: true},                     // Фамилия
     email: {type: String},                                          // Почта

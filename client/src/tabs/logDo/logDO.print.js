@@ -57,7 +57,7 @@ export default class PrintLogDO extends React.Component {
 
                             <div style={{display: "flex", width: "50%", justifyContent: "space-between"}}>
                                 <p>Состояние:</p>
-                                <p><b>{record.state ? record.state.name : ""}</b></p>
+                                <p><b>{record.taskStatus ? record.taskStatus.name : ""}</b></p>
                             </div>
 
                             <div style={{display: "flex", width: "50%", justifyContent: "space-between"}}>

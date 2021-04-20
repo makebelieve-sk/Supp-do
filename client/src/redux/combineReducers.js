@@ -16,6 +16,7 @@ import reducerStatistic from "./tabs.reducers/statistic/statistic.reducer";
 import reducerHelp from "./tabs.reducers/help/help.reducer";
 import reducerUser from "./tabs.reducers/user/user.reducer";
 import reducerRole from "./tabs.reducers/role/role.reducer";
+import reducerAuth from "./general.reducers/auth/auth.reducer";
 
 export const reducer = combineReducers({
     reducerProfession,
@@ -33,4 +34,5 @@ export const reducer = combineReducers({
     reducerHelp,
     reducerUser,
     reducerRole,
+    reducerAuth,
 });

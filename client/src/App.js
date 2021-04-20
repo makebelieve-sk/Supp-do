@@ -9,26 +9,31 @@ import {useRoutes} from "./hooks/routes.hook";
 import {useAuth} from "./hooks/auth.hook";
 import {AuthContext} from "./context/auth.context";
 import store from "./redux/store";
+import ErrorBoundaryPage from "./pages/errorBoundaryPage";
 
 import "./App.css";
 
 export default function App() {
     // Определяем контексту начальные значения, полученные из хука useAuth
     const {login, logout, token, userId, user} = useAuth();
+
     // Инициализируем флаг авторизации
     const isAuthenticated = !!token;
+
     // Определяем роутинг приложения
     const routes = useRoutes(isAuthenticated);
 
     return (
-        <Provider store={store}>
-            <ConfigProvider locale={ruRU}>
-                <AuthContext.Provider value={{token, login, logout, userId, isAuthenticated, user}}>
-                    <Router>
-                        {routes}
-                    </Router>
-                </AuthContext.Provider>
-            </ConfigProvider>
-        </Provider>
+        <ErrorBoundaryPage>
+            <Provider store={store}>
+                <ConfigProvider locale={ruRU}>
+                    <AuthContext.Provider value={{token, login, logout, userId, isAuthenticated, user}}>
+                        <Router>
+                            {routes}
+                        </Router>
+                    </AuthContext.Provider>
+                </ConfigProvider>
+            </Provider>
+        </ErrorBoundaryPage>
     )
 };

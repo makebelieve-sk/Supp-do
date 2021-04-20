@@ -1,7 +1,7 @@
 // Глобальные настройки приложения
 import React from "react";
-import {MenuUnfoldOutlined, LaptopOutlined, UserOutlined, StockOutlined} from "@ant-design/icons";
 
+import {LaptopOutlined, MenuUnfoldOutlined, StockOutlined, UserOutlined} from "@ant-design/icons";
 import {ProfessionRoute} from "../../routes/route.profession";
 import {DepartmentRoute} from "../../routes/route.Department";
 import {PersonRoute} from "../../routes/route.Person";
@@ -10,16 +10,16 @@ import {EquipmentRoute} from "../../routes/route.Equipment";
 import {TaskStatusRoute} from "../../routes/route.taskStatus";
 import {AnalyticRoute} from "../../routes/route.Analytic";
 import {StatisticRoute} from "../../routes/route.Statistic";
-import {HelpRoute} from "../../routes/route.Help";
 import {UserRoute} from "../../routes/route.User";
 import {RoleRoute} from "../../routes/route.Role";
+import {HelpRoute} from "../../routes/route.Help";
 
-// Инициализация меню приложения
+// Инициализация бокового меню приложения
 const menuItems = [
     {
         title: "Справочники",
         key: "directory",
-        icon: <MenuUnfoldOutlined />,
+        icon: <MenuUnfoldOutlined/>,
         children: [
             {
                 title: "Управление персоналом",
@@ -66,6 +66,23 @@ const menuItems = [
         ]
     },
     {
+        title: "Аналитика",
+        key: "analytic-section",
+        icon: <StockOutlined/>,
+        children: [
+            {
+                title: "Аналитика",
+                key: "analytic",
+                route: AnalyticRoute
+            },
+            {
+                title: "Статистика",
+                key: "statistic",
+                route: StatisticRoute
+            }
+        ]
+    },
+    {
         title: "Администрирование",
         key: "admin",
         icon: <LaptopOutlined/>,
@@ -95,23 +112,6 @@ const menuItems = [
                 title: "Помощь",
                 key: "help",
                 model: HelpRoute
-            }
-        ]
-    },
-    {
-        title: "Аналитика",
-        key: "analytic",
-        icon: <StockOutlined />,
-        children: [
-            {
-                title: "Аналитика",
-                key: "analytic",
-                route: AnalyticRoute
-            },
-            {
-                title: "Статистика",
-                key: "statistic",
-                route: StatisticRoute
             }
         ]
     },

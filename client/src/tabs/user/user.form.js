@@ -15,13 +15,17 @@ export const UserForm = ({item}) => {
     const emptyDropdown = useMemo(() => [{label: "Не выбрано", value: null}], []);
 
     // Создание состояний для значений в выпадающих списках "Подразделения" и "Профессии"
-    const [options, setOptions] = useState(item.person ? [{label: item.person.name, value: item.person._id}] : emptyDropdown);
+    const [options, setOptions] = useState(item.person ? [{
+        label: item.person.name,
+        value: item.person._id
+    }] : emptyDropdown);
 
     // Инициализация состояния для показа спиннера загрузки при сохранении и удалении записи
     const [loadingSave, setLoadingSave] = useState(false);
     const [loadingOptions, setLoadingOptions] = useState(false);
 
-    const [roles, setRoles] = useState();   // Создание состояния существующих ролей
+    // Создание состояний для списка ролей
+    const [checkboxOptions, setCheckboxOptions] = useState([]);
 
     // Инициализация заголовка раздела и имени формы
     const title = item.isNewItem ? "Создание пользователя" : "Редактирование пользователя";
@@ -37,7 +41,27 @@ export const UserForm = ({item}) => {
         // Обновление выпадающего списка
         setOptions(item.person ? [{label: item.person.name, value: item.person._id}] : emptyDropdown);
 
-        setRoles(store.getState().reducerRole.roles);   // Обновление списка ролей из хранилища
+        const roles = store.getState().reducerRole.roles;   // Получение списка ролей из хранилища
+
+        // Получаем список всех чекбоксов (ролей)
+        if (roles && roles.length) {
+            const result = [];
+
+            roles.forEach(role => {
+                result.push(role.name);
+            });
+
+            setCheckboxOptions(result);
+        }
+
+        // Получаем массив выбранных чекбоксов (ролей)
+        let defaultChecked = [];
+
+        if (item.roles && item.roles.length) {
+            item.roles.forEach(role => {
+                defaultChecked.push(role.name);
+            });
+        }
 
         form.setFieldsValue({
             _id: item._id,
@@ -51,16 +75,33 @@ export const UserForm = ({item}) => {
             email: item.email.trim(),
             mailing: item.mailing,
             approved: item.approved,
-            roles: item.roles,
+            checkboxGroup: defaultChecked
         });
     }, [item, form, emptyDropdown]);
 
     // Обработка нажатия на кнопку "Сохранить"
     const saveHandler = async (values) => {
         const people = store.getState().reducerPerson.people;     // Получаем весь персонал из хранилища
+        const roles = store.getState().reducerRole.roles;     // Получаем все роли из хранилища
 
+        // Отправляем объект выбранного сотрудника
         values.person = people.find(person => person._id === values.person);
-        values.roles = form.getFieldValue("roles");
+        values.roles = [];  // Создаем поле roles
+
+        // Обновляем поле roles
+        if (values.checkboxGroup && values.checkboxGroup.length) {
+            const result = [];
+
+            values.checkboxGroup.forEach(checkbox => {
+                const currentRole = roles.find(role => role.name === checkbox);
+
+                if (currentRole) result.push(currentRole);
+            });
+
+            values.roles = result;
+        }
+
+        delete values.checkboxGroup; // Удаляем поле checkboxGroup
 
         await UserRoute.save(values, setLoadingSave, onRemove);
     }
@@ -92,12 +133,14 @@ export const UserForm = ({item}) => {
                                 rules={[{
                                     required: true,
                                     transform: value => value.trim(),
-                                    message: "Заполните имя пользователя"
+                                    message: "Заполните имя пользователя",
+                                    max: 255,
+                                    type: "string"
                                 }]}
                                 label="Имя пользователя"
                                 name="userName"
                             >
-                                <Input type="text" maxLength={255} onChange={e => form.setFieldsValue({userName: e.target.value})} />
+                                <Input type="text" onChange={e => form.setFieldsValue({userName: e.target.value})}/>
                             </Form.Item>
                         </Col>
 
@@ -105,13 +148,11 @@ export const UserForm = ({item}) => {
                             <Form.Item
                                 label="Сотрудник"
                                 name="person"
-                                rules={[{
-                                    required: true,
-                                    message: "Выберите сотрудника"
-                                }]}
+                                rules={[{required: true, message: "Выберите сотрудника"}]}
                             >
                                 <Row>
-                                    <Col xs={{span: 18}} sm={{span: 18}} md={{span: 20}} lg={{span: 20}} xl={{span: 20}}>
+                                    <Col xs={{span: 18}} sm={{span: 18}} md={{span: 20}} lg={{span: 20}}
+                                         xl={{span: 20}}>
                                         <Form.Item name="person" noStyle>
                                             <Select
                                                 showSearch
@@ -161,7 +202,7 @@ export const UserForm = ({item}) => {
                                     transform: value => value.trim(),
                                     message: "Заполните имя"
                                 }]}>
-                                <Input type="text" onChange={e => form.setFieldsValue({firstName: e.target.value})} />
+                                <Input type="text" onChange={e => form.setFieldsValue({firstName: e.target.value})}/>
                             </Form.Item>
                         </Col>
 
@@ -174,7 +215,7 @@ export const UserForm = ({item}) => {
                                     transform: value => value.trim(),
                                     message: "Заполните фамилию"
                                 }]}>
-                                <Input type="text" onChange={e => form.setFieldsValue({secondName: e.target.value})} />
+                                <Input type="text" onChange={e => form.setFieldsValue({secondName: e.target.value})}/>
                             </Form.Item>
                         </Col>
                     </Row>
@@ -182,7 +223,8 @@ export const UserForm = ({item}) => {
                     <Row justify="space-between" gutter={8}>
                         <Col span={12}>
                             <Form.Item label="Пароль" name="password">
-                                <Input.Password maxLength={255} onChange={e => form.setFieldsValue({password: e.target.value})} />
+                                <Input.Password maxLength={255}
+                                                onChange={e => form.setFieldsValue({password: e.target.value})}/>
                             </Form.Item>
                         </Col>
 
@@ -204,13 +246,15 @@ export const UserForm = ({item}) => {
                                     }),
                                 ]}
                             >
-                                <Input.Password maxLength={255} onChange={e => form.setFieldsValue({checkPassword: e.target.value})} />
+                                <Input.Password maxLength={255}
+                                                onChange={e => form.setFieldsValue({checkPassword: e.target.value})}/>
                             </Form.Item>
                         </Col>
                     </Row>
 
                     <Form.Item label="Электронная почта" name="email">
-                        <Input type="email" maxLength={255} onChange={e => form.setFieldsValue({email: e.target.value})} />
+                        <Input type="email" maxLength={255}
+                               onChange={e => form.setFieldsValue({email: e.target.value})}/>
                     </Form.Item>
 
                     <Form.Item name="mailing" valuePropName="checked">
@@ -225,34 +269,13 @@ export const UserForm = ({item}) => {
                         </Checkbox>
                     </Form.Item>
 
-                    <Form.Item label="Роли">
+                    <Form.Item label="Роли" name="checkboxGroup" rules={[{
+                        required: true,
+                        message: "Выберите роль"
+                    }]}>
                         {
-                            roles && roles.length
-                                ? roles.map(role => {
-                                    // Из всех ролей находим те, которые есть у пользователя
-                                    // Если роль есть, то checkbox`у ставим true, иначе false
-                                    const currentRole = form.getFieldValue("roles").find(rl => rl._id === role._id);
-
-                                    return <Form.Item valuePropName="checked" key={role._id} noStyle>
-                                        <Checkbox defaultChecked={!!currentRole} onChange={e => {
-                                            if (e.target.checked) {
-                                                form.getFieldValue("roles").push(role);
-                                            } else {
-                                                // Ищем роль
-                                                const currentRole = form.getFieldValue("roles").find(rl => rl._id === role._id);
-
-                                                const indexRole = form.getFieldValue("roles").indexOf(currentRole);
-
-                                                if (indexRole) {
-                                                    // Удаляем роль из массива ролей пользователя
-                                                    form.getFieldValue("roles").splice(indexRole, 1);
-                                                }
-                                            }
-                                        }}>
-                                            {role.name}
-                                        </Checkbox>
-                                    </Form.Item>
-                                })
+                            checkboxOptions && checkboxOptions.length
+                                ? <Checkbox.Group options={checkboxOptions} />
                                 : <p>Ролей на данный момент нет</p>
                         }
                     </Form.Item>

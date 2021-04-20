@@ -1,11 +1,10 @@
-//Модель для справочника Подразделения
+// Схема для справочника "Подразделения"
 const {Schema, model, Types} = require("mongoose")
 
 const schema = new Schema({
-    isCreated: {type: Boolean},
-    name: {type: String, required: true, unique: true},
-    notes: {type: String},
-    parent: {type: Types.ObjectId, ref: "Department"}
+    name: {type: String, required: true, unique: true}, // Наименование
+    notes: {type: String},                              // Примечание
+    parent: {type: Types.ObjectId, ref: "Department"}   // Принадлежит
 })
 
 module.exports = model("Department", schema)

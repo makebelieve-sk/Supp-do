@@ -44,8 +44,9 @@ export const LogDORoute = {
         } catch (e) {
             // Останавливаем спиннер загрузки данных в таблицу
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
+            console.log(e);
             message.error("Возникла ошибка при получении записей журнала дефектов и отказов: ", e);
-            console.log(e)
+            throw new Error("Что-то пошло не так");
         }
     },
     // Получение записи
@@ -119,8 +120,11 @@ export const LogDORoute = {
                 this.fillItem(item);
             }
         } catch (e) {
-            console.log(e)
+            // Устанавливаем ошибку в хранилище раздела
+            store.dispatch(ActionCreator.ActionCreatorLogDO.setError("Возникла ошибка при получении записи: " + e));
+            console.log(e);
             message.error("Возникла ошибка при получении записи: ", e);
+            throw new Error("Что-то пошло не так");
         }
     },
     // Сохранение записи
@@ -165,6 +169,9 @@ export const LogDORoute = {
         } catch (e) {
             // Останавливаем спиннер загрузки
             setLoading(false);
+            console.log(e);
+            message.error("Произошла ошибка при сохранении записи в журнале дефектов и отказов");
+            throw new Error("Что-то пошло не так");
         }
 
     },
@@ -209,6 +216,9 @@ export const LogDORoute = {
             // Останавливаем спиннер, и скрываем всплывающее окно
             setLoadingDelete(false);
             setVisiblePopConfirm(false);
+            console.log(e);
+            message.error("Произошла ошибка при удалении записи в журнале дефектов и отказов");
+            throw new Error("Что-то пошло не так");
         }
     },
     // Нажатие на кнопку "Отмена"
@@ -223,8 +233,10 @@ export const LogDORoute = {
                 onRemove("logDOItem", "remove");
             }
         } catch (e) {
-            message.error("Возникла ошибка при удалении файлов записи, пожалуйста, удалите файлы вручную");
             setLoadingCancel(false);
+            console.log(e);
+            message.error("Возникла ошибка при удалении добавленных файлов в записи, пожалуйста, удалите файлы вручную");
+            throw new Error("Что-то пошло не так");
         }
     },
     // Заполнение модели записи раздела "Журнал дефектов и отказов"
@@ -240,7 +252,6 @@ export const LogDORoute = {
         // Проверяем полученный с сервера объект и объект из редакса на равенство
         const shouldUpdate = compareObjects(logDoRecord, reduxLogDoRecord);
 
-        console.log("Обновление записи ", shouldUpdate)
         // Если объекты не равны, то обновляем запись в редаксе
         if (shouldUpdate) {
             store.dispatch(ActionCreator.ActionCreatorLogDO.setRowDataLogDO(logDoRecord));

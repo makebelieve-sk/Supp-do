@@ -1,4 +1,4 @@
-// Модель для справочника Роли
+// Схема для справочника "Роли"
 const {Schema, model} = require("mongoose");
 
 const schema = new Schema({

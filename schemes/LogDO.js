@@ -1,25 +1,25 @@
-//Модель для журнала дефектов и отказов
+//Модель для раздела "Журнал дефектов и отказов"
 const {Schema, model, Types} = require("mongoose");
 
 const schema = new Schema({
-    date: {type: Date, required: true},
-    applicant: {type: Types.ObjectId, ref: "Person", required: true},
-    equipment: {type: Types.ObjectId, ref: "Equipment", required: true},
-    notes: {type: String, required: true},
-    sendEmail: {type: Boolean},
-    productionCheck: {type: Boolean},
-    department: {type: Types.ObjectId, ref: "Department"},
-    responsible: {type: Types.ObjectId, ref: "Person"},
-    task: {type: String},
-    state: {type: Types.ObjectId, ref: "TaskStatus"},
-    dateDone: {type: Date},
-    planDateDone: {type: Date},
-    content: {type: String},
-    downtime: {type: String},
-    acceptTask: {type: Boolean},
-    files: [{ type: Types.ObjectId, ref: "File" }],
-    chooseResponsibleTime: {type: Number},
-    chooseStateTime: {type: Number}
+    date: {type: Date, required: true},                // Дата создания
+    applicant: {type: Types.ObjectId, ref: "Person", required: true},       // Заявитель
+    equipment: {type: Types.ObjectId, ref: "Equipment", required: true},    // Оборудование
+    notes: {type: String, required: true},              // Описание
+    sendEmail: {type: Boolean},                         // Оперативное уведомление ответственных специалистов
+    productionCheck: {type: Boolean},                   // Производство остановлено
+    department: {type: Types.ObjectId, ref: "Department"},     // Подразделение
+    responsible: {type: Types.ObjectId, ref: "Person"},        // Ответственный
+    task: {type: String},                               // Задание
+    taskStatus: {type: Types.ObjectId, ref: "TaskStatus"},   // Состояние
+    dateDone: {type: Date},                              // Дата выполнения
+    planDateDone: {type: Date},                          // Планируемая дата выполнения
+    content: {type: String},                             // Содержание работ
+    downtime: {type: String},                            // Время простоя, мин
+    acceptTask: {type: Boolean},                         // Работа принята
+    files: [{ type: Types.ObjectId, ref: "File" }],      // Файлы
+    chooseResponsibleTime: {type: Number},               // Количество миллисекунд, когда был выбран ответственный
+    chooseStateTime: {type: Number}                      // Количество миллисекунд, когда был выбран статус заявки
 });
 
 module.exports = model("LogDO", schema);

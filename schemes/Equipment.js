@@ -1,11 +1,10 @@
-//Модель для справочника Перечень оборудования
+// Схема для справочника "Перечень оборудования"
 const {Schema, model, Types} = require("mongoose");
 
 const schema = new Schema({
-    isCreated: {type: Boolean},
-    name: {type: String, required: true},
-    notes: {type: String},
-    parent: {type: Types.ObjectId, ref: "Equipment"},
+    name: {type: String, required: true},               // Наименование
+    notes: {type: String},                              // Примечание
+    parent: {type: Types.ObjectId, ref: "Equipment"},   // Принадлежит
     properties: [
         {
             equipmentProperty: {
@@ -14,8 +13,8 @@ const schema = new Schema({
             },
             value: {type: String}
         }
-    ],
-    files: [{ type: Types.ObjectId, ref: "File" }]
-})
+    ],                                                  // Характеристики
+    files: [{ type: Types.ObjectId, ref: "File" }]      // Файлы
+});
 
-module.exports = model('Equipment', schema);
+module.exports = model("Equipment", schema);

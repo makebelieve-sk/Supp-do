@@ -1,11 +1,9 @@
-// Модель для справочника Характеристики оборудования
+// Схема для справочника "Характеристики оборудования"
 const {Schema, model} = require("mongoose");
 
-// Создаем модель Характеристики оборудования
 const schema = new Schema({
-    isCreated: {type: Boolean},
-    name: { type: String, required: true, unique: true },
-    notes: { type: String }
+    name: { type: String, required: true, unique: true },   // Наименование
+    notes: { type: String }                                 // Примечание
 });
 
-module.exports = model('EquipmentProperty', schema);
+module.exports = model("EquipmentProperty", schema);

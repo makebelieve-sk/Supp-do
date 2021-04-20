@@ -24,6 +24,8 @@ export const AnalyticComponent = () => {
         prevAnalyticData: state.reducerAnalytic.prevAnalyticData,
     }));
 
+    console.log(analytic)
+
     /**
      * Функция расчета единиц измерения
      * @param field - поле объекта аналитики

@@ -32,7 +32,7 @@ export const LogDoForm = ({item}) => {
     const [applicant, setApplicant] = useState(item.applicant ? [{label: item.applicant.name, value: item.applicant._id}] : emptyDropdown);
     const [equipment, setEquipment] = useState(item.equipment ? [{label: item.equipment.name, value: item.equipment._id}] : emptyDropdown);
     const [responsible, setResponsible] = useState(item.responsible ? [{label: item.responsible.name, value: item.responsible._id}] : emptyDropdown);
-    const [state, setState] = useState(item.state ? [{label: item.state.name, value: item.state._id}] : emptyDropdown);
+    const [taskStatus, setState] = useState(item.taskStatus ? [{label: item.taskStatus.name, value: item.taskStatus._id}] : emptyDropdown);
 
     // Инициализируем хук состояния формы от AntDesign
     const [form] = Form.useForm();
@@ -49,7 +49,7 @@ export const LogDoForm = ({item}) => {
         setApplicant(item.applicant ? [{label: item.applicant.name, value: item.applicant._id}] : emptyDropdown);
         setEquipment(item.equipment ? [{label: getParents(item.equipment, equipment) + item.equipment.name, value: item.equipment._id}] : emptyDropdown);
         setResponsible(item.responsible ? [{label: item.responsible.name, value: item.responsible._id}] : emptyDropdown);
-        setState(item.state ? [{label: item.state.name, value: item.state._id}] : emptyDropdown);
+        setState(item.taskStatus ? [{label: item.taskStatus.name, value: item.taskStatus._id}] : emptyDropdown);
 
         form.setFieldsValue({
             _id: item._id,
@@ -69,13 +69,13 @@ export const LogDoForm = ({item}) => {
             department: item.department,
             equipment: item.equipment,
             responsible: item.responsible,
-            state: item.state,
+            taskStatus: item.taskStatus,
 
             applicantId: item.applicantId ? item.applicantId : null,
             responsibleId: item.responsibleId ? item.responsibleId : null,
             departmentId: item.departmentId ? item.departmentId : null,
             equipmentId: item.equipmentId ? item.equipmentId : null,
-            stateId: item.stateId ? item.stateId : null
+            taskStatusId: item.taskStatusId ? item.taskStatusId : null
         });
     }, [item, form, emptyDropdown]);
 
@@ -97,7 +97,7 @@ export const LogDoForm = ({item}) => {
         delete record.applicantId;
         delete record.departmentId;
         delete record.equipmentId;
-        delete record.stateId;
+        delete record.taskStatusId;
         delete record.responsibleId;
 
         // Для сохранения записи обращаемся к модели
@@ -142,7 +142,7 @@ export const LogDoForm = ({item}) => {
                             <Form.Item name="responsible" hidden={true}><></></Form.Item>
                             <Form.Item name="equipment" hidden={true}><></></Form.Item>
                             <Form.Item name="department" hidden={true}><></></Form.Item>
-                            <Form.Item name="state" hidden={true}><></></Form.Item>
+                            <Form.Item name="taskStatus" hidden={true}><></></Form.Item>
 
                             <Row justify="space-between" gutter={8}>
                                 <Col span={12}>
@@ -305,7 +305,7 @@ export const LogDoForm = ({item}) => {
 
                                                             const foundDepartment = departments.find(department => {
                                                                 if (foundResponsible && foundResponsible.department) {
-                                                                    return department._id === foundResponsible.departmentId;
+                                                                    return department.name === foundResponsible.department;
                                                                 } else {
                                                                     return null;
                                                                 }
@@ -408,23 +408,23 @@ export const LogDoForm = ({item}) => {
                             <Form.Item label="Состояние">
                                 <Row>
                                     <Col xs={{span: 21}} sm={{span: 21}} md={{span: 22}} lg={{span: 22}} xl={{span: 22}}>
-                                        <Form.Item noStyle name="stateId">
+                                        <Form.Item noStyle name="taskStatusId">
                                             <Select
                                                 showSearch
                                                 filterOption={(input, option) =>
                                                     option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
                                                 }
-                                                options={state}
+                                                options={taskStatus}
                                                 loading={loadingState}
-                                                onDropdownVisibleChange={open => dropdownRender(open, setLoadingState, setState, "state")}
+                                                onDropdownVisibleChange={open => dropdownRender(open, setLoadingState, setState, "taskStatus")}
                                                 onChange={(value) => {
                                                     const tasks = store.getState().reducerTask.tasks;
 
                                                     const foundTask = tasks.find(task => task._id === value);
 
                                                     form.setFieldsValue({
-                                                        state: foundTask,
-                                                        stateId: value
+                                                        taskStatus: foundTask,
+                                                        taskStatusId: value
                                                     });
                                                 }}
                                             />

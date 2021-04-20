@@ -1,4 +1,4 @@
-// Маршруты для "Журнала дефектов и отказов"
+// Маршруты для раздела "Журнала дефектов и отказов"
 const moment = require("moment");
 const {Router} = require("express");
 const {check, validationResult} = require("express-validator");
@@ -16,26 +16,32 @@ const dateFormat = "DD.MM.YYYY HH:mm";
 
 // Валидация полей раздела "Журнал дефектов и отказов"
 const checkMiddleware = [
-    check("date", "Некорректный формат поля 'Дата заявки'").notEmpty().isString(),
-    check("applicant", "Некорректный формат поля 'Заявитель'").notEmpty(),
-    check("equipment", "Некорректный формат поля 'Оборудование'").notEmpty(),
-    check("notes", "Максимальная длина поля 'Описание' составляет 1000 символов").notEmpty().isString().isLength({
-        min: 0,
-        max: 1000
-    }),
-    check("sendEmail", "Некорректное формат поля 'Оперативное уведомление сотрудников'").isBoolean(),
-    check("productionCheck", "Некорректное формат поля 'Производство остановлено'").isBoolean(),
-    // check("task", "Максимальная длина поля 'Задание' составляет 1000 символов").isString().isLength({min: 0, max: 1000}),
-    // check("dateDone", "Некорректный формат поля 'Заявитель'").isString(),
-    // check("planDateDone", "Некорректный формат поля 'Заявитель'").isString(),
-    // check("content", "Максимальная длина поля 'Содержание работ' составляет 1000 символов").isString().isLength({min: 0, max: 1000}),
-    // check("downtime", "Максимальная длина поля 'Время простоя' составляет 255 символов").isString().isLength({min: 0, max: 255}),
-    // check("acceptTask", "Некорректное формат поля 'Работа принята'").isBoolean(),
+    check("date", "Поле 'Дата заявки' должно быть заполнено").notEmpty().isString(),
+    check("applicant", "Поле 'Заявитель' должно быть заполнено").notEmpty(),
+    check("equipment", "Поле 'Оборудование' должно быть заполнено").notEmpty(),
+    check("notes", "Поле 'Описание' должно содержать от 1 до 1000 символов")
+        .notEmpty()
+        .isString()
+        .isLength({min: 1, max: 1000}),
+    check("sendEmail", "Поле 'Оперативное уведомление сотрудников' должно быть булевым").isBoolean(),
+    check("productionCheck", "Поле 'Производство остановлено' должно быть булевым").isBoolean(),
+    check("task", "Поле 'Задание' не должно превышать 1000 символов")
+        .isString()
+        .isLength({max: 1000}),
+    // check("dateDone", "Поле 'Дата выполнения' должно быть строкой").isString(),
+    // check("planDateDone", "Поле 'Планируемая дата выполнения' должно быть строкой").isString(),
+    check("content", "Поле 'Содержание работ' не должно превышать 1000 символов")
+        .isString()
+        .isLength({max: 1000}),
+    check("downtime", "Поле 'Время простоев' не должно превышать 255 символов")
+        .isString()
+        .isLength({max: 255}),
+    check("acceptTask", "Поле 'Работа принята' должно быть булевым").isBoolean(),
 ];
 
 // Возвращает запись по коду
 router.get("/log-do/:id", async (req, res) => {
-    const _id = req.params.id;
+    const _id = req.params.id;  // Получение id записи
 
     try {
         let item, isNewItem = true;
@@ -52,7 +58,7 @@ router.get("/log-do/:id", async (req, res) => {
                 department: null,
                 responsible: null,
                 task: "",
-                state: null,
+                taskStatus: null,
                 dateDone: null,
                 planDateDone: null,
                 content: "",
@@ -61,7 +67,7 @@ router.get("/log-do/:id", async (req, res) => {
                 files: []
             });
         } else {
-            // Редактирование существующей записи
+            // Получение существующей записи
             item = await LogDO.findById({_id})
                 .populate("applicant")
                 .populate({
@@ -80,15 +86,13 @@ router.get("/log-do/:id", async (req, res) => {
                     }
                 )
                 .populate("responsible")
-                .populate("state")
+                .populate("taskStatus")
                 .populate("files");
 
             isNewItem = false;
         }
 
-        if (!item) {
-            return res.status(400).json({message: `Запись с кодом ${_id} не существует`});
-        }
+        if (!item) return res.status(400).json({message: `Запись с кодом ${_id} не существует`});
 
         res.status(201).json({logDo: item, isNewItem});
     } catch (e) {
@@ -98,16 +102,19 @@ router.get("/log-do/:id", async (req, res) => {
 
 // Возвращает все записи
 router.get("/log-do/dto/:dateStart/:dateEnd", async (req, res) => {
-    const dateStart = req.params.dateStart;
-    const dateEnd = req.params.dateEnd;
+    const dateStart = req.params.dateStart;     // Получаем дату "с"
+    const dateEnd = req.params.dateEnd;         // Получаем дату "по"
 
+    // Рассчитываем количество миллисекунд для дат "с" и "по"
     const millisecondsStart = moment(dateStart, dateFormat).valueOf();
     const millisecondsEnd = moment(dateEnd, dateFormat).valueOf();
 
     try {
+        // Получаем все записи подразделений и оборудования
         const departments = await Department.find({}).populate("parent");
         const equipment = await Equipment.find({}).populate("parent");
 
+        // Получаем все записи ЖДО с фильтром по дате
         const items = await LogDO.find({date: {$gte: millisecondsStart, $lte: millisecondsEnd}})
             .sort({date: 1})
             .populate("applicant")
@@ -126,10 +133,12 @@ router.get("/log-do/dto/:dateStart/:dateEnd", async (req, res) => {
                     }
                 })
             .populate("responsible")
-            .populate("state")
+            .populate("taskStatus")
             .populate("files");
 
-        let statuses
+        // Получаем все записи состояний заявок
+        let statuses;
+
         try {
             statuses = await TaskStatus.find({});
         } catch (err) {
@@ -144,35 +153,36 @@ router.get("/log-do/dto/:dateStart/:dateEnd", async (req, res) => {
         if (statuses && statuses.length) {
             statuses.forEach(task => {
                 const countTasks = items.filter(logDO =>
-                    logDO.state && logDO.state._id.toString() === task._id.toString());
+                    logDO.taskStatus && logDO.taskStatus._id.toString() === task._id.toString());
 
-                statusLegend.push({
-                    id: task._id,
-                    name: task.name,
-                    count: countTasks.length,
-                    color: task.color
-                });
+                if (countTasks.length)
+                    statusLegend.push({
+                        id: task._id,
+                        name: task.name,
+                        count: countTasks.length,
+                        color: task.color
+                    });
             });
 
             // Сколько записей без статуса
             const countWithoutStatus = await LogDO
-                .find({state: null, date: {$gte: millisecondsStart, $lte: millisecondsEnd}})
+                .find({taskStatus: null, date: {$gte: millisecondsStart, $lte: millisecondsEnd}})
                 .countDocuments();
 
-            statusLegend.push({
-                id: millisecondsEnd,
-                name: "Без статуса",
-                count: countWithoutStatus,
-                color: "#FFFFFF",
-                borderColor: "black"
-            });
+            if (countWithoutStatus)
+                statusLegend.push({
+                    id: millisecondsEnd,
+                    name: "Без статуса",
+                    count: countWithoutStatus,
+                    color: "#FFFFFF",
+                    borderColor: "black"
+                });
         }
 
         let itemsDto = [];
 
-        if (items && items.length) {
-            itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
-        }
+        // Изменяем запись для вывода в таблицу
+        if (items && items.length) itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
 
         res.json({itemsDto, statusLegend});
     } catch (e) {
@@ -184,22 +194,23 @@ router.get("/log-do/dto/:dateStart/:dateEnd", async (req, res) => {
 // Сохраняет новую запись
 router.post("/log-do", checkMiddleware, async (req, res) => {
     try {
+        // Проверка валидации полей раздела "Журнал дефектов и отказов"
         const errors = validationResult(req);
 
-        if (!errors.isEmpty()) {
-            console.log(errors)
+        if (!errors.isEmpty())
             return res.status(400).json({errors: errors.array(), message: "Некоректные данные при создании записи"});
-        }
 
-        let resFileArr = [];
+        let resFileArr = [];    // Создаем результирующий массив файлов
 
-        const {date, applicant, equipment, notes, sendEmail, productionCheck, department, responsible, task, state,
+        // Получаем объект записи с фронтенда
+        const {date, applicant, equipment, notes, sendEmail, productionCheck, department, responsible, task, taskStatus,
             dateDone, planDateDone, content, downtime, acceptTask, files} = req.body;
 
         // При сохранении записи время реагирования 0, время выполнения 0
         const chooseResponsibleTime = 0;
         const chooseStateTime = 0;
 
+        // Заполняем массив файлов
         if (files && files.length >= 0) {
             for (const file of files) {
                 const findFile = await File.findOne({originUid: file.originUid});
@@ -212,15 +223,21 @@ router.post("/log-do", checkMiddleware, async (req, res) => {
             }
         }
 
+        // Создаем новый экземпляр записи
         const item = new LogDO({
-            date, equipment, notes, applicant, responsible, department, task, state, planDateDone, dateDone, content,
+            date, equipment, notes, applicant, responsible, department, task, taskStatus, planDateDone, dateDone, content,
             acceptTask, files: resFileArr, sendEmail, productionCheck, downtime, chooseResponsibleTime, chooseStateTime
         });
 
-        await item.save();
+        await item.save();  // Сохраняем запись в базе данных
 
+        // Получаем все записи подразделений
         const departmentsItems = await Department.find({}).populate("parent");
+
+        // Получаем все записи оборудования
         const equipmentItems = await Equipment.find({}).populate("parent");
+
+        // Ищем запись в базе данных по уникальному идентификатору
         const currentItem = await LogDO.findById({_id: item._id})
             .populate("applicant")
             .populate({
@@ -239,9 +256,10 @@ router.post("/log-do", checkMiddleware, async (req, res) => {
                 }
             )
             .populate("responsible")
-            .populate("state")
+            .populate("taskStatus")
             .populate("files");
 
+        // Изменяем запись для вывода в таблицу
         const savedItem = new LogDoDto(currentItem, departmentsItems, equipmentItems);
 
         res.status(201).json({message: "Запись сохранена", item: savedItem});
@@ -253,31 +271,32 @@ router.post("/log-do", checkMiddleware, async (req, res) => {
 // Изменяет запись
 router.put("/log-do", checkMiddleware, async (req, res) => {
     try {
+        // Проверка валидации полей раздела "Журнал дефектов и отказов"
         const errors = validationResult(req);
 
-        if (!errors.isEmpty()) {
+        if (!errors.isEmpty())
             return res.status(400).json({errors: errors.array(), message: "Некоректные данные при создании записи"});
-        }
 
-        let resFileArr = [];
+        let resFileArr = [];    // Создаем результирующий массив файлов
 
-        const {_id, date, equipment, notes, applicant, responsible, department, task, state, planDateDone, dateDone,
+        // Получаем объект записи с фронтенда
+        const {_id, date, equipment, notes, applicant, responsible, department, task, taskStatus, planDateDone, dateDone,
             content, sendEmail, productionCheck, downtime, acceptTask, files} = req.body;
 
-        const item = await LogDO.findById({_id});
+        const item = await LogDO.findById({_id});   // Ищем запись в базе данных по уникальному идентификатору
 
-        if (!item) {
-            return res.status(400).json({message: `Запись с кодом ${_id} не найдена`});
-        }
+        // Проверяем на существование записи с уникальным идентификатором
+        if (!item) return res.status(400).json({message: `Запись с кодом ${_id} не найдена`});
 
         // Если исполнитель не существует, то высчитываем время с момента назначения до момента создания заявки
         if (!item.responsible && responsible)
             item.chooseResponsibleTime = moment().valueOf() - moment(item.date).valueOf();
 
         // Если состояние не выбрано, то высчитываем время с момента выбора состояния со статусом "Завершено" до момента создания заявки
-        if ((!item.state || (item.state && !item.state.isFinish)) && state && state.isFinish)
+        if ((!item.taskStatus || (item.taskStatus && !item.taskStatus.isFinish)) && taskStatus && taskStatus.isFinish)
             item.chooseStateTime = moment().valueOf() - moment(item.date).valueOf();
 
+        // Заполняем массив файлов
         if (files && files.length) {
             for (const file of files) {
                 if (file.uid.slice(0, 3) === "-1-") {
@@ -303,7 +322,7 @@ router.put("/log-do", checkMiddleware, async (req, res) => {
         item.department = department;
         item.responsible = responsible;
         item.task = task;
-        item.state = state;
+        item.taskStatus = taskStatus;
         item.dateDone = dateDone;
         item.planDateDone = planDateDone;
         item.content = content;
@@ -311,10 +330,15 @@ router.put("/log-do", checkMiddleware, async (req, res) => {
         item.acceptTask = acceptTask;
         item.files = resFileArr;
 
-        await item.save();
+        await item.save();  // Сохраняем запись в базу данных
 
+        // Получаем все записи подразделений
         const departmentsItems = await Department.find({}).populate("parent");
+
+        // Получаем все записи оборудования
         const equipmentItems = await Equipment.find({}).populate("parent");
+
+        // Ищем запись в базе данных по уникальному идентификатору
         const currentItem = await LogDO.findById({_id})
             .populate("applicant")
             .populate({
@@ -333,9 +357,10 @@ router.put("/log-do", checkMiddleware, async (req, res) => {
                 }
             )
             .populate("responsible")
-            .populate("state")
+            .populate("taskStatus")
             .populate("files");
 
+        // Изменяем запись для вывода в таблицу
         const savedItem = new LogDoDto(currentItem, departmentsItems, equipmentItems);
 
         res.status(201).json({message: "Запись сохранена", item: savedItem});
@@ -347,10 +372,10 @@ router.put("/log-do", checkMiddleware, async (req, res) => {
 
 // Удаляет запись
 router.delete("/log-do/:id", async (req, res) => {
-    const _id = req.params.id;
+    const _id = req.params.id;  // Получение id записи
 
     try {
-        await LogDO.deleteOne({_id});
+        await LogDO.deleteOne({_id});   // Удаление записи из базы данных по id записи
 
         res.status(201).json({message: "Запись успешно удалена"});
     } catch (e) {

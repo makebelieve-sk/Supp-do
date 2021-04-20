@@ -14,7 +14,7 @@ class LogDoDto {
         this.responsible = logDo.responsible ? getShortName(logDo.responsible.name) : "";
         this.department = logDo.department ? logDo.department.name : "";
         this.task = logDo.task ? logDo.task : "";
-        this.state = logDo.state ? logDo.state.name : "";
+        this.taskStatus = logDo.taskStatus ? logDo.taskStatus.name : "";
         this.dateDone = logDo.dateDone ? moment(logDo.dateDone).format(dateFormat) : "";
         this.planDateDone = logDo.planDateDone ? moment(logDo.planDateDone).format(dateFormat) : "";
         this.content = logDo.content ? logDo.content : "";
@@ -25,7 +25,7 @@ class LogDoDto {
         this.departmentTooltip = departments && departments.length ? logDo.department && logDo.department.parent ?
             getNameWithParent(logDo.department, departments) + logDo.department.name : "" : "";
 
-        this.color = logDo.state ? logDo.state.color : "#FFFFFF";
+        this.color = logDo.taskStatus ? logDo.taskStatus.color : "#FFFFFF";
     }
 }
 
