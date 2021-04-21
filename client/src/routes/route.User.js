@@ -6,7 +6,7 @@ import {ActionCreator} from "../redux/combineActions";
 import {User} from "../model/User";
 import {request} from "../helpers/functions/general.functions/request.helper";
 import {compareArrays, compareObjects} from "../helpers/functions/general.functions/compare";
-import {getShortNameRecord} from "../helpers/functions/general.functions/replaceField";
+import {NoticeError, storePeople, storeRole} from "./helper";
 
 export const UserRoute = {
     // Адрес для работы с разделом "Пользователи"
@@ -35,10 +35,9 @@ export const UserRoute = {
             // Останавливаем спиннер загрузки данных в таблицу
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
         } catch (e) {
-            console.log(e);
-            // Останавливаем спиннер загрузки данных в таблицу
-            store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
-            message.error("Возникла ошибка при получении записей помощи: ", e);
+            // Устанавливаем ошибку в хранилище раздела
+            store.dispatch(ActionCreator.ActionCreatorUser.setErrorTable("Возникла ошибка при получении записей: " + e));
+            NoticeError.getAll(e); // Вызываем функцию обработки ошибки
         }
     },
     // Получение редактируемой записи о пользователе
@@ -47,40 +46,20 @@ export const UserRoute = {
             // Получаем редактируемую запись о пользователе
             const item = await request(this.base_url + id);
             const people = await request("/api/directory/people/");
+            const roles = await request("/api/admin/roles/");
 
-            // Заполняем хранилище "Персонал"
-            if (people && people.length) {
-                const reduxPeople = store.getState().reducerPerson.people;
+            // Записываем полученные записи раздела "Персонал" в хранилище
+            storePeople(people);
 
-                // Если массивы не равны, то обновляем хранилище redux
-                const shouldUpdate = compareArrays(people, reduxPeople);
+            // Записываем полученные записи раздела "Роли" в хранилище
+            storeRole(roles);
 
-                if (shouldUpdate) {
-                    people.forEach(person => {
-                        person.name = getShortNameRecord(person.name);
-                    });
-
-                    store.dispatch(ActionCreator.ActionCreatorPerson.getAllPeople(people));
-                }
-            }
-
-            if (item) {
-                // Заполняем хранилище "Роли"
-                if (item.roles && item.roles.length) {
-                    const reduxRoles = store.getState().reducerRole.roles;
-
-                    // Если массивы не равны, то обновляем хранилище redux
-                    const shouldUpdate = compareArrays(item.roles, reduxRoles);
-
-                    if (shouldUpdate) store.dispatch(ActionCreator.ActionCreatorRole.getAllRoles(item.roles));
-                }
-
-                // Заполняем модель записи
-                this.fillItem(item);
-            }
+            // Заполняем модель записи
+            if (item) this.fillItem(item);
         } catch (e) {
-            console.log(e);
-            message.error("Возникла ошибка при получении записи: ", e);
+            // Устанавливаем ошибку в хранилище раздела
+            store.dispatch(ActionCreator.ActionCreatorUser.setErrorRecord("Возникла ошибка при получении записи: " + e));
+            NoticeError.get(e); // Вызываем функцию обработки ошибки
         }
     },
     // Получение данных о текущем пользователе
@@ -93,6 +72,7 @@ export const UserRoute = {
         } catch (e) {
             console.log(e);
             message.error("Возникла ошибка при получении записи: ", e);
+            throw new Error(e);
         }
     },
     // Сохранение записи о пользователе
@@ -133,10 +113,9 @@ export const UserRoute = {
             // Удаление текущей вкладки
             this.cancel(onRemove);
         } catch (e) {
-            console.log(e);
-            // Останавливаем спиннер загрузки
-            setLoading(false);
-            message.error("Возникла ошибка при сохранении записи в хранилище: ", e);
+            // Устанавливаем ошибку в хранилище раздела
+            store.dispatch(ActionCreator.ActionCreatorUser.setErrorRecord("Возникла ошибка при сохранении записи: " + e));
+            NoticeError.save(e, setLoading);    // Вызываем функцию обработки ошибки
         }
 
     },
@@ -172,11 +151,9 @@ export const UserRoute = {
             // Удаление текущей вкладки
             this.cancel(onRemove)
         } catch (e) {
-            console.log(e);
-            // Останавливаем спиннер, и скрываем всплывающее окно
-            setLoadingDelete(false);
-            setVisiblePopConfirm(false);
-            message.error("Возникла ошибка при удалении записи из хранилища: ", e);
+            // Устанавливаем ошибку в хранилище раздела
+            store.dispatch(ActionCreator.ActionCreatorUser.setErrorRecord("Возникла ошибка при удалении записи: " + e));
+            NoticeError.delete(e, setLoadingDelete, setVisiblePopConfirm);    // Вызываем функцию обработки ошибки
         }
 
     },

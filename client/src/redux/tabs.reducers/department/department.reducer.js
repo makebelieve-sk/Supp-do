@@ -1,10 +1,13 @@
+// Инициализация редьюсера раздела "Подразделения"
 import initialState from "./department.state";
 import {
     CREATE_DEPARTMENT,
     EDIT_DEPARTMENT,
     DELETE_DEPARTMENT,
     GET_ALL_DEPARTMENTS,
-    SET_ROW_DATA_DEPARTMENT
+    SET_ROW_DATA_DEPARTMENT,
+    SET_ERROR_RECORD,
+    SET_ERROR_TABLE,
 } from "./department.constants";
 
 export default function reducerDepartment(state = initialState, action) {
@@ -35,6 +38,16 @@ export default function reducerDepartment(state = initialState, action) {
             return {
                 ...state,
                 rowDataDepartment: action.payload
+            };
+        case SET_ERROR_RECORD:
+            return {
+                ...state,
+                errorRecord: action.payload
+            };
+        case SET_ERROR_TABLE:
+            return {
+                ...state,
+                errorTable: action.payload
             };
         default:
             return state;

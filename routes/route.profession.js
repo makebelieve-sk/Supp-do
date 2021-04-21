@@ -32,8 +32,9 @@ router.get("/professions/:id", async (req, res) => {
         if (!item) return res.status(400).json({message: `Профессия с кодом ${_id} не существует`});
 
         res.status(201).json({isNewItem, profession: item});
-    } catch (e) {
-        res.status(500).json({message: `Ошибка при открытии записи с кодом ${_id}`})
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: `Ошибка при открытии записи с кодом ${_id}: ${err}`});
     }
 });
 
@@ -43,8 +44,9 @@ router.get("/professions", async (req, res) => {
         const items = await Profession.find({});    // Получаем все записи раздела "Характеристики оборудования"
 
         res.json(items);
-    } catch (e) {
-        res.status(500).json({message: "Ошибка при получении записей о профессиях"})
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: "Ошибка при получении записей: " + err});
     }
 });
 
@@ -69,8 +71,9 @@ router.post("/professions", checkMiddleware, async (req, res) => {
         await item.save();  // Сохраняем запись в базе данных
 
         res.status(201).json({message: "Профессия сохранена", item});
-    } catch (e) {
-        res.status(500).json({message: "Ошибка при создании записи"})
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: "Ошибка при создании записи: " + err});
     }
 });
 
@@ -97,8 +100,9 @@ router.put("/professions", checkMiddleware, async (req, res) => {
         await item.save();  // Сохраняем запись в базу данных
 
         res.status(201).json({message: "Профессия сохранена", item});
-    } catch (e) {
-        res.status(500).json({message: "Ошибка при обновлении профессии"})
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: "Ошибка при обновлении записи: " + err});
     }
 });
 
@@ -110,8 +114,9 @@ router.delete("/professions/:id", async (req, res) => {
         await Profession.deleteOne({_id});  // Удаление записи из базы данных по id записи
 
         res.status(201).json({message: "Профессия успешно удалена"});
-    } catch (e) {
-        res.status(500).json({message: `Ошибка при удалении профессии с кодом ${_id}`})
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: `Ошибка при удалении профессии с кодом ${_id}: ${err}`});
     }
 });
 

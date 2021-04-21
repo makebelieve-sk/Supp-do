@@ -1,3 +1,4 @@
+// Инициализация редьюсера раздела "Пользователи"
 import initialState from "./user.state";
 import {
     CREATE_USER,
@@ -5,6 +6,8 @@ import {
     DELETE_USER,
     GET_ALL_USERS,
     SET_ROW_DATA_USER,
+    SET_ERROR_RECORD,
+    SET_ERROR_TABLE,
 } from "./user.constants";
 
 export default function reducerUser(state = initialState, action) {
@@ -35,6 +38,16 @@ export default function reducerUser(state = initialState, action) {
             return {
                 ...state,
                 rowDataUser: action.payload
+            };
+        case SET_ERROR_RECORD:
+            return {
+                ...state,
+                errorRecord: action.payload
+            };
+        case SET_ERROR_TABLE:
+            return {
+                ...state,
+                errorTable: action.payload
             };
         default:
             return state;

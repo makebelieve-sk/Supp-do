@@ -44,8 +44,9 @@ router.get("/people/:id", async (req, res) => {
         if (!item) return res.status(400).json({message: `Запись с кодом ${_id} не существует`});
 
         res.status(201).json({isNewItem, person: item});
-    } catch (e) {
-        res.status(500).json({message: `Ошибка при открытии записи с кодом ${_id}`})
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: `Ошибка при открытии записи с кодом ${_id}: ${err}`});
     }
 });
 
@@ -72,9 +73,9 @@ router.get("/people/", async (req, res) => {
         if (items && items.length) itemsDto = items.map(item => new PersonDto(item, departments));
 
         res.json(itemsDto);
-    } catch (e) {
-        console.log(e);
-        res.status(500).json({message: "Ошибка при получении записей о сотрудниках"})
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: "Ошибка при получении записей: " + err});
     }
 });
 
@@ -117,8 +118,9 @@ router.post("/people", checkMiddleware, async (req, res) => {
         const savedItem = new PersonDto(currentPerson, departments);
 
         res.status(201).json({message: "Запись о сотруднике сохранена", item: savedItem});
-    } catch (e) {
-        res.status(500).json({message: "Ошибка при создании записи"})
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: "Ошибка при создании записи: " + err});
     }
 });
 
@@ -165,8 +167,9 @@ router.put("/people", checkMiddleware, async (req, res) => {
         const savedItem = new PersonDto(currentItem, departments);
 
         res.status(201).json({message: "Запись о сотруднике успешно изменена", item: savedItem});
-    } catch (e) {
-        res.status(500).json({message: "Ошибка при обновлении записи о сотруднике"})
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: "Ошибка при обновлении записи: " + err});
     }
 });
 
@@ -178,8 +181,9 @@ router.delete("/people/:id", async (req, res) => {
         await Person.deleteOne({_id});  // Удаление записи из базы данных по id записи
 
         res.status(201).json({message: "Запись о сотруднике успешно удалена"});
-    } catch (e) {
-        res.status(500).json({message: `Ошибка при удалении записи с кодом ${_id}`})
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: `Ошибка при удалении записи с кодом ${_id}: ${err}`});
     }
 });
 

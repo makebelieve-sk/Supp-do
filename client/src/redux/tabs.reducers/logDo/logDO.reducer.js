@@ -1,3 +1,4 @@
+// Инициализация редьюсера раздела "Журнал дефектов и отказов"
 import initialState from "./logDO.state";
 import {
     CREATE_LOGDO,
@@ -12,7 +13,8 @@ import {
     GET_ALL_FILES,
     SET_LEGEND,
     SET_ALERT,
-    SET_ERROR,
+    SET_ERROR_RECORD,
+    SET_ERROR_TABLE,
 } from "./logDO.constants";
 
 export default function reducerLogDO(state = initialState, action) {
@@ -80,10 +82,15 @@ export default function reducerLogDO(state = initialState, action) {
                 ...state,
                 alert: action.payload
             };
-        case SET_ERROR:
+        case SET_ERROR_RECORD:
             return {
                 ...state,
-                error: action.payload
+                errorRecord: action.payload
+            };
+        case SET_ERROR_TABLE:
+            return {
+                ...state,
+                errorTable: action.payload
             };
         default:
             return state;

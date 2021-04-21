@@ -73,9 +73,9 @@ router.get("/roles/:id", async (req, res) => {
         }
 
         res.status(201).json({isNewItem, role: item});
-    } catch (e) {
-        console.log(e);
-        res.status(500).json({message: `Ошибка при открытии записи с кодом ${_id}`})
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: `Ошибка при открытии записи с кодом ${_id}: ${err}`});
     }
 });
 
@@ -85,9 +85,9 @@ router.get("/roles", async (req, res) => {
         const items = await Role.find({});  // Получаем все записи раздела "Роли"
 
         res.json(items);
-    } catch (e) {
-        console.log(e);
-        res.status(500).json({message: "Ошибка при получении пользователей"})
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: "Ошибка при получении записей: " + err});
     }
 });
 
@@ -112,9 +112,9 @@ router.post("/roles", checkMiddleware, async (req, res) => {
         await item.save();  // Сохраняем запись в базе данных
 
         res.status(201).json({message: "Запись сохранена", item});
-    } catch (e) {
-        console.log(e);
-        res.status(500).json({message: "Ошибка при создании записи"});
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: "Ошибка при создании записи: " + err});
     }
 });
 
@@ -138,9 +138,9 @@ router.put("/roles", checkMiddleware, async (req, res) => {
         await item.save();  // Сохраняем запись в базу данных
 
         res.status(201).json({message: "Запись сохранена", item});
-    } catch (e) {
-        console.log(e);
-        res.status(500).json({message: "Ошибка при обновлении записи"})
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: "Ошибка при обновлении записи: " + err});
     }
 });
 
@@ -152,9 +152,9 @@ router.delete("/roles/:id", async (req, res) => {
         await Role.deleteOne({_id});    // Удаление записи из базы данных по id записи
 
         res.status(201).json({message: "Запись успешно удалена"});
-    } catch (e) {
-        console.log(e);
-        res.status(500).json({message: `Ошибка при удалении записи с кодом ${_id}`})
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: `Ошибка при удалении записи с кодом ${_id}: ${err}`});
     }
 });
 

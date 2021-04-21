@@ -25,11 +25,14 @@ export default function getContentToTab(key) {
         ["help", <TableComponent specKey={key}/>],
         ["users", <TableComponent specKey={key}/>],
         ["roles", <TableComponent specKey={key}/>],
+        ["logs", <TableComponent specKey={key}/>],
     ]);
 
     if (map.has(key)) {
         return map.get(key);
     } else {
+        console.log(key);
         message.error(`Раздел с ключём ${key} не существует (определение типа контента вкладки)`).then(null);
+        return new Error(`Раздел с ключём ${key} не существует (определение типа контента вкладки)`);
     }
 };

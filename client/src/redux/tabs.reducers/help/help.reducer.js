@@ -1,3 +1,4 @@
+// Инициализация редьюсера раздела "Помощь"
 import initialState from "./help.state";
 import {
     CREATE_HELP,
@@ -5,6 +6,8 @@ import {
     DELETE_HELP,
     GET_ALL_HELP,
     SET_ROW_DATA_HELP,
+    SET_ERROR_RECORD,
+    SET_ERROR_TABLE
 } from "./help.constants";
 
 export default function reducerHelp(state = initialState, action) {
@@ -35,6 +38,16 @@ export default function reducerHelp(state = initialState, action) {
             return {
                 ...state,
                 rowDataHelp: action.payload
+            };
+        case SET_ERROR_RECORD:
+            return {
+                ...state,
+                errorRecord: action.payload
+            };
+        case SET_ERROR_TABLE:
+            return {
+                ...state,
+                errorTable: action.payload
             };
         default:
             return state;

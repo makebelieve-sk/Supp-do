@@ -51,8 +51,9 @@ router.post("/upload", async (req, res) => {
         await req.files.file.mv(file.url);  // Сохраняем файл на диске
 
         res.end(req.files.file.name);
-    } catch (e) {
-        res.status(500).json({message: `Ошибка при загрузке файла ${originalFileName}`})
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: `Ошибка при загрузке файла ${originalFileName}: ${err}`});
     }
 });
 
@@ -94,8 +95,9 @@ router.delete("/delete/:id", async (req, res) => {
         }
 
         res.status(201).json({message: "Файлы успешно удалены"});
-    } catch (e) {
-        res.status(500).json({message: `Ошибка при удалении записи с кодом ${id}`});
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: `Ошибка при удалении записи с кодом ${id}: ${err}`});
     }
 });
 
@@ -147,8 +149,9 @@ router.delete("/delete-file/:id", async (req, res) => {
         }
 
         res.status(201).json({message: "Файл успешно удалён"});
-    } catch (e) {
-        res.status(500).json({message: `Ошибка при удалении файла с кодом ${id}`});
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: `Ошибка при удалении файла с кодом ${id}: ${err}`});
     }
 });
 
@@ -169,10 +172,9 @@ router.delete("/cancel", async (req, res) => {
         }
 
         res.status(201).json({message: "Файл успешно удалён"});
-    } catch (e) {
-        res.status(500).json({
-            message: `Ошибка при закрытии записи, пожалуйста, удалите добавленные, но не сохраненные записи.`
-        });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: "Ошибка при закрытии записи, пожалуйста, удалите добавленные, но не сохраненные записи" + err});
     }
 });
 

@@ -1,9 +1,12 @@
+// Инициализация экшенов для раздела "Помощь"
 import {
     CREATE_HELP,
     EDIT_HELP,
     DELETE_HELP,
     GET_ALL_HELP,
     SET_ROW_DATA_HELP,
+    SET_ERROR_RECORD,
+    SET_ERROR_TABLE,
 } from "./help.constants";
 
 const ActionCreatorHelp = {
@@ -42,7 +45,21 @@ const ActionCreatorHelp = {
             type: SET_ROW_DATA_HELP,
             payload: item
         }
-    }
+    },
+    // Установка ошибки для записи
+    setErrorRecord: (error) => {
+        return {
+            type: SET_ERROR_RECORD,
+            payload: error
+        }
+    },
+    // Установка ошибки для таблицы
+    setErrorTable: (error) => {
+        return {
+            type: SET_ERROR_TABLE,
+            payload: error
+        }
+    },
 }
 
 export default ActionCreatorHelp;

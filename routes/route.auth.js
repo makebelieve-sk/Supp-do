@@ -45,6 +45,7 @@ const checkMiddlewareAuth = [
         .isLength({min: 1, max: 255}),
 ];
 
+// Регистрация нового пользователя
 router.post("/register", checkMiddlewareRegister, async (req, res) => {
     try {
         // Проверка валидации полей раздела "Пользователи"
@@ -68,12 +69,13 @@ router.post("/register", checkMiddlewareRegister, async (req, res) => {
         await newCandidate.save();  // Сохраняем запись в базе данных
 
         res.status(201).json({message: "Пользователь создан"});
-    } catch (e) {
-        console.log(e);
-        res.status(500).json({message: "Ошибка при регистрации, пожалуйста, попробуйте снова"})
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: "Ошибка при регистрации, пожалуйста, попробуйте снова: " + err});
     }
 });
 
+// Вход пользователя
 router.post("/login", checkMiddlewareAuth, async (req, res) => {
     try {
         // Проверка валидации полей раздела "Характеристики оборудования"
@@ -104,9 +106,9 @@ router.post("/login", checkMiddlewareAuth, async (req, res) => {
         );
 
         res.status(200).json({token, userId: user.id, user});
-    } catch (e) {
-        console.log(e);
-        res.status(500).json({message: "Ошибка при входе, пожалуйста, попробуйте снова"})
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: "Ошибка при входе, пожалуйста, попробуйте снова: " + err});
     }
 });
 

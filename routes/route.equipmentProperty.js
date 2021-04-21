@@ -33,8 +33,9 @@ router.get("/equipment-property/:id", async (req, res) => {
         if (!item) return res.status(400).json({message: `Характеристика с кодом ${_id} не существует`});
 
         res.status(201).json({isNewItem, equipmentProperty: item});
-    } catch (e) {
-        res.status(500).json({message: `Ошибка при открытии записи с кодом ${_id}`});
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: `Ошибка при открытии записи с кодом ${_id}: ${err}`});
     }
 });
 
@@ -44,8 +45,9 @@ router.get("/equipment-property", async (req, res) => {
         const items = await EquipmentProperty.find({}); // Получаем все записи раздела "Характеристики оборудования"
 
         res.json(items);
-    } catch (e) {
-        res.status(500).json({message: "Ошибка при получении записей о характеристиках оборудования"});
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: "Ошибка при получении записей: " + err});
     }
 });
 
@@ -71,8 +73,9 @@ router.post("/equipment-property", checkMiddleware, async (req, res) => {
         const savedItem = await newItem.save(); // Сохраняем запись в базе данных
 
         res.status(201).json({message: "Характеристика сохранена", item: savedItem});
-    } catch (e) {
-        res.status(500).json({message: "Ошибка при создании записи"})
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: "Ошибка при создании записи: " + err});
     }
 });
 
@@ -99,8 +102,9 @@ router.put("/equipment-property", checkMiddleware, async (req, res) => {
         await item.save();  // Сохраняем запись в базу данных
 
         res.status(201).json({message: "Характеристика сохранена", item: item});
-    } catch (e) {
-        res.status(500).json({message: "Ошибка при обновлении характеристики оборудования"})
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: "Ошибка при обновлении записи: " + err});
     }
 });
 
@@ -112,8 +116,9 @@ router.delete("/equipment-property/:id", async (req, res) => {
         await EquipmentProperty.deleteOne({_id});   // Удаление записи из базы данных по id записи
 
         res.status(201).json({message: "Характеристика успешно удалена"});
-    } catch (e) {
-        res.status(500).json({message: `Ошибка при удалении характеристики с кодом ${_id}`})
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: `Ошибка при удалении характеристики с кодом ${_id}: ${err}`});
     }
 });
 

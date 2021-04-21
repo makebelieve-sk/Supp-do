@@ -1,8 +1,12 @@
+// Константы для раздела "Пользователи"
 const CREATE_USER = "CREATE_USER";
 const EDIT_USER = "EDIT_USER";
 const DELETE_USER = "DELETE_USER";
 const GET_ALL_USERS = "GET_ALL_USERS";
 const SET_ROW_DATA_USER = "SET_ROW_DATA_USER";
+
+const SET_ERROR_RECORD = "SET_ERROR_RECORD";
+const SET_ERROR_TABLE = "SET_ERROR_TABLE";
 
 export {
     CREATE_USER,
@@ -10,4 +14,6 @@ export {
     DELETE_USER,
     GET_ALL_USERS,
     SET_ROW_DATA_USER,
+    SET_ERROR_RECORD,
+    SET_ERROR_TABLE,
 }

@@ -7,11 +7,11 @@ import {LogDoForm} from "./logDo.form";
 import ErrorIndicator from "../../components/content.components/errorIndicator/errorIndicator.component";
 
 export const LogDOTab = () => {
-    // Получение записи и состояния загрузки записи
+    // Получение записи, состояния загрузки записи и состояние ошибки
     const {loadingSkeleton, item, error} = useSelector(state => ({
         loadingSkeleton: state.reducerLoading.loadingSkeleton,
         item: state.reducerLogDO.rowDataLogDO,
-        error: state.reducerLogDO.error
+        error: state.reducerLogDO.errorRecord
     }));
 
     const display = loadingSkeleton ? "none" : "block"; // Установка стиля отображения содержимого вкладки

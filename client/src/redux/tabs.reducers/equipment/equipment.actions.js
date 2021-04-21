@@ -1,3 +1,4 @@
+// Инициализация экшенов для раздела "Оборудование"
 import {
     CREATE_EQUIPMENT,
     EDIT_EQUIPMENT,
@@ -10,7 +11,9 @@ import {
     GET_ALL_SELECT_ROWS,
     ADD_FILE,
     DELETE_FILE,
-    GET_ALL_FILES
+    GET_ALL_FILES,
+    SET_ERROR_RECORD,
+    SET_ERROR_TABLE,
 } from "./equipment.constants";
 
 const ActionCreatorEquipment = {
@@ -98,6 +101,20 @@ const ActionCreatorEquipment = {
         return {
             type: GET_ALL_FILES,
             payload: files
+        }
+    },
+    // Установка ошибки для записи
+    setErrorRecord: (error) => {
+        return {
+            type: SET_ERROR_RECORD,
+            payload: error
+        }
+    },
+    // Установка ошибки для таблицы
+    setErrorTable: (error) => {
+        return {
+            type: SET_ERROR_TABLE,
+            payload: error
         }
     },
 }

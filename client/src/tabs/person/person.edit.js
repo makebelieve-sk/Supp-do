@@ -4,15 +4,17 @@ import {useSelector} from "react-redux";
 import {Card, Row, Col, Skeleton} from "antd";
 
 import {PersonForm} from "./person.form";
+import ErrorIndicator from "../../components/content.components/errorIndicator/errorIndicator.component";
 
 export const PersonTab = () => {
     // Получение записи и состояния загрузки записи
-    const {item, loadingSkeleton} = useSelector((state) => ({
+    const {item, loadingSkeleton, error} = useSelector((state) => ({
         item: state.reducerPerson.rowDataPerson,
         loadingSkeleton: state.reducerLoading.loadingSkeleton,
+        error: state.reducerPerson.errorRecord
     }));
 
-    const display = loadingSkeleton ? "none" : "block";
+    const display = loadingSkeleton ? "none" : "block"; // Установка стиля отображения содержимого вкладки
 
     return (
         <Row className="container-tab" justify="center">
@@ -21,7 +23,12 @@ export const PersonTab = () => {
                     <Skeleton loading={loadingSkeleton} active/>
 
                     <div style={{display}}>
-                        {useMemo(() => item ? <PersonForm item={item} /> : null, [item])}
+                        {useMemo(() => {
+                            if (error) return <ErrorIndicator errorText={error} />
+                            if (item) return <PersonForm item={item} />
+
+                            return null;
+                        }, [item, error])}
                     </div>
                 </Card>
             </Col>

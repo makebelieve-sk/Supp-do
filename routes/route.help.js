@@ -25,8 +25,9 @@ router.get("/help/:id", async (req, res) => {
         if (!item) return res.status(400).json({message: `Запись с кодом ${_id} не существует`});
 
         res.status(201).json({isNewItem, help: item});
-    } catch (e) {
-        res.status(500).json({message: `Ошибка при открытии записи с кодом ${_id}`})
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: `Ошибка при открытии записи с кодом ${_id}: ${err}`});
     }
 });
 
@@ -40,8 +41,9 @@ router.get("/help/get/:id", async (req, res) => {
         const response = item ? {title: item.name.label, text: item.text} : null;   // Составляем объект ответа
 
         res.status(201).json(response); // Отправляем ответ
-    } catch (e) {
-        res.status(500).json({message: "Ошибка при получении записи помощи при клике на кнопку 'Помощь'"})
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: "Ошибка при получении записи помощи при клике на кнопку 'Помощь': " + err});
     }
 });
 
@@ -51,8 +53,9 @@ router.get("/help", async (req, res) => {
         const items = await Help.find({});  // Получаем все записи раздела "Характеристики оборудования"
 
         res.json(items);
-    } catch (e) {
-        res.status(500).json({message: "Ошибка при получении записей помощи"})
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: "Ошибка при получении записей: " + err});
     }
 });
 
@@ -78,8 +81,9 @@ router.post("/help", checkMiddleware, async (req, res) => {
         await item.save();  // Сохраняем запись в базе данных
 
         res.status(201).json({message: "Запись сохранена", item});
-    } catch (e) {
-        res.status(500).json({message: "Ошибка при создании записи"})
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: "Ошибка при создании записи: " + err});
     }
 });
 
@@ -107,8 +111,9 @@ router.put("/help", checkMiddleware, async (req, res) => {
         await item.save();  // Сохраняем запись в базу данных
 
         res.status(201).json({message: "Запись сохранена", item});
-    } catch (e) {
-        res.status(500).json({message: "Ошибка при обновлении записи"})
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: "Ошибка при обновлении записи: " + err});
     }
 });
 
@@ -120,8 +125,9 @@ router.delete("/help/:id", async (req, res) => {
         await Help.deleteOne({_id});    // Удаление записи из базы данных по id записи
 
         res.status(201).json({message: "Запись успешно удалена"});
-    } catch (e) {
-        res.status(500).json({message: `Ошибка при удалении записи с кодом ${_id}`})
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: `Ошибка при удалении записи с кодом ${_id}: ${err}`});
     }
 });
 

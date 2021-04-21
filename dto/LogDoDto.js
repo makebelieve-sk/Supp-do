@@ -1,4 +1,4 @@
-// Модель таблицы "Журнал дефектов и отказов"
+// Модель таблицы раздела "Журнал дефектов и отказов"
 const moment = require("moment");
 const {getNameWithParent, getShortName} = require("../helper");
 

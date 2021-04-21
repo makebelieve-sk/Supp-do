@@ -5,7 +5,8 @@ import store from "../redux/store";
 import {ActionCreator} from "../redux/combineActions";
 import {Role} from "../model/Role";
 import {request} from "../helpers/functions/general.functions/request.helper";
-import {compareArrays, compareObjects} from "../helpers/functions/general.functions/compare";
+import {compareObjects} from "../helpers/functions/general.functions/compare";
+import {NoticeError, storeRole} from "./helper";
 
 export const RoleRoute = {
     // Адрес для работы с разделом "Роли"
@@ -19,25 +20,15 @@ export const RoleRoute = {
             // Получаем все записи раздела "Роли"
             const items = await request(this.base_url);
 
-            if (items) {
-                const reducerRole = store.getState().reducerRole.roles;
-
-                // Если массивы не равны, то обновляем хранилище redux
-                const shouldUpdate = compareArrays(items, reducerRole);
-
-                if (shouldUpdate) {
-                    // Записываем все роли в хранилище
-                    store.dispatch(ActionCreator.ActionCreatorRole.getAllRoles(items));
-                }
-            }
+            // Записываем полученные записи раздела "Роли" в хранилище
+            storeRole(items);
 
             // Останавливаем спиннер загрузки данных в таблицу
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
         } catch (e) {
-            console.log(e);
-            // Останавливаем спиннер загрузки данных в таблицу
-            store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
-            message.error("Возникла ошибка при получении записей помощи: ", e);
+            // Устанавливаем ошибку в хранилище раздела
+            store.dispatch(ActionCreator.ActionCreatorRole.setErrorTable("Возникла ошибка при получении записей: " + e));
+            NoticeError.getAll(e); // Вызываем функцию обработки ошибки
         }
     },
     // Получение редактируемой роли
@@ -46,13 +37,12 @@ export const RoleRoute = {
             // Получаем редактируемую запись
             const item = await request(this.base_url + id);
 
-            if (item) {
-                // Заполняем модель записи
-                this.fillItem(item);
-            }
+            // Заполняем модель записи
+            if (item) this.fillItem(item);
         } catch (e) {
-            console.log(e);
-            message.error("Возникла ошибка при получении записи: ", e);
+            // Устанавливаем ошибку в хранилище раздела
+            store.dispatch(ActionCreator.ActionCreatorRole.setErrorRecord("Возникла ошибка при получении записи: " + e));
+            NoticeError.get(e); // Вызываем функцию обработки ошибки
         }
     },
     // Сохранение роли
@@ -93,10 +83,9 @@ export const RoleRoute = {
             // Удаление текущей вкладки
             this.cancel(onRemove);
         } catch (e) {
-            console.log(e);
-            // Останавливаем спиннер загрузки
-            setLoading(false);
-            message.error("Произошла ошибка при сохранении записи в хранилище: ", e);
+            // Устанавливаем ошибку в хранилище раздела
+            store.dispatch(ActionCreator.ActionCreatorRole.setErrorRecord("Возникла ошибка при сохранении записи: " + e));
+            NoticeError.save(e, setLoading);    // Вызываем функцию обработки ошибки
         }
 
     },
@@ -132,11 +121,9 @@ export const RoleRoute = {
             // Удаление текущей вкладки
             this.cancel(onRemove)
         } catch (e) {
-            console.log(e);
-            // Останавливаем спиннер, и скрываем всплывающее окно
-            setLoadingDelete(false);
-            setVisiblePopConfirm(false);
-            message.error("Произошла ошибка при удалении записи из хранилища: ", e);
+            // Устанавливаем ошибку в хранилище раздела
+            store.dispatch(ActionCreator.ActionCreatorRole.setErrorRecord("Возникла ошибка при удалении записи: " + e));
+            NoticeError.delete(e, setLoadingDelete, setVisiblePopConfirm);    // Вызываем функцию обработки ошибки
         }
     },
     // Нажатие на кнопку "Отмена"

@@ -4,15 +4,17 @@ import {useSelector} from "react-redux";
 import {Card, Row, Col, Skeleton} from "antd";
 
 import {TaskStatusForm} from "./taskStatus.form";
+import ErrorIndicator from "../../components/content.components/errorIndicator/errorIndicator.component";
 
 export const TaskTab = () => {
     // Получение списка состояний заявок и загрузки записи
-    const {item, loadingSkeleton} = useSelector((state) => ({
+    const {item, loadingSkeleton, error} = useSelector((state) => ({
         item: state.reducerTask.rowDataTask,
-        loadingSkeleton: state.reducerLoading.loadingSkeleton
+        loadingSkeleton: state.reducerLoading.loadingSkeleton,
+        error: state.reducerTask.errorRecord
     }));
 
-    const display = loadingSkeleton ? "none" : "block";
+    const display = loadingSkeleton ? "none" : "block"; // Установка стиля отображения содержимого вкладки
 
     return (
         <Row className="container-tab" justify="center">
@@ -21,7 +23,12 @@ export const TaskTab = () => {
                     <Skeleton loading={loadingSkeleton} active/>
 
                     <div style={{display}}>
-                        {useMemo(() => item ? <TaskStatusForm item={item} /> : null, [item])}
+                        {useMemo(() => {
+                            if (error) return <ErrorIndicator errorText={error} />
+                            if (item) return <TaskStatusForm item={item} />
+
+                            return null;
+                        }, [item, error])}
                     </div>
                 </Card>
             </Col>

@@ -1,9 +1,12 @@
+// Инициализация экшенов для раздела "Состояние заявок"
 import {
     CREATE_TASK,
     EDIT_TASK,
     DELETE_TASK,
     GET_ALL_TASKS,
-    SET_ROW_DATA_TASK
+    SET_ROW_DATA_TASK,
+    SET_ERROR_RECORD,
+    SET_ERROR_TABLE,
 } from "./task.constants";
 
 const ActionCreatorTask = {
@@ -42,7 +45,21 @@ const ActionCreatorTask = {
             type: SET_ROW_DATA_TASK,
             payload: rowData
         }
-    }
+    },
+    // Установка ошибки для записи
+    setErrorRecord: (error) => {
+        return {
+            type: SET_ERROR_RECORD,
+            payload: error
+        }
+    },
+    // Установка ошибки для таблицы
+    setErrorTable: (error) => {
+        return {
+            type: SET_ERROR_TABLE,
+            payload: error
+        }
+    },
 }
 
 export default ActionCreatorTask;

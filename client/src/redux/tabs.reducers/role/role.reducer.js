@@ -1,3 +1,4 @@
+// Инициализация редьюсера раздела "Роли"
 import initialState from "./role.state";
 import {
     CREATE_ROLE,
@@ -5,6 +6,8 @@ import {
     DELETE_ROLE,
     GET_ALL_ROLES,
     SET_ROW_DATA_ROLE,
+    SET_ERROR_RECORD,
+    SET_ERROR_TABLE,
 } from "./role.constants";
 
 export default function reducerRole(state = initialState, action) {
@@ -35,6 +38,16 @@ export default function reducerRole(state = initialState, action) {
             return {
                 ...state,
                 rowDataRole: action.payload
+            };
+        case SET_ERROR_RECORD:
+            return {
+                ...state,
+                errorRecord: action.payload
+            };
+        case SET_ERROR_TABLE:
+            return {
+                ...state,
+                errorTable: action.payload
             };
         default:
             return state;

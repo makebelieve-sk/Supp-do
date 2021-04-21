@@ -7,8 +7,9 @@ import store from "../redux/store";
 import {ActionCreator} from "../redux/combineActions";
 import {request} from "../helpers/functions/general.functions/request.helper";
 import {getParents} from "../helpers/functions/general.functions/replaceField";
-import {compareArrays, compareObjects} from "../helpers/functions/general.functions/compare";
+import {compareObjects} from "../helpers/functions/general.functions/compare";
 import setFieldRecord from "../helpers/mappers/general.mappers/setFieldRecord";
+import {NoticeError, storeEquipment, storeEquipmentProperties} from "./helper";
 
 export const EquipmentRoute = {
     // Адрес для работы с разделом "Оборудование"
@@ -25,41 +26,18 @@ export const EquipmentRoute = {
             const itemsEquipment = await request(this.base_url);
             const itemsEquipmentProperties = await request("/api/directory/equipment-property/");
 
-            // Записываем все записи в хранилище
-            if (itemsEquipment && itemsEquipment.length) {
-                const reduxItemsEquipment = store.getState().reducerEquipment.equipment;
+            // Записываем полученные записи раздела "Оборудование" в хранилище
+            storeEquipment(itemsEquipment);
 
-                const shouldUpdate = compareArrays(itemsEquipment, reduxItemsEquipment);
-
-                if (shouldUpdate) {
-                    // Добавление поля nameWithParent
-                    itemsEquipment.forEach(item => {
-                        if (item.parent) {
-                            item.nameWithParent = getParents(item, itemsEquipment) + item.name;
-                        }
-                    })
-
-                    store.dispatch(ActionCreator.ActionCreatorEquipment.getAllEquipment(itemsEquipment));
-                }
-            }
-
-            // Записываем все записи в хранилище
-            if (itemsEquipmentProperties && itemsEquipmentProperties.length) {
-                const reduxItemsEquipmentProperties = store.getState().reducerEquipmentProperty.equipmentProperties;
-
-                const shouldUpdate = compareArrays(itemsEquipment, reduxItemsEquipmentProperties);
-
-                if (shouldUpdate) {
-                    store.dispatch(ActionCreator.ActionCreatorEquipmentProperty.getAllEquipmentProperties(itemsEquipmentProperties));
-                }
-            }
+            // Записываем полученные записи раздела "Характеристики оборудования" в хранилище
+            storeEquipmentProperties(itemsEquipmentProperties);
 
             // Останавливаем спиннер загрузки данных в таблицу
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
         } catch (e) {
-            // Останавливаем спиннер загрузки данных в таблицу
-            store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
-            message.error("Возникла ошибка при получении оборудования: ", e);
+            // Устанавливаем ошибку в хранилище раздела
+            store.dispatch(ActionCreator.ActionCreatorEquipment.setErrorTable("Возникла ошибка при получении записей: " + e));
+            NoticeError.getAll(e); // Вызываем функцию обработки ошибки
         }
     },
     // Получение редактируемой записи
@@ -68,12 +46,12 @@ export const EquipmentRoute = {
             // Получаем редактируемую запись
             const item = await request(this.base_url + id);
 
-            if (item) {
-                // Заполняем модель записи
-                this.fillItem(item);
-            }
+            // Заполняем модель записи
+            if (item) this.fillItem(item);
         } catch (e) {
-            message.error("Возникла ошибка при получении записи: ", e);
+            // Устанавливаем ошибку в хранилище раздела
+            store.dispatch(ActionCreator.ActionCreatorEquipment.setErrorRecord("Возникла ошибка при получении записи: " + e));
+            NoticeError.get(e); // Вызываем функцию обработки ошибки
         }
     },
     // Сохранение записи
@@ -133,9 +111,9 @@ export const EquipmentRoute = {
             // Удаление текущей вкладки
             onRemove("equipmentItem", "remove");
         } catch (e) {
-            console.log(e)
-            // Останавливаем спиннер загрузки
-            setLoading(false);
+            // Устанавливаем ошибку в хранилище раздела
+            store.dispatch(ActionCreator.ActionCreatorEquipment.setErrorRecord("Возникла ошибка при сохранении записи: " + e));
+            NoticeError.save(e, setLoading);    // Вызываем функцию обработки ошибки
         }
     },
     // Удаление записи
@@ -176,9 +154,9 @@ export const EquipmentRoute = {
                 onRemove("equipmentItem", "remove");
             }
         } catch (e) {
-            // Останавливаем спиннер, и скрываем всплывающее окно
-            setLoadingDelete(false);
-            setVisiblePopConfirm(false);
+            // Устанавливаем ошибку в хранилище раздела
+            store.dispatch(ActionCreator.ActionCreatorEquipment.setErrorRecord("Возникла ошибка при удалении записи: " + e));
+            NoticeError.delete(e, setLoadingDelete, setVisiblePopConfirm);    // Вызываем функцию обработки ошибки
         }
     },
     // Нажатие на кнопку "Отмена"
@@ -193,8 +171,10 @@ export const EquipmentRoute = {
                 onRemove("equipmentItem", "remove");
             }
         } catch (e) {
-            message.error("Возникла ошибка при удалении файлов записи, пожалуйста, удалите файлы вручную");
             setLoadingCancel(false);
+            // Устанавливаем ошибку в хранилище раздела
+            store.dispatch(ActionCreator.ActionCreatorEquipment.setErrorRecord("Возникла ошибка при удалении добавленных файлов из записи: " + e));
+            NoticeError.cancel(e);    // Вызываем функцию обработки ошибки
         }
     },
     // Заполнение модели "Оборудование"

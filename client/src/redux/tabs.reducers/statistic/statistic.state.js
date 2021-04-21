@@ -1,5 +1,7 @@
+// Инициализация состояния для раздела "Статистика"
 const initialState = {
-    statistic: [],
+    statistic: [],          // Записи журнала
+    error: null,       // Ошибка
 };
 
 export default initialState;

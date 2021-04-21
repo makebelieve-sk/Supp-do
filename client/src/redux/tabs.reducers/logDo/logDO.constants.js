@@ -1,4 +1,4 @@
-// Константы раздела Журнал дефетков и отказов
+// Константы для раздела "Журнал дефетков и отказов"
 const CREATE_LOGDO = "CREATE_LOGDO";
 const EDIT_LOGDO = "EDIT_LOGDO";
 const DELETE_LOGDO = "DELETE_LOGDO";
@@ -14,7 +14,8 @@ const ADD_FILE = "ADD_FILE";
 const DELETE_FILE = "DELETE_FILE";
 const GET_ALL_FILES = "GET_ALL_FILES";
 
-const SET_ERROR = "SET_ERROR";
+const SET_ERROR_RECORD = "SET_ERROR_RECORD";
+const SET_ERROR_TABLE = "SET_ERROR_TABLE";
 
 export {
     CREATE_LOGDO,
@@ -29,5 +30,6 @@ export {
     GET_ALL_FILES,
     SET_LEGEND,
     SET_ALERT,
-    SET_ERROR,
+    SET_ERROR_RECORD,
+    SET_ERROR_TABLE,
 }

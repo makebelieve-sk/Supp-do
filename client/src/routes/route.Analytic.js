@@ -5,6 +5,7 @@ import store from "../redux/store";
 import {ActionCreator} from "../redux/combineActions";
 import {request} from "../helpers/functions/general.functions/request.helper";
 import {compareArrays, compareObjects} from "../helpers/functions/general.functions/compare";
+import {NoticeError} from "./helper";
 
 export const AnalyticRoute = {
     // Адрес для работы с разделом "Аналитика"
@@ -38,10 +39,9 @@ export const AnalyticRoute = {
             // Останавливаем спиннер загрузки данных в таблицу
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(false));
         } catch (e) {
-            // Останавливаем спиннер загрузки данных в таблицу
-            store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(false));
-            console.log(e)
-            message.error("Возникла ошибка в разделе 'Аналитика' при получении данных: ", e);
+            // Устанавливаем ошибку в хранилище раздела
+            store.dispatch(ActionCreator.ActionCreatorAnalytic.setError("Возникла ошибка при получении записей: " + e));
+            NoticeError.getAll(e); // Вызываем функцию обработки ошибки
         }
     },
     // Переход в раздел ЖДО
@@ -81,8 +81,11 @@ export const AnalyticRoute = {
         } catch (e) {
             // Останавливаем спиннер загрузки данных в таблицу
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
-            console.log(e)
+            // Устанавливаем ошибку в хранилище раздела
+            store.dispatch(ActionCreator.ActionCreatorLogDO.setErrorTable("Возникла ошибка при переходе в раздел ЖДО: " + e));
+            console.log(e);
             message.error("Возникла ошибка при переходе в раздел ЖДО: ", e);
+            throw new Error(e);
         }
-    },
+    }
 }

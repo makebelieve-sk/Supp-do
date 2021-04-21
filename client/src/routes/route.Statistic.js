@@ -5,6 +5,7 @@ import store from "../redux/store";
 import {ActionCreator} from "../redux/combineActions";
 import {request} from "../helpers/functions/general.functions/request.helper";
 import {compareArrays} from "../helpers/functions/general.functions/compare";
+import {NoticeError} from "./helper";
 
 export const StatisticRoute = {
     // Адрес для работы с разделом "Статистика"
@@ -33,9 +34,9 @@ export const StatisticRoute = {
             // Останавливаем спиннер загрузки данных в таблицу
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
         } catch (e) {
-            // Останавливаем спиннер загрузки данных в таблицу
-            store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
-            message.error("Возникла ошибка в разделе 'Статистика' при получении данных : ", e);
+            // Устанавливаем ошибку в хранилище раздела
+            store.dispatch(ActionCreator.ActionCreatorStatistic.setError("Возникла ошибка при получении записей: " + e));
+            NoticeError.getAll(e); // Вызываем функцию обработки ошибки
         }
     },
 }

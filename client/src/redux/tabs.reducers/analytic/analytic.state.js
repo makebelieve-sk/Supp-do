@@ -1,6 +1,8 @@
+// Инициализация состояния для раздела "Аналитика"
 const initialState = {
-    analytic: null,
-    prevAnalyticData: null
+    analytic: null,             // Записи журнала
+    prevAnalyticData: null,     // Редактируемая запись
+    error: null,                // Ошибка
 };
 
 export default initialState;

@@ -1,5 +1,7 @@
 .error-indicator {
     width: 100%;
+    padding-left: 5%;
+    padding-right: 5%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -8,7 +10,7 @@
 
 .error-image {
     margin-bottom: 1rem;
-    font-size: 60px;
+    font-size: 90px;
 }
 
 .error-title {

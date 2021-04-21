@@ -16,9 +16,9 @@ const dateFormat = "DD.MM.YYYY HH:mm";
 
 // Валидация полей раздела "Журнал дефектов и отказов"
 const checkMiddleware = [
-    check("date", "Поле 'Дата заявки' должно быть заполнено").notEmpty().isString(),
-    check("applicant", "Поле 'Заявитель' должно быть заполнено").notEmpty(),
-    check("equipment", "Поле 'Оборудование' должно быть заполнено").notEmpty(),
+    check("date", "Поле 'Дата заявки' должно быть заполнено").notEmpty().toDate(),
+    check("applicant", "Поле 'Заявитель' должно быть заполнено").notEmpty().isObject(),
+    check("equipment", "Поле 'Оборудование' должно быть заполнено").notEmpty().isObject(),
     check("notes", "Поле 'Описание' должно содержать от 1 до 1000 символов")
         .notEmpty()
         .isString()
@@ -28,8 +28,8 @@ const checkMiddleware = [
     check("task", "Поле 'Задание' не должно превышать 1000 символов")
         .isString()
         .isLength({max: 1000}),
-    // check("dateDone", "Поле 'Дата выполнения' должно быть строкой").isString(),
-    // check("planDateDone", "Поле 'Планируемая дата выполнения' должно быть строкой").isString(),
+    check("dateDone", "Поле 'Дата выполнения' должно быть датой").toDate(),
+    check("planDateDone", "Поле 'Планируемая дата выполнения' должно быть датой").toDate(),
     check("content", "Поле 'Содержание работ' не должно превышать 1000 символов")
         .isString()
         .isLength({max: 1000}),
@@ -110,42 +110,63 @@ router.get("/log-do/dto/:dateStart/:dateEnd", async (req, res) => {
     const millisecondsEnd = moment(dateEnd, dateFormat).valueOf();
 
     try {
-        // Получаем все записи подразделений и оборудования
-        const departments = await Department.find({}).populate("parent");
-        const equipment = await Equipment.find({}).populate("parent");
+        // Получаем все записи подразделений
+        let departments = [];
+
+        try {
+            departments = await Department.find({}).populate("parent");
+        } catch (err) {
+            console.log(err);
+            res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Подразделения' (/log-do/dto)"});
+        }
+
+        // Получаем все записи оборудования
+        let equipment = [];
+
+        try {
+            equipment = await Equipment.find({}).populate("parent");
+        } catch (err) {
+            console.log(err);
+            res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Оборудование' (/log-do/dto)"});
+        }
+
+        // Получаем все записи состояний заявок
+        let statuses = [];
+
+        try {
+            statuses = await TaskStatus.find({});
+        } catch (err) {
+            console.log(err);
+            res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Состояния заявок' (/log-do/dto)"});
+        }
 
         // Получаем все записи ЖДО с фильтром по дате
-        const items = await LogDO.find({date: {$gte: millisecondsStart, $lte: millisecondsEnd}})
-            .sort({date: 1})
-            .populate("applicant")
-            .populate({
-                path: "equipment",
-                populate: {
-                    path: "parent",
-                    model: "Equipment"
-                }
-            })
-            .populate({
+        let items = [];
+
+        try {
+            items = await LogDO.find({date: {$gte: millisecondsStart, $lte: millisecondsEnd}})
+                .sort({date: 1})
+                .populate("applicant")
+                .populate({
+                    path: "equipment",
+                    populate: {
+                        path: "parent",
+                        model: "Equipment"
+                    }
+                })
+                .populate({
                     path: "department",
                     populate: {
                         path: "parent",
                         model: "Department"
                     }
                 })
-            .populate("responsible")
-            .populate("taskStatus")
-            .populate("files");
-
-        // Получаем все записи состояний заявок
-        let statuses;
-
-        try {
-            statuses = await TaskStatus.find({});
+                .populate("responsible")
+                .populate("taskStatus")
+                .populate("files");
         } catch (err) {
-            res.status(500).json({
-                message: "Возникла ошибка при получении записей из базы данных Состояния заявок (/log-do/dto)",
-                error: err
-            });
+            console.log(err);
+            res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Журнал дефектов и отказов' (/log-do/dto)"});
         }
 
         let statusLegend = [];  // Инициализация массива легенд статусов
@@ -187,7 +208,7 @@ router.get("/log-do/dto/:dateStart/:dateEnd", async (req, res) => {
         res.json({itemsDto, statusLegend});
     } catch (e) {
         console.log(e);
-        res.status(500).json({message: "Ошибка при получении данных"})
+        res.status(500).json({message: "Ошибка при получении данных"});
     }
 });
 
@@ -232,39 +253,61 @@ router.post("/log-do", checkMiddleware, async (req, res) => {
         await item.save();  // Сохраняем запись в базе данных
 
         // Получаем все записи подразделений
-        const departmentsItems = await Department.find({}).populate("parent");
+        let departmentsItems = [];
+
+        try {
+            departmentsItems = await Department.find({}).populate("parent");
+        } catch (err) {
+            console.log(err);
+            res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Подразделения' (/log-do, post)"});
+        }
 
         // Получаем все записи оборудования
-        const equipmentItems = await Equipment.find({}).populate("parent");
+        let equipmentItems = [];
+
+        try {
+            equipmentItems = await Equipment.find({}).populate("parent");
+        } catch (err) {
+            console.log(err);
+            res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Оборудование' (/log-do, post)"});
+        }
 
         // Ищем запись в базе данных по уникальному идентификатору
-        const currentItem = await LogDO.findById({_id: item._id})
-            .populate("applicant")
-            .populate({
-                path: "equipment",
-                populate: {
-                    path: "parent",
-                    model: "Equipment"
-                }
-            })
-            .populate({
-                    path: "department",
+        let currentItem = [];
+
+        try {
+            currentItem = await LogDO.findById({_id: item._id})
+                .populate("applicant")
+                .populate({
+                    path: "equipment",
                     populate: {
                         path: "parent",
-                        model: "Department"
+                        model: "Equipment"
                     }
-                }
-            )
-            .populate("responsible")
-            .populate("taskStatus")
-            .populate("files");
+                })
+                .populate({
+                        path: "department",
+                        populate: {
+                            path: "parent",
+                            model: "Department"
+                        }
+                    }
+                )
+                .populate("responsible")
+                .populate("taskStatus")
+                .populate("files");
+        } catch (err) {
+            console.log(err);
+            res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Журнал дефектов и отказов' (/log-do, post)"});
+        }
 
         // Изменяем запись для вывода в таблицу
         const savedItem = new LogDoDto(currentItem, departmentsItems, equipmentItems);
 
         res.status(201).json({message: "Запись сохранена", item: savedItem});
-    } catch (e) {
-        res.status(500).json({message: "Ошибка при создании записи"})
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: "Ошибка при создании записи"});
     }
 });
 
@@ -333,40 +376,61 @@ router.put("/log-do", checkMiddleware, async (req, res) => {
         await item.save();  // Сохраняем запись в базу данных
 
         // Получаем все записи подразделений
-        const departmentsItems = await Department.find({}).populate("parent");
+        let departmentsItems = [];
+
+        try {
+            departmentsItems = await Department.find({}).populate("parent");
+        } catch (err) {
+            console.log(err);
+            res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Подразделения' (/log-do, put)"});
+        }
 
         // Получаем все записи оборудования
-        const equipmentItems = await Equipment.find({}).populate("parent");
+        let equipmentItems = [];
+
+        try {
+            equipmentItems = await Equipment.find({}).populate("parent");
+        } catch (err) {
+            console.log(err);
+            res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Оборудование' (/log-do, put)"});
+        }
 
         // Ищем запись в базе данных по уникальному идентификатору
-        const currentItem = await LogDO.findById({_id})
-            .populate("applicant")
-            .populate({
-                path: "equipment",
-                populate: {
-                    path: "parent",
-                    model: "Equipment"
-                }
-            })
-            .populate({
-                    path: "department",
+        let currentItem = [];
+
+        try {
+            currentItem = await LogDO.findById({_id})
+                .populate("applicant")
+                .populate({
+                    path: "equipment",
                     populate: {
                         path: "parent",
-                        model: "Department"
+                        model: "Equipment"
                     }
-                }
-            )
-            .populate("responsible")
-            .populate("taskStatus")
-            .populate("files");
+                })
+                .populate({
+                        path: "department",
+                        populate: {
+                            path: "parent",
+                            model: "Department"
+                        }
+                    }
+                )
+                .populate("responsible")
+                .populate("taskStatus")
+                .populate("files");
+        } catch (err) {
+            console.log(err);
+            res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Журнал дефектов и отказов' (/log-do, put)"});
+        }
 
         // Изменяем запись для вывода в таблицу
         const savedItem = new LogDoDto(currentItem, departmentsItems, equipmentItems);
 
         res.status(201).json({message: "Запись сохранена", item: savedItem});
-    } catch (e) {
-        console.log(e);
-        res.status(500).json({message: "Ошибка при обновлении записи"})
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: "Ошибка при обновлении записи"});
     }
 });
 
@@ -379,7 +443,7 @@ router.delete("/log-do/:id", async (req, res) => {
 
         res.status(201).json({message: "Запись успешно удалена"});
     } catch (e) {
-        res.status(500).json({message: `Ошибка при удалении записи с кодом ${_id}`})
+        res.status(500).json({message: `Ошибка при удалении записи с кодом ${_id}`});
     }
 });
 

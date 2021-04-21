@@ -8,6 +8,7 @@ import {ContentComponent} from "../components/content.components/content/content
 import {SiderComponent} from "../components/content.components/sider/sider.component";
 import store from "../redux/store";
 import {HelpRoute} from "../routes/route.Help";
+import ErrorIndicator from "../components/content.components/errorIndicator/errorIndicator.component";
 
 const {Header, Content, Footer} = Layout;
 
@@ -29,12 +30,16 @@ export const MainPage = () => {
      * @returns {Promise<void>} - устанавливает объект помощи в состояние для отображения
      */
     const getHelp = async () => {
-        // Получаем объект помощи раздела
-        const item = await HelpRoute.getHelpToModal(store.getState().reducerTab.activeKey);
-        setIsModalVisible(true);    // Открываем модальное окно
+        try {
+            // Получаем объект помощи раздела
+            const item = await HelpRoute.getHelpToModal(store.getState().reducerTab.activeKey);
+            setIsModalVisible(true);    // Открываем модальное окно
 
-        // Устанавливаем объект помощи в состояние
-        item ? setHelp(item) : setHelp({title: "", text: "В данном разделе текст помощи отсутствует"});
+            // Устанавливаем объект помощи в состояние
+            item ? setHelp(item) : setHelp({title: "", text: "В данном разделе текст помощи отсутствует"});
+        } catch (e) {
+            setHelp({title: "", text: <ErrorIndicator errorText={e} />});
+        }
     }
 
     return (

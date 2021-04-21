@@ -1,8 +1,12 @@
+// Константы для раздела "Роли"
 const CREATE_ROLE = "CREATE_ROLE";
 const EDIT_ROLE = "EDIT_ROLE";
 const DELETE_ROLE = "DELETE_ROLE";
 const GET_ALL_ROLES = "GET_ALL_ROLES";
 const SET_ROW_DATA_ROLE = "SET_ROW_DATA_ROLE";
+
+const SET_ERROR_RECORD = "SET_ERROR_RECORD";
+const SET_ERROR_TABLE = "SET_ERROR_TABLE";
 
 export {
     CREATE_ROLE,
@@ -10,4 +14,6 @@ export {
     DELETE_ROLE,
     GET_ALL_ROLES,
     SET_ROW_DATA_ROLE,
+    SET_ERROR_RECORD,
+    SET_ERROR_TABLE,
 }

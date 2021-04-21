@@ -1,3 +1,4 @@
+// Инициализация редьюсера раздела "Оборудование"
 import initialState from "./equipment.state";
 import {
     CREATE_EQUIPMENT,
@@ -11,7 +12,9 @@ import {
     GET_ALL_SELECT_ROWS,
     ADD_FILE,
     DELETE_FILE,
-    GET_ALL_FILES
+    GET_ALL_FILES,
+    SET_ERROR_RECORD,
+    SET_ERROR_TABLE,
 } from "./equipment.constants";
 
 export default function reducerEquipment(state = initialState, action) {
@@ -80,6 +83,16 @@ export default function reducerEquipment(state = initialState, action) {
             return {
                 ...state,
                 files: action.payload
+            };
+        case SET_ERROR_RECORD:
+            return {
+                ...state,
+                errorRecord: action.payload
+            };
+        case SET_ERROR_TABLE:
+            return {
+                ...state,
+                errorTable: action.payload
             };
         default:
             return state;

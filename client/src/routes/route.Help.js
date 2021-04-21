@@ -6,6 +6,7 @@ import {ActionCreator} from "../redux/combineActions";
 import {request} from "../helpers/functions/general.functions/request.helper";
 import {compareArrays, compareObjects} from "../helpers/functions/general.functions/compare";
 import {Help} from "../model/Help";
+import {NoticeError} from "./helper";
 
 export const HelpRoute = {
     // Адрес для работы с разделом "Помощь"
@@ -34,9 +35,9 @@ export const HelpRoute = {
             // Останавливаем спиннер загрузки данных в таблицу
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
         } catch (e) {
-            // Останавливаем спиннер загрузки данных в таблицу
-            store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
-            message.error("Возникла ошибка при получении записей помощи: ", e);
+            // Устанавливаем ошибку в хранилище раздела
+            store.dispatch(ActionCreator.ActionCreatorHelp.setErrorTable("Возникла ошибка при получении записей: " + e));
+            NoticeError.getAll(e); // Вызываем функцию обработки ошибки
         }
     },
     // Получение редактируемой записи помощи
@@ -45,12 +46,12 @@ export const HelpRoute = {
             // Получаем редактируемую запись
             const item = await request(this.base_url + id);
 
-            if (item) {
-                // Заполняем модель записи
-                this.fillItem(item);
-            }
+            // Заполняем модель записи
+            if (item) this.fillItem(item);
         } catch (e) {
-            message.error("Возникла ошибка при получении записи: ", e);
+            // Устанавливаем ошибку в хранилище раздела
+            store.dispatch(ActionCreator.ActionCreatorHelp.setErrorRecord("Возникла ошибка при получении записи: " + e));
+            NoticeError.get(e); // Вызываем функцию обработки ошибки
         }
     },
     // Получение записи помощи при клике на кнопку "Помощь"
@@ -59,7 +60,9 @@ export const HelpRoute = {
             // Получаем запись при клике на кнопку "Помощь"
             return await request(this.base_url + "get/" + id);
         } catch (e) {
+            console.log(e);
             message.error("Возникла ошибка при получении записи: ", e);
+            throw new Error(e);
         }
     },
     // Сохранение записи помощи
@@ -100,8 +103,9 @@ export const HelpRoute = {
             // Удаление текущей вкладки
             this.cancel(onRemove);
         } catch (e) {
-            // Останавливаем спиннер загрузки
-            setLoading(false);
+            // Устанавливаем ошибку в хранилище раздела
+            store.dispatch(ActionCreator.ActionCreatorHelp.setErrorRecord("Возникла ошибка при сохранении записи: " + e));
+            NoticeError.save(e, setLoading);    // Вызываем функцию обработки ошибки
         }
 
     },
@@ -137,9 +141,9 @@ export const HelpRoute = {
             // Удаление текущей вкладки
             this.cancel(onRemove)
         } catch (e) {
-            // Останавливаем спиннер, и скрываем всплывающее окно
-            setLoadingDelete(false);
-            setVisiblePopConfirm(false);
+            // Устанавливаем ошибку в хранилище раздела
+            store.dispatch(ActionCreator.ActionCreatorHelp.setErrorRecord("Возникла ошибка при удалении записи: " + e));
+            NoticeError.delete(e, setLoadingDelete, setVisiblePopConfirm);    // Вызываем функцию обработки ошибки
         }
 
     },

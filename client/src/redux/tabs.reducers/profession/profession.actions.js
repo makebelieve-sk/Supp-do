@@ -1,9 +1,12 @@
+// Инициализация экшенов для раздела "Профессии"
 import {
     CREATE_PROFESSION,
     EDIT_PROFESSION,
     DELETE_PROFESSION,
     GET_ALL_PROFESSIONS,
     SET_ROW_DATA_PROFESSION,
+    SET_ERROR_RECORD,
+    SET_ERROR_TABLE,
 } from "./profession.constants";
 
 const ActionCreatorProfession = {
@@ -42,7 +45,21 @@ const ActionCreatorProfession = {
             type: SET_ROW_DATA_PROFESSION,
             payload: item
         }
-    }
+    },
+    // Установка ошибки для записи
+    setErrorRecord: (error) => {
+        return {
+            type: SET_ERROR_RECORD,
+            payload: error
+        }
+    },
+    // Установка ошибки для таблицы
+    setErrorTable: (error) => {
+        return {
+            type: SET_ERROR_TABLE,
+            payload: error
+        }
+    },
 }
 
 export default ActionCreatorProfession;

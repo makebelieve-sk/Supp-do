@@ -1,3 +1,4 @@
+// Инициализация редьюсера раздела "Профессии"
 import initialState from "./profession.state";
 import {
     CREATE_PROFESSION,
@@ -5,6 +6,8 @@ import {
     DELETE_PROFESSION,
     GET_ALL_PROFESSIONS,
     SET_ROW_DATA_PROFESSION,
+    SET_ERROR_RECORD,
+    SET_ERROR_TABLE,
 } from "./profession.constants";
 
 export default function reducerProfession(state = initialState, action) {
@@ -35,6 +38,16 @@ export default function reducerProfession(state = initialState, action) {
             return {
                 ...state,
                 rowDataProfession: action.payload
+            };
+        case SET_ERROR_RECORD:
+            return {
+                ...state,
+                errorRecord: action.payload
+            };
+        case SET_ERROR_TABLE:
+            return {
+                ...state,
+                errorTable: action.payload
             };
         default:
             return state;

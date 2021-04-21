@@ -1,10 +1,13 @@
+// Инициализация редьюсера раздела "Состояние заявок"
 import initialState from "./task.state";
 import {
     CREATE_TASK,
     EDIT_TASK,
     DELETE_TASK,
     GET_ALL_TASKS,
-    SET_ROW_DATA_TASK
+    SET_ROW_DATA_TASK,
+    SET_ERROR_RECORD,
+    SET_ERROR_TABLE,
 } from "./task.constants";
 
 export default function reducerTask(state = initialState, action) {
@@ -35,6 +38,16 @@ export default function reducerTask(state = initialState, action) {
             return {
                 ...state,
                 rowDataTask:  action.payload
+            };
+        case SET_ERROR_RECORD:
+            return {
+                ...state,
+                errorRecord: action.payload
+            };
+        case SET_ERROR_TABLE:
+            return {
+                ...state,
+                errorTable: action.payload
             };
         default:
             return state;

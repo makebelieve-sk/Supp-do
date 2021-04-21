@@ -4,15 +4,17 @@ import {useSelector} from "react-redux";
 import {Card, Row, Col, Skeleton} from "antd";
 
 import {ProfessionForm} from "./profession.form";
+import ErrorIndicator from "../../components/content.components/errorIndicator/errorIndicator.component";
 
 export const ProfessionTab = () => {
     // Получение списка профессий и состояния загрузки записи
-    const {item, loadingSkeleton} = useSelector((state) => ({
+    const {item, loadingSkeleton, error} = useSelector((state) => ({
         item: state.reducerProfession.rowDataProfession,
-        loadingSkeleton: state.reducerLoading.loadingSkeleton
+        loadingSkeleton: state.reducerLoading.loadingSkeleton,
+        error: state.reducerProfession.errorRecord
     }));
 
-    const display = loadingSkeleton ? "none" : "block";
+    const display = loadingSkeleton ? "none" : "block"; // Установка стиля отображения содержимого вкладки
 
     return (
         <Row className="container-tab" justify="center">
@@ -21,7 +23,12 @@ export const ProfessionTab = () => {
                     <Skeleton loading={loadingSkeleton} active/>
 
                     <div style={{display}}>
-                        {useMemo(() => item ? <ProfessionForm item={item} /> : null, [item])}
+                        {useMemo(() => {
+                            if (error) return <ErrorIndicator errorText={error} />
+                            if (item) return <ProfessionForm item={item} />
+
+                            return null;
+                        }, [item, error])}
                     </div>
                 </Card>
             </Col>

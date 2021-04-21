@@ -1,8 +1,12 @@
+// Константы для раздела "Помощь"
 const CREATE_HELP = "CREATE_HELP";
 const EDIT_HELP = "EDIT_HELP";
 const DELETE_HELP = "DELETE_HELP";
 const GET_ALL_HELP = "GET_ALL_HELP";
 const SET_ROW_DATA_HELP = "SET_ROW_DATA_HELP";
+
+const SET_ERROR_RECORD = "SET_ERROR_RECORD";
+const SET_ERROR_TABLE = "SET_ERROR_TABLE";
 
 export {
     CREATE_HELP,
@@ -10,4 +14,6 @@ export {
     DELETE_HELP,
     GET_ALL_HELP,
     SET_ROW_DATA_HELP,
+    SET_ERROR_RECORD,
+    SET_ERROR_TABLE,
 }

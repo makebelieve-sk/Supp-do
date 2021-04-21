@@ -38,8 +38,9 @@ router.get("/taskStatus/:id", async (req, res) => {
         if (!item) return res.status(400).json({message: `Запись с кодом ${_id} не существует`});
 
         res.status(201).json({isNewItem, task: item});
-    } catch (e) {
-        res.status(500).json({message: `Ошибка при открытии записи с кодом ${_id}`})
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: `Ошибка при открытии записи с кодом ${_id}: ${err}`});
     }
 });
 
@@ -49,8 +50,9 @@ router.get("/taskStatus", async (req, res) => {
         const items = await TaskStatus.find({});    // Получаем все записи раздела "Состояния заявок"
 
         res.json(items);
-    } catch (e) {
-        res.status(500).json({message: "Ошибка при получении записей о состоянии заявок"})
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: "Ошибка при получении записей: " + err});
     }
 });
 
@@ -76,8 +78,9 @@ router.post("/taskStatus", checkMiddleware, async (req, res) => {
         await item.save();  // Сохраняем запись в базе данных
 
         res.status(201).json({message: "Запись о состоянии заявки сохранена", item});
-    } catch (e) {
-        res.status(500).json({message: "Ошибка при создании записи"})
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: "Ошибка при создании записи: " + err});
     }
 });
 
@@ -106,8 +109,9 @@ router.put("/taskStatus", checkMiddleware, async (req, res) => {
         await item.save();  // Сохраняем запись в базу данных
 
         res.status(201).json({message: "Запись о состоянии заявки сохранена", item});
-    } catch (e) {
-        res.status(500).json({message: "Ошибка при обновлении записи о состоянии заявки"})
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: "Ошибка при обновлении записи: " + err});
     }
 });
 
@@ -119,8 +123,9 @@ router.delete("/taskStatus/:id", async (req, res) => {
         await TaskStatus.deleteOne({_id});  // Удаление записи из базы данных по id записи
 
         res.status(201).json({message: "Запись о состоянии заявки успешно удалена"});
-    } catch (e) {
-        res.status(500).json({message: `Ошибка при удалении записи с кодом ${_id}`})
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: `Ошибка при удалении записи с кодом ${_id}: ${err}`});
     }
 });
 

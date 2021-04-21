@@ -1,9 +1,12 @@
+// Инициализация экшенов для раздела "Характеристики оборудования"
 import {
     CREATE_EQUIPMENT_PROPERTY,
     EDIT_EQUIPMENT_PROPERTY,
     DELETE_EQUIPMENT_PROPERTY,
     GET_ALL_EQUIPMENT_PROPERTIES,
-    SET_ROW_DATA_EQUIPMENT_PROPERTY
+    SET_ROW_DATA_EQUIPMENT_PROPERTY,
+    SET_ERROR_RECORD,
+    SET_ERROR_TABLE
 } from "./equipmentProperty.constants";
 
 const ActionCreatorEquipmentProperty = {
@@ -42,7 +45,21 @@ const ActionCreatorEquipmentProperty = {
             type: SET_ROW_DATA_EQUIPMENT_PROPERTY,
             payload: rowData
         }
-    }
+    },
+    // Установка ошибки для записи
+    setErrorRecord: (error) => {
+        return {
+            type: SET_ERROR_RECORD,
+            payload: error
+        }
+    },
+    // Установка ошибки для таблицы
+    setErrorTable: (error) => {
+        return {
+            type: SET_ERROR_TABLE,
+            payload: error
+        }
+    },
 }
 
 export default ActionCreatorEquipmentProperty;

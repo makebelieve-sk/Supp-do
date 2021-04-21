@@ -1,11 +1,13 @@
-// Редьюсер модели "Персонал"
+// Инициализация редьюсера раздела "Персонал"
 import initialState from "./person.state";
 import {
     CREATE_PERSON,
     EDIT_PERSON,
     DELETE_PERSON,
     GET_ALL_PEOPLE,
-    SET_ROW_DATA_PERSON
+    SET_ROW_DATA_PERSON,
+    SET_ERROR_RECORD,
+    SET_ERROR_TABLE,
 } from "./person.constants";
 
 export default function reducerPerson(state = initialState, action) {
@@ -36,6 +38,16 @@ export default function reducerPerson(state = initialState, action) {
             return {
                 ...state,
                 rowDataPerson:  action.payload
+            };
+        case SET_ERROR_RECORD:
+            return {
+                ...state,
+                errorRecord: action.payload
+            };
+        case SET_ERROR_TABLE:
+            return {
+                ...state,
+                errorTable: action.payload
             };
         default:
             return state;

@@ -1,12 +1,11 @@
+// Инициализация состояния для раздела "Оборудование"
 const initialState = {
-    // Список с перечнем оборудования
-    equipment: [],
-    // Редактируемая запись
-    rowDataEquipment: null,
-    // Массив строчек вкладки "Характеристики"
-    selectsArray: [],
-    // Массив файлов
-    files: []
+    equipment: [],              // Список с перечнем оборудования
+    rowDataEquipment: null,     // Редактируемая запись
+    selectsArray: [],           // Массив строчек вкладки "Характеристики"
+    files: [],                  // Массив файлов
+    errorRecord: null,          // Ошибка в записи
+    errorTable: null,           // Ошибка в таблице
 };
 
 export default initialState;

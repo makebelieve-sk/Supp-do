@@ -5,8 +5,9 @@ import {EquipmentProperty} from "../model/EquipmentProperty";
 import store from "../redux/store";
 import {ActionCreator} from "../redux/combineActions";
 import {request} from "../helpers/functions/general.functions/request.helper";
-import {compareArrays, compareObjects} from "../helpers/functions/general.functions/compare";
+import {compareObjects} from "../helpers/functions/general.functions/compare";
 import setFieldRecord from "../helpers/mappers/general.mappers/setFieldRecord";
+import {NoticeError, storeEquipmentProperties} from "./helper";
 
 export const EquipmentPropertyRoute = {
     // Адрес для работы с разделом "Характеристики оборудования"
@@ -20,24 +21,15 @@ export const EquipmentPropertyRoute = {
             // Получаем все записи раздела "Характеристики оборудования"
             const items = await request(this.base_url);
 
-            if (items) {
-                const reduxEquipmentProperty = store.getState().reducerEquipmentProperty.equipmentProperties;
-
-                // Если массивы не равны, то обновляем хранилище redux
-                const shouldUpdate = compareArrays(items, reduxEquipmentProperty);
-
-                if (shouldUpdate) {
-                    // Записываем все записи в хранилище
-                    store.dispatch(ActionCreator.ActionCreatorEquipmentProperty.getAllEquipmentProperties(items));
-                }
-            }
+            // Записываем полученные записи раздела "Характеристики оборудования" в хранилище
+            storeEquipmentProperties(items);
 
             // Останавливаем спиннер загрузки данных в таблицу
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
         } catch (e) {
-            // Останавливаем спиннер загрузки данных в таблицу
-            store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
-            message.error("Возникла ошибка при получении характеристик оборудования: ", e);
+            // Устанавливаем ошибку в хранилище раздела
+            store.dispatch(ActionCreator.ActionCreatorEquipmentProperty.setErrorTable("Возникла ошибка при получении записей: " + e));
+            NoticeError.getAll(e); // Вызываем функцию обработки ошибки
         }
     },
     // Получение редактируемой записи
@@ -46,12 +38,12 @@ export const EquipmentPropertyRoute = {
             // Получаем редактируемую запись
             const item = await request(this.base_url + id);
 
-            if (item) {
-                // Заполняем модель записи
-                this.fillItem(item);
-            }
+            // Заполняем модель записи
+            if (item) this.fillItem(item);
         } catch (e) {
-            message.error("Возникла ошибка при получении записи: ", e);
+            // Устанавливаем ошибку в хранилище раздела
+            store.dispatch(ActionCreator.ActionCreatorEquipmentProperty.setErrorRecord("Возникла ошибка при получении записи: " + e));
+            NoticeError.get(e); // Вызываем функцию обработки ошибки
         }
     },
     // Сохранение записи
@@ -108,8 +100,9 @@ export const EquipmentPropertyRoute = {
             // Удаление текущей вкладки
             this.cancel(onRemove);
         } catch (e) {
-            // Останавливаем спиннер загрузки
-            setLoading(false);
+            // Устанавливаем ошибку в хранилище раздела
+            store.dispatch(ActionCreator.ActionCreatorEquipmentProperty.setErrorRecord("Возникла ошибка при сохранении записи: " + e));
+            NoticeError.save(e, setLoading);    // Вызываем функцию обработки ошибки
         }
     },
     // Удаление записи
@@ -145,9 +138,9 @@ export const EquipmentPropertyRoute = {
             // Удаление текущей вкладки
             this.cancel(onRemove);
         } catch (e) {
-            // Останавливаем спиннер, и скрываем всплывающее окно
-            setLoadingDelete(false);
-            setVisiblePopConfirm(false);
+            // Устанавливаем ошибку в хранилище раздела
+            store.dispatch(ActionCreator.ActionCreatorEquipmentProperty.setErrorRecord("Возникла ошибка при удалении записи: " + e));
+            NoticeError.delete(e, setLoadingDelete, setVisiblePopConfirm);    // Вызываем функцию обработки ошибки
         }
     },
     // Нажатие на кнопку "Отмена"

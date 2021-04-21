@@ -1,9 +1,12 @@
+// Инициализация экшенов для раздела "Роли"
 import {
     CREATE_ROLE,
     EDIT_ROLE,
     DELETE_ROLE,
     GET_ALL_ROLES,
-    SET_ROW_DATA_ROLE
+    SET_ROW_DATA_ROLE,
+    SET_ERROR_RECORD,
+    SET_ERROR_TABLE,
 } from "./role.constants";
 
 const ActionCreatorRole = {
@@ -42,7 +45,21 @@ const ActionCreatorRole = {
             type: SET_ROW_DATA_ROLE,
             payload: item
         }
-    }
+    },
+    // Установка ошибки для записи
+    setErrorRecord: (error) => {
+        return {
+            type: SET_ERROR_RECORD,
+            payload: error
+        }
+    },
+    // Установка ошибки для таблицы
+    setErrorTable: (error) => {
+        return {
+            type: SET_ERROR_TABLE,
+            payload: error
+        }
+    },
 }
 
 export default ActionCreatorRole;

@@ -1,3 +1,4 @@
+// Инициализация экшенов для раздела "Журнал дефектов и отказов"
 import {
     CREATE_LOGDO,
     EDIT_LOGDO,
@@ -11,7 +12,8 @@ import {
     GET_ALL_FILES,
     SET_LEGEND,
     SET_ALERT,
-    SET_ERROR,
+    SET_ERROR_RECORD,
+    SET_ERROR_TABLE,
 } from "./logDO.constants";
 
 const ActionCreatorLogDO = {
@@ -100,13 +102,20 @@ const ActionCreatorLogDO = {
             payload: alert
         }
     },
-    // Установка ошибки
-    setError: (error) => {
+    // Установка ошибки для записи
+    setErrorRecord: (error) => {
         return {
-            type: SET_ERROR,
+            type: SET_ERROR_RECORD,
             payload: error
         }
-    }
+    },
+    // Установка ошибки для таблицы
+    setErrorTable: (error) => {
+        return {
+            type: SET_ERROR_TABLE,
+            payload: error
+        }
+    },
 }
 
 export default ActionCreatorLogDO;

@@ -14,22 +14,22 @@ import store from "../../../redux/store";
 import {ActionCreator} from "../../../redux/combineActions";
 import emptyTab from "../../../helpers/functions/tabs.functions/emptyTab";
 import {BodyManager} from "../body/body.component";
+import ErrorIndicator from "../errorIndicator/errorIndicator.component";
 
 import "./analytic.css";
 
 export const AnalyticComponent = () => {
     // Получаем из хранилища объект текущий аналитики, предыдущий объект аналитики (для сравнения)
-    const {analytic, prevAnalyticData} = useSelector(state => ({
+    const {analytic, prevAnalyticData, error} = useSelector(state => ({
         analytic: state.reducerAnalytic.analytic,
         prevAnalyticData: state.reducerAnalytic.prevAnalyticData,
+        error: state.reducerAnalytic.error
     }));
-
-    console.log(analytic)
 
     /**
      * Функция расчета единиц измерения
      * @param field - поле объекта аналитики
-     * @returns {string} - единицы измерерния
+     * @returns {string} - единицы измерения
      */
     const getUnits = (field) => {
         return analytic && field
@@ -64,7 +64,7 @@ export const AnalyticComponent = () => {
         }
     };
 
-    console.log("Обновление вкладки 'Аналитика' с данными: ", analytic);
+    if (error) return <ErrorIndicator errorText={error} />
 
     return (
         <div className="analytic">
@@ -134,7 +134,7 @@ export const AnalyticComponent = () => {
                 {/*Ср. время реагирования, Ср. время выполнения*/}
                 <Col span={6} className="block-2">
                     <CircleComponent
-                        title={"Ср. время реагирования, " + getUnits(analytic.averageResponseTime)}
+                        title={"Ср. время реагирования, " + getUnits(analytic ? analytic.averageResponseTime : null)}
                         value={analytic && analytic.averageResponseTime ? analytic.averageResponseTime : 0}
                         borderColor={analytic && prevAnalyticData && analytic.averageResponseTime
                         && analytic.averageResponseTime.length
@@ -144,7 +144,7 @@ export const AnalyticComponent = () => {
                         size={true}
                     />
                     <CircleComponent
-                        title={"Ср. время выполнения, " + getUnits(analytic.averageClosingTime)}
+                        title={"Ср. время выполнения, " + getUnits(analytic ? analytic.averageClosingTime : null)}
                         value={analytic && analytic.averageClosingTime ? analytic.averageClosingTime : 0}
                         borderColor={analytic && prevAnalyticData && analytic.averageClosingTime
                         && analytic.averageClosingTime.length

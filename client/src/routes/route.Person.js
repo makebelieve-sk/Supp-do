@@ -5,9 +5,9 @@ import {Person} from "../model/Person";
 import store from "../redux/store";
 import {ActionCreator} from "../redux/combineActions";
 import {request} from "../helpers/functions/general.functions/request.helper";
-import {getParents} from "../helpers/functions/general.functions/replaceField";
 import setFieldRecord from "../helpers/mappers/general.mappers/setFieldRecord";
-import {compareArrays, compareObjects} from "../helpers/functions/general.functions/compare";
+import {compareObjects} from "../helpers/functions/general.functions/compare";
+import {NoticeError, storeDepartments, storePeople, storeProfessions} from "./helper";
 
 export const PersonRoute = {
     // Адрес для работы с разделом "Персонал"
@@ -19,26 +19,17 @@ export const PersonRoute = {
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(true));
 
             // Получаем все записи разделов "Профессии", "Подразделения" и "Персонал"
-            const itemsPeople = await request(this.base_url);
+            const items = await request(this.base_url);
 
-            // Записываем все записи в хранилище
-            if (itemsPeople) {
-                const reduxPeople = store.getState().reducerPerson.people;
-
-                // Если массивы не равны, то обновляем хранилище redux
-                const shouldUpdate = compareArrays(itemsPeople, reduxPeople);
-
-                if (shouldUpdate) {
-                    store.dispatch(ActionCreator.ActionCreatorPerson.getAllPeople(itemsPeople));
-                }
-            }
+            // Записываем полученные записи раздела "Персонал" в хранилище
+            storePeople(items);
 
             // Останавливаем спиннер загрузки данных в таблицу
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
         } catch (e) {
-            // Останавливаем спиннер загрузки данных в таблицу
-            store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
-            message.error("Возникла ошибка при получении персонала: ", e);
+            // Устанавливаем ошибку в хранилище раздела
+            store.dispatch(ActionCreator.ActionCreatorPerson.setErrorTable("Возникла ошибка при получении записей: " + e));
+            NoticeError.getAll(e); // Вызываем функцию обработки ошибки
         }
     },
     // Получение редактируемой записи
@@ -49,38 +40,18 @@ export const PersonRoute = {
             const professions = await request("/api/directory/professions/");
             const departments = await request("/api/directory/departments/");
 
-            if (professions && professions.length) {
-                const reduxProfessions = store.getState().reducerProfession.professions;
+            // Записываем полученные записи раздела "Профессии" в хранилище
+            storeProfessions(professions);
 
-                // Если массивы не равны, то обновляем хранилище redux
-                const shouldUpdate = compareArrays(professions, reduxProfessions);
+            // Записываем полученные записи раздела "Подразделения" в хранилище
+            storeDepartments(departments);
 
-                if (shouldUpdate) {
-                    store.dispatch(ActionCreator.ActionCreatorProfession.getAllProfessions(professions));
-                }
-            }
-
-            if (departments && departments.length) {
-                const reduxDepartments = store.getState().reducerDepartment.departments;
-
-                // Если массивы не равны, то обновляем хранилище redux
-                const shouldUpdate = compareArrays(departments, reduxDepartments);
-
-                if (shouldUpdate) {
-                    departments.forEach(department => {
-                        department.nameWithParent = getParents(department, departments) + department.name;
-                    });
-
-                    store.dispatch(ActionCreator.ActionCreatorDepartment.getAllDepartments(departments));
-                }
-            }
-
-            if (item) {
-                // Заполняем модель записи
-                this.fillItem(item);
-            }
+            // Заполняем модель записи
+            if (item) this.fillItem(item);
         } catch (e) {
-            message.error("Возникла ошибка при получении записи: ", e);
+            // Устанавливаем ошибку в хранилище раздела
+            store.dispatch(ActionCreator.ActionCreatorPerson.setErrorRecord("Возникла ошибка при получении записи: " + e));
+            NoticeError.get(e); // Вызываем функцию обработки ошибки
         }
     },
     // Сохранение записи
@@ -135,9 +106,9 @@ export const PersonRoute = {
             // Удаление текущей вкладки
             this.cancel(onRemove);
         } catch (e) {
-            // Останавливаем спиннер загрузки
-            setLoading(false);
-            console.log(e)
+            // Устанавливаем ошибку в хранилище раздела
+            store.dispatch(ActionCreator.ActionCreatorPerson.setErrorRecord("Возникла ошибка при сохранении записи: " + e));
+            NoticeError.save(e, setLoading);    // Вызываем функцию обработки ошибки
         }
     },
     // Удаление записи
@@ -171,9 +142,9 @@ export const PersonRoute = {
             // Удаление текущей вкладки
             this.cancel(onRemove);
         } catch (e) {
-            // Останавливаем спиннер, и скрываем всплывающее окно
-            setLoadingDelete(false);
-            setVisiblePopConfirm(false);
+            // Устанавливаем ошибку в хранилище раздела
+            store.dispatch(ActionCreator.ActionCreatorPerson.setErrorRecord("Возникла ошибка при удалении записи: " + e));
+            NoticeError.delete(e, setLoadingDelete, setVisiblePopConfirm);    // Вызываем функцию обработки ошибки
         }
     },
     // Нажатие на кнопку "Отмена"

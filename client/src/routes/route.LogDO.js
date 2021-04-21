@@ -1,14 +1,14 @@
-// Методы модели Журнала дефектов и отказов
+// Методы модели "Журнал дефектов и отказов"
 import moment from "moment";
 import {message} from "antd";
 
 import {LogDoRecord} from "../model/LogDo";
 import store from "../redux/store";
 import {ActionCreator} from "../redux/combineActions";
-import {getParents, getShortNameRecord} from "../helpers/functions/general.functions/replaceField";
-import {compareArrays, compareObjects} from "../helpers/functions/general.functions/compare";
+import {compareObjects} from "../helpers/functions/general.functions/compare";
 import {request} from "../helpers/functions/general.functions/request.helper";
 import TabOptions from "../options/tab.options/record.options/record.options";
+import {NoticeError, storeDepartments, storeEquipment, storeLogDO, storePeople, storeTask} from "./helper";
 
 export const LogDORoute = {
     // Адрес для работы с разделом "Журнал дефектов и отказов"
@@ -16,8 +16,10 @@ export const LogDORoute = {
     // Адрес для работы с файлами
     file_url: "/files/",
     // Получение всех записей
-    getAll: async function (date = moment().startOf("month").format(TabOptions.dateFormat)
-    + "/" + moment().endOf("month").format(TabOptions.dateFormat)) {
+    getAll: async function (
+        date = moment().startOf("month").format(TabOptions.dateFormat) +
+        "/" + moment().endOf("month").format(TabOptions.dateFormat)
+    ) {
         try {
             // Устанавливаем спиннер загрузки данных в таблицу
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(true));
@@ -26,27 +28,14 @@ export const LogDORoute = {
             const itemsLogDoDto = await request(this.base_url + "dto/" + date);
 
             // Записываем все записи в хранилище
-            if (itemsLogDoDto) {
-                const reduxItemsLogDoDto = store.getState().reducerLogDO.logDO;
-
-                const shouldUpdate = compareArrays(itemsLogDoDto.itemsDto, reduxItemsLogDoDto);
-
-                // Обновление легенды статусов
-                store.dispatch(ActionCreator.ActionCreatorLogDO.setLegend(itemsLogDoDto.statusLegend));
-
-                if (shouldUpdate) {
-                    store.dispatch(ActionCreator.ActionCreatorLogDO.getAllLogDO(itemsLogDoDto.itemsDto));
-                }
-            }
+            storeLogDO(itemsLogDoDto);
 
             // Останавливаем спиннер загрузки данных в таблицу
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
         } catch (e) {
-            // Останавливаем спиннер загрузки данных в таблицу
-            store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
-            console.log(e);
-            message.error("Возникла ошибка при получении записей журнала дефектов и отказов: ", e);
-            throw new Error("Что-то пошло не так");
+            // Устанавливаем ошибку в хранилище раздела
+            store.dispatch(ActionCreator.ActionCreatorLogDO.setErrorTable("Возникла ошибка при получении записей: " + e));
+            NoticeError.getAll(e); // Вызываем функцию обработки ошибки
         }
     },
     // Получение записи
@@ -59,72 +48,24 @@ export const LogDORoute = {
             const equipment = await request("/api/directory/equipment/");
             const tasks = await request("/api/directory/taskStatus/");
 
-            if (departments && departments.length) {
-                const reduxDepartments = store.getState().reducerDepartment.departments;
+            // Записываем полученные записи раздела "Подразделения" в хранилище
+            storeDepartments(departments);
 
-                // Если массивы не равны, то обновляем хранилище redux
-                const shouldUpdate = compareArrays(departments, reduxDepartments);
+            // Записываем полученные записи раздела "Персонал" в хранилище
+            storePeople(people);
 
-                if (shouldUpdate) {
-                    departments.forEach(department => {
-                        department.nameWithParent = getParents(department, departments) + department.name;
-                    });
+            // Записываем полученные записи раздела "Оборудование" в хранилище
+            storeEquipment(equipment);
 
-                    store.dispatch(ActionCreator.ActionCreatorDepartment.getAllDepartments(departments));
-                }
-            }
+            // Записываем полученные записи раздела "Состояние заявок" в хранилище
+            storeTask(tasks);
 
-            if (people && people.length) {
-                const reduxPeople = store.getState().reducerPerson.people;
-
-                // Если массивы не равны, то обновляем хранилище redux
-                const shouldUpdate = compareArrays(people, reduxPeople);
-
-                if (shouldUpdate) {
-                    people.forEach(person => {
-                        person.name = getShortNameRecord(person.name);
-                    });
-
-                    store.dispatch(ActionCreator.ActionCreatorPerson.getAllPeople(people));
-                }
-            }
-
-            if (equipment && equipment.length) {
-                const reduxEquipment = store.getState().reducerEquipment.equipment;
-
-                // Если массивы не равны, то обновляем хранилище redux
-                const shouldUpdate = compareArrays(equipment, reduxEquipment);
-
-                if (shouldUpdate) {
-                    equipment.forEach(eq => {
-                        eq.nameWithParent = getParents(eq, equipment) + eq.name;
-                    });
-
-                    store.dispatch(ActionCreator.ActionCreatorEquipment.getAllEquipment(equipment));
-                }
-            }
-
-            if (tasks && tasks.length) {
-                const reduxTasks = store.getState().reducerTask.tasks;
-
-                // Если массивы не равны, то обновляем хранилище redux
-                const shouldUpdate = compareArrays(tasks, reduxTasks);
-
-                if (shouldUpdate) {
-                    store.dispatch(ActionCreator.ActionCreatorTask.getAllTasks(tasks));
-                }
-            }
-
-            if (item) {
-                // Заполняем модель записи
-                this.fillItem(item);
-            }
+            // Заполняем модель записи
+            if (item) this.fillItem(item);
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorLogDO.setError("Возникла ошибка при получении записи: " + e));
-            console.log(e);
-            message.error("Возникла ошибка при получении записи: ", e);
-            throw new Error("Что-то пошло не так");
+            store.dispatch(ActionCreator.ActionCreatorLogDO.setErrorRecord("Возникла ошибка при получении записи: " + e));
+            NoticeError.get(e); // Вызываем функцию обработки ошибки
         }
     },
     // Сохранение записи
@@ -167,13 +108,10 @@ export const LogDORoute = {
             const currentDate = store.getState().reducerLogDO.date;
             await this.getAll(currentDate);
         } catch (e) {
-            // Останавливаем спиннер загрузки
-            setLoading(false);
-            console.log(e);
-            message.error("Произошла ошибка при сохранении записи в журнале дефектов и отказов");
-            throw new Error("Что-то пошло не так");
+            // Устанавливаем ошибку в хранилище раздела
+            store.dispatch(ActionCreator.ActionCreatorLogDO.setErrorRecord("Возникла ошибка при сохранении записи: " + e));
+            NoticeError.save(e, setLoading);    // Вызываем функцию обработки ошибки
         }
-
     },
     // Удаление записи
     delete: async function (_id, setLoadingDelete, setVisiblePopConfirm, onRemove) {
@@ -213,12 +151,9 @@ export const LogDORoute = {
                 onRemove("logDOItem", "remove");
             }
         } catch (e) {
-            // Останавливаем спиннер, и скрываем всплывающее окно
-            setLoadingDelete(false);
-            setVisiblePopConfirm(false);
-            console.log(e);
-            message.error("Произошла ошибка при удалении записи в журнале дефектов и отказов");
-            throw new Error("Что-то пошло не так");
+            // Устанавливаем ошибку в хранилище раздела
+            store.dispatch(ActionCreator.ActionCreatorLogDO.setErrorRecord("Возникла ошибка при удалении записи: " + e));
+            NoticeError.delete(e, setLoadingDelete, setVisiblePopConfirm);    // Вызываем функцию обработки ошибки
         }
     },
     // Нажатие на кнопку "Отмена"
@@ -234,9 +169,9 @@ export const LogDORoute = {
             }
         } catch (e) {
             setLoadingCancel(false);
-            console.log(e);
-            message.error("Возникла ошибка при удалении добавленных файлов в записи, пожалуйста, удалите файлы вручную");
-            throw new Error("Что-то пошло не так");
+            // Устанавливаем ошибку в хранилище раздела
+            store.dispatch(ActionCreator.ActionCreatorLogDO.setErrorRecord("Возникла ошибка при удалении добавленных файлов из записи: " + e));
+            NoticeError.cancel(e);    // Вызываем функцию обработки ошибки
         }
     },
     // Заполнение модели записи раздела "Журнал дефектов и отказов"

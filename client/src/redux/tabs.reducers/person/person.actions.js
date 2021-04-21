@@ -1,10 +1,12 @@
-// Действия модели "Персонал"
+// Инициализация экшенов для раздела "Персонал"
 import {
     CREATE_PERSON,
     EDIT_PERSON,
     DELETE_PERSON,
     GET_ALL_PEOPLE,
-    SET_ROW_DATA_PERSON
+    SET_ROW_DATA_PERSON,
+    SET_ERROR_RECORD,
+    SET_ERROR_TABLE,
 } from "./person.constants";
 
 const ActionCreatorPerson = {
@@ -43,7 +45,21 @@ const ActionCreatorPerson = {
             type: SET_ROW_DATA_PERSON,
             payload: rowData
         }
-    }
+    },
+    // Установка ошибки для записи
+    setErrorRecord: (error) => {
+        return {
+            type: SET_ERROR_RECORD,
+            payload: error
+        }
+    },
+    // Установка ошибки для таблицы
+    setErrorTable: (error) => {
+        return {
+            type: SET_ERROR_TABLE,
+            payload: error
+        }
+    },
 }
 
 export default ActionCreatorPerson;

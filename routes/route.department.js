@@ -1,6 +1,7 @@
 // Маршруты для раздела "Подразделения"
 const {Router} = require("express");
 const {check, validationResult} = require("express-validator");
+
 const Department = require("../schemes/Department");
 
 const router = Router();
@@ -34,8 +35,9 @@ router.get("/departments/:id", async (req, res) => {
             return res.status(400).json({message: `Подразделение с кодом ${req.params.id} не существует`});
 
         res.status(201).json({isNewItem, department: item});
-    } catch (e) {
-        res.status(500).json({message: `Ошибка при открытии записи с кодом ${req.params.id}`})
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: `Ошибка при открытии записи с кодом ${req.params.id}: ${err}`})
     }
 });
 
@@ -46,8 +48,9 @@ router.get("/departments", async (req, res) => {
         const items = await Department.find({}).populate("parent");
 
         res.json(items);
-    } catch (e) {
-        res.status(500).json({message: "Ошибка при получении записей о подразделениях"})
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: "Ошибка при получении записей о подразделениях: " + err});
     }
 });
 
@@ -81,8 +84,9 @@ router.post("/departments", checkMiddleware, async (req, res) => {
             : await Department.findOne({name}).populate("parent");
 
         res.status(201).json({message: "Подразделение сохранено", item: currentDepartment});
-    } catch (e) {
-        res.status(500).json({message: "Ошибка при создании записи"})
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: "Ошибка при создании записи: " + err});
     }
 });
 
@@ -144,9 +148,9 @@ router.put("/departments", checkMiddleware, async (req, res) => {
         const savedItem = await Department.findById({_id}).populate("parent");
 
         res.status(201).json({message: "Подразделение сохранено", item: savedItem});
-    } catch (e) {
-        console.log(e)
-        res.status(500).json({message: "Ошибка при обновлении подразделения"})
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({message: "Ошибка при обновлении подразделения: " + err});
     }
 });
 
@@ -170,8 +174,9 @@ router.delete("/departments/:id", async (req, res) => {
         await Department.deleteOne({_id});  // Удаление записи из базы данных по id записи
 
         res.status(201).json({message: "Подразделение успешно удалено"});
-    } catch (e) {
-        res.status(500).json({message: `Ошибка при удалении подразделения с кодом ${_id}`});
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: `Ошибка при удалении подразделения с кодом ${_id}: ${err}`});
     }
 });
 

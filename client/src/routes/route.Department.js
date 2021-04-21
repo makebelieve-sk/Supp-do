@@ -1,4 +1,4 @@
-// Методы модели Подразделения
+// Методы модели "Подразделения"
 import {message} from "antd";
 
 import {Department} from "../model/Department";
@@ -8,7 +8,8 @@ import {ActionCreator} from "../redux/combineActions";
 import {request} from "../helpers/functions/general.functions/request.helper";
 import {getParents} from "../helpers/functions/general.functions/replaceField";
 import setFieldRecord from "../helpers/mappers/general.mappers/setFieldRecord";
-import {compareArrays, compareObjects} from "../helpers/functions/general.functions/compare";
+import {compareObjects} from "../helpers/functions/general.functions/compare";
+import {NoticeError, storeDepartments} from "./helper";
 
 export const DepartmentRoute = {
     // Адрес для работы с разделом "Подразделения"
@@ -22,29 +23,15 @@ export const DepartmentRoute = {
             // Получаем все записи раздела "Подразделения"
             const items = await request(this.base_url);
 
-            // Устанавливаем доп. поле: полное наименование
-            if (items && items.length) {
-                const reduxDepartments = store.getState().reducerDepartment.departments;
-
-                // Если массивы не равны, то обновляем хранилище redux
-                const shouldUpdate = compareArrays(items, reduxDepartments);
-
-                if (shouldUpdate) {
-                    items.forEach(department => {
-                        department.nameWithParent = getParents(department, items) + department.name;
-                    });
-
-                    store.dispatch(ActionCreator.ActionCreatorDepartment.getAllDepartments(items));
-                }
-            }
+            // Записываем полученные записи раздела "Подразделения" в хранилище
+            storeDepartments(items);
 
             // Останавливаем спиннер загрузки данных в таблицу
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
         } catch (e) {
-            // Останавливаем спиннер загрузки данных в таблицу
-            store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
-            message.error("Возникла ошибка при получении подразделений: ", e);
-            console.log(e)
+            // Устанавливаем ошибку в хранилище раздела
+            store.dispatch(ActionCreator.ActionCreatorDepartment.setErrorTable("Возникла ошибка при получении всех записей: " + e));
+            NoticeError.getAll(e); // Вызываем функцию обработки ошибки
         }
     },
     // Получение редактируемой записи
@@ -53,12 +40,12 @@ export const DepartmentRoute = {
             // Получаем редактируемую запись
             const item = await request(this.base_url + id);
 
-            if (item) {
-                // Заполняем модель записи
-                this.fillItem(item);
-            }
+            // Заполняем модель записи
+            if (item) this.fillItem(item);
         } catch (e) {
-            message.error("Возникла ошибка при получении записи: ", e);
+            // Устанавливаем ошибку в хранилище раздела
+            store.dispatch(ActionCreator.ActionCreatorDepartment.setErrorRecord("Возникла ошибка при получении записи: " + e));
+            NoticeError.get(e); // Вызываем функцию обработки ошибки
         }
     },
     // Сохранение записи
@@ -118,8 +105,9 @@ export const DepartmentRoute = {
             // Удаление текущей вкладки
             this.cancel(onRemove);
         } catch (e) {
-            // Останавливаем спиннер загрузки
-            setLoading(false);
+            // Устанавливаем ошибку в хранилище раздела
+            store.dispatch(ActionCreator.ActionCreatorDepartment.setErrorTable("Возникла ошибка при сохранении записи: " + e));
+            NoticeError.save(e, setLoading);    // Вызываем функцию обработки ошибки
         }
     },
     // Удаление записи
@@ -153,9 +141,9 @@ export const DepartmentRoute = {
             // Удаление текущей вкладки
             this.cancel(onRemove);
         } catch (e) {
-            // Останавливаем спиннер, и скрываем всплывающее окно
-            setLoadingDelete(false);
-            setVisiblePopConfirm(false);
+            // Устанавливаем ошибку в хранилище раздела
+            store.dispatch(ActionCreator.ActionCreatorDepartment.setErrorTable("Возникла ошибка при удалении записи: " + e));
+            NoticeError.delete(e, setLoadingDelete, setVisiblePopConfirm);    // Вызываем функцию обработки ошибки
         }
     },
     // Нажатие на кнопку "Отмена"

@@ -1,9 +1,12 @@
+// Инициализация экшенов для раздела "Подразделения"
 import {
     CREATE_DEPARTMENT,
     EDIT_DEPARTMENT,
     DELETE_DEPARTMENT,
     GET_ALL_DEPARTMENTS,
-    SET_ROW_DATA_DEPARTMENT
+    SET_ROW_DATA_DEPARTMENT,
+    SET_ERROR_RECORD,
+    SET_ERROR_TABLE,
 } from "./department.constants";
 
 const ActionCreatorDepartment = {
@@ -42,7 +45,21 @@ const ActionCreatorDepartment = {
             type: SET_ROW_DATA_DEPARTMENT,
             payload: rowData
         }
-    }
+    },
+    // Установка ошибки для записи
+    setErrorRecord: (error) => {
+        return {
+            type: SET_ERROR_RECORD,
+            payload: error
+        }
+    },
+    // Установка ошибки для таблицы
+    setErrorTable: (error) => {
+        return {
+            type: SET_ERROR_TABLE,
+            payload: error
+        }
+    },
 }
 
 export default ActionCreatorDepartment;
