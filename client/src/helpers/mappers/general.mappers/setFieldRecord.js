@@ -120,6 +120,8 @@ export default function setFieldRecord(replaceField, item) {
     if (map.has(replaceField.key)) {
         map.get(replaceField.key)();
     } else {
+        console.log(replaceField.key);
         message.error(`Раздел с ключём ${replaceField.key} не существует (изменение поля)`).then(null);
+        return new Error(`Раздел с ключём ${replaceField.key} не существует (изменение поля)`);
     }
 };

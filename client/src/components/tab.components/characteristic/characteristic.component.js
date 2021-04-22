@@ -82,7 +82,7 @@ export const CharacteristicComponent = ({equipmentPropertyToOptions, dropdownRen
 
                             <Col span={2}>
                                 <Form.Item label=" ">
-                                    <Button style={{width: "100%"}} onClick={() => remove(field.name)} icon={<DeleteOutlined/>} type="danger"/>
+                                    <Button className="characteristic_button" onClick={() => remove(field.name)} icon={<DeleteOutlined/>} type="danger"/>
                                 </Form.Item>
                             </Col>
                         </Row>

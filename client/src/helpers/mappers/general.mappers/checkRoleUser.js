@@ -54,6 +54,6 @@ export const checkRoleUser = (key, user) => {
     } else {
         console.log(key);
         message.error(`Раздел с ключём ${key} не существует (проверка роли пользователя)`).then(null);
-        return null;
+        return new Error(`Раздел с ключём ${key} не существует (проверка роли пользователя)`);
     }
 }

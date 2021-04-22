@@ -95,7 +95,7 @@ export const ButtonsComponent = ({specKey, onExport, setColumnsTable}) => {
         </Menu>;
 
         return (
-            <div style={{display: "flex", justifyContent: "space-between"}}>
+            <div className="wrapper_buttons">
                 {visibleButton}
 
                 <Button className="button" icon={<FileExcelOutlined/>}
@@ -104,7 +104,7 @@ export const ButtonsComponent = ({specKey, onExport, setColumnsTable}) => {
                 <PrintButton headers={headers} specKey={specKey}/>
 
                 <Dropdown overlay={dropdownMenu} onVisibleChange={handleVisibleChange} visible={visible}>
-                    <Button className="button" icon={<EditOutlined/>}>Колонки</Button>
+                    <Button className="button last_button" icon={<EditOutlined/>}>Колонки</Button>
                 </Dropdown>
             </div>
         );

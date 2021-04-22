@@ -145,7 +145,7 @@ router.get("/log-do/dto/:dateStart/:dateEnd", async (req, res) => {
 
         try {
             items = await LogDO.find({date: {$gte: millisecondsStart, $lte: millisecondsEnd}})
-                .sort({date: 1})
+                .sort({date: -1})
                 .populate("applicant")
                 .populate({
                     path: "equipment",

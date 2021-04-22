@@ -27,6 +27,8 @@ export const getPrintRecord = (key) => {
             getRecord: map.get(key).getPrintData,
         };
     } else {
+        console.log(key);
         message.error(`Раздел с ключём ${key} не существует (печать записи)`).then(null);
+        return new Error(`Раздел с ключём ${key} не существует (печать записи)`);
     }
 };

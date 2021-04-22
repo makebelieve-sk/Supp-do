@@ -2,15 +2,15 @@
 import React, {useState, useContext} from "react";
 import {Link} from "react-router-dom";
 import {useSelector} from "react-redux";
-import {Button, Card, Checkbox, Col, Form, Input, Row, Alert} from "antd";
+import {Button, Card, Checkbox, Col, Form, Input, Row, Alert, message} from "antd";
 import {LockOutlined, UserOutlined} from "@ant-design/icons";
 
 import store from "../../../redux/store";
+import {ActionCreator} from "../../../redux/combineActions";
 import {AuthContext} from "../../../context/auth.context";
 import {request} from "../../../helpers/functions/general.functions/request.helper";
 
 import "./auth.css";
-import {ActionCreator} from "../../../redux/combineActions";
 
 export const AuthComponent = ({setRegForm, setChangePass}) => {
     const alert = useSelector(state => state.reducerAuth.regAlert);   // Получаем из флаг показао алерта  из хранилища
@@ -33,18 +33,20 @@ export const AuthComponent = ({setRegForm, setChangePass}) => {
                 auth.login(data.token, data.userId, data.user);
             }
         } catch (e) {
+            console.log(e);
             // При ошибке от сервера, останавливаем спиннер загрузки
             setLoadingLogin(false);
+            message.error(e.message);
         }
     };
 
     return (
-        <Row align="middle" justify="center" style={{height: "100vh"}}>
+        <Row align="middle" justify="center" className="row_auth">
             <Col>
-                <Card title="Авторизация" style={{width: 400}}>
+                <Card title="Авторизация" className="card_auth">
                     {
                         alert
-                            ? <Alert style={{marginBottom: "20px"}} type="success" message="Вы успешно зарегистрированы. Можно начинать работать после одобрения администратором" />
+                            ? <Alert classNmae="alert" type="success" message="Вы успешно зарегистрированы. Можно начинать работать после одобрения администратором" />
                             : null
                     }
 
@@ -57,14 +59,20 @@ export const AuthComponent = ({setRegForm, setChangePass}) => {
                         <Form.Item name="userName" rules={[{
                             required: true,
                             transform: value => value.trim(),
-                            message: "Введите логин"
+                            message: "Введите логин",
+                            type: "string",
+                            min: 1,
+                            max: 255
                         }]}>
                             <Input prefix={<UserOutlined className="site-form-item-icon"/>} placeholder="Логин"/>
                         </Form.Item>
                         <Form.Item name="password" rules={[{
                             required: true,
                             transform: value => value.trim(),
-                            message: "Введите пароль"
+                            message: "Введите пароль",
+                            type: "string",
+                            min: 1,
+                            max: 255
                         }]}>
                             <Input.Password prefix={<LockOutlined className="site-form-item-icon"/>} placeholder="Пароль"/>
                         </Form.Item>

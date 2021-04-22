@@ -27,7 +27,8 @@ export default function getTableData(key, dataStore) {
     if (map.has(key)) {
         return map.get(key);
     } else {
-        message.error(`Раздел с ключём ${key} не существует (заполнение таблицы данными)`)
-            .then(null);
+        console.log(key);
+        message.error(`Раздел с ключём ${key} не существует (заполнение таблицы данными)`).then(null);
+        return new Error(`Раздел с ключём ${key} не существует (заполнение таблицы данными)`);
     }
 }

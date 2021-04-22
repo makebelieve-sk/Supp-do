@@ -31,7 +31,7 @@ router.get("/roles/:id", async (req, res) => {
             {title: "Перечень оборудования", read: false, edit: false, key: "equipment"},
             {title: "Характеристики оборудования", read: false, edit: false, key: "equipmentProperties"},
             {title: "Состояния заявок", read: false, edit: false, key: "tasks"},
-            {title: "Журнал дефектов и отказов", read: false, edit: false, key: "logDO"},
+            {title: "Журнал дефектов и отказов", read: true, edit: true, key: "logDO"},
             {title: "Помощь", read: false, edit: false, key: "help"},
             {title: "Пользователи", read: false, edit: false, key: "users"},
             {title: "Роли", read: false, edit: false, key: "roles"},

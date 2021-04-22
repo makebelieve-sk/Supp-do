@@ -160,10 +160,10 @@ export const TableComponent = ({specKey}) => {
                     <Header filterText={filterText} setFilterText={setFilterText}/>
                 </Col>
 
-                {
-                    specKey === "logDO"
-                        ? <Col span={10}>
-                            <div style={{width: "70%"}}>
+                <Col span={10}>
+                    {
+                        specKey === "logDO"
+                            ? <div>
                                 <RangePicker
                                     allowClear={false}
                                     showTime={{format: "HH:mm"}}
@@ -172,9 +172,9 @@ export const TableComponent = ({specKey}) => {
                                     value={date}
                                 />
                             </div>
-                        </Col>
                         : null
                 }
+                </Col>
 
                 <Col span={10}>
                     <ButtonsComponent specKey={specKey} onExport={onExport} setColumnsTable={setColumnsTable}/>
@@ -191,7 +191,8 @@ export const TableComponent = ({specKey}) => {
                                     style={{
                                         backgroundColor: legend.color,
                                         borderColor: legend.borderColor ?  legend.borderColor : "#FFFFFF",
-                                        color: legend.borderColor ?  legend.borderColor : "#FFFFFF"
+                                        color: legend.borderColor ?  legend.borderColor : "#FFFFFF",
+                                        height: "30px", lineHeight: "30px", paddingLeft: "15px", paddingRight: "15px"
                                     }}
                                 />
                             </Col>

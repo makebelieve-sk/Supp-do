@@ -1,8 +1,8 @@
 // Компонент отображающий рейтинг (таблицы)
 import React from "react";
+import {Col, Row} from "antd";
 
 import "./rating.css";
-import {Col, Row} from "antd";
 
 export const RatingComponent = ({title, param, data}) => {
     return (
@@ -19,8 +19,8 @@ export const RatingComponent = ({title, param, data}) => {
                         <table className="table">
                             <thead>
                             <tr>
-                                <th style={{textAlign: "center"}}>Оборудование</th>
-                                <th style={{textAlign: "center"}}>{param}</th>
+                                <th className="ta-center">Оборудование</th>
+                                <th className="ta-center">{param}</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -28,11 +28,11 @@ export const RatingComponent = ({title, param, data}) => {
                                 data && data.length
                                     ? data.map(obj => (
                                         <tr key={obj.id}>
-                                            <td style={{textAlign: "center"}}>{obj.name}</td>
-                                            <td style={{textAlign: "center"}}>{obj.value}</td>
+                                            <td className="ta-center">{obj.name}</td>
+                                            <td className="ta-center">{obj.value}</td>
                                         </tr>
                                     ))
-                                    : <tr><td colSpan={2} style={{textAlign: "center"}}>Нет данных</td></tr>
+                                    : <tr><td colSpan={2} className="ta-center">Нет данных</td></tr>
                             }
                             </tbody>
                         </table>

@@ -1,6 +1,6 @@
 // Компонент формы записи раздела "Роли"
 import React, {useContext, useEffect, useState} from "react";
-import {Card, Form, Input} from "antd";
+import {Card, Checkbox, Form, Input} from "antd";
 
 import {onFailed, TabButtons} from "../tab.functions";
 import {DeleteTabContext} from "../../context/deleteTab.context";
@@ -105,23 +105,29 @@ export const RoleForm = ({item}) => {
                                                 </td>
 
                                                 <td className="center">
-                                                    <input type="checkbox" checked={perm.read} onChange={e => {
-                                                        setPermissions([
-                                                            ...permissions.slice(0, index),
-                                                            {...perm, read: e.target.checked},
-                                                            ...permissions.slice(index + 1)
-                                                        ]);
-                                                    }} />
+                                                    <Checkbox
+                                                        disabled={perm.key === "logDO"}
+                                                        checked={perm.read}
+                                                        onChange={e => {
+                                                            setPermissions([
+                                                                ...permissions.slice(0, index),
+                                                                {...perm, read: e.target.checked},
+                                                                ...permissions.slice(index + 1)
+                                                            ]);
+                                                        }} />
                                                 </td>
 
                                                 <td className="center">
-                                                    <input type="checkbox" checked={perm.edit} onChange={e => {
-                                                        setPermissions([
-                                                            ...permissions.slice(0, index),
-                                                            {...perm, edit: e.target.checked},
-                                                            ...permissions.slice(index + 1)
-                                                        ]);
-                                                    }} />
+                                                    <Checkbox
+                                                        disabled={perm.key === "logDO"}
+                                                        checked={perm.edit}
+                                                        onChange={e => {
+                                                            setPermissions([
+                                                                ...permissions.slice(0, index),
+                                                                {...perm, edit: e.target.checked},
+                                                                ...permissions.slice(index + 1)
+                                                            ]);
+                                                        }} />
                                                 </td>
                                             </tr>
                                         ))

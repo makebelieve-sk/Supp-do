@@ -37,7 +37,8 @@ export const SiderComponent = ({collapsed}) => {
                 }
             } catch (e) {
                 console.log(e);
-                message.error("Произошла ошибка при получении объекта пользователя");
+                message.error("Произошла ошибка при получении объекта пользователя: " + e.message);
+                throw new Error(e);
             }
         };
 

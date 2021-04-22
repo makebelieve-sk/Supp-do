@@ -5,10 +5,10 @@ import {Button, Card, Col, Form, Input, message, Row} from "antd";
 import {LockOutlined, ScheduleOutlined, SolutionOutlined, UserOutlined} from "@ant-design/icons";
 
 import store from "../../../redux/store";
+import {ActionCreator} from "../../../redux/combineActions";
 import {request} from "../../../helpers/functions/general.functions/request.helper";
 
 import "./reg.css";
-import {ActionCreator} from "../../../redux/combineActions";
 
 export const RegistrationComponent = () => {
     const history = useHistory(); // Создаем объект history из react-router-dom
@@ -30,15 +30,17 @@ export const RegistrationComponent = () => {
                 history.push("/login"); // Переходим на страницу входа
             }
         } catch(e) {
+            console.log(e);
             // При ошибке от сервера, останавливаем спиннер загрузки
             setLoadingReg(false);
+            message.error(e.message);
         }
     };
 
     return (
-        <Row justify="center" style={{paddingTop: "2%", paddingBottom: "2%"}}>
-            <Col span={7}>
-                <Card title="Регистрация">
+        <Row justify="center" className="row_register">
+            <Col>
+                <Card title="Регистрация" className="card_register">
                     <Form
                         name="normal_login"
                         className="login-form"
@@ -49,64 +51,77 @@ export const RegistrationComponent = () => {
                         <Form.Item label="Почта" name="email" rules={[{
                             required: true,
                             transform: value => value.trim(),
-                            message: "Введите почту"
+                            message: "Введите почту",
+                            type: "email",
+                            min: 1,
+                            max: 255
                         }]}>
-                            <Input prefix={<ScheduleOutlined className="site-form-item-icon"/>} placeholder="Email" type="email"/>
+                            <Input prefix={<ScheduleOutlined className="site-form-item-icon"/>} placeholder="Email"/>
                         </Form.Item>
 
                         <Form.Item label="Имя" name="firstName" rules={[{
                             required: true,
                             transform: value => value.trim(),
-                            message: "Введите имя"
+                            message: "Введите имя",
+                            type: "string",
+                            min: 1,
+                            max: 255
                         }]}>
-                            <Input prefix={<UserOutlined className="site-form-item-icon"/>} placeholder="Имя" type="text" maxLength={255}/>
+                            <Input prefix={<UserOutlined className="site-form-item-icon"/>} placeholder="Имя"/>
                         </Form.Item>
 
                         <Form.Item label="Фамилия"  name="secondName" rules={[{
                             required: true,
                             transform: value => value.trim(),
-                            message: "Введите фамилию"
+                            message: "Введите фамилию",
+                            type: "string",
+                            min: 1,
+                            max: 255
                         }]}>
-                            <Input prefix={<UserOutlined className="site-form-item-icon"/>} placeholder="Фамилия" type="text" maxLength={255}/>
+                            <Input prefix={<UserOutlined className="site-form-item-icon"/>} placeholder="Фамилия"/>
                         </Form.Item>
 
-                        <Form.Item
-                            label="Имя пользователя"
-                            name="userName"
-                            rules={[{required: true, transform: value => value.trim(), message: "Введите имя пользователя"}]}
-                            className="user-name"
-                        >
-                            <Input prefix={<SolutionOutlined className="site-form-item-icon"/>} placeholder="Имя пользователя" type="text" maxLength={255}/>
+                        <Form.Item label="Имя пользователя" name="userName" className="user-name" rules={[{
+                                required: true,
+                                transform: value => value.trim(),
+                                message: "Введите имя пользователя",
+                                type: "string",
+                                min: 1,
+                                max: 255
+                            }]}>
+                            <Input prefix={<SolutionOutlined className="site-form-item-icon"/>} placeholder="Имя пользователя"/>
                         </Form.Item>
 
                         <div className="text-muted">Используется для входа в программу</div>
 
-                        <Form.Item label="Пароль"  name="password" rules={[{
+                        <Form.Item label="Пароль" name="password" hasFeedback rules={[{
                             required: true,
                             transform: value => value.trim(),
-                            message: "Введите пароль"
-                        }]} hasFeedback>
+                            message: "Введите пароль",
+                            type: "string",
+                            min: 1,
+                            max: 255
+                        }]}>
                             <Input.Password prefix={<LockOutlined className="site-form-item-icon"/>} placeholder="Введите пароль"/>
                         </Form.Item>
 
-                        <Form.Item
-                            label="Подтверждение пароля"
-                            name="confirm"
-                            dependencies={["password"]}
-                            hasFeedback
-                            rules={[
-                                {required: true, transform: value => value.trim(), message: "Подтвердите пароль"},
-                                ({getFieldValue}) => ({
-                                    validator(_, value) {
-                                        if (!value || getFieldValue("password") === value) {
-                                            return Promise.resolve();
-                                        }
-
-                                        return Promise.reject("Введенные пароли не совпадают!");
-                                    },
-                                }),
-                            ]}
-                        >
+                        <Form.Item label="Подтверждение пароля" name="confirm" dependencies={["password"]} hasFeedback rules={[
+                            {
+                                required: true,
+                                transform: value => value.trim(),
+                                message: "Подтвердите пароль",
+                                type: "string",
+                                min: 1,
+                                max: 255
+                            },
+                            ({getFieldValue}) => ({
+                                validator(_, value) {
+                                    return !value || getFieldValue("password") === value
+                                        ? Promise.resolve()
+                                        : Promise.reject("Введенные пароли не совпадают!");
+                                },
+                            }),
+                        ]}>
                             <Input.Password prefix={<LockOutlined className="site-form-item-icon"/>} placeholder="Подтвердите пароль"/>
                         </Form.Item>
 

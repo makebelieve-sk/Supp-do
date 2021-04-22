@@ -61,7 +61,7 @@ export const HelpRoute = {
             return await request(this.base_url + "get/" + id);
         } catch (e) {
             console.log(e);
-            message.error("Возникла ошибка при получении записи: ", e);
+            message.error("Возникла ошибка при получении записи: ", e.message);
             throw new Error(e);
         }
     },

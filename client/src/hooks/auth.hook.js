@@ -12,31 +12,43 @@ export const useAuth = () => {
     const [user, setUser] = useState(null);
 
     // Функция входа в систему
-    const login = useCallback((jwtToken, id, user) => {
-        setToken(jwtToken);
-        setUserId(id);
-        setUser(user);
+    const login = useCallback(async (jwtToken, id, user) => {
+        try {
+            setToken(jwtToken);
+            setUserId(id);
+            setUser(user);
 
-        // Добавляем данные о пользователе в хранилище браузера
-        localStorage.setItem(storageName, JSON.stringify({
-            userId: id, token: jwtToken, user: user
-        }));
+            // Добавляем данные о пользователе в хранилище браузера
+            await localStorage.setItem(storageName, JSON.stringify({
+                userId: id, token: jwtToken, user: user
+            }));
 
-        // Сохраняем пользователя в хранилище
-        store.dispatch(ActionCreator.ActionCreatorAuth.setUser(user));
+            // Сохраняем пользователя в хранилище
+            store.dispatch(ActionCreator.ActionCreatorAuth.setUser(user));
+        } catch (err) {
+            console.log(err);
+            message.error(err.message);
+            throw new Error(err);
+        }
     }, []);
 
     // Функция выхода
-    const logout = useCallback(() => {
-        setToken(null);
-        setUserId(null);
-        setUser(null);
+    const logout = useCallback(async () => {
+        try {
+            setToken(null);
+            setUserId(null);
+            setUser(null);
 
-        // Удаляем все данные пользователя из хранилища браузера
-        localStorage.removeItem(storageName);
+            // Удаляем все данные пользователя из хранилища браузера
+            await localStorage.removeItem(storageName);
 
-        // Удаляем пользователя из хранилища
-        store.dispatch(ActionCreator.ActionCreatorAuth.setUser(null));
+            // Удаляем пользователя из хранилища
+            store.dispatch(ActionCreator.ActionCreatorAuth.setUser(null));
+        } catch (err) {
+            console.log(err);
+            message.error(err.message);
+            throw new Error(err);
+        }
     }, []);
 
     // Происходит вызов функции входа с уже полученными параметрами из хранилища браузера

@@ -30,7 +30,9 @@ export default async function openRecord(_id, createTitle, editTitle, tab, tabKe
         // Останавливаем показ спиннера загрузки при открытии вкладки с записью
         store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(false));
     } catch (e) {
+        console.log(e);
         // Останавливаем показ спиннера загрузки при появлении ошибки
         store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(false));
+        throw new Error(e);
     }
 }

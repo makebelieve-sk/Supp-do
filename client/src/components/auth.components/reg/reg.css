@@ -1,3 +1,12 @@
+.row_register {
+    padding-top: 2%;
+    padding-bottom: 2%;
+}
+
+.card_register {
+    width: 400px;
+}
+
 .text-muted {
     color: #6c757d !important;
     margin-bottom: 24px;

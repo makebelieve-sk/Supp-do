@@ -220,8 +220,9 @@ const openRecordTab = (key, _id) => {
     if (map.has(key)) {
         map.get(key).openRecordTab(_id).then(null);
     } else {
-        message.error(`Раздел с ключём ${key} не существует (открытие вкладки редактирования записи)`)
-            .then(null);
+        console.log(key);
+        message.error(`Раздел с ключём ${key} не существует (открытие вкладки редактирования записи)`).then(null);
+        return new Error(`Раздел с ключём ${key} не существует (открытие вкладки редактирования записи)`);
     }
 };
 
@@ -235,7 +236,9 @@ const getColumns = (key) => {
     if (map.has(key)) {
         return map.get(key).getColumns;
     } else {
+        console.log(key);
         message.error(`Раздел с ключём ${key} не существует (создание колонок)`).then(null);
+        return new Error(`Раздел с ключём ${key} не существует (создание колонок)`);
     }
 };
 
@@ -249,7 +252,9 @@ const getTableHeader = (key) => {
     if (map.has(key)) {
         return map.get(key).getTableHeader;
     } else {
+        console.log(key);
         message.error(`Раздел с ключём ${key} не существует (создание заголовков экспорта)`).then(null);
+        return new Error(`Раздел с ключём ${key} не существует (создание заголовков экспорта)`);
     }
 };
 
@@ -265,7 +270,9 @@ const getPrintTable = (key) => {
             getData: map.get(key).getPrintData,
         };
     } else {
+        console.log(key);
         message.error(`Раздел с ключём ${key} не существует (печать таблицы)`).then(null);
+        return new Error(`Раздел с ключём ${key} не существует (печать таблицы)`);
     }
 };
 
@@ -280,7 +287,9 @@ const getModel = (key) => {
     if (map.has(key)) {
         return map.get(key).model;
     } else {
+        console.log(key);
         message.error(`Раздел с ключём ${key} не существует (модель раздела)`).then(null);
+        return new Error(`Раздел с ключём ${key} не существует (модель раздела)`);
     }
 }
 

@@ -1,5 +1,5 @@
 import React, {useMemo} from "react";
-import {Input, Row} from "antd";
+import {Input} from "antd";
 
 import "./tabsHeader.css";
 
@@ -8,10 +8,8 @@ export const Header = ({filterText, setFilterText}) => {
     return useMemo(() => {
         return (
             <Input.Group compact>
-                <Input.Search defaultValue="" type="text" value={filterText}
-                              placeholder="Поиск"
-                              onChange={e => setFilterText(e.target.value)} allowClear
-                              onPressEnter={e => setFilterText(e.target.value)}/>
+                <Input.Search defaultValue="" type="text" value={filterText} placeholder="Поиск" allowClear
+                    onChange={e => setFilterText(e.target.value)} onPressEnter={e => setFilterText(e.target.value)}/>
             </Input.Group>
         );
     }, [filterText, setFilterText]);

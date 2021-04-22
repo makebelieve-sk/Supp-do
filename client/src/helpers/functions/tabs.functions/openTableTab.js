@@ -24,7 +24,9 @@ export default async function OpenTableTab(title, key, model) {
         // Останавливаем показ спиннера загрузки при открытии вкладки раздела
         store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(false));
     } catch (e) {
+        console.log(e);
         // Останавливаем показ спиннера загрузки при появлении ошибки
         store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(false));
+        throw new Error(e);
     }
 };

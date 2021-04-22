@@ -71,7 +71,7 @@ export const UserRoute = {
             return item ? item : null;
         } catch (e) {
             console.log(e);
-            message.error("Возникла ошибка при получении записи: ", e);
+            message.error("Возникла ошибка при получении записи: ", e.message);
             throw new Error(e);
         }
     },

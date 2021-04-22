@@ -49,7 +49,9 @@ export const UploadComponent = ({model, rowData, actionCreatorAdd, actionCreator
                     message.success(data.message);
                 }
             } catch (e) {
+                console.log(e);
                 message.error("Возникла ошибка при удалении файла " + deletedFile.name);
+                throw new Error(e);
             }
         } else {
             message.error(`Файл ${deletedFile.name} не найден`);

@@ -84,7 +84,7 @@ export const AnalyticRoute = {
             // Устанавливаем ошибку в хранилище раздела
             store.dispatch(ActionCreator.ActionCreatorLogDO.setErrorTable("Возникла ошибка при переходе в раздел ЖДО: " + e));
             console.log(e);
-            message.error("Возникла ошибка при переходе в раздел ЖДО: ", e);
+            message.error("Возникла ошибка при переходе в раздел ЖДО: ", e.message);
             throw new Error(e);
         }
     }

@@ -1,3 +1,13 @@
+.wrapper_buttons {
+    display: flex;
+    justify-content: flex-end;
+}
+
 .button {
     width: 9em;
+    margin-right: 5px;
+}
+
+.last_button {
+    margin-right: 0;
 }
