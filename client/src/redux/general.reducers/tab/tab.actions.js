@@ -3,7 +3,8 @@ import {
     EDIT_TAB,
     REMOVE_TAB,
     SET_ACTIVE_KEY,
-    SET_TABS_IN_HISTORY
+    SET_TABS_IN_HISTORY,
+    SET_TABS,
 } from "./tab.constants";
 
 const ActionCreatorTab = {
@@ -41,6 +42,13 @@ const ActionCreatorTab = {
         return {
             type: SET_TABS_IN_HISTORY,
             payload: historyTabs
+        }
+    },
+    // Установка вкладок
+    setTab: (tab) => {
+        return {
+            type: SET_TABS,
+            payload: tab
         }
     }
 }

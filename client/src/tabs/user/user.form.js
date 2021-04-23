@@ -1,6 +1,6 @@
 // Компонент формы записи раздела "Пользователи"
 import React, {useContext, useEffect, useMemo, useState} from "react";
-import {Button, Card, Checkbox, Col, Form, Input, Row, Select} from "antd";
+import {Button, Card, Checkbox, Col, Form, Input, Row, Select, Tooltip} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
 
 import {dropdownRender, onFailed, TabButtons} from "../tab.functions";
@@ -9,10 +9,13 @@ import {UserRoute} from "../../routes/route.User";
 import store from "../../redux/store";
 import {ActionCreator} from "../../redux/combineActions";
 import {openRecordTab} from "../../helpers/mappers/tabs.mappers/table.helper";
+import {checkRoleUser} from "../../helpers/mappers/general.mappers/checkRoleUser";
 
 export const UserForm = ({item}) => {
     // Пустое значение выпадающего списка
     const emptyDropdown = useMemo(() => [{label: "Не выбрано", value: null}], []);
+
+    const user = store.getState().reducerAuth.user; // Получаем объект пользователя
 
     // Создание состояний для значений в выпадающих списках "Подразделения" и "Профессии"
     const [options, setOptions] = useState(item.person ? [{
@@ -48,7 +51,7 @@ export const UserForm = ({item}) => {
             const result = [];
 
             roles.forEach(role => {
-                result.push(role.name);
+                result.push({label: role.name, value: role._id});
             });
 
             setCheckboxOptions(result);
@@ -59,7 +62,7 @@ export const UserForm = ({item}) => {
 
         if (item.roles && item.roles.length) {
             item.roles.forEach(role => {
-                defaultChecked.push(role.name);
+                defaultChecked.push(role._id);
             });
         }
 
@@ -75,7 +78,7 @@ export const UserForm = ({item}) => {
             email: item.email.trim(),
             mailing: item.mailing,
             approved: item.approved,
-            checkboxGroup: defaultChecked
+            roles: defaultChecked
         });
     }, [item, form, emptyDropdown]);
 
@@ -86,22 +89,19 @@ export const UserForm = ({item}) => {
 
         // Отправляем объект выбранного сотрудника
         values.person = people.find(person => person._id === values.person);
-        values.roles = [];  // Создаем поле roles
 
         // Обновляем поле roles
-        if (values.checkboxGroup && values.checkboxGroup.length) {
+        if (values.roles && values.roles.length) {
             const result = [];
 
-            values.checkboxGroup.forEach(checkbox => {
-                const currentRole = roles.find(role => role.name === checkbox);
+            values.roles.forEach(roleId => {
+                const currentRole = roles.find(role => role._id === roleId);
 
                 if (currentRole) result.push(currentRole);
             });
 
             values.roles = result;
         }
-
-        delete values.checkboxGroup; // Удаляем поле checkboxGroup
 
         await UserRoute.save(values, setLoadingSave, onRemove);
     }
@@ -173,19 +173,55 @@ export const UserForm = ({item}) => {
                                         </Form.Item>
                                     </Col>
                                     <Col xs={{span: 6}} sm={{span: 6}} md={{span: 4}} lg={{span: 4}} xl={{span: 4}}>
-                                        <Button
-                                            className="button-add-select"
-                                            onClick={() => {
-                                                store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldPerson({
-                                                    key: "userPerson",
-                                                    formValues: form.getFieldsValue(true)
-                                                }));
+                                        {
+                                            checkRoleUser("users", user).edit
+                                                ? <Button
+                                                    className="button-add-select"
+                                                    onClick={() => {
+                                                        // Получаем все роли из хранилища
+                                                        const roles = store.getState().reducerRole.roles;
 
-                                                openRecordTab("people", "-1");
-                                            }}
-                                            icon={<PlusOutlined/>}
-                                            type="secondary"
-                                        />
+                                                        const obj = form.getFieldsValue(true);
+                                                        let result = [];
+
+                                                        if (obj.roles && obj.roles.length) {
+                                                            obj.roles.forEach(roleId => {
+                                                                const findRole = roles.find(rl => rl._id === roleId);
+
+                                                                if (findRole) result.push(findRole);
+                                                            })
+                                                        }
+
+                                                        obj.roles = result;
+
+                                                        store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldPerson({
+                                                            key: "userPerson",
+                                                            formValues: obj
+                                                        }));
+
+                                                        openRecordTab("people", "-1");
+                                                    }}
+                                                    icon={<PlusOutlined/>}
+                                                    type="secondary"
+                                                    disabled={false}
+                                                />
+                                                : <Tooltip title="У вас нет прав" color="#ff7875">
+                                                    <Button
+                                                        className="button-add-select"
+                                                        onClick={() => {
+                                                            store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldPerson({
+                                                                key: "userPerson",
+                                                                formValues: form.getFieldsValue(true)
+                                                            }));
+
+                                                            openRecordTab("people", "-1");
+                                                        }}
+                                                        icon={<PlusOutlined/>}
+                                                        type="secondary"
+                                                        disabled={true}
+                                                    />
+                                                </Tooltip>
+                                        }
                                     </Col>
                                 </Row>
                             </Form.Item>
@@ -269,7 +305,7 @@ export const UserForm = ({item}) => {
                         </Checkbox>
                     </Form.Item>
 
-                    <Form.Item label="Роли" name="checkboxGroup" rules={[{
+                    <Form.Item label="Роли" name="roles" rules={[{
                         required: true,
                         message: "Выберите роль"
                     }]}>

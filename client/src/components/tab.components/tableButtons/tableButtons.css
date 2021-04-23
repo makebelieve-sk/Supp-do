@@ -11,3 +11,7 @@
 .last_button {
     margin-right: 0;
 }
+
+.button-skeleton {
+    margin-right: 5px;
+}

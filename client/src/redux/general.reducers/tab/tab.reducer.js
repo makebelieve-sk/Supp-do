@@ -4,7 +4,8 @@ import {
     EDIT_TAB,
     REMOVE_TAB,
     SET_ACTIVE_KEY,
-    SET_TABS_IN_HISTORY
+    SET_TABS_IN_HISTORY,
+    SET_TABS,
 } from "./tab.constants";
 
 export default function reducerTab(state = initialState, action) {
@@ -33,6 +34,11 @@ export default function reducerTab(state = initialState, action) {
             return {
                 ...state,
                 historyTabs: action.payload
+            };
+        case SET_TABS:
+            return {
+                ...state,
+                tabs: action.payload
             };
         default:
             return state;

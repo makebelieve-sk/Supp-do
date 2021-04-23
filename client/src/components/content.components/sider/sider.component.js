@@ -1,15 +1,13 @@
 // Компонент SiderComponent, отвечающий за боковое меню
-import React, {useContext, useMemo, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {useSelector} from "react-redux";
 import {Link} from "react-router-dom";
-import {Layout, Menu, message} from "antd";
+import {Layout, Menu} from "antd";
 
-import {UserRoute} from "../../../routes/route.User";
 import {LogDORoute} from "../../../routes/route.LogDO";
 import {AuthContext} from "../../../context/auth.context";
 import OpenTableTab from "../../../helpers/functions/tabs.functions/openTableTab";
 import {checkRoleUser} from "../../../helpers/mappers/general.mappers/checkRoleUser";
-import {menuItems} from "../../../options/global.options/global.options";
 
 import logo from "../../../assets/logo.png";
 import "./sider.css";
@@ -17,80 +15,63 @@ import "./sider.css";
 const {SubMenu} = Menu;
 
 export const SiderComponent = ({collapsed}) => {
-    const currentUser = useSelector(state => state.reducerAuth.user);  // Получение объекта пользователя
+    // Получение объекта пользователя и бокового меню приложения
+    const {user, menuItems} = useSelector(state => ({
+        user: state.reducerAuth.user,
+        menuItems: state.reducerAuth.menuItems
+    }));
 
     // Получение контекста авторизации (токен, id пользователя, пользователь, функции входа/выхода, флаг авторизации)
     const auth = useContext(AuthContext);
 
-    // Инициализицазия состояния бокового меню приложения
-    const [menu, setMenu] = useState();
+    const [menu, setMenu] = useState(); // Состояние бокового меню приложения
 
-    useMemo(() => {
-        // Функция получения текущего объекта пользователя
-        const getUser = async () => {
-            try {
-                if (currentUser) {
-                    // Обновляем данные о пользователе
-                    const user = await UserRoute.getCurrentUser(currentUser._id);
+    // Формируем боковое меню согласно правам пользователя
+    useEffect(() => {
+        if (user && menuItems && menuItems.length) {
+            // Делаем копию массива данных для бокового меню приложения
+            const menuItemsCopy = menuItems.slice(0);
 
-                    return user ? user : null;
-                }
-            } catch (e) {
-                console.log(e);
-                message.error("Произошла ошибка при получении объекта пользователя: " + e.message);
-                throw new Error(e);
-            }
-        };
+            // Формируем боковое меню согласно правам пользователя
+            menuItemsCopy.forEach((group, indexGroup) => {
+                if (group.children && group.children.length) {
+                    const data = checkRoleUser(group.key, user);
 
-        if (currentUser) {
-            getUser().then(user => {
-                // Делаем копию массива данных для бокового меню приложения
-                const menuItemsCopy = menuItems.slice(0);
+                    if (data && !data.read)
+                        menuItemsCopy.splice(indexGroup, 1);
 
-                // Формируем разделы для пользователя с ролью для просмотра
-                const shiftMenu = (i) => {
-                    if (i >= 4) return;
+                    group.children.forEach((subgroup, indexSubGroup) => {
+                        if (subgroup.children && subgroup.children.length) {
+                            const data = checkRoleUser(subgroup.key, user);
 
-                    menuItemsCopy.forEach((group, indexGroup) => {
-                        if (group.children && group.children.length) {
-                            group.children.forEach((subgroup, indexSubGroup) => {
-                                if (subgroup.children && subgroup.children.length) {
-                                    subgroup.children.forEach((item, indexItem) => {
-                                        const data = checkRoleUser(item.key, user);
+                            if (data && !data.read)
+                                menuItemsCopy[indexGroup].children.splice(indexSubGroup, 1);
 
-                                        if (!data)
-                                            menuItemsCopy[indexGroup].children[indexSubGroup].children.splice(indexItem, 1);
+                            subgroup.children.forEach((item, indexItem) => {
+                                const data = checkRoleUser(item.key, user);
 
-                                        if (data && !data.read)
-                                            menuItemsCopy[indexGroup].children[indexSubGroup].children.splice(indexItem, 1);
-                                    })
-                                } else if (!subgroup.url) {
-                                    const data = checkRoleUser(subgroup.key, user);
+                                if (data && !data.read)
+                                    menuItemsCopy[indexGroup].children[indexSubGroup].children.splice(indexItem, 1);
 
-                                    if (!data)
-                                        menuItemsCopy[indexGroup].children.splice(indexSubGroup, 1);
-
-                                    if (data && !data.read)
-                                        menuItemsCopy[indexGroup].children.splice(indexSubGroup, 1);
-                                }
+                                if (data && !data.read && subgroup.children.length === 1)
+                                    menuItemsCopy[indexGroup].children[indexSubGroup].children.pop();
                             })
+                        } else if (!subgroup.url) {
+                            const data = checkRoleUser(subgroup.key, user);
+
+                            if (data && !data.read)
+                                menuItemsCopy[indexGroup].children.splice(indexSubGroup, 1);
+
+                            if (data && !data.read && group.children.length === 1)
+                                menuItemsCopy[indexGroup].children.pop();
                         }
-                    });
-
-                    shiftMenu(i + 1);
+                    })
                 }
-
-                // Инициализируем флаг для рекурсии
-                const i = 0;
-
-                // Вызываем функцию формирования разделов для просмотра
-                shiftMenu(i);
-
-                // Обновляем состояние бокового меню
-                setMenu(menuItemsCopy);
             });
+
+            setMenu(menuItemsCopy);
         }
-    }, [currentUser]);
+    }, [user, menuItems]);
 
     return (
         <Layout.Sider trigger={null} collapsible collapsed={collapsed} width={300}>
@@ -107,11 +88,24 @@ export const SiderComponent = ({collapsed}) => {
             <Menu theme="dark" mode="inline">
                 {
                     menu && menu.length
-                        ? menu.map(group => {
+                        ? menu.map((group, indexGroup) => {
+                            if (Array.isArray(group.children) && !group.children.length) {
+                                menu.splice(indexGroup, 1);
+                                // Обновляем состояние бокового меню
+                                setMenu(menu);
+                                return null;
+                            }
                             return group.children && group.children.length
                                 ? <SubMenu key={group.key} icon={group.icon} title={group.title}>
                                     {
-                                        group.children.map(subgroup => {
+                                        group.children.map((subgroup, subgroupIndex) => {
+                                            if (Array.isArray(subgroup.children) && !subgroup.children.length) {
+                                                menu[indexGroup].children.splice(subgroupIndex, 1);
+                                                // Обновляем состояние бокового меню
+                                                setMenu(menu);
+                                                return null;
+                                            }
+
                                             if (subgroup.children && subgroup.children.length) {
                                                 return <SubMenu title={subgroup.title} key={subgroup.key}>
                                                     {
@@ -134,9 +128,15 @@ export const SiderComponent = ({collapsed}) => {
                                                             {subgroup.title}
                                                         </Link>
                                                     </Menu.Item>
-                                                } else {
+                                                } else if (subgroup.route) {
                                                     return <Menu.Item key={subgroup.key} onClick={() =>
                                                         OpenTableTab(subgroup.title, subgroup.key, subgroup.route)}
+                                                    >
+                                                        {subgroup.title}
+                                                    </Menu.Item>
+                                                } else {
+                                                    return <Menu.Item key={subgroup.key} onClick={() =>
+                                                        OpenTableTab(subgroup.title, subgroup.key, subgroup.model)}
                                                     >
                                                         {subgroup.title}
                                                     </Menu.Item>

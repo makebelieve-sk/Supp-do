@@ -12,7 +12,7 @@ export const DepartmentForm = ({item}) => {
     // Пустое значение выпадающего списка
     const emptyDropdown = useMemo(() => [{label: "Не выбрано", value: null}], []);
 
-    const departments = store.getState().reducerDepartment.departments;
+    const departments = store.getState().reducerDepartment.departments; // Получаем список подразделений
 
     // Создание состояния для значений в выпадающем списке "Принадлежит"
     const [departmentsOptions, setDepartments] = useState(item.parent ? [{label: getParents(item.parent, departments) + item.parent.name, value: item.parent._id}] : emptyDropdown);

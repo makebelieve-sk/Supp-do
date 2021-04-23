@@ -7,7 +7,7 @@ export const checkRoleUser = (key, user) => {
         const edit = [], read = [];
 
         // Массив всех ролей пользователя
-        const roles = user ? user.user.roles : null;
+        const roles = user && user.roles ? user.roles : null;
 
         if (roles && roles.length) {
             roles.forEach(role => {
@@ -43,15 +43,27 @@ export const checkRoleUser = (key, user) => {
         ["roles", canEdit("roles")],
         ["logs", canEdit("logs")],
         ["analytic", canEdit("analytic")],
-        ["statistic", canEdit("statistic")]
+        ["statistic", canEdit("statistic")],
+        ["professionItem", canEdit("professions")],
+        ["departmentItem", canEdit("departments")],
+        ["personItem", canEdit("people")],
+        ["equipmentItem", canEdit("equipment")],
+        ["equipmentPropertyItem", canEdit("equipmentProperties")],
+        ["taskStatusItem", canEdit("tasks")],
+        ["logDOItem", canEdit("logDO")],
+        ["helpItem", canEdit("help")],
+        ["userItem", canEdit("users")],
+        ["roleItem", canEdit("roles")],
     ]);
 
     if (key === "userManagement" || key === "personal-area" || key === "analytic-section" || key === "directory" ||
-        key === "personManagement" || key === "equipmentKey") return null;
+        key === "personManagement" || key === "equipmentKey" || key === "directory" || key === "analytic-section" ||
+        key === "admin" || key === "personal-area") return null;
 
     if (map.has(key)) {
         return map.get(key);
-    } else {
+    }
+    else {
         console.log(key);
         message.error(`Раздел с ключём ${key} не существует (проверка роли пользователя)`).then(null);
         return new Error(`Раздел с ключём ${key} не существует (проверка роли пользователя)`);

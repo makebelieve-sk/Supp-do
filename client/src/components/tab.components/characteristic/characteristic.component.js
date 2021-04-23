@@ -1,6 +1,6 @@
 // Компонент "Характеристики оборудования"
 import React, {useMemo} from "react";
-import {Button, Col, Form, Input, Row, Select} from "antd";
+import {Button, Col, Form, Input, Row, Select, Tooltip} from "antd";
 import {DeleteOutlined, PlusOutlined} from "@ant-design/icons";
 
 import {openRecordTab} from "../../../helpers/mappers/tabs.mappers/table.helper";
@@ -8,8 +8,9 @@ import {openRecordTab} from "../../../helpers/mappers/tabs.mappers/table.helper"
 import "./characteristic.css";
 import store from "../../../redux/store";
 import {ActionCreator} from "../../../redux/combineActions";
+import {checkRoleUser} from "../../../helpers/mappers/general.mappers/checkRoleUser";
 
-export const CharacteristicComponent = ({equipmentPropertyToOptions, dropdownRender, loadingSelectCharacteristics, setLoadingSelectCharacteristics, setEquipmentPropertyToOptions, form}) => {
+export const CharacteristicComponent = ({equipmentPropertyToOptions, dropdownRender, loadingSelectCharacteristics, setLoadingSelectCharacteristics, setEquipmentPropertyToOptions, form, user}) => {
     // Добавление строки во вкладке "Характеристики"
     const addRowProperty = (index, add, fields) => {
         if (index === fields.length - 1) {
@@ -48,20 +49,41 @@ export const CharacteristicComponent = ({equipmentPropertyToOptions, dropdownRen
                                     </Col>
                                     <Col xs={{span: 6}} sm={{span: 6}} md={{span: 4}} lg={{span: 4}} xl={{span: 4}}>
                                         <Form.Item label=" ">
-                                            <Button
-                                                className="button-add-select"
-                                                onClick={() => {
-                                                    store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldEquipmentProperty({
-                                                        key: "equipmentEquipmentProperty",
-                                                        formValues: form.getFieldsValue(true),
-                                                        index
-                                                    }));
+                                            {
+                                                checkRoleUser("equipmentProperties", user).edit
+                                                    ? <Button
+                                                        className="button-add-select"
+                                                        onClick={() => {
+                                                            store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldEquipmentProperty({
+                                                                key: "equipmentEquipmentProperty",
+                                                                formValues: form.getFieldsValue(true),
+                                                                index
+                                                            }));
 
-                                                    openRecordTab("equipmentProperties", "-1");
-                                                }}
-                                                icon={<PlusOutlined/>}
-                                                type="secondary"
-                                            />
+                                                            openRecordTab("equipmentProperties", "-1");
+                                                        }}
+                                                        icon={<PlusOutlined/>}
+                                                        type="secondary"
+                                                        disabled={true}
+                                                    />
+                                                    : <Tooltip title="У вас нет прав" color="#ff7875">
+                                                        <Button
+                                                            className="button-add-select"
+                                                            onClick={() => {
+                                                                store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldEquipmentProperty({
+                                                                    key: "equipmentEquipmentProperty",
+                                                                    formValues: form.getFieldsValue(true),
+                                                                    index
+                                                                }));
+
+                                                                openRecordTab("equipmentProperties", "-1");
+                                                            }}
+                                                            icon={<PlusOutlined/>}
+                                                            type="secondary"
+                                                            disabled={true}
+                                                        />
+                                                    </Tooltip>
+                                            }
                                         </Form.Item>
                                     </Col>
                                 </Row>
@@ -90,5 +112,5 @@ export const CharacteristicComponent = ({equipmentPropertyToOptions, dropdownRen
                 </>
             }}
         </Form.List>
-    ), [equipmentPropertyToOptions, dropdownRender, loadingSelectCharacteristics, setEquipmentPropertyToOptions, setLoadingSelectCharacteristics, form])
+    ), [equipmentPropertyToOptions, dropdownRender, loadingSelectCharacteristics, setEquipmentPropertyToOptions, setLoadingSelectCharacteristics, form, user])
 }

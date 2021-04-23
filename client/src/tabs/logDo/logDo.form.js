@@ -1,7 +1,7 @@
 // Компонент формы записи раздела "Журнал дефектов и отказов"
 import moment from "moment";
 import React, {useState, useEffect, useMemo, useContext} from "react";
-import {Button, Checkbox, Col, DatePicker, Form, Input, Row, Select, Tabs, Card} from "antd";
+import {Button, Checkbox, Col, DatePicker, Form, Input, Row, Select, Tabs, Card, Tooltip} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
 
 import {UploadComponent} from "../../components/tab.components/upload/upload.component";
@@ -13,6 +13,7 @@ import store from "../../redux/store";
 import {ActionCreator} from "../../redux/combineActions";
 import {DeleteTabContext} from "../../context/deleteTab.context";
 import {getParents} from "../../helpers/functions/general.functions/replaceField";
+import {checkRoleUser} from "../../helpers/mappers/general.mappers/checkRoleUser";
 
 export const LogDoForm = ({item}) => {
     // Инициализация стейта для показа спиннера загрузки при изменении записи, обновлении выпадающих списков
@@ -26,6 +27,8 @@ export const LogDoForm = ({item}) => {
 
     // Пустое значение выпадающего списка
     const emptyDropdown = useMemo(() => [{label: "Не выбрано", value: null}], []);
+
+    const user = store.getState().reducerAuth.user; // Получаем объект пользователя
 
     // Инициализация значений для выпадающих списков
     const [departments, setDepartments] = useState(item.department ? [{label: item.department.name, value: item.department._id}] : emptyDropdown);
@@ -190,19 +193,39 @@ export const LogDoForm = ({item}) => {
                                                 </Form.Item>
                                             </Col>
                                             <Col xs={{span: 6}} sm={{span: 6}} md={{span: 4}} lg={{span: 4}} xl={{span: 4}}>
-                                                <Button
-                                                    className="button-add-select"
-                                                    onClick={() => {
-                                                        store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldPerson({
-                                                            key: "logDOApplicant",
-                                                            formValues: form.getFieldsValue(true)
-                                                        }));
+                                                {
+                                                    checkRoleUser("people", user).edit
+                                                        ? <Button
+                                                            className="button-add-select"
+                                                            onClick={() => {
+                                                                store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldPerson({
+                                                                    key: "logDOApplicant",
+                                                                    formValues: form.getFieldsValue(true)
+                                                                }));
 
-                                                        openRecordTab("people", "-1");
-                                                    }}
-                                                    icon={<PlusOutlined/>}
-                                                    type="secondary"
-                                                />
+                                                                openRecordTab("people", "-1");
+                                                            }}
+                                                            icon={<PlusOutlined/>}
+                                                            type="secondary"
+                                                            disabled={false}
+                                                        />
+                                                        : <Tooltip title="У вас нет прав" color="#ff7875">
+                                                            <Button
+                                                                className="button-add-select"
+                                                                onClick={() => {
+                                                                    store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldPerson({
+                                                                        key: "logDOApplicant",
+                                                                        formValues: form.getFieldsValue(true)
+                                                                    }));
+
+                                                                    openRecordTab("people", "-1");
+                                                                }}
+                                                                icon={<PlusOutlined/>}
+                                                                type="secondary"
+                                                                disabled={true}
+                                                            />
+                                                        </Tooltip>
+                                                }
                                             </Col>
                                         </Row>
                                     </Form.Item>
@@ -239,19 +262,39 @@ export const LogDoForm = ({item}) => {
                                         </Form.Item>
                                     </Col>
                                     <Col xs={{span: 3}} sm={{span: 3}} md={{span: 2}} lg={{span: 2}} xl={{span: 2}}>
-                                        <Button
-                                            className="button-add-select"
-                                            onClick={() => {
-                                                store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldEquipment({
-                                                    key: "logDOEquipment",
-                                                    formValues: form.getFieldsValue(true)
-                                                }));
+                                        {
+                                            checkRoleUser("equipment", user).edit
+                                                ? <Button
+                                                    className="button-add-select"
+                                                    onClick={() => {
+                                                        store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldEquipment({
+                                                            key: "logDOEquipment",
+                                                            formValues: form.getFieldsValue(true)
+                                                        }));
 
-                                                openRecordTab("equipment", "-1");
-                                            }}
-                                            icon={<PlusOutlined/>}
-                                            type="secondary"
-                                        />
+                                                        openRecordTab("equipment", "-1");
+                                                    }}
+                                                    icon={<PlusOutlined/>}
+                                                    type="secondary"
+                                                    disabled={false}
+                                                />
+                                                : <Tooltip title="У вас нет прав" color="#ff7875">
+                                                    <Button
+                                                        className="button-add-select"
+                                                        onClick={() => {
+                                                            store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldEquipment({
+                                                                key: "logDOEquipment",
+                                                                formValues: form.getFieldsValue(true)
+                                                            }));
+
+                                                            openRecordTab("equipment", "-1");
+                                                        }}
+                                                        icon={<PlusOutlined/>}
+                                                        type="secondary"
+                                                        disabled={true}
+                                                    />
+                                                </Tooltip>
+                                        }
                                     </Col>
                                 </Row>
                             </Form.Item>
@@ -335,19 +378,39 @@ export const LogDoForm = ({item}) => {
                                                 </Form.Item>
                                             </Col>
                                             <Col xs={{span: 6}} sm={{span: 6}} md={{span: 4}} lg={{span: 4}} xl={{span: 4}}>
-                                                <Button
-                                                    className="button-add-select"
-                                                    onClick={() => {
-                                                        store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldPerson({
-                                                            key: "logDOResponsible",
-                                                            formValues: form.getFieldsValue(true)
-                                                        }));
+                                                {
+                                                    checkRoleUser("people", user).edit
+                                                        ? <Button
+                                                            className="button-add-select"
+                                                            onClick={() => {
+                                                                store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldPerson({
+                                                                    key: "logDOResponsible",
+                                                                    formValues: form.getFieldsValue(true)
+                                                                }));
 
-                                                        openRecordTab("people", "-1");
-                                                    }}
-                                                    icon={<PlusOutlined/>}
-                                                    type="secondary"
-                                                />
+                                                                openRecordTab("people", "-1");
+                                                            }}
+                                                            icon={<PlusOutlined/>}
+                                                            type="secondary"
+                                                            disabled={false}
+                                                        />
+                                                        : <Tooltip title="У вас нет прав" color="#ff7875">
+                                                            <Button
+                                                                className="button-add-select"
+                                                                onClick={() => {
+                                                                    store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldPerson({
+                                                                        key: "logDOResponsible",
+                                                                        formValues: form.getFieldsValue(true)
+                                                                    }));
+
+                                                                    openRecordTab("people", "-1");
+                                                                }}
+                                                                icon={<PlusOutlined/>}
+                                                                type="secondary"
+                                                                disabled={true}
+                                                            />
+                                                        </Tooltip>
+                                                }
                                             </Col>
                                         </Row>
                                     </Form.Item>
@@ -379,19 +442,39 @@ export const LogDoForm = ({item}) => {
                                                 </Form.Item>
                                             </Col>
                                             <Col xs={{span: 6}} sm={{span: 6}} md={{span: 4}} lg={{span: 4}} xl={{span: 4}}>
-                                                <Button
-                                                    className="button-add-select"
-                                                    onClick={() => {
-                                                        store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldDepartment({
-                                                            key: "logDODepartment",
-                                                            formValues: form.getFieldsValue(true)
-                                                        }));
+                                                {
+                                                    checkRoleUser("departments", user).edit
+                                                        ? <Button
+                                                            className="button-add-select"
+                                                            onClick={() => {
+                                                                store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldDepartment({
+                                                                    key: "logDODepartment",
+                                                                    formValues: form.getFieldsValue(true)
+                                                                }));
 
-                                                        openRecordTab("departments", "-1");
-                                                    }}
-                                                    icon={<PlusOutlined/>}
-                                                    type="secondary"
-                                                />
+                                                                openRecordTab("departments", "-1");
+                                                            }}
+                                                            icon={<PlusOutlined/>}
+                                                            type="secondary"
+                                                            disabled={false}
+                                                        />
+                                                        : <Tooltip title="У вас нет прав" color="#ff7875">
+                                                            <Button
+                                                                className="button-add-select"
+                                                                onClick={() => {
+                                                                    store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldDepartment({
+                                                                        key: "logDODepartment",
+                                                                        formValues: form.getFieldsValue(true)
+                                                                    }));
+
+                                                                    openRecordTab("departments", "-1");
+                                                                }}
+                                                                icon={<PlusOutlined/>}
+                                                                type="secondary"
+                                                                disabled={true}
+                                                            />
+                                                        </Tooltip>
+                                                }
                                             </Col>
                                         </Row>
                                     </Form.Item>
@@ -431,19 +514,39 @@ export const LogDoForm = ({item}) => {
                                         </Form.Item>
                                     </Col>
                                     <Col xs={{span: 3}} sm={{span: 3}} md={{span: 2}} lg={{span: 2}} xl={{span: 2}}>
-                                        <Button
-                                            className="button-add-select"
-                                            onClick={() => {
-                                                store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldState({
-                                                    key: "logDOState",
-                                                    formValues: form.getFieldsValue(true)
-                                                }));
+                                        {
+                                            checkRoleUser("tasks", user).edit
+                                                ?  <Button
+                                                    className="button-add-select"
+                                                    onClick={() => {
+                                                        store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldState({
+                                                            key: "logDOState",
+                                                            formValues: form.getFieldsValue(true)
+                                                        }));
 
-                                                openRecordTab("tasks", "-1");
-                                            }}
-                                            icon={<PlusOutlined/>}
-                                            type="secondary"
-                                        />
+                                                        openRecordTab("tasks", "-1");
+                                                    }}
+                                                    icon={<PlusOutlined/>}
+                                                    type="secondary"
+                                                    disabled={false}
+                                                />
+                                                : <Tooltip title="У вас нет прав" color="#ff7875">
+                                                    <Button
+                                                        className="button-add-select"
+                                                        onClick={() => {
+                                                            store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldState({
+                                                                key: "logDOState",
+                                                                formValues: form.getFieldsValue(true)
+                                                            }));
+
+                                                            openRecordTab("tasks", "-1");
+                                                        }}
+                                                        icon={<PlusOutlined/>}
+                                                        type="secondary"
+                                                        disabled={true}
+                                                    />
+                                                </Tooltip>
+                                        }
                                     </Col>
                                 </Row>
                             </Form.Item>

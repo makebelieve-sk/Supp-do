@@ -1,4 +1,4 @@
-// Модель для справочника Помощь
+// Модель для справочника Журнал действий пользователя
 export class Help {
     constructor({_id, name, text, date}) {
         this._id = _id ? _id : null;

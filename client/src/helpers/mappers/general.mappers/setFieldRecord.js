@@ -108,11 +108,10 @@ export default function setFieldRecord(replaceField, item) {
         }],
         ["userPerson", () => {
             const formValues = store.getState().reducerReplaceField.replaceFieldPerson.formValues;
-            const people = store.getState().reducerPerson.people;
 
             store.dispatch(ActionCreator.ActionCreatorUser.setRowDataUser({
                 ...formValues,
-                person: formValues.person ? people.find(person => person._id === formValues.person) : null,
+                person: item,
             }));
         }],
     ]);

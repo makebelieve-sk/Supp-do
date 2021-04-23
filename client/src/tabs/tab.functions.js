@@ -5,6 +5,7 @@ import {CheckOutlined, DeleteOutlined, QuestionCircleOutlined, StopOutlined} fro
 
 import store from "../redux/store";
 import PrintButtonRecord from "./printButtonRecord";
+import {checkRoleUser} from "../helpers/mappers/general.mappers/checkRoleUser";
 
 // Получение выпадающего списка
 const getOptions = (items) => {
@@ -27,19 +28,20 @@ const getOptions = (items) => {
 };
 
 // Компонент кнопок записи
-const TabButtons = ({loadingSave, item, deleteHandler, cancelHandler, loadingCancel = false, specKey = null}) => (
-    <Row justify="end" style={{marginTop: 20}} xs={{gutter: [8, 8]}}>
-        <Button
-            className="button-style"
-            type="primary"
-            htmlType="submit"
-            loading={loadingSave}
-            icon={<CheckOutlined/>}
-        >
-            Сохранить
-        </Button>
+const TabButtons = ({loadingSave, item, deleteHandler, cancelHandler, loadingCancel = false, specKey = null}) => {
+    const user = store.getState().reducerAuth.user;
+    const activeKey = store.getState().reducerTab.activeKey;
 
-        {CheckTypeTab(item, deleteHandler, specKey)}
+    return <Row justify="end" style={{marginTop: 20}} xs={{gutter: [8, 8]}}>
+        {
+            checkRoleUser(activeKey, user).edit
+                ? <Button className="button-style" type="primary" htmlType="submit" loading={loadingSave} icon={<CheckOutlined/>}>
+                    Сохранить
+                </Button>
+                : null
+        }
+
+        {CheckTypeTab(item, deleteHandler, specKey, activeKey, user)}
 
         <Button
             className="button-style"
@@ -51,14 +53,14 @@ const TabButtons = ({loadingSave, item, deleteHandler, cancelHandler, loadingCan
             Отмена
         </Button>
     </Row>
-)
+}
 
 // Компонент кнопок редактирования записи
-const CheckTypeTab = (item, deleteHandler, specKey = null) => {
+const CheckTypeTab = (item, deleteHandler, specKey = null, activeKey, user) => {
     const [loadingDelete, setLoadingDelete] = useState(false);
     const [visiblePopConfirm, setVisiblePopConfirm] = useState(false);
 
-    return !item.isNewItem ?
+    return !item.isNewItem && checkRoleUser(activeKey, user).edit ?
         <>
             <Popconfirm
                 title="Вы уверены, что хотите удалить запись?"

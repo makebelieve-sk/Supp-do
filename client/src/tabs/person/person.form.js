@@ -1,6 +1,6 @@
 // Компонент формы записи раздела "Персонал"
 import React, {useContext, useEffect, useMemo, useState} from "react";
-import {Button, Card, Col, Form, Input, Row, Select} from "antd";
+import {Button, Card, Col, Form, Input, Row, Select, Tooltip} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
 
 import store from "../../redux/store";
@@ -10,16 +10,24 @@ import {dropdownRender, onFailed, TabButtons} from "../tab.functions";
 import {openRecordTab} from "../../helpers/mappers/tabs.mappers/table.helper";
 import {getParents} from "../../helpers/functions/general.functions/replaceField";
 import {ActionCreator} from "../../redux/combineActions";
+import {checkRoleUser} from "../../helpers/mappers/general.mappers/checkRoleUser";
 
 export const PersonForm = ({item}) => {
     // Пустое значение выпадающего списка
     const emptyDropdown = useMemo(() => [{label: "Не выбрано", value: null}], []);
 
-    const departments = store.getState().reducerDepartment.departments;
+    const departments = store.getState().reducerDepartment.departments; // Получаем список подразделений
+    const user = store.getState().reducerAuth.user; // Получаем объект пользователя
 
     // Создание состояний для значений в выпадающих списках "Подразделения" и "Профессии"
-    const [departmentsOptions, setDepartmentsOptions] = useState(item.department ? [{label: getParents(item.department, departments) + item.department.name, value: item.department._id}] : emptyDropdown);
-    const [professionsOptions, setProfessionsOptions] = useState(item.profession ? [{label: item.profession.name, value: item.profession._id}] : emptyDropdown);
+    const [departmentsOptions, setDepartmentsOptions] = useState(item.department ? [{
+        label: getParents(item.department, departments) + item.department.name,
+        value: item.department._id
+    }] : emptyDropdown);
+    const [professionsOptions, setProfessionsOptions] = useState(item.profession ? [{
+        label: item.profession.name,
+        value: item.profession._id
+    }] : emptyDropdown);
 
     // Инициализация состояний для показа спиннера загрузки при сохранении записи и в выпадающих меню
     const [loadingSave, setLoadingSave] = useState(false);
@@ -37,8 +45,14 @@ export const PersonForm = ({item}) => {
         const departments = store.getState().reducerDepartment.departments;
 
         // Обновление выпадающих списков
-        setDepartmentsOptions(item.department ? [{label: getParents(item.department, departments) + item.department.name, value: item.department._id}] : emptyDropdown);
-        setProfessionsOptions(item.profession ? [{label: item.profession.name, value: item.profession._id}] : emptyDropdown);
+        setDepartmentsOptions(item.department ? [{
+            label: getParents(item.department, departments) + item.department.name,
+            value: item.department._id
+        }] : emptyDropdown);
+        setProfessionsOptions(item.profession ? [{
+            label: item.profession.name,
+            value: item.profession._id
+        }] : emptyDropdown);
 
         // Установка значений формы
         form.setFieldsValue({
@@ -98,7 +112,8 @@ export const PersonForm = ({item}) => {
                         <Input maxLength={255} type="text" onChange={e => form.setFieldsValue({name: e.target.value})}/>
                     </Form.Item>
 
-                    <Form.Item label="Подразделение" name="department" rules={[{required: true, message: "Выберите подразделение!"}]}>
+                    <Form.Item label="Подразделение" name="department"
+                               rules={[{required: true, message: "Выберите подразделение!"}]}>
                         <Row>
                             <Col xs={{span: 21}} sm={{span: 21}} md={{span: 22}} lg={{span: 22}} xl={{span: 22}}>
                                 <Form.Item name="department" noStyle>
@@ -121,24 +136,45 @@ export const PersonForm = ({item}) => {
                                 </Form.Item>
                             </Col>
                             <Col xs={{span: 3}} sm={{span: 3}} md={{span: 2}} lg={{span: 2}} xl={{span: 2}}>
-                                <Button
-                                    className="button-add-select"
-                                    onClick={() => {
-                                        store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldDepartment({
-                                            key: "personDepartment",
-                                            formValues: form.getFieldsValue(true)
-                                        }));
+                                {
+                                    checkRoleUser("professions", user).edit
+                                        ? <Button
+                                            className="button-add-select"
+                                            onClick={() => {
+                                                store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldDepartment({
+                                                    key: "personDepartment",
+                                                    formValues: form.getFieldsValue(true)
+                                                }));
 
-                                        openRecordTab("departments", "-1");
-                                    }}
-                                    icon={<PlusOutlined/>}
-                                    type="secondary"
-                                />
+                                                openRecordTab("departments", "-1");
+                                            }}
+                                            icon={<PlusOutlined/>}
+                                            type="secondary"
+                                            disabled={false}
+                                        />
+                                        : <Tooltip title="У вас нет прав" color="#ff7875">
+                                            <Button
+                                                className="button-add-select"
+                                                onClick={() => {
+                                                    store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldDepartment({
+                                                        key: "personDepartment",
+                                                        formValues: form.getFieldsValue(true)
+                                                    }));
+
+                                                    openRecordTab("departments", "-1");
+                                                }}
+                                                icon={<PlusOutlined/>}
+                                                type="secondary"
+                                                disabled={true}
+                                            />
+                                        </Tooltip>
+                                }
                             </Col>
                         </Row>
                     </Form.Item>
 
-                    <Form.Item label="Профессия" name="profession" rules={[{required: true, message: "Выберите сотрудника!"}]}>
+                    <Form.Item label="Профессия" name="profession"
+                               rules={[{required: true, message: "Выберите сотрудника!"}]}>
                         <Row>
                             <Col xs={{span: 21}} sm={{span: 21}} md={{span: 22}} lg={{span: 22}} xl={{span: 22}}>
                                 <Form.Item name="profession" noStyle>
@@ -161,25 +197,46 @@ export const PersonForm = ({item}) => {
                                 </Form.Item>
                             </Col>
                             <Col xs={{span: 3}} sm={{span: 3}} md={{span: 2}} lg={{span: 2}} xl={{span: 2}}>
-                                <Button
-                                    className="button-add-select"
-                                    onClick={() => {
-                                        store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldProfession({
-                                            key: "personProfession",
-                                            formValues: form.getFieldsValue(true)
-                                        }));
+                                {
+                                    checkRoleUser("professions", user).edit
+                                        ? <Button
+                                            className="button-add-select"
+                                            onClick={() => {
+                                                store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldProfession({
+                                                    key: "personProfession",
+                                                    formValues: form.getFieldsValue(true)
+                                                }));
 
-                                        openRecordTab("professions", "-1");
-                                    }}
-                                    icon={<PlusOutlined/>}
-                                    type="secondary"
-                                />
+                                                openRecordTab("professions", "-1");
+                                            }}
+                                            icon={<PlusOutlined/>}
+                                            type="secondary"
+                                            disabled={false}
+                                        />
+                                        : <Tooltip title="У вас нет прав" color="#ff7875">
+                                            <Button
+                                                className="button-add-select"
+                                                onClick={() => {
+                                                    store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldProfession({
+                                                        key: "personProfession",
+                                                        formValues: form.getFieldsValue(true)
+                                                    }));
+
+                                                    openRecordTab("professions", "-1");
+                                                }}
+                                                icon={<PlusOutlined/>}
+                                                type="secondary"
+                                                disabled={true}
+                                            />
+                                        </Tooltip>
+                                }
                             </Col>
                         </Row>
                     </Form.Item>
 
                     <Form.Item name="notes" label="Примечание">
-                        <Input maxLength={255} type="text" onChange={e => form.setFieldsValue({notes: e.target.value})}/>
+                        <Input maxLength={255} type="text"
+                               onChange={e => form.setFieldsValue({notes: e.target.value})}/>
                     </Form.Item>
 
                     <TabButtons

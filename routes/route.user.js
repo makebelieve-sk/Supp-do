@@ -44,15 +44,7 @@ router.get("/users/:id", async (req, res) => {
 
         if (!item) return res.status(400).json({message: `Запись с кодом ${_id} не существует`});
 
-        // Получаем список ролей
-        try {
-            roles = await Role.find({});
-        } catch (e) {
-            console.log(e);
-            res.status(500).json({message: "Ошибка при получении записей из базы данных 'Роли'"});
-        }
-
-        res.status(201).json({isNewItem, user: item, roles});
+        res.status(201).json({isNewItem, user: item});
     } catch (err) {
         console.log(err);
         res.status(500).json({message: `Ошибка при открытии записи с кодом ${_id}: ${err}`});

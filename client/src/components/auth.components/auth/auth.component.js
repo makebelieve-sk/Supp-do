@@ -46,7 +46,7 @@ export const AuthComponent = ({setRegForm, setChangePass}) => {
                 <Card title="Авторизация" className="card_auth">
                     {
                         alert
-                            ? <Alert classNmae="alert" type="success" message="Вы успешно зарегистрированы. Можно начинать работать после одобрения администратором" />
+                            ? <Alert className="alert" type="success" message="Вы успешно зарегистрированы. Можно начинать работать после одобрения администратором" />
                             : null
                     }
 

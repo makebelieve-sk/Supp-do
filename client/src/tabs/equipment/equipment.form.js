@@ -22,8 +22,9 @@ export const EquipmentForm = ({item}) => {
     // Пустое значение выпадающего списка
     const emptyDropdown = useMemo(() => [{label: "Не выбрано", value: null}], []);
 
-    const equipment = store.getState().reducerEquipment.equipment;
-    const equipmentProperties = store.getState().reducerEquipmentProperty.equipmentProperties;
+    const equipment = store.getState().reducerEquipment.equipment;  // Получаем список оборудования
+    const equipmentProperties = store.getState().reducerEquipmentProperty.equipmentProperties;  // Получаем список характеристик
+    const user = store.getState().reducerAuth.user; // Получаем объект пользователя
 
     // Создание стейта для значений в выпадающих списках
     const [options, setOptions] = useState(item.parent ? [{label: getParents(item.parent, equipment) + item.parent.name, value: item.parent._id}] : emptyDropdown);
@@ -110,7 +111,8 @@ export const EquipmentForm = ({item}) => {
         loadingSelectCharacteristics,
         setLoadingSelectCharacteristics,
         setEquipmentPropertyToOptions,
-        form
+        form,
+        user
     };
 
     // Настройка компонента UploadComponent (вкладка "Файлы")

@@ -2,6 +2,7 @@
 import React, {useState, useEffect} from "react";
 import {Layout, Button, Row, Col, Modal} from "antd";
 import {MenuUnfoldOutlined, MenuFoldOutlined, QuestionCircleOutlined} from "@ant-design/icons";
+import ReactHtmlParser from "react-html-parser";
 
 import {LogDORoute} from "../routes/route.LogDO";
 import {ContentComponent} from "../components/content.components/content/content.component";
@@ -36,7 +37,9 @@ export const MainPage = () => {
             setIsModalVisible(true);    // Открываем модальное окно
 
             // Устанавливаем объект помощи в состояние
-            item ? setHelp(item) : setHelp({title: "", text: "В данном разделе текст помощи отсутствует"});
+            item
+                ? setHelp({title: item.title, text: <div>{ReactHtmlParser(item.text)}</div>})
+                : setHelp({title: "", text: "В данном разделе текст помощи отсутствует"});
         } catch (e) {
             setHelp({title: "", text: <ErrorIndicator errorText={e} />});
         }

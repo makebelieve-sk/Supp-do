@@ -1,9 +1,11 @@
 // Создание колонок таблиц
 import React from "react";
+import ReactHtmlParser from "react-html-parser";
 import {Button, Input, Space, Tooltip} from "antd";
 import {CheckOutlined, SearchOutlined} from "@ant-design/icons";
 import Highlighter from "react-highlight-words";
 import moment from "moment";
+
 import TabOptions from "../record.options/record.options";
 
 // Создание колонок для раздела "Профессии"
@@ -657,6 +659,9 @@ const HelpColumns = [
         width: 100,
         sorter: (a, b) => a.text.length - b.text.length,
         sortDirections: ["descend", "ascend"],
+        render: text => ({
+            children: <div>{ReactHtmlParser(text.length > 100 ? text.slice(0, 100) + " ..." : text)}</div>
+        })
     },
     {
         title: "Дата изменения",

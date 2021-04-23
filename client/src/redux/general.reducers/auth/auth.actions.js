@@ -2,6 +2,7 @@
 import {
     SET_ALERT,
     SET_USER,
+    SET_MENU,
 } from "./auth.constants";
 
 const ActionCreatorAuth = {
@@ -15,6 +16,12 @@ const ActionCreatorAuth = {
         return {
             type: SET_USER,
             payload: user
+        }
+    },
+    setMenu: (menu) => {
+        return {
+            type: SET_MENU,
+            payload: menu
         }
     },
 }

@@ -1,8 +1,8 @@
 // Хранилище состояний авторизации
 const initialState = {
-    // Состояние алерта, после успешного прохождения регистрации
-    regAlert: false,
-    user: null
+    regAlert: false,    // Состояние алерта, после успешного прохождения регистрации
+    user: null,  // Объект пользователя
+    menuItems: null // Боковое меню приложения
 };
 
 export default initialState;

@@ -1,17 +1,17 @@
 // Компонент формы записи раздела "Помощь"
 import React, {useContext, useEffect, useState} from "react";
 import {Card, Form, Input, Select} from "antd";
-// import CKEditor from '@ckeditor/ckeditor5-react';
-// import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
 import {HelpRoute} from "../../routes/route.Help";
 import {onFailed, TabButtons} from "../tab.functions";
 import {DeleteTabContext} from "../../context/deleteTab.context";
 import {sections} from "../../options/global.options/global.options";
+import RichTextComponent from "../../components/tab.components/richText/richText.component";
 
 export const HelpForm = ({item}) => {
-    // Инициализация состояния для показа спиннера загрузки при сохранении и удалении записи
+    // Инициализация состояния для показа спиннера загрузки при сохранении и удалении записи, для значения richText
     const [loadingSave, setLoadingSave] = useState(false);
+    const [richTextValue, setRichTextValue] = useState();
 
     // Инициализация заголовка раздела и имени формы
     const title = item.isNewItem ? "Создание раздела помощи" : "Редактирование раздела помощи";
@@ -24,12 +24,13 @@ export const HelpForm = ({item}) => {
 
     // При обновлении item устанавливаем форме начальные значения
     useEffect(() => {
+        setRichTextValue(item && item.text ? item.text : "");
+
         form.setFieldsValue({
             _id: item._id,
             isNewItem: item.isNewItem,
             date: item.date,
-            name: item.name ? item.name.value : null,
-            text: item.text.trim()
+            name: item.name ? item.name.value : null
         });
     }, [item, form]);
 
@@ -37,6 +38,7 @@ export const HelpForm = ({item}) => {
     const saveHandler = async (values) => {
         // При сохранении записи устанавливаем объект Наименования раздела
         values.name = sections.find(section => section.value === values.name);
+        values.text = richTextValue;
 
         await HelpRoute.save(values, setLoadingSave, onRemove);
     }
@@ -80,22 +82,7 @@ export const HelpForm = ({item}) => {
                         />
                     </Form.Item>
 
-                    <Form.Item label="Текст" name="text">
-                            <Input.TextArea type="text" onChange={e => form.setFieldsValue({text: e.target.value})} />
-                    </Form.Item>
-
-                    {/*<CKEditor*/}
-                    {/*    editor={ ClassicEditor }*/}
-                    {/*    data="<p>Hello from CKEditor 5!</p>"*/}
-                    {/*    onInit={ editor => {*/}
-                    {/*        // You can store the "editor" and use when it's needed.*/}
-                    {/*        console.log( 'Editor is ready to use!', editor );*/}
-                    {/*    } }*/}
-                    {/*    onChange={ ( event, editor ) => {*/}
-                    {/*        // const data = editor.getData();*/}
-                    {/*        console.log( { event, editor } );*/}
-                    {/*    } }*/}
-                    {/*/>*/}
+                    <RichTextComponent value={item.text.trim()} onChange={setRichTextValue} />
 
                     <TabButtons
                         loadingSave={loadingSave}

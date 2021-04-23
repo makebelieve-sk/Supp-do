@@ -120,6 +120,10 @@
 .button-add-equipmentProperty {
     margin-bottom: 3%
 }
+.button-add-select button {
+    width: 100%;
+}
+
 .button-add-select {
     width: 100%;
     border-top-left-radius: 0 !important;
