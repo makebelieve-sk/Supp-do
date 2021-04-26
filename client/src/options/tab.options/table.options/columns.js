@@ -206,7 +206,7 @@ const LogDOColumns = [
             const start = moment(a.date, TabOptions.dateFormat);
             const end = moment(b.date, TabOptions.dateFormat);
             
-            return start.diff(end, "milliseconds") > 0;
+            return start.diff(end, "milliseconds") < 0;
         },
         sortDirections: ["descend", "ascend"],
         filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}) => (

@@ -28,8 +28,8 @@ export const TaskStatusRoute = {
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorTask.setErrorTable("Возникла ошибка при получении записей: " + e));
-            NoticeError.getAll(e); // Вызываем функцию обработки ошибки
+            store.dispatch(ActionCreator.ActionCreatorTask.setErrorTable("Возникла ошибка при получении записей: " + e.message));
+            NoticeError.getAll(e.message); // Вызываем функцию обработки ошибки
         }
     },
     // Получение редактируемой записи
@@ -42,8 +42,8 @@ export const TaskStatusRoute = {
             if (item) this.fillItem(item);
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorTask.setErrorRecord("Возникла ошибка при получении записи: " + e));
-            NoticeError.get(e); // Вызываем функцию обработки ошибки
+            store.dispatch(ActionCreator.ActionCreatorTask.setErrorRecord("Возникла ошибка при получении записи: " + e.message));
+            NoticeError.get(e.message); // Вызываем функцию обработки ошибки
         }
     },
     // Сохранение записи
@@ -100,8 +100,8 @@ export const TaskStatusRoute = {
             this.cancel(onRemove);
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorTask.setErrorRecord("Возникла ошибка при сохранении записи: " + e));
-            NoticeError.save(e, setLoading);    // Вызываем функцию обработки ошибки
+            store.dispatch(ActionCreator.ActionCreatorTask.setErrorRecord("Возникла ошибка при сохранении записи: " + e.message));
+            NoticeError.save(e.message, setLoading);    // Вызываем функцию обработки ошибки
         }
 
     },
@@ -139,8 +139,8 @@ export const TaskStatusRoute = {
             this.cancel(onRemove);
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorTask.setErrorRecord("Возникла ошибка при удалении записи: " + e));
-            NoticeError.delete(e, setLoadingDelete, setVisiblePopConfirm);    // Вызываем функцию обработки ошибки
+            store.dispatch(ActionCreator.ActionCreatorTask.setErrorRecord("Возникла ошибка при удалении записи: " + e.message));
+            NoticeError.delete(e.message, setLoadingDelete, setVisiblePopConfirm);    // Вызываем функцию обработки ошибки
         }
     },
     // Нажатие на кнопку "Отмена"

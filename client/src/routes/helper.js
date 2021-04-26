@@ -11,19 +11,19 @@ const NoticeError = {
         // Останавливаем спиннер загрузки данных в таблицу
         store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
         console.log(e);
-        message.error("Возникла ошибка при получении записей: ", e.message).then(null);
+        message.error("Возникла ошибка при получении записей: ", e).then(null);
         throw new Error(e);
     },
     get: (e) => {
         console.log(e);
-        message.error("Возникла ошибка при получении записи: ", e.message).then(null);
+        message.error("Возникла ошибка при получении записи: ", e).then(null);
         throw new Error(e);
     },
     save: (e, setLoading) => {
         // Останавливаем спиннер загрузки
         setLoading(false);
         console.log(e);
-        message.error("Возникла ошибка при сохранении записи: ", e.message).then(null);
+        message.error("Возникла ошибка при сохранении записи: ", e).then(null);
         throw new Error(e);
     },
     delete: (e, setLoading, setVisible) => {
@@ -31,12 +31,12 @@ const NoticeError = {
         setLoading(false);
         setVisible(false);
         console.log(e);
-        message.error("Возникла ошибка при удалении записи: ", e.message).then(null);
+        message.error("Возникла ошибка при удалении записи: ", e).then(null);
         throw new Error(e);
     },
     cancel: (e) => {
         console.log(e);
-        message.error("Возникла ошибка при удалении добавленных файлов из записи: ", e.message).then(null);
+        message.error("Возникла ошибка при удалении добавленных файлов из записи: ", e).then(null);
         throw new Error(e);
     }
 }

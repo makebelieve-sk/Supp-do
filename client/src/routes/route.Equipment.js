@@ -36,8 +36,8 @@ export const EquipmentRoute = {
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorEquipment.setErrorTable("Возникла ошибка при получении записей: " + e));
-            NoticeError.getAll(e); // Вызываем функцию обработки ошибки
+            store.dispatch(ActionCreator.ActionCreatorEquipment.setErrorTable("Возникла ошибка при получении записей: " + e.message));
+            NoticeError.getAll(e.message); // Вызываем функцию обработки ошибки
         }
     },
     // Получение редактируемой записи
@@ -50,8 +50,8 @@ export const EquipmentRoute = {
             if (item) this.fillItem(item);
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorEquipment.setErrorRecord("Возникла ошибка при получении записи: " + e));
-            NoticeError.get(e); // Вызываем функцию обработки ошибки
+            store.dispatch(ActionCreator.ActionCreatorEquipment.setErrorRecord("Возникла ошибка при получении записи: " + e.message));
+            NoticeError.get(e.message); // Вызываем функцию обработки ошибки
         }
     },
     // Сохранение записи
@@ -112,8 +112,8 @@ export const EquipmentRoute = {
             onRemove("equipmentItem", "remove");
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorEquipment.setErrorRecord("Возникла ошибка при сохранении записи: " + e));
-            NoticeError.save(e, setLoading);    // Вызываем функцию обработки ошибки
+            store.dispatch(ActionCreator.ActionCreatorEquipment.setErrorRecord("Возникла ошибка при сохранении записи: " + e.message));
+            NoticeError.save(e.message, setLoading);    // Вызываем функцию обработки ошибки
         }
     },
     // Удаление записи
@@ -155,8 +155,8 @@ export const EquipmentRoute = {
             }
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorEquipment.setErrorRecord("Возникла ошибка при удалении записи: " + e));
-            NoticeError.delete(e, setLoadingDelete, setVisiblePopConfirm);    // Вызываем функцию обработки ошибки
+            store.dispatch(ActionCreator.ActionCreatorEquipment.setErrorRecord("Возникла ошибка при удалении записи: " + e.message));
+            NoticeError.delete(e.message, setLoadingDelete, setVisiblePopConfirm);    // Вызываем функцию обработки ошибки
         }
     },
     // Нажатие на кнопку "Отмена"
@@ -173,8 +173,8 @@ export const EquipmentRoute = {
         } catch (e) {
             setLoadingCancel(false);
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorEquipment.setErrorRecord("Возникла ошибка при удалении добавленных файлов из записи: " + e));
-            NoticeError.cancel(e);    // Вызываем функцию обработки ошибки
+            store.dispatch(ActionCreator.ActionCreatorEquipment.setErrorRecord("Возникла ошибка при удалении добавленных файлов из записи: " + e.message));
+            NoticeError.cancel(e.message);    // Вызываем функцию обработки ошибки
         }
     },
     // Заполнение модели "Оборудование"

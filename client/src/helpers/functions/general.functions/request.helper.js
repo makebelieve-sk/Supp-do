@@ -19,7 +19,7 @@ export const request = async (url, method = "GET", body = null, headers = {}) =>
 
         return data;
     } catch (e) {
-        console.log(e);
-        throw new Error(e);
+        console.log(e.message);
+        throw new Error(e.message);
     }
 };

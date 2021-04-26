@@ -47,11 +47,9 @@ function getShortName(name = null) {
     if (name) {
         const fio = name.split(" ");
 
-        if (fio.length === 3) {
-            return fio[0] + " " + fio[1][0].toUpperCase() + "." + fio[2][0].toUpperCase() + ".";
-        } else {
-            return name;
-        }
+        return fio.length === 3
+            ? fio[0] + " " + fio[1][0].toUpperCase() + "." + fio[2][0].toUpperCase() + "."
+            : name;
     }
 }
 

@@ -58,8 +58,8 @@ export const UserRoute = {
             if (item) this.fillItem(item);
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorUser.setErrorRecord("Возникла ошибка при получении записи: " + e));
-            NoticeError.get(e); // Вызываем функцию обработки ошибки
+            store.dispatch(ActionCreator.ActionCreatorUser.setErrorRecord("Возникла ошибка при получении записи: " + e.message));
+            NoticeError.get(e.message); // Вызываем функцию обработки ошибки
         }
     },
     // Сохранение записи о пользователе
@@ -101,8 +101,8 @@ export const UserRoute = {
             this.cancel(onRemove);
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorUser.setErrorRecord("Возникла ошибка при сохранении записи: " + e));
-            NoticeError.save(e, setLoading);    // Вызываем функцию обработки ошибки
+            store.dispatch(ActionCreator.ActionCreatorUser.setErrorRecord("Возникла ошибка при сохранении записи: " + e.message));
+            NoticeError.save(e.message, setLoading);    // Вызываем функцию обработки ошибки
         }
 
     },
@@ -139,8 +139,8 @@ export const UserRoute = {
             this.cancel(onRemove)
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorUser.setErrorRecord("Возникла ошибка при удалении записи: " + e));
-            NoticeError.delete(e, setLoadingDelete, setVisiblePopConfirm);    // Вызываем функцию обработки ошибки
+            store.dispatch(ActionCreator.ActionCreatorUser.setErrorRecord("Возникла ошибка при удалении записи: " + e.message));
+            NoticeError.delete(e.message, setLoadingDelete, setVisiblePopConfirm);    // Вызываем функцию обработки ошибки
         }
 
     },

@@ -30,8 +30,8 @@ export const DepartmentRoute = {
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorDepartment.setErrorTable("Возникла ошибка при получении всех записей: " + e));
-            NoticeError.getAll(e); // Вызываем функцию обработки ошибки
+            store.dispatch(ActionCreator.ActionCreatorDepartment.setErrorTable("Возникла ошибка при получении всех записей: " + e.message));
+            NoticeError.getAll(e.message); // Вызываем функцию обработки ошибки
         }
     },
     // Получение редактируемой записи
@@ -44,8 +44,8 @@ export const DepartmentRoute = {
             if (item) this.fillItem(item);
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorDepartment.setErrorRecord("Возникла ошибка при получении записи: " + e));
-            NoticeError.get(e); // Вызываем функцию обработки ошибки
+            store.dispatch(ActionCreator.ActionCreatorDepartment.setErrorRecord("Возникла ошибка при получении записи: " + e.message));
+            NoticeError.get(e.message); // Вызываем функцию обработки ошибки
         }
     },
     // Сохранение записи
@@ -106,8 +106,8 @@ export const DepartmentRoute = {
             this.cancel(onRemove);
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorDepartment.setErrorTable("Возникла ошибка при сохранении записи: " + e));
-            NoticeError.save(e, setLoading);    // Вызываем функцию обработки ошибки
+            store.dispatch(ActionCreator.ActionCreatorDepartment.setErrorTable("Возникла ошибка при сохранении записи: " + e.message));
+            NoticeError.save(e.message, setLoading);    // Вызываем функцию обработки ошибки
         }
     },
     // Удаление записи
@@ -142,8 +142,8 @@ export const DepartmentRoute = {
             this.cancel(onRemove);
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorDepartment.setErrorTable("Возникла ошибка при удалении записи: " + e));
-            NoticeError.delete(e, setLoadingDelete, setVisiblePopConfirm);    // Вызываем функцию обработки ошибки
+            store.dispatch(ActionCreator.ActionCreatorDepartment.setErrorTable("Возникла ошибка при удалении записи: " + e.message));
+            NoticeError.delete(e.message, setLoadingDelete, setVisiblePopConfirm);    // Вызываем функцию обработки ошибки
         }
     },
     // Нажатие на кнопку "Отмена"

@@ -28,10 +28,10 @@ const checkMiddlewareRegister = [
         .isString()
         .notEmpty()
         .isLength({min: 1, max: 255}),
-    check("password", "Поле 'Пароль' должно содержать от 1 до 255 символов")
+    check("password", "Поле 'Пароль' должно содержать от 6 до 255 символов")
         .isString()
         .notEmpty()
-        .isLength({min: 1, max: 255}),
+        .isLength({min: 6, max: 255}),
 ];
 
 // Валидация полей входа пользователя
@@ -148,7 +148,7 @@ router.post("/login", checkMiddlewareAuth, async (req, res) => {
         const {userName, password} = req.body; // Получаем объект записи с фронтенда
 
         // Ищем запись в базе данных по имени пользователя
-        const user = await User.findOne({userName}).populate("roles");
+        const user = await User.findOne({userName}).select("password approved");
 
         // Проверяем на существование записи
         if (!user) return res.status(400).json({message: "Такой пользователь не существует"});
@@ -160,14 +160,17 @@ router.post("/login", checkMiddlewareAuth, async (req, res) => {
 
         if (!user.approved) return res.status(400).json({message: "Данный пользователь не одобрен администратором"});
 
+        // Ищем запись в базе данных по имени пользователя, популизируя все вложенные поля и не работаю с полем 'Пароль'
+        const currentUser = await User.findOne({userName}).populate("roles").populate("person").select("-password");
+
         // Создаем объект "токена"
         const token = jwt.sign(
-            {userId: user.id},
+            {userId: currentUser._id},
             config.jwtSecret,
             {expiresIn: "1h"}
         );
 
-        res.status(200).json({token, userId: user.id, user});
+        res.status(200).json({token, userId: currentUser._id, user: currentUser});
     } catch (err) {
         console.log(err);
         res.status(500).json({message: "Ошибка при входе, пожалуйста, попробуйте снова: " + err});

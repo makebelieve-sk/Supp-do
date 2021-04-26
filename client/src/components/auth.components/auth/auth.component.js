@@ -22,6 +22,8 @@ export const AuthComponent = ({setRegForm, setChangePass}) => {
     // Нажатие на кнопку "Войти"
     const login = async (values) => {
         try {
+            // delete values.remember;
+
             setLoadingLogin(true);
 
             const data = await request("/api/auth/login", "POST", values);
@@ -53,7 +55,7 @@ export const AuthComponent = ({setRegForm, setChangePass}) => {
                     <Form
                         name="normal_login"
                         className="login-form"
-                        initialValues={{remember: true,}}
+                        initialValues={{userName: "", password: "", remember: true}}
                         onFinish={login}
                     >
                         <Form.Item name="userName" rules={[{

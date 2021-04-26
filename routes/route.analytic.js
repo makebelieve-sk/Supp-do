@@ -131,10 +131,11 @@ const getFailureDynamics = (logDOs) => {
     const start = moment().subtract(1, "month").add(1, "day").valueOf();
     const end = moment().valueOf();
 
-    for (let i = start; i < end; i += millisecondsInDay) {
+    for (let i = start; i <= end; i += millisecondsInDay) {
         let value = 0;
+
         // Форматируем месяц в формат 'mm' из 'm'
-        const month = moment(i).month().toString().length === 1 ? `0${moment(i).month()}` : moment(i).month();
+        const month = moment(i).month().toString().length === 1 ? `0${+moment(i).month() + 1}` : +moment(i).month() + 1;
 
         logDOs.forEach(logDO => {
             if (moment(logDO.date).date() === moment(i).date()

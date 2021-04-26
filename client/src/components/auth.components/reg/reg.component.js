@@ -3,6 +3,7 @@ import React, {useState} from "react";
 import { useHistory, Link } from "react-router-dom";
 import {Button, Card, Col, Form, Input, message, Row} from "antd";
 import {LockOutlined, ScheduleOutlined, SolutionOutlined, UserOutlined} from "@ant-design/icons";
+import {PasswordInput} from "antd-password-input-strength";
 
 import store from "../../../redux/store";
 import {ActionCreator} from "../../../redux/combineActions";
@@ -44,13 +45,12 @@ export const RegistrationComponent = () => {
                     <Form
                         name="normal_login"
                         className="login-form"
-                        initialValues={{remember: true}}
                         layout="vertical"
                         onFinish={register}
                     >
                         <Form.Item label="Почта" name="email" rules={[{
                             required: true,
-                            transform: value => value.trim(),
+                            transform: value => value ? value.trim() : "",
                             message: "Введите почту",
                             type: "email",
                             min: 1,
@@ -61,7 +61,7 @@ export const RegistrationComponent = () => {
 
                         <Form.Item label="Имя" name="firstName" rules={[{
                             required: true,
-                            transform: value => value.trim(),
+                            transform: value => value ? value.trim() : "",
                             message: "Введите имя",
                             type: "string",
                             min: 1,
@@ -72,7 +72,7 @@ export const RegistrationComponent = () => {
 
                         <Form.Item label="Фамилия"  name="secondName" rules={[{
                             required: true,
-                            transform: value => value.trim(),
+                            transform: value => value ? value.trim() : "",
                             message: "Введите фамилию",
                             type: "string",
                             min: 1,
@@ -83,7 +83,7 @@ export const RegistrationComponent = () => {
 
                         <Form.Item label="Имя пользователя" name="userName" className="user-name" rules={[{
                                 required: true,
-                                transform: value => value.trim(),
+                                transform: value => value ? value.trim() : "",
                                 message: "Введите имя пользователя",
                                 type: "string",
                                 min: 1,
@@ -96,19 +96,19 @@ export const RegistrationComponent = () => {
 
                         <Form.Item label="Пароль" name="password" hasFeedback rules={[{
                             required: true,
-                            transform: value => value.trim(),
-                            message: "Введите пароль",
+                            transform: value => value ? value.trim() : "",
+                            message: "Длина пароля должна быть не менее 6 символов",
                             type: "string",
-                            min: 1,
+                            min: 6,
                             max: 255
                         }]}>
-                            <Input.Password prefix={<LockOutlined className="site-form-item-icon"/>} placeholder="Введите пароль"/>
+                            <PasswordInput prefix={<LockOutlined className="site-form-item-icon"/>} placeholder="Введите пароль"/>
                         </Form.Item>
 
                         <Form.Item label="Подтверждение пароля" name="confirm" dependencies={["password"]} hasFeedback rules={[
                             {
                                 required: true,
-                                transform: value => value.trim(),
+                                transform: value => value ? value.trim() : "",
                                 message: "Подтвердите пароль",
                                 type: "string",
                                 min: 1,

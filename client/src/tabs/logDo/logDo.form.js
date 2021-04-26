@@ -32,7 +32,12 @@ export const LogDoForm = ({item}) => {
 
     // Инициализация значений для выпадающих списков
     const [departments, setDepartments] = useState(item.department ? [{label: item.department.name, value: item.department._id}] : emptyDropdown);
-    const [applicant, setApplicant] = useState(item.applicant ? [{label: item.applicant.name, value: item.applicant._id}] : emptyDropdown);
+    const [applicant, setApplicant] = useState(item.isNewItem && user && user.person
+        ? [{label: user.person.name, value: user.person._id}]
+        : item.applicant
+            ? [{label: item.applicant.name, value: item.applicant._id}]
+            : emptyDropdown
+    );
     const [equipment, setEquipment] = useState(item.equipment ? [{label: item.equipment.name, value: item.equipment._id}] : emptyDropdown);
     const [responsible, setResponsible] = useState(item.responsible ? [{label: item.responsible.name, value: item.responsible._id}] : emptyDropdown);
     const [taskStatus, setState] = useState(item.taskStatus ? [{label: item.taskStatus.name, value: item.taskStatus._id}] : emptyDropdown);
@@ -49,7 +54,12 @@ export const LogDoForm = ({item}) => {
         const equipment = store.getState().reducerEquipment.equipment;
 
         setDepartments(item.department ? [{label: getParents(item.department, departments) + item.department.name, value: item.department._id}] : emptyDropdown);
-        setApplicant(item.applicant ? [{label: item.applicant.name, value: item.applicant._id}] : emptyDropdown);
+        setApplicant(item.isNewItem && user && user.person
+            ? [{label: user.person.name, value: user.person._id}]
+            : item.applicant
+                ? [{label: item.applicant.name, value: item.applicant._id}]
+                : emptyDropdown
+        );
         setEquipment(item.equipment ? [{label: getParents(item.equipment, equipment) + item.equipment.name, value: item.equipment._id}] : emptyDropdown);
         setResponsible(item.responsible ? [{label: item.responsible.name, value: item.responsible._id}] : emptyDropdown);
         setState(item.taskStatus ? [{label: item.taskStatus.name, value: item.taskStatus._id}] : emptyDropdown);
@@ -68,19 +78,19 @@ export const LogDoForm = ({item}) => {
             downtime: item.downtime.trim(),
             acceptTask: item.acceptTask,
 
-            applicant: item.applicant,
+            applicant: item.isNewItem && user && user.person ? user.person : item.applicant,
             department: item.department,
             equipment: item.equipment,
             responsible: item.responsible,
             taskStatus: item.taskStatus,
 
-            applicantId: item.applicantId ? item.applicantId : null,
+            applicantId: item.isNewItem && user && user.person ? user.person._id : item.applicantId ? item.applicantId : null,
             responsibleId: item.responsibleId ? item.responsibleId : null,
             departmentId: item.departmentId ? item.departmentId : null,
             equipmentId: item.equipmentId ? item.equipmentId : null,
             taskStatusId: item.taskStatusId ? item.taskStatusId : null
         });
-    }, [item, form, emptyDropdown]);
+    }, [item, form, emptyDropdown, user]);
 
     // Создание заголовка раздела и имени формы
     const title = item.isNewItem ? "Создание записи в журнале дефектов и отказов" : "Редактирование записи в журнале дефектов и отказов";
@@ -551,7 +561,7 @@ export const LogDoForm = ({item}) => {
                                 </Row>
                             </Form.Item>
 
-                            <Row gutter={8}>
+                            <Row gutter={8} align="bottom">
                                 <Col span={12}>
                                     <Form.Item label="Планируемая дата выполнения" name="planDateDone">
                                         <DatePicker

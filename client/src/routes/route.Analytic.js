@@ -40,8 +40,8 @@ export const AnalyticRoute = {
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(false));
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorAnalytic.setError("Возникла ошибка при получении записей: " + e));
-            NoticeError.getAll(e); // Вызываем функцию обработки ошибки
+            store.dispatch(ActionCreator.ActionCreatorAnalytic.setError("Возникла ошибка при получении записей: " + e.message));
+            NoticeError.getAll(e.message); // Вызываем функцию обработки ошибки
         }
     },
     // Переход в раздел ЖДО
@@ -82,10 +82,10 @@ export const AnalyticRoute = {
             // Останавливаем спиннер загрузки данных в таблицу
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorLogDO.setErrorTable("Возникла ошибка при переходе в раздел ЖДО: " + e));
-            console.log(e);
+            store.dispatch(ActionCreator.ActionCreatorLogDO.setErrorTable("Возникла ошибка при переходе в раздел ЖДО: " + e.message));
+            console.log(e.message);
             message.error("Возникла ошибка при переходе в раздел ЖДО: ", e.message);
-            throw new Error(e);
+            throw new Error(e.message);
         }
     }
 }

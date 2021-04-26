@@ -46,3 +46,10 @@
 .row-badges {
     margin-bottom: 20px;
 }
+
+.col-badge {
+    text-align: center;
+    margin-right: 5px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}

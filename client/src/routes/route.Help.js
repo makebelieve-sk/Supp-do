@@ -36,8 +36,8 @@ export const HelpRoute = {
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorHelp.setErrorTable("Возникла ошибка при получении записей: " + e));
-            NoticeError.getAll(e); // Вызываем функцию обработки ошибки
+            store.dispatch(ActionCreator.ActionCreatorHelp.setErrorTable("Возникла ошибка при получении записей: " + e.message));
+            NoticeError.getAll(e.message); // Вызываем функцию обработки ошибки
         }
     },
     // Получение редактируемой записи помощи
@@ -50,8 +50,8 @@ export const HelpRoute = {
             if (item) this.fillItem(item);
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorHelp.setErrorRecord("Возникла ошибка при получении записи: " + e));
-            NoticeError.get(e); // Вызываем функцию обработки ошибки
+            store.dispatch(ActionCreator.ActionCreatorHelp.setErrorRecord("Возникла ошибка при получении записи: " + e.message));
+            NoticeError.get(e.message); // Вызываем функцию обработки ошибки
         }
     },
     // Получение записи помощи при клике на кнопку "Помощь"
@@ -60,9 +60,9 @@ export const HelpRoute = {
             // Получаем запись при клике на кнопку "Помощь"
             return await request(this.base_url + "get/" + id);
         } catch (e) {
-            console.log(e);
+            console.log(e.message);
             message.error("Возникла ошибка при получении записи: ", e.message);
-            throw new Error(e);
+            throw new Error(e.message);
         }
     },
     // Сохранение записи помощи
@@ -104,8 +104,8 @@ export const HelpRoute = {
             this.cancel(onRemove);
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorHelp.setErrorRecord("Возникла ошибка при сохранении записи: " + e));
-            NoticeError.save(e, setLoading);    // Вызываем функцию обработки ошибки
+            store.dispatch(ActionCreator.ActionCreatorHelp.setErrorRecord("Возникла ошибка при сохранении записи: " + e.message));
+            NoticeError.save(e.message, setLoading);    // Вызываем функцию обработки ошибки
         }
 
     },
@@ -142,8 +142,8 @@ export const HelpRoute = {
             this.cancel(onRemove)
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorHelp.setErrorRecord("Возникла ошибка при удалении записи: " + e));
-            NoticeError.delete(e, setLoadingDelete, setVisiblePopConfirm);    // Вызываем функцию обработки ошибки
+            store.dispatch(ActionCreator.ActionCreatorHelp.setErrorRecord("Возникла ошибка при удалении записи: " + e.message));
+            NoticeError.delete(e.message, setLoadingDelete, setVisiblePopConfirm);    // Вызываем функцию обработки ошибки
         }
 
     },

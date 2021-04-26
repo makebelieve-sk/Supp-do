@@ -5,7 +5,6 @@ import {Card, Row, Col, Skeleton} from "antd";
 
 import {RoleForm} from "./role.form";
 import ErrorIndicator from "../../components/content.components/errorIndicator/errorIndicator.component";
-import {LogDoForm} from "../logDo/logDo.form";
 
 export const RoleTab = () => {
     // Получение списка ролей и состояния загрузки записи

@@ -63,18 +63,13 @@ function getShortNameRecord(name = null) {
  * @returns измененный объект записи
  */
 const helper = (name) => {
-    const fio = name.split(" ");
-    let retVal = fio[0];
+    if (name) {
+        const fio = name.split(" ");
 
-    if (fio[1]) {
-        retVal += " " + fio[1][0].toUpperCase() + ".";
+        return fio.length === 3
+            ? fio[0] + " " + fio[1][0].toUpperCase() + "." + fio[2][0].toUpperCase() + "."
+            : name;
     }
-
-    if (fio[2]) {
-        retVal += " " + fio[2][0].toUpperCase() + ".";
-    }
-
-    return retVal[0].toUpperCase() + retVal.slice(1);
 }
 
 export {getParents, getShortName, getShortNameRecord};

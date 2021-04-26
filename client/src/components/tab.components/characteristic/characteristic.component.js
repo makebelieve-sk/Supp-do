@@ -23,9 +23,9 @@ export const CharacteristicComponent = ({equipmentPropertyToOptions, dropdownRen
             { (fields, {add, remove}) => {
                 return <>
                     {fields.map((field, index) => (
-                        <Row key={field.key} gutter={8}>
+                        <Row key={`${field.key}-${field.index}`} gutter={8} align="bottom">
                             <Col span={11}>
-                                <Row>
+                                <Row align="bottom">
                                     <Col xs={{span: 18}} sm={{span: 18}} md={{span: 20}} lg={{span: 20}} xl={{span: 20}}>
                                         <Form.Item
                                             {...field}
@@ -64,7 +64,7 @@ export const CharacteristicComponent = ({equipmentPropertyToOptions, dropdownRen
                                                         }}
                                                         icon={<PlusOutlined/>}
                                                         type="secondary"
-                                                        disabled={true}
+                                                        disabled={false}
                                                     />
                                                     : <Tooltip title="У вас нет прав" color="#ff7875">
                                                         <Button
