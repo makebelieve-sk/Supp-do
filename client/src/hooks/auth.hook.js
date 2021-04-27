@@ -145,11 +145,11 @@ export const useAuth = () => {
                 key: "personal-area",
                 icon: <UserOutlined/>,
                 children: [
-                    {
-                        title: "Сменить пароль",
-                        key: "change-password",
-                        url: "/change-password"
-                    },
+                    // {
+                    //     title: "Сменить пароль",
+                    //     key: "change-password",
+                    //     url: "/change-password"
+                    // },
                     {
                         title: "Выйти",
                         key: "logout",

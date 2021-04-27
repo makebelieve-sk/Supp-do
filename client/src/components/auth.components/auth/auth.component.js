@@ -83,12 +83,12 @@ export const AuthComponent = ({setRegForm, setChangePass}) => {
                                 <Checkbox>Запомнить меня</Checkbox>
                             </Form.Item>
 
-                            <Link className="login-form-forgot" to="/change-password" onClick={() => {
-                                setRegForm(false);
-                                setChangePass(true);
-                            }}>
-                                Забыл(а) пароль
-                            </Link>
+                            {/*<Link className="login-form-forgot" to="/change-password" onClick={() => {*/}
+                            {/*    setRegForm(false);*/}
+                            {/*    setChangePass(true);*/}
+                            {/*}}>*/}
+                            {/*    Забыл(а) пароль*/}
+                            {/*</Link>*/}
                         </Form.Item>
 
                         <Form.Item>

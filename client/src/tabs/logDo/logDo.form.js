@@ -42,6 +42,18 @@ export const LogDoForm = ({item}) => {
     const [responsible, setResponsible] = useState(item.responsible ? [{label: item.responsible.name, value: item.responsible._id}] : emptyDropdown);
     const [taskStatus, setState] = useState(item.taskStatus ? [{label: item.taskStatus.name, value: item.taskStatus._id}] : emptyDropdown);
 
+    // Для каждой роли, проверяем возможность редактирования галочки "Работа принята"
+    let flag = false;
+
+    if (user && user.roles && user.roles.length) {
+        user.roles.forEach(role => {
+            flag = !!role.permissions[13].edit;
+        });
+    }
+
+    // Состояние отображения галочки "Работа принята"
+    const [visibleAcceptTask, setVisibleAcceptTask] = useState(user.person._id === item.applicantId || flag);
+
     // Инициализируем хук состояния формы от AntDesign
     const [form] = Form.useForm();
 
@@ -133,8 +145,6 @@ export const LogDoForm = ({item}) => {
         actionCreatorDelete: ActionCreator.ActionCreatorLogDO.deleteFile
     };
 
-    // console.log("Обновление вкладки LogDo");
-
     return (
         <Card.Meta
             title={title}
@@ -198,6 +208,11 @@ export const LogDoForm = ({item}) => {
                                                                 applicant: foundApplicant,
                                                                 applicantId: value
                                                             });
+
+                                                            // Обновляем отображение галочки "Работа принята"
+                                                            user.person._id === value || flag
+                                                                ? setVisibleAcceptTask(true)
+                                                                : setVisibleAcceptTask(false);
                                                         }}
                                                     />
                                                 </Form.Item>
@@ -604,13 +619,17 @@ export const LogDoForm = ({item}) => {
                                     </Form.Item>
                                 </Col>
 
-                                <Col span={10}>
-                                    <Form.Item label=" " name="acceptTask" valuePropName="checked">
-                                        <Checkbox onChange={e => form.setFieldsValue({acceptTask: e.target.checked})}>
-                                            Работа принята
-                                        </Checkbox>
-                                    </Form.Item>
-                                </Col>
+                                {
+                                    visibleAcceptTask
+                                        ? <Col span={10}>
+                                            <Form.Item label=" " name="acceptTask" valuePropName="checked">
+                                                <Checkbox onChange={e => form.setFieldsValue({acceptTask: e.target.checked})}>
+                                                    Работа принята
+                                                </Checkbox>
+                                            </Form.Item>
+                                        </Col>
+                                        : null
+                                }
                             </Row>
                         </Tabs.TabPane>
 

@@ -38,6 +38,7 @@ router.get("/roles/:id", async (req, res) => {
             {title: "Журнал действий пользователей", read: false, edit: false, key: "logs"},
             {title: "Аналитика", read: false, edit: false, key: "analytic"},
             {title: "Статистика", read: false, edit: false, key: "statistic"},
+            {title: "Принятие работы", read: false, edit: false, key: "acceptTask"},
         ];
 
         if (_id === "-1") {

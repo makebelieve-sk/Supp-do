@@ -7,6 +7,8 @@ import {PrinterOutlined} from "@ant-design/icons";
 import PrintTable from "../../../options/tab.options/table.options/print-table";
 import {getPrintTable} from "../../../helpers/mappers/tabs.mappers/table.helper";
 
+import "./tableButtons.css";
+
 export default class PrintButton extends React.Component {
     constructor(props) {
         super(props);

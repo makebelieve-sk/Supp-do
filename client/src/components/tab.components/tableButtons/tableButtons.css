@@ -1,11 +1,12 @@
 .wrapper_buttons {
-    display: flex;
-    justify-content: flex-end;
+    display: inline-flex;
+    flex-wrap: wrap;
 }
 
 .button {
     width: 9em;
-    margin-right: 5px;
+    margin-right: .5em;
+    margin-block: .5em;
 }
 
 .last_button {
@@ -13,5 +14,5 @@
 }
 
 .button-skeleton {
-    margin-right: 5px;
+    margin-right: .5em;
 }

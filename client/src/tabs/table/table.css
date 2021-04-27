@@ -1,10 +1,12 @@
-/*стили надтабличной строки*/
-.container-row-dto {
-    margin-bottom: 20px;
-    margin-top: 10px;
+.container {
+    align-items: center;
+    margin-block: 1em;
 }
 
-/* установка стилей для таблицы*/
+.item {
+    margin-block: .5em;
+}
+
 .ant-card-body {
     padding: 20px;
 }

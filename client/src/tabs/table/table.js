@@ -45,10 +45,8 @@ export const TableComponent = ({specKey}) => {
 
     // Установка времени в датапикере
     const date = stateObject.date
-        ? [
-            moment(stateObject.date.split("/")[0], TabOptions.dateFormat),
-            moment(stateObject.date.split("/")[1], TabOptions.dateFormat)
-        ]
+        ? [moment(stateObject.date.split("/")[0], TabOptions.dateFormat),
+            moment(stateObject.date.split("/")[1], TabOptions.dateFormat)]
         : [moment().startOf(("month")), moment().endOf(("month"))];
 
     // Создание стейта для текстового поля, отфильтрованных колонок, выбранных колонок и начальных колонок
@@ -140,28 +138,30 @@ export const TableComponent = ({specKey}) => {
 
     return (
         <>
-            <Row className="container-row-dto" justify="space-between" align="middle">
-                <Col span={4}>
+            <Row className="container" justify="space-between" align="middle" gutter={16}>
+                <Col flex="1 1 auto" className="item">
                     <Header filterText={filterText} setFilterText={setFilterText}/>
                 </Col>
 
-                <Col span={10}>
+                <Col flex="1 1 auto" className="item">
                     {
                         specKey === "logDO"
-                            ? <div>
+                            ?
+
                                 <RangePicker
                                     allowClear={false}
                                     showTime={{format: "HH:mm"}}
                                     format={TabOptions.dateFormat}
                                     onChange={onChange}
                                     value={date}
+                                    style={{width: "100%"}}
                                 />
-                            </div>
+
                         : null
                 }
                 </Col>
 
-                <Col span={10}>
+                <Col flex="0 1 auto">
                     <ButtonsComponent specKey={specKey} onExport={onExport} setColumnsTable={setColumnsTable}/>
                 </Col>
             </Row>
