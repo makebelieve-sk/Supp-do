@@ -1,17 +1,23 @@
-.rating-title {
-    border-bottom: 1px solid grey;
-    padding: 0 !important;
-    height: 10%;
+.block {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
 }
 
-.rating-title h3 {
-    margin: 0;
+.rating-title {
+    border-bottom: 1px solid grey;
+}
+
+.title {
+    font-weight: 500;
     text-align: center;
+    padding-block: 5px;
 }
 
 .rating-table {
-    height: 90%;
     padding: 5%;
+    flex-grow: 2;
 }
 
 .table-block {

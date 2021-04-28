@@ -147,7 +147,6 @@ export const TableComponent = ({specKey}) => {
                     {
                         specKey === "logDO"
                             ?
-
                                 <RangePicker
                                     allowClear={false}
                                     showTime={{format: "HH:mm"}}
@@ -156,7 +155,6 @@ export const TableComponent = ({specKey}) => {
                                     value={date}
                                     style={{width: "100%"}}
                                 />
-
                         : null
                 }
                 </Col>

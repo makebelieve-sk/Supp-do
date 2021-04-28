@@ -10,6 +10,7 @@ import {SiderComponent} from "../components/content.components/sider/sider.compo
 import store from "../redux/store";
 import {HelpRoute} from "../routes/route.Help";
 import ErrorIndicator from "../components/content.components/errorIndicator/errorIndicator.component";
+import {useWindowWidth} from "../hooks/windowWidth.hook";
 
 const {Header, Content, Footer} = Layout;
 
@@ -45,6 +46,11 @@ export const MainPage = () => {
         }
     }
 
+    const screen = useWindowWidth();    // Получаем текущее значение ширины окна браузера
+
+    // Получение контента кнопки в зависимости от ширины экрана
+    const getContent = (content) => screen !== "xs" && screen !== "sm" && screen !== "md" ? content : null;
+
     return (
         <Layout>
             <SiderComponent collapsed={collapsed}/>
@@ -69,7 +75,7 @@ export const MainPage = () => {
                         </Col>
 
                         <Col span={6} onClick={getHelp} className="footer_text cursor">
-                            <QuestionCircleOutlined/> Помощь
+                            <QuestionCircleOutlined/> {getContent("Помощь")}
                         </Col>
 
                         <Modal

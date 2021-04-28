@@ -3,13 +3,17 @@ import React from "react";
 import {Col, Row} from "antd";
 
 import "./rating.css";
+import {useWindowWidth} from "../../../hooks/windowWidth.hook";
 
 export const RatingComponent = ({title, param, data}) => {
+    // Определяем название класса, получая текущее значение ширины окна браузера
+    const screenClass = useWindowWidth();
+
     return (
-        <>
-            <Row className="rating-title">
+        <div className={`block ${screenClass}`}>
+            <Row className="rating-title title">
                 <Col span={24}>
-                    <h3>{title}</h3>
+                    <div className="title">{title}</div>
                 </Col>
             </Row>
 
@@ -39,6 +43,6 @@ export const RatingComponent = ({title, param, data}) => {
                     </div>
                 </Col>
             </Row>
-        </>
+        </div>
     )
 }

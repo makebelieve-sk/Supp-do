@@ -146,7 +146,7 @@ const getFailureDynamics = (logDOs) => {
 
         result.push({
             date: moment(i).date() + "." + month,
-            value: value.toString(),
+            value: value,
             fullDate: moment(i).toString()
         });
     }

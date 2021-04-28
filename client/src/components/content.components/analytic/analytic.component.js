@@ -1,7 +1,7 @@
 // Компонент отображающий раздел "Аналитика"
 import React from "react";
 import {useSelector} from "react-redux";
-import {Col, Row} from "antd";
+import {Col, Row, Grid} from "antd";
 
 import {LineChartComponent} from "../../tab.components/lineChart/lineChart.component";
 import {BarChartComponent} from "../../tab.components/barChart/barChart.component";
@@ -18,7 +18,24 @@ import ErrorIndicator from "../errorIndicator/errorIndicator.component";
 
 import "./analytic.css";
 
+const { useBreakpoint } = Grid; // Извлекаем хук useBreakpoint из Grid Antd
+
 export const AnalyticComponent = () => {
+    let circleSize = true;
+    // Получаем текущий размер окна браузера
+    const screens = useBreakpoint();
+
+    const currentScreen = Object.entries(screens)
+        .filter(screen => !!screen[1])
+        .map(screen => screen[0]);
+
+    if (currentScreen[currentScreen.length - 1] === "xs" ||
+        currentScreen[currentScreen.length - 1] === "sm" ||
+        currentScreen[currentScreen.length - 1] === "md" ||
+        currentScreen[currentScreen.length - 1] === "lg") {
+        circleSize = false;
+    }
+
     // Получаем из хранилища объект текущий аналитики, предыдущий объект аналитики (для сравнения)
     const {analytic, prevAnalyticData, error} = useSelector(state => ({
         analytic: state.reducerAnalytic.analytic,
@@ -71,7 +88,7 @@ export const AnalyticComponent = () => {
             <Row>
                 {/*Неназначенные заявки*/}
                 <Col
-                    span={4}
+                    xs={24} sm={12} md={8} lg={8} xl={4}
                     className="col-circle-1"
                     onClick={() => goToLogDO("/unassignedTasks")}
                 >
@@ -85,7 +102,7 @@ export const AnalyticComponent = () => {
 
                 {/*Заявки в работе*/}
                 <Col
-                    span={4}
+                    xs={24} sm={12} md={8} lg={8} xl={4}
                     className="col-circle-2"
                     onClick={() => goToLogDO("/inWorkTasks")}
                 >
@@ -99,7 +116,7 @@ export const AnalyticComponent = () => {
 
                 {/*Непринятые заявки*/}
                 <Col
-                    span={4}
+                    xs={24} sm={24} md={8} lg={8} xl={4}
                     className="col-circle-3"
                     onClick={() => goToLogDO("/notAccepted")}
                 >
@@ -112,7 +129,7 @@ export const AnalyticComponent = () => {
                 </Col>
 
                 {/*Загруженность подразделений*/}
-                <Col span={12} className="bar-char-border">
+                <Col xs={24} sm={24} md={24} lg={24} xl={12} className="bar-char-border">
                     <BarChartComponent
                         data={analytic && analytic.workloadDepartments ?
                             analytic.workloadDepartments : [{department: "0", value: "0"}]}
@@ -123,7 +140,7 @@ export const AnalyticComponent = () => {
 
             <Row className="row-2">
                 {/*Динамика отказов*/}
-                <Col span={18} className="block-1">
+                <Col xs={24} sm={24} md={24} lg={24} xl={18} className="block-1">
                     <LineChartComponent
                         data={analytic && analytic.failureDynamics ?
                             analytic.failureDynamics : [{data: "0", value: "0"}]}
@@ -132,33 +149,38 @@ export const AnalyticComponent = () => {
                 </Col>
 
                 {/*Ср. время реагирования, Ср. время выполнения*/}
-                <Col span={6} className="block-2">
-                    <CircleComponent
-                        title={"Ср. время реагирования, " + getUnits(analytic ? analytic.averageResponseTime : null)}
-                        value={analytic && analytic.averageResponseTime ? analytic.averageResponseTime : 0}
-                        borderColor={analytic && prevAnalyticData && analytic.averageResponseTime
-                        && analytic.averageResponseTime.length
-                        && prevAnalyticData.averageResponseTime && prevAnalyticData.averageResponseTime.length
-                        && prevAnalyticData.averageResponseTime.length > analytic.averageResponseTime.length ? "red" : "green"}
-                        upBorder={false}
-                        size={true}
-                    />
-                    <CircleComponent
-                        title={"Ср. время выполнения, " + getUnits(analytic ? analytic.averageClosingTime : null)}
-                        value={analytic && analytic.averageClosingTime ? analytic.averageClosingTime : 0}
-                        borderColor={analytic && prevAnalyticData && analytic.averageClosingTime
-                        && analytic.averageClosingTime.length
-                        && prevAnalyticData.averageClosingTime && prevAnalyticData.averageClosingTime.length
-                        && prevAnalyticData.averageClosingTime.length > analytic.averageClosingTime.length ? "red" : "green"}
-                        upBorder={true}
-                        size={true}
-                    />
+                <Col xs={24} sm={24} md={24} lg={24} xl={6} className="block-2">
+                    <Row style={{height: "100%"}}>
+                        <Col xs={24} sm={12} md={12} lg={12} xl={24} className="col-circle-4">
+                            <CircleComponent
+                                title={"Ср. время реагирования, " + getUnits(analytic ? analytic.averageResponseTime : null)}
+                                value={analytic && analytic.averageResponseTime ? analytic.averageResponseTime : 0}
+                                borderColor={analytic && prevAnalyticData && analytic.averageResponseTime
+                                && analytic.averageResponseTime.length
+                                && prevAnalyticData.averageResponseTime && prevAnalyticData.averageResponseTime.length
+                                && prevAnalyticData.averageResponseTime.length > analytic.averageResponseTime.length ? "red" : "green"}
+                                size={circleSize}
+                            />
+                        </Col>
+                        <Col xs={24} sm={12} md={12} lg={12} xl={24}  className="col-circle-5">
+                            <CircleComponent
+                                title={"Ср. время выполнения, " + getUnits(analytic ? analytic.averageClosingTime : null)}
+                                value={analytic && analytic.averageClosingTime ? analytic.averageClosingTime : 0}
+                                borderColor={analytic && prevAnalyticData && analytic.averageClosingTime
+                                && analytic.averageClosingTime.length
+                                && prevAnalyticData.averageClosingTime && prevAnalyticData.averageClosingTime.length
+                                && prevAnalyticData.averageClosingTime.length > analytic.averageClosingTime.length ? "red" : "green"}
+                                size={circleSize}
+                                upBorder={true}
+                            />
+                        </Col>
+                    </Row>
                 </Col>
             </Row>
 
-            <Row>
+            <Row className="row-3">
                 {/*Продолжительность простоев*/}
-                <Col span={6} className="col-column-1">
+                <Col xs={24} sm={12} md={12} lg={6} xl={6} className="col-column-1">
                     <ColumnChartComponent
                         title="Продолжительность простоев, мин"
                         data={analytic && analytic.changeDowntime ? analytic.changeDowntime : [{
@@ -169,7 +191,7 @@ export const AnalyticComponent = () => {
                 </Col>
 
                 {/*Количество отказов*/}
-                <Col span={6} className="col-column-2">
+                <Col xs={24} sm={12} md={12} lg={6} xl={6} className="col-column-2">
                     <ColumnChartComponent
                         title="Количество отказов, шт."
                         data={analytic && analytic.changeRefusal ? analytic.changeRefusal : [{month: "0", value: "0"}]}
@@ -178,7 +200,7 @@ export const AnalyticComponent = () => {
 
                 {/*Рейтинг отказов за 12 месяцев (Топ-5)*/}
                 <Col
-                    span={6}
+                    xs={24} sm={24} md={12} lg={6} xl={6}
                     className="col-rating-1"
                     onClick={() => goToLogDO("/rating/bounceRating")}
                 >
@@ -191,7 +213,7 @@ export const AnalyticComponent = () => {
 
                 {/*Рейтинг незакрытых заявок (Топ-5)*/}
                 <Col
-                    span={6}
+                    xs={24} sm={24} md={12} lg={6} xl={6}
                     className="col-rating-2"
                     onClick={() => goToLogDO("/rating/ratingOrders")}
                 >

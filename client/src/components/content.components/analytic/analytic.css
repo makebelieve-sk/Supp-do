@@ -1,3 +1,7 @@
+.analytic {
+    border-bottom: 1px solid grey;
+}
+
 .col-circle-1 {
     border-top: 1px solid grey;
     border-left: 1px solid grey;
@@ -25,6 +29,7 @@
 
 .row-2 {
     border-top: 1px solid grey;
+    border-right: 1px solid grey;
 }
 
 .block-1 {
@@ -32,24 +37,29 @@
 }
 
 .block-2 {
+    /*border-right: 1px solid grey;*/
+}
+
+.row-3 {
     border-right: 1px solid grey;
 }
 
 .col-column-1 {
-    border: 1px solid grey;
+    border-top: 1px solid grey;
+    border-left: 1px solid grey;
 }
 
 .col-column-2 {
     border-top: 1px solid grey;
-    border-bottom: 1px solid grey;
+    border-left: 1px solid grey;
 }
 
 .col-rating-1 {
-    border: 1px solid grey;
+    border-top: 1px solid grey;
+    border-left: 1px solid grey;
 }
 
 .col-rating-2 {
     border-top: 1px solid grey;
-    border-bottom: 1px solid grey;
-    border-right: 1px solid grey;
+    border-left: 1px solid grey;
 }

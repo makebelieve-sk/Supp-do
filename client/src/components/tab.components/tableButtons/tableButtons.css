@@ -9,6 +9,10 @@
     margin-block: .5em;
 }
 
+.short {
+    width: 2em !important;
+}
+
 .last_button {
     margin-right: 0;
 }

@@ -101,7 +101,10 @@ router.get("/log-do/:id", async (req, res) => {
 });
 
 // Возвращает все записи
-router.get("/log-do/dto/:dateStart/:dateEnd", async (req, res) => {
+router.get("/log-do/dto/:dateStart/:dateEnd", (req, res, next) => {
+    console.log(req);
+    next();
+},async (req, res) => {
     const dateStart = req.params.dateStart;     // Получаем дату "с"
     const dateEnd = req.params.dateEnd;         // Получаем дату "по"
 

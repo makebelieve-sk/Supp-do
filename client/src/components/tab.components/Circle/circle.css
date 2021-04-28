@@ -1,11 +1,120 @@
-.circle-title {
-    border-bottom: 1px solid grey;
-    padding: 0 !important;
+.col-circle-2 .xs {
+    border-left: 1px solid grey;
 }
 
-.circle-title h3 {
-    margin: 0;
+.col-circle-3 .lg {
+    border-right: 1px solid grey;
+}
+
+.col-circle-3 .md {
+    border-right: 1px solid grey;
+}
+
+.col-circle-3 .sm {
+    border-inline: 1px solid grey;
+}
+
+.col-circle-3 .xs {
+    border-inline: 1px solid grey;
+}
+
+.col-circle-4 .xs {
+    border-left: 1px solid grey;
+    border-top: 1px solid grey;
+}
+
+.col-circle-4 .sm {
+    border-left: 1px solid grey;
+    border-top: 1px solid grey;
+}
+
+.col-circle-4 .sm .title {
+    font-size: 13px;
+}
+
+.col-circle-4 .md {
+    border-left: 1px solid grey;
+    border-top: 1px solid grey;
+}
+
+.col-circle-4 .lg {
+    border-left: 1px solid grey;
+    border-top: 1px solid grey;
+}
+
+.col-circle-5 .xs {
+    border-top: 1px solid grey;
+    border-left: 1px solid grey;
+}
+
+.col-circle-5 .sm {
+    border-top: 1px solid grey;
+    border-left: 1px solid grey;
+}
+
+.col-circle-5 .sm .title {
+    font-size: 13px;
+}
+
+.col-circle-5 .md {
+    border-top: 1px solid grey;
+    border-left: 1px solid grey;
+}
+
+.col-circle-5 .lg {
+    border-left: 1px solid grey;
+    border-top: 1px solid grey;
+}
+
+.block {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.title-small {
+    padding-block: 5px;
+}
+
+.title {
+    font-weight: 500;
     text-align: center;
+    padding-block: 5px;
+}
+
+.body-small {
+    padding: 5px;
+    flex-grow: 2;
+}
+
+.body {
+    padding: 10px;
+    flex-grow: 2;
+}
+
+.xl .upBorder {
+    border-top: 1px solid grey;
+}
+
+.xl .title-small {
+    border-left: 1px solid grey;
+}
+
+.xxl .title-small {
+    border-left: 1px solid grey;
+}
+
+.xl .body-small {
+    border-left: 1px solid grey;
+}
+
+.xxl .body-small {
+    border-left: 1px solid grey;
+}
+
+.circle-title {
+    border-bottom: 1px solid grey;
 }
 
 .circle-col {
@@ -17,5 +126,91 @@
     border-style: solid;
     border-radius: 50%;
     text-align: center;
-    font-weight: bold;
+    font-weight: 500;
+}
+
+.circle-small {
+    margin: 0 auto;
+    border-style: solid;
+    border-radius: 50%;
+    text-align: center;
+    font-weight: 500;
+}
+
+.title {
+    font-size: 16px;
+}
+
+.xs .circle {
+    width: 130px;
+    height: 130px;
+    font-size: 38px;
+    line-height: 104px;
+    border-width: 13px;
+}
+
+.sm .circle {
+    width: 130px;
+    height: 130px;
+    font-size: 38px;
+    line-height: 104px;
+    border-width: 13px;
+}
+
+.md .circle {
+    width: 130px;
+    height: 130px;
+    font-size: 38px;
+    line-height: 104px;
+    border-width: 13px;
+}
+
+.lg .circle {
+    width: 130px;
+    height: 130px;
+    font-size: 38px;
+    line-height: 104px;
+    border-width: 13px;
+}
+
+.xl .circle {
+    width: 150px;
+    height: 150px;
+    font-size: 40px;
+    line-height: 120px;
+    border-width: 15px;
+}
+
+.xxl .circle {
+    width: 150px;
+    height: 150px;
+    font-size: 40px;
+    line-height: 120px;
+    border-width: 15px;
+}
+
+.xl .circle-small {
+    width: 85px;
+    height: 85px;
+    font-size: 24px;
+    line-height: 69px;
+    border-width: 8px;
+}
+
+.xxl .circle-small {
+    width: 85px;
+    height: 85px;
+    font-size: 24px;
+    line-height: 69px;
+    border-width: 8px;
+}
+
+.green {
+    color: green;
+    border-color: green;
+}
+
+.red {
+    color: red;
+    border-color: red;
 }

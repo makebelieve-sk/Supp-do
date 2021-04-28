@@ -2,30 +2,30 @@
 import React from "react";
 import {Col, Row} from "antd";
 
+import {useWindowWidth} from "../../../hooks/windowWidth.hook";
+
 import "./circle.css";
 
-export const CircleComponent = ({title, value, upBorder, borderColor, size}) => {
+export const CircleComponent = ({title, value, borderColor = "green", size = false, upBorder = false}) => {
+    // Определяем название класса, получая текущее значение ширины окна браузера
+    const screenClass = useWindowWidth();
+
+    const circleSizeClass = size ? "circle-small" : "circle";   // Класс для круга
+    const titleSizeClass = size ? "title-small" : "title";  // Класс для заголовка
+    const bodySizeClass = size ? "body-small" : "body"; // Класс для тела компонента
+    const upBorderClass = upBorder ? "upBorder" : ""; // Класс для верхней границы компонента
+
     return (
-        <div style={{height: size ? "50%" : "100%"}}>
-            <Row className="circle-title" style={{borderTop: upBorder ? "1px solid grey" : 0, height: size ? "20%" : "10%"}}>
+        <div className={`block ${screenClass}`}>
+            <Row align="middle" className={`circle-title ${titleSizeClass} ${upBorderClass}`}>
                 <Col span={24}>
-                    <h3>{title}</h3>
+                    <div className="title">{title}</div>
                 </Col>
             </Row>
-            <Row style={{height: size ? "80%" : "90%"}}>
+
+            <Row className={bodySizeClass}>
                 <Col span={24} className="circle-col">
-                    <div
-                        className="circle"
-                        style={{
-                            borderColor,
-                            color: borderColor,
-                            borderWidth: size ? "8px" : "15px",
-                            fontSize: size ? "24px" : "40px",
-                            width: size ? "85px" : "150px",
-                            height: size ? "85px" : "150px",
-                            lineHeight: size ? "69px" : "120px"
-                        }}
-                    >
+                    <div className={`${circleSizeClass} ${borderColor}`}>
                         {value}
                     </div>
                 </Col>

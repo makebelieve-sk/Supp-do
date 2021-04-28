@@ -21,6 +21,10 @@ export const BarChartComponent = ({data, goToLogDO}) => {
             },
             style: { fill: "#fff" },
         },
+        barStyle: {
+            cursor: "pointer"
+        },
+        height: 150
     };
 
     /**
@@ -28,19 +32,19 @@ export const BarChartComponent = ({data, goToLogDO}) => {
      * @param event - событие мыши
      */
     const onClick = (event) => {
-        if (event.type === "click") goToLogDO("/bar", event.data.data);
-    }
+        if (event.type === "click" && event.data) goToLogDO("/bar", event.data.data);
+    };
 
     return (
         <>
-            <Row className="bar-chart-title">
+            <Row align="middle" className="bar-chart-title title">
                 <Col span={24}>
-                    <h3>Загруженность подразделений</h3>
+                    <div className="title">Загруженность подразделений</div>
                 </Col>
             </Row>
 
-            <Row className="content">
-                <Col span={24} className="bar-chart my-chart">
+            <Row align="middle" className="content">
+                <Col span={24} className="bar-chart">
                     <Bar {...config} onEvent={(chart, event) => onClick(event)} />
                 </Col>
             </Row>

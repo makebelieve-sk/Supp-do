@@ -49,6 +49,10 @@ export const LineChartComponent = ({data, goToLogDO}) => {
         },
         interactions: [{ type: "marker-active" }],
         meta: { value: { alias: "Количество" } },
+        lineStyle: {
+            cursor: "pointer"
+        },
+        height: 200,
     };
 
     /**
@@ -56,20 +60,21 @@ export const LineChartComponent = ({data, goToLogDO}) => {
      * @param event - событие мыши
      */
     const onClick = (event) => {
-        if (event.type === "click" && event.data && !Array.isArray(event.data.data))
+        if (event.type === "click" && event.data && event.data.data && +event.data.data.value) {
             goToLogDO("/line", event.data.data);
+        }
     }
 
     return (
         <>
-            <Row className="line-chart-title">
+            <Row className="line-chart-title title">
                 <Col span={24}>
-                    <h3>Динамика отказов</h3>
+                    <div className="title">Динамика отказов</div>
                 </Col>
             </Row>
 
-            <Row className="line-chart-wrapper">
-                <Col span={24} className="line-chart my-chart">
+            <Row>
+                <Col span={24} className="line-chart">
                     <Line {...config} onEvent={(chart, event) => onClick(event)} />
                 </Col>
             </Row>

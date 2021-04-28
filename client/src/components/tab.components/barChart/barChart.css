@@ -1,26 +1,18 @@
 .bar-chart-title {
     border-bottom: 1px solid grey;
-    padding: 0 !important;
-    height: 10%;
 }
 
-.content {
-    height: 90%;
+.title {
+    font-weight: 500;
+    text-align: center;
+    font-size: 16px;
 }
 
-.bar-chart-title h3 {
-    margin: 0;
+.bar-chart-title .title {
+    padding-block: 5px;
     text-align: center;
 }
 
-.bar-chart canvas {
-    height: 200px !important;
-}
-
-.bar-chart canvas:hover {
-    cursor: pointer !important;
-}
-
-.my-chart {
+.bar-chart {
     padding: 10px;
 }

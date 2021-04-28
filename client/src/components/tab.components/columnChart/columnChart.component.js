@@ -4,8 +4,12 @@ import {Col, Row} from "antd";
 import {Column} from '@ant-design/charts';
 
 import "./columnChart.css";
+import {useWindowWidth} from "../../../hooks/windowWidth.hook";
 
 export const ColumnChartComponent = ({title, data}) => {
+    // Определяем название класса, получая текущее значение ширины окна браузера
+    const screenClass = useWindowWidth();
+
     // Объект настроек графика
     const config = {
         data: data,
@@ -20,21 +24,25 @@ export const ColumnChartComponent = ({title, data}) => {
             offset: 10,
         },
         meta: { value: { alias: "Количество" } },
+        columnStyle: {
+            cursor: "pointer"
+        },
+        height: 200,
     };
 
     return (
-        <>
-            <Row className="column-chart-title">
+        <div className={screenClass}>
+            <Row className="column-chart-title title">
                 <Col span={24}>
-                    <h3>{title}</h3>
+                    <div className="title">{title}</div>
                 </Col>
             </Row>
 
-            <Row className="column-chart-wrapper">
-                <Col span={24} className="column-chart my-chart">
+            <Row>
+                <Col span={24} className="column-chart">
                     <Column {...config} />
                 </Col>
             </Row>
-        </>
+        </div>
     );
 }

@@ -6,6 +6,7 @@ import {CheckOutlined, DeleteOutlined, QuestionCircleOutlined, StopOutlined} fro
 import store from "../redux/store";
 import PrintButtonRecord from "./printButtonRecord";
 import {checkRoleUser} from "../helpers/mappers/general.mappers/checkRoleUser";
+import {useWindowWidth} from "../hooks/windowWidth.hook";
 
 // Получение выпадающего списка
 const getOptions = (items) => {
@@ -32,31 +33,37 @@ const TabButtons = ({loadingSave, item, deleteHandler, cancelHandler, loadingCan
     const user = store.getState().reducerAuth.user;
     const activeKey = store.getState().reducerTab.activeKey;
 
+    const screen = useWindowWidth();    // Получаем текущее значение ширины окна браузера
+
+    // Получение контента кнопки в зависимости от ширины экрана
+    const getContent = (content) => screen !== "xs" && screen !== "sm" && screen !== "md" ? content : null;
+    const short = screen === "xs" || screen === "sm" || screen === "md" ? "short" : "";
+
     return <Row justify="end" style={{marginTop: 20}} xs={{gutter: [8, 8]}}>
         {
             checkRoleUser(activeKey, user).edit
-                ? <Button className="button-style" type="primary" htmlType="submit" loading={loadingSave} icon={<CheckOutlined/>}>
-                    Сохранить
+                ? <Button className={`button-style ${short}`} type="primary" htmlType="submit" loading={loadingSave} icon={<CheckOutlined/>}>
+                    {getContent("Сохранить")}
                 </Button>
                 : null
         }
 
-        {CheckTypeTab(item, deleteHandler, specKey, activeKey, user)}
+        {CheckTypeTab(item, deleteHandler, specKey, activeKey, user, getContent, short)}
 
         <Button
-            className="button-style"
+            className={`button-style ${short}`}
             type="secondary"
             onClick={cancelHandler}
             loading={loadingCancel}
             icon={<StopOutlined/>}
         >
-            Отмена
+            {getContent("Отмена")}
         </Button>
     </Row>
 }
 
 // Компонент кнопок редактирования записи
-const CheckTypeTab = (item, deleteHandler, specKey = null, activeKey, user) => {
+const CheckTypeTab = (item, deleteHandler, specKey = null, activeKey, user, getContent, short) => {
     const [loadingDelete, setLoadingDelete] = useState(false);
     const [visiblePopConfirm, setVisiblePopConfirm] = useState(false);
 
@@ -72,16 +79,16 @@ const CheckTypeTab = (item, deleteHandler, specKey = null, activeKey, user) => {
                 icon={<QuestionCircleOutlined style={{color: "red"}}/>}
             >
                 <Button
-                    className="button-style"
+                    className={`button-style ${short}`}
                     type="danger"
                     icon={<DeleteOutlined/>}
                     onClick={() => setVisiblePopConfirm(true)}
                 >
-                    Удалить
+                    {getContent("Удалить")}
                 </Button>
             </Popconfirm>
 
-            {specKey ? <PrintButtonRecord specKey={specKey} /> : null}
+            {specKey ? <PrintButtonRecord specKey={specKey} getContent={getContent} short={short} /> : null}
         </> : null;
 }
 

@@ -1,17 +1,13 @@
 .column-chart-title {
     border-bottom: 1px solid grey;
-    padding: 0 !important;
 }
 
-.column-chart-title h3 {
-    margin: 0;
+.title {
+    font-weight: 500;
     text-align: center;
+    font-size: 16px;
 }
 
-.column-chart-wrapper {
-    padding-top: 5%;
-}
-
-.column-chart canvas {
-    height: 200px !important;
+.column-chart {
+    padding: 10px;
 }

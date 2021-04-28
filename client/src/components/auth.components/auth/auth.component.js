@@ -32,6 +32,7 @@ export const AuthComponent = ({setRegForm, setChangePass}) => {
 
             if (data) {
                 store.dispatch(ActionCreator.ActionCreatorAuth.setAlert(false));    // Убираем флаг показа алерта
+                // TODO сделать запрос на получение сайдера
                 auth.login(data.token, data.userId, data.user);
             }
         } catch (e) {
