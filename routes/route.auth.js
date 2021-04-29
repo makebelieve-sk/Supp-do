@@ -1,7 +1,7 @@
 // Маршруты для авторизации
 const {Router} = require("express");
 const bcrypt = require("bcryptjs");
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 const {check, validationResult} = require("express-validator");
 
 const config = require("../config/default.json");

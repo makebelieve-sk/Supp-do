@@ -3,6 +3,7 @@ import React, {useState, useEffect} from "react";
 import {Layout, Button, Row, Col, Modal} from "antd";
 import {MenuUnfoldOutlined, MenuFoldOutlined, QuestionCircleOutlined} from "@ant-design/icons";
 import ReactHtmlParser from "react-html-parser";
+import Cookies from "js-cookie";
 
 import {LogDORoute} from "../routes/route.LogDO";
 import {ContentComponent} from "../components/content.components/content/content.component";
@@ -42,7 +43,7 @@ export const MainPage = () => {
                 ? setHelp({title: item.title, text: <div>{ReactHtmlParser(item.text)}</div>})
                 : setHelp({title: "", text: "В данном разделе текст помощи отсутствует"});
         } catch (e) {
-            setHelp({title: "", text: <ErrorIndicator errorText={e} />});
+            setHelp({title: "", text: <ErrorIndicator errorText={e}/>});
         }
     }
 
@@ -65,7 +66,7 @@ export const MainPage = () => {
                 </Header>
 
                 <Content className="content-component">
-                    <ContentComponent />
+                    <ContentComponent/>
                 </Content>
 
                 <Footer style={{backgroundColor: "#F5F5F5"}}>

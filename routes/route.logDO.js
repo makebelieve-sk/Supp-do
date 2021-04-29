@@ -9,6 +9,7 @@ const Department = require("../schemes/Department");
 const Equipment = require("../schemes/Equipment");
 const LogDoDto = require("../dto/LogDoDto");
 const TaskStatus = require("../schemes/TaskStatus");
+const AuthMiddleware = require("../middlewares/auth.middleware");
 
 const router = Router();
 
@@ -101,119 +102,121 @@ router.get("/log-do/:id", async (req, res) => {
 });
 
 // Возвращает все записи
-router.get("/log-do/dto/:dateStart/:dateEnd", (req, res, next) => {
-    console.log(req);
-    next();
-},async (req, res) => {
-    const dateStart = req.params.dateStart;     // Получаем дату "с"
-    const dateEnd = req.params.dateEnd;         // Получаем дату "по"
+router.get(
+    "/log-do/dto/:dateStart/:dateEnd",
+    (req, res, next) => {
+        AuthMiddleware.checkAuth(req, res, next, "logDO").then(null);
+    },
+    async (req, res) => {
+        const dateStart = req.params.dateStart;     // Получаем дату "с"
+        const dateEnd = req.params.dateEnd;         // Получаем дату "по"
 
-    // Рассчитываем количество миллисекунд для дат "с" и "по"
-    const millisecondsStart = moment(dateStart, dateFormat).valueOf();
-    const millisecondsEnd = moment(dateEnd, dateFormat).valueOf();
-
-    try {
-        // Получаем все записи подразделений
-        let departments = [];
+        // Рассчитываем количество миллисекунд для дат "с" и "по"
+        const millisecondsStart = moment(dateStart, dateFormat).valueOf();
+        const millisecondsEnd = moment(dateEnd, dateFormat).valueOf();
 
         try {
-            departments = await Department.find({}).populate("parent");
-        } catch (err) {
-            console.log(err);
-            res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Подразделения' (/log-do/dto)"});
-        }
+            // Получаем все записи подразделений
+            let departments = [];
 
-        // Получаем все записи оборудования
-        let equipment = [];
+            try {
+                departments = await Department.find({}).populate("parent");
+            } catch (err) {
+                console.log(err);
+                res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Подразделения' (/log-do/dto)"});
+            }
 
-        try {
-            equipment = await Equipment.find({}).populate("parent");
-        } catch (err) {
-            console.log(err);
-            res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Оборудование' (/log-do/dto)"});
-        }
+            // Получаем все записи оборудования
+            let equipment = [];
 
-        // Получаем все записи состояний заявок
-        let statuses = [];
+            try {
+                equipment = await Equipment.find({}).populate("parent");
+            } catch (err) {
+                console.log(err);
+                res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Оборудование' (/log-do/dto)"});
+            }
 
-        try {
-            statuses = await TaskStatus.find({});
-        } catch (err) {
-            console.log(err);
-            res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Состояния заявок' (/log-do/dto)"});
-        }
+            // Получаем все записи состояний заявок
+            let statuses = [];
 
-        // Получаем все записи ЖДО с фильтром по дате
-        let items = [];
+            try {
+                statuses = await TaskStatus.find({});
+            } catch (err) {
+                console.log(err);
+                res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Состояния заявок' (/log-do/dto)"});
+            }
 
-        try {
-            items = await LogDO.find({date: {$gte: millisecondsStart, $lte: millisecondsEnd}})
-                .sort({date: -1})
-                .populate("applicant")
-                .populate({
-                    path: "equipment",
-                    populate: {
-                        path: "parent",
-                        model: "Equipment"
-                    }
-                })
-                .populate({
-                    path: "department",
-                    populate: {
-                        path: "parent",
-                        model: "Department"
-                    }
-                })
-                .populate("responsible")
-                .populate("taskStatus")
-                .populate("files");
-        } catch (err) {
-            console.log(err);
-            res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Журнал дефектов и отказов' (/log-do/dto)"});
-        }
+            // Получаем все записи ЖДО с фильтром по дате
+            let items = [];
 
-        let statusLegend = [];  // Инициализация массива легенд статусов
+            try {
+                items = await LogDO.find({date: {$gte: millisecondsStart, $lte: millisecondsEnd}})
+                    .sort({date: -1})
+                    .populate("applicant")
+                    .populate({
+                        path: "equipment",
+                        populate: {
+                            path: "parent",
+                            model: "Equipment"
+                        }
+                    })
+                    .populate({
+                        path: "department",
+                        populate: {
+                            path: "parent",
+                            model: "Department"
+                        }
+                    })
+                    .populate("responsible")
+                    .populate("taskStatus")
+                    .populate("files");
+            } catch (err) {
+                console.log(err);
+                res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Журнал дефектов и отказов' (/log-do/dto)"});
+            }
 
-        if (statuses && statuses.length) {
-            statuses.forEach(task => {
-                const countTasks = items.filter(logDO =>
-                    logDO.taskStatus && logDO.taskStatus._id.toString() === task._id.toString());
+            let statusLegend = [];  // Инициализация массива легенд статусов
 
-                if (countTasks.length)
-                    statusLegend.push({
-                        id: task._id,
-                        name: task.name,
-                        count: countTasks.length,
-                        color: task.color
-                    });
-            });
+            if (statuses && statuses.length) {
+                statuses.forEach(task => {
+                    const countTasks = items.filter(logDO =>
+                        logDO.taskStatus && logDO.taskStatus._id.toString() === task._id.toString());
 
-            // Сколько записей без статуса
-            const countWithoutStatus = await LogDO
-                .find({taskStatus: null, date: {$gte: millisecondsStart, $lte: millisecondsEnd}})
-                .countDocuments();
-
-            if (countWithoutStatus)
-                statusLegend.push({
-                    id: millisecondsEnd,
-                    name: "Без статуса",
-                    count: countWithoutStatus,
-                    color: "#FFFFFF",
-                    borderColor: "black"
+                    if (countTasks.length)
+                        statusLegend.push({
+                            id: task._id,
+                            name: task.name,
+                            count: countTasks.length,
+                            color: task.color
+                        });
                 });
+
+                // Сколько записей без статуса
+                const countWithoutStatus = await LogDO
+                    .find({taskStatus: null, date: {$gte: millisecondsStart, $lte: millisecondsEnd}})
+                    .countDocuments();
+
+                if (countWithoutStatus)
+                    statusLegend.push({
+                        id: millisecondsEnd,
+                        name: "Без статуса",
+                        count: countWithoutStatus,
+                        color: "#FFFFFF",
+                        borderColor: "black"
+                    });
+            }
+
+            let itemsDto = [];
+
+            // Изменяем запись для вывода в таблицу
+            if (items && items.length) itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
+
+            res.json({itemsDto, statusLegend});
+        } catch (e) {
+            console.log(e);
+            res.status(500).json({message: "Ошибка при получении данных"});
         }
-
-        let itemsDto = [];
-
-        // Изменяем запись для вывода в таблицу
-        if (items && items.length) itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
-
-        res.json({itemsDto, statusLegend});
-    } catch (e) {
-        console.log(e);
-        res.status(500).json({message: "Ошибка при получении данных"});
-    }
-});
+    });
 
 // Сохраняет новую запись
 router.post("/log-do", checkMiddleware, async (req, res) => {
@@ -227,8 +230,10 @@ router.post("/log-do", checkMiddleware, async (req, res) => {
         let resFileArr = [];    // Создаем результирующий массив файлов
 
         // Получаем объект записи с фронтенда
-        const {date, applicant, equipment, notes, sendEmail, productionCheck, department, responsible, task, taskStatus,
-            dateDone, planDateDone, content, downtime, acceptTask, files} = req.body;
+        const {
+            date, applicant, equipment, notes, sendEmail, productionCheck, department, responsible, task, taskStatus,
+            dateDone, planDateDone, content, downtime, acceptTask, files
+        } = req.body;
 
         // При сохранении записи время реагирования 0, время выполнения 0
         const chooseResponsibleTime = 0;
@@ -249,8 +254,24 @@ router.post("/log-do", checkMiddleware, async (req, res) => {
 
         // Создаем новый экземпляр записи
         const item = new LogDO({
-            date, equipment, notes, applicant, responsible, department, task, taskStatus, planDateDone, dateDone, content,
-            acceptTask, files: resFileArr, sendEmail, productionCheck, downtime, chooseResponsibleTime, chooseStateTime
+            date,
+            equipment,
+            notes,
+            applicant,
+            responsible,
+            department,
+            task,
+            taskStatus,
+            planDateDone,
+            dateDone,
+            content,
+            acceptTask,
+            files: resFileArr,
+            sendEmail,
+            productionCheck,
+            downtime,
+            chooseResponsibleTime,
+            chooseStateTime
         });
 
         await item.save();  // Сохраняем запись в базе данных
@@ -326,8 +347,10 @@ router.put("/log-do", checkMiddleware, async (req, res) => {
         let resFileArr = [];    // Создаем результирующий массив файлов
 
         // Получаем объект записи с фронтенда
-        const {_id, date, equipment, notes, applicant, responsible, department, task, taskStatus, planDateDone, dateDone,
-            content, sendEmail, productionCheck, downtime, acceptTask, files} = req.body;
+        const {
+            _id, date, equipment, notes, applicant, responsible, department, task, taskStatus, planDateDone, dateDone,
+            content, sendEmail, productionCheck, downtime, acceptTask, files
+        } = req.body;
 
         const item = await LogDO.findById({_id});   // Ищем запись в базе данных по уникальному идентификатору
 

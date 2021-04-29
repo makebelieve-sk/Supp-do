@@ -22,7 +22,7 @@ export const AuthComponent = ({setRegForm, setChangePass}) => {
     // Нажатие на кнопку "Войти"
     const login = async (values) => {
         try {
-            // delete values.remember;
+            delete values.remember;
 
             setLoadingLogin(true);
 
@@ -32,8 +32,7 @@ export const AuthComponent = ({setRegForm, setChangePass}) => {
 
             if (data) {
                 store.dispatch(ActionCreator.ActionCreatorAuth.setAlert(false));    // Убираем флаг показа алерта
-                // TODO сделать запрос на получение сайдера
-                auth.login(data.token, data.userId, data.user);
+                auth.login(data.token, data.user);  // Вызываем функию входа пользователя
             }
         } catch (e) {
             console.log(e);

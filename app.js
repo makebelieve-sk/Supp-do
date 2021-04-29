@@ -1,4 +1,5 @@
 const express = require("express");
+const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
 const path = require("path");
 const fileUpload = require("express-fileupload");
@@ -7,6 +8,7 @@ const config = require("./config/default.json");
 const app = express();
 
 app.use(express.json({extended: true}));
+app.use(cookieParser(config.jwtSecret))
 
 // Регистрируем маршруты
 app.use("/api", require("./routes/route.logDO"));

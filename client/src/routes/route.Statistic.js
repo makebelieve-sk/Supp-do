@@ -7,7 +7,7 @@
 // import {compareArrays} from "../helpers/functions/general.functions/compare";
 // import {NoticeError} from "./helper";
 //
-// export const StatisticRoute = {
+export const StatisticRoute = {
 //     // Адрес для работы с разделом "Статистика"
 //     base_url: "/api/directory/professions/",
 //     // Получение всех данных для раздела "Статистика"
@@ -39,4 +39,4 @@
 //             NoticeError.getAll(e); // Вызываем функцию обработки ошибки
 //         }
 //     },
-// }
+}

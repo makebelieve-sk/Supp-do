@@ -1,6 +1,7 @@
 // Хук, отвечающий за регистрацию/вход/выход и запись пользвотеля в хранилища
 import {useState, useEffect, useCallback} from "react";
 import {LaptopOutlined, MenuUnfoldOutlined, StockOutlined, UserOutlined} from "@ant-design/icons";
+import Cookies from "js-cookie";
 
 import store from "../redux/store";
 import {ActionCreator} from "../redux/combineActions";
@@ -18,23 +19,23 @@ import {RoleRoute} from "../routes/route.Role";
 import {HelpRoute} from "../routes/route.Help";
 import {BodyManager} from "../components/content.components/body/body.component";
 
-const storageName = "userId";   // Название объект пользователя в локальном хранилище браузера
+const storageName = "user";   // Название объект пользователя в локальном хранилище браузера
+const jwt = "token";   // Название поля в куки для сохранения токена пользователя
 
 export const useAuth = () => {
     const [token, setToken] = useState(null);
-    const [userId, setUserId] = useState(null);
     const [user, setUser] = useState(null);
 
     // Функция входа в систему
-    const login = useCallback((jwtToken, id, user) => {
-        setToken(jwtToken);
-        setUserId(id);
-        setUser(user);
-
+    const login = useCallback((token, user) => {
         // Добавляем данные о пользователе в хранилище браузера
-        localStorage.setItem(storageName, JSON.stringify({
-            userId: id, token: jwtToken, user: user
-        }));
+        localStorage.setItem(storageName, JSON.stringify({token, user}));
+
+        Cookies.set(jwt, token);    // Записываем токен в куки
+
+        // Обновляем состояние токена, устанавливаем Cookies.get(jwt), чтобы запросы на сервер шли с токеном
+        setToken(Cookies.get(jwt));
+        setUser(user);  // Обновляем состояние объекта пользователя
 
         // Сохраняем пользователя в хранилище
         store.dispatch(ActionCreator.ActionCreatorAuth.setUser(user));
@@ -163,11 +164,12 @@ export const useAuth = () => {
     // Функция выхода
     const logout = useCallback(() => {
         setToken(null);
-        setUserId(null);
         setUser(null);
 
         // Удаляем все данные пользователя из хранилища браузера
         localStorage.removeItem(storageName);
+
+        Cookies.remove(jwt);    // Удаляем токен из куки
 
         // Удаляем пользователя из хранилища
         store.dispatch(ActionCreator.ActionCreatorAuth.setUser(null));
@@ -185,8 +187,8 @@ export const useAuth = () => {
     useEffect(() => {
         const data = JSON.parse(localStorage.getItem(storageName));
 
-        data && data.token ? login(data.token, data.userId, data.user) : logout();
+        data && data.token ? login(data.token, data.user) : logout();
     }, [login, logout]);
 
-    return {login, logout, token, userId, user};
+    return {login, logout, token, user};
 }

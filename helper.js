@@ -53,4 +53,74 @@ function getShortName(name = null) {
     }
 }
 
-module.exports = {getNameWithParent, getShortName};
+/**
+ * Настройка приложения в зависимости от ролей пользователя
+ * @param key - ключ раздела
+ * @param user - объект пользователя
+ * @returns {{read: boolean, edit: boolean}|Error} - возвращаемое значение (объект{ read, edit} или null)
+ */
+function checkRoleUser(key, user) {
+    const canEdit = (key) => {
+        // Массив, содержащий значения возможности редактирования раздела каждой роли для пользователя
+        const edit = [], read = [];
+
+        // Массив всех ролей пользователя
+        const roles = user && user.roles ? user.roles : null;
+
+        if (roles && roles.length) {
+            roles.forEach(role => {
+                // Массив всех разрешений роли
+                const permissions = role.permissions;
+
+                if (permissions && permissions.length) {
+                    const currentSection = permissions.find(perm => perm.key === key);
+
+                    edit.push(currentSection ? currentSection.edit : false);
+                    read.push(currentSection ? currentSection.read : false);
+                }
+            })
+        }
+
+        return {
+            edit: edit.some(edit => edit),
+            read: read.some(read => read)
+        };
+    }
+
+    // Карта состояний ключей разделов от возможностей редактирования/чтения разделов
+    const map = new Map([
+        ["professions", canEdit("professions")],
+        ["departments", canEdit("departments")],
+        ["people", canEdit("people")],
+        ["equipment", canEdit("equipment")],
+        ["equipmentProperties", canEdit("equipmentProperties")],
+        ["tasks", canEdit("tasks")],
+        ["logDO", canEdit("logDO")],
+        ["help", canEdit("help")],
+        ["users", canEdit("users")],
+        ["roles", canEdit("roles")],
+        ["logs", canEdit("logs")],
+        ["analytic", canEdit("analytic")],
+        ["statistic", canEdit("statistic")],
+        ["professionItem", canEdit("professions")],
+        ["departmentItem", canEdit("departments")],
+        ["personItem", canEdit("people")],
+        ["equipmentItem", canEdit("equipment")],
+        ["equipmentPropertyItem", canEdit("equipmentProperties")],
+        ["taskStatusItem", canEdit("tasks")],
+        ["logDOItem", canEdit("logDO")],
+        ["helpItem", canEdit("help")],
+        ["userItem", canEdit("users")],
+        ["roleItem", canEdit("roles")],
+    ]);
+
+    if (map.has(key)) {
+        return map.get(key);
+    }
+    else {
+        console.log(key);
+        return new Error(`Раздел с ключём ${key} не существует (проверка роли пользователя)`);
+    }
+}
+
+module.exports = {getNameWithParent, getShortName, checkRoleUser};

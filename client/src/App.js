@@ -15,7 +15,7 @@ import "./App.css";
 
 export default function App() {
     // Определяем контексту начальные значения, полученные из хука useAuth
-    const {login, logout, token, userId, user} = useAuth();
+    const {login, logout, token, user} = useAuth();
 
     // Инициализируем флаг авторизации
     const isAuthenticated = !!token;
@@ -27,7 +27,7 @@ export default function App() {
         <ErrorBoundaryPage>
             <Provider store={store}>
                 <ConfigProvider locale={ruRU}>
-                    <AuthContext.Provider value={{token, login, logout, userId, isAuthenticated, user}}>
+                    <AuthContext.Provider value={{token, login, logout, isAuthenticated, user}}>
                         <Router>
                             {routes}
                         </Router>
