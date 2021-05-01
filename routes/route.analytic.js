@@ -552,6 +552,16 @@ router.get(
                 });
             }
 
+            // Получаем все записи состояний заявок
+            let statuses = [];
+
+            try {
+                statuses = await TaskStatus.find({});
+            } catch (err) {
+                console.log(err);
+                res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Состояния заявок' (/log-do/dto)"});
+            }
+
             // Выполняем поиск в базе данных "TaskStatus" по полю "isFinish"
             await TaskStatus.find({isFinish: false}, async function (err, docs) {
                 // Обработка ошибки
@@ -565,7 +575,7 @@ router.get(
                 // Формируем массив удовлетворяющих записей с идентификатором (_id), где isFinish = false
                 const ids = docs.map(doc => doc._id);
 
-                await LogDO.find({taskStatus: {$in: ids}}, function (err, items) {
+                await LogDO.find({taskStatus: {$in: ids}}, async function (err, items) {
                     // Обработка ошибки
                     if (err) {
                         console.log(err);
@@ -581,8 +591,37 @@ router.get(
                     // Получаем готовый массив записей ЖДО
                     const itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
 
+                    let statusLegend = [];  // Инициализация массива легенд статусов
+
+                    if (statuses && statuses.length) {
+                        statuses.forEach(task => {
+                            const countTasks = items.filter(logDO =>
+                                logDO.taskStatus && logDO.taskStatus._id.toString() === task._id.toString());
+
+                            if (countTasks.length)
+                                statusLegend.push({
+                                    id: task._id,
+                                    name: task.name,
+                                    count: countTasks.length,
+                                    color: task.color
+                                });
+                        });
+
+                        // Сколько записей без статуса
+                        const countWithoutStatus = items.filter(logDOs => !logDOs.taskStatus).length;
+
+                        if (countWithoutStatus)
+                            statusLegend.push({
+                                id: Date.now(),
+                                name: "Без статуса",
+                                count: countWithoutStatus,
+                                color: "#FFFFFF",
+                                borderColor: "black"
+                            });
+                    }
+
                     // Отправляем ответ
-                    res.status(200).json({itemsDto, startDate, endDate, alert: "Заявки в работе"});
+                    res.status(200).json({itemsDto, startDate, endDate, alert: "Заявки в работе", statusLegend});
                 })
                     .sort({date: -1})
                     .populate("applicant")
@@ -630,6 +669,16 @@ router.get(
                 });
             }
 
+            // Получаем все записи состояний заявок
+            let statuses = [];
+
+            try {
+                statuses = await TaskStatus.find({});
+            } catch (err) {
+                console.log(err);
+                res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Состояния заявок' (/log-do/dto)"});
+            }
+
             // Выполняем поиск в базе данных "TaskStatus" по полю "isFinish"
             await TaskStatus.find({isFinish: true}, async function (err, docs) {
                 // Обработка ошибки
@@ -657,8 +706,37 @@ router.get(
                         // Получаем готовый массив записей ЖДО
                         const itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
 
+                        let statusLegend = [];  // Инициализация массива легенд статусов
+
+                        if (statuses && statuses.length) {
+                            statuses.forEach(task => {
+                                const countTasks = items.filter(logDO =>
+                                    logDO.taskStatus && logDO.taskStatus._id.toString() === task._id.toString());
+
+                                if (countTasks.length)
+                                    statusLegend.push({
+                                        id: task._id,
+                                        name: task.name,
+                                        count: countTasks.length,
+                                        color: task.color
+                                    });
+                            });
+
+                            // Сколько записей без статуса
+                            const countWithoutStatus = items.filter(logDOs => !logDOs.taskStatus).length;
+
+                            if (countWithoutStatus)
+                                statusLegend.push({
+                                    id: Date.now(),
+                                    name: "Без статуса",
+                                    count: countWithoutStatus,
+                                    color: "#FFFFFF",
+                                    borderColor: "black"
+                                });
+                        }
+
                         // Отправляем ответ
-                        res.status(200).json({itemsDto, startDate, endDate, alert: "Непринятые заявки"});
+                        res.status(200).json({itemsDto, startDate, endDate, alert: "Непринятые заявки", statusLegend});
                     })
                     .sort({date: -1})
                     .populate("applicant")
@@ -708,6 +786,16 @@ router.post(
                 });
             }
 
+            // Получаем все записи состояний заявок
+            let statuses = [];
+
+            try {
+                statuses = await TaskStatus.find({});
+            } catch (err) {
+                console.log(err);
+                res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Состояния заявок' (/log-do/dto)"});
+            }
+
             // Выполняем поиск в базе данных "TaskStatus" по полю "name"
             await TaskStatus.find({name: taskStatus}, async function (err, docs) {
                 // Обработка ошибки
@@ -746,8 +834,37 @@ router.post(
                             // Получаем готовый массив записей ЖДО
                             const itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
 
+                            let statusLegend = [];  // Инициализация массива легенд статусов
+
+                            if (statuses && statuses.length) {
+                                statuses.forEach(task => {
+                                    const countTasks = items.filter(logDO =>
+                                        logDO.taskStatus && logDO.taskStatus._id.toString() === task._id.toString());
+
+                                    if (countTasks.length)
+                                        statusLegend.push({
+                                            id: task._id,
+                                            name: task.name,
+                                            count: countTasks.length,
+                                            color: task.color
+                                        });
+                                });
+
+                                // Сколько записей без статуса
+                                const countWithoutStatus = items.filter(logDOs => !logDOs.taskStatus).length;
+
+                                if (countWithoutStatus)
+                                    statusLegend.push({
+                                        id: Date.now(),
+                                        name: "Без статуса",
+                                        count: countWithoutStatus,
+                                        color: "#FFFFFF",
+                                        borderColor: "black"
+                                    });
+                            }
+
                             // Отправляем ответ
-                            res.status(200).json({itemsDto, startDate, endDate, alert: "Загруженность подразделений"});
+                            res.status(200).json({itemsDto, startDate, endDate, alert: "Загруженность подразделений", statusLegend});
                         }
                     )
                         .sort({date: -1})
@@ -803,6 +920,16 @@ router.post(
                 });
             }
 
+            // Получаем все записи состояний заявок
+            let statuses = [];
+
+            try {
+                statuses = await TaskStatus.find({});
+            } catch (err) {
+                console.log(err);
+                res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Состояния заявок' (/log-do/dto)"});
+            }
+
             // Даем запрос в бд, передавая фильтр и нужные даты
             await LogDO.find(
                 {date: {$gte: millisecondsStart, $lte: millisecondsEnd}},
@@ -820,8 +947,37 @@ router.post(
                     // Получаем готовый массив записей ЖДО
                     const itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
 
+                    let statusLegend = [];  // Инициализация массива легенд статусов
+
+                    if (statuses && statuses.length) {
+                        statuses.forEach(task => {
+                            const countTasks = items.filter(logDO =>
+                                logDO.taskStatus && logDO.taskStatus._id.toString() === task._id.toString());
+
+                            if (countTasks.length)
+                                statusLegend.push({
+                                    id: task._id,
+                                    name: task.name,
+                                    count: countTasks.length,
+                                    color: task.color
+                                });
+                        });
+
+                        // Сколько записей без статуса
+                        const countWithoutStatus = items.filter(logDOs => !logDOs.taskStatus).length;
+
+                        if (countWithoutStatus)
+                            statusLegend.push({
+                                id: Date.now(),
+                                name: "Без статуса",
+                                count: countWithoutStatus,
+                                color: "#FFFFFF",
+                                borderColor: "black"
+                            });
+                    }
+
                     // Отправляем ответ
-                    res.status(200).json({itemsDto, startDate, endDate, alert: "Динамика отказов"});
+                    res.status(200).json({itemsDto, startDate, endDate, alert: "Динамика отказов", statusLegend});
                 }
             )
                 .sort({date: -1})
@@ -872,6 +1028,16 @@ router.get(
                 });
             }
 
+            // Получаем все записи состояний заявок
+            let statuses = [];
+
+            try {
+                statuses = await TaskStatus.find({});
+            } catch (err) {
+                console.log(err);
+                res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Состояния заявок' (/log-do/dto)"});
+            }
+
             // Даем запрос в бд, передавая нужную дату
             await LogDO.find(
                 {
@@ -903,12 +1069,42 @@ router.get(
                     // Получаем массив записей ЖДО
                     const itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
 
+                    let statusLegend = [];  // Инициализация массива легенд статусов
+
+                    if (statuses && statuses.length) {
+                        statuses.forEach(task => {
+                            const countTasks = items.filter(logDO =>
+                                logDO.taskStatus && logDO.taskStatus._id.toString() === task._id.toString());
+
+                            if (countTasks.length)
+                                statusLegend.push({
+                                    id: task._id,
+                                    name: task.name,
+                                    count: countTasks.length,
+                                    color: task.color
+                                });
+                        });
+
+                        // Сколько записей без статуса
+                        const countWithoutStatus = items.filter(logDOs => !logDOs.taskStatus).length;
+
+                        if (countWithoutStatus)
+                            statusLegend.push({
+                                id: Date.now(),
+                                name: "Без статуса",
+                                count: countWithoutStatus,
+                                color: "#FFFFFF",
+                                borderColor: "black"
+                            });
+                    }
+
                     // Отправляем ответ
                     res.status(200).json({
                         itemsDto,
                         startDate,
                         endDate,
-                        alert: "Рейтинг отказов за 12 месяцев (Топ-5)"
+                        alert: "Рейтинг отказов за 12 месяцев (Топ-5)",
+                        statusLegend
                     });
                 }
             )
@@ -960,6 +1156,16 @@ router.get(
             } catch (err) {
                 console.log(err);
                 res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Оборудование' (ratingOrders) " + err});
+            }
+
+            // Получаем все записи состояний заявок
+            let allStatuses = [];
+
+            try {
+                allStatuses = await TaskStatus.find({});
+            } catch (err) {
+                console.log(err);
+                res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Состояния заявок' (/log-do/dto)"});
             }
 
             let statuses = [];
@@ -1018,8 +1224,37 @@ router.get(
             // Получаем готовый массив записей ЖДО
             const itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
 
+            let statusLegend = [];  // Инициализация массива легенд статусов
+
+            if (allStatuses && allStatuses.length) {
+                allStatuses.forEach(task => {
+                    const countTasks = items.filter(logDO =>
+                        logDO.taskStatus && logDO.taskStatus._id.toString() === task._id.toString());
+
+                    if (countTasks.length)
+                        statusLegend.push({
+                            id: task._id,
+                            name: task.name,
+                            count: countTasks.length,
+                            color: task.color
+                        });
+                });
+
+                // Сколько записей без статуса
+                const countWithoutStatus = items.filter(logDOs => !logDOs.taskStatus).length;
+
+                if (countWithoutStatus)
+                    statusLegend.push({
+                        id: Date.now(),
+                        name: "Без статуса",
+                        count: countWithoutStatus,
+                        color: "#FFFFFF",
+                        borderColor: "black"
+                    });
+            }
+
             // Отправляем ответ
-            res.status(200).json({itemsDto, startDate, endDate, alert: "Рейтинг незакрытых заявок (Топ-5)"});
+            res.status(200).json({itemsDto, startDate, endDate, alert: "Рейтинг незакрытых заявок (Топ-5)", statusLegend});
         } catch (err) {
             console.log(err);
             res.status(500).json({message: "Возникла ошибка при переходе в раздел ЖДО " + err});

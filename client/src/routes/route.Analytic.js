@@ -67,6 +67,9 @@ export const AnalyticRoute = {
                 // Устанавливаем начальную дату в датапикере
                 store.dispatch(ActionCreator.ActionCreatorLogDO.setDate(date));
 
+                // Обновление легенды статусов
+                store.dispatch(ActionCreator.ActionCreatorLogDO.setLegend(items.statusLegend));
+
                 // Устанавливаем подсказку (какой фильтр сейчас есть у таблицы)
                 store.dispatch(ActionCreator.ActionCreatorLogDO.setAlert(items.alert));
 
