@@ -8,7 +8,7 @@ const config = require("./config/default.json");
 const app = express();
 
 app.use(express.json({extended: true}));
-app.use(cookieParser(config.jwtSecret))
+app.use(cookieParser(config.jwtSecret));
 
 // Регистрируем маршруты
 app.use("/api", require("./routes/route.logDO"));

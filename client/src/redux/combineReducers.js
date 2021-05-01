@@ -18,7 +18,7 @@ import reducerUser from "./tabs.reducers/user/user.reducer";
 import reducerRole from "./tabs.reducers/role/role.reducer";
 import reducerAuth from "./general.reducers/auth/auth.reducer";
 
-export const reducer = combineReducers({
+const appReducer = combineReducers({
     reducerProfession,
     reducerDepartment,
     reducerPerson,
@@ -36,3 +36,12 @@ export const reducer = combineReducers({
     reducerRole,
     reducerAuth,
 });
+
+export const reducer = (state, action) => {
+    // Если пользователь выходит из системы, приводим redux к начальному состоянию
+    if (action.type === "USER_LOGOUT") {
+        state = action.payload;
+    }
+
+    return appReducer(state, action);
+}

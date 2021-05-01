@@ -17,7 +17,6 @@ import {StatisticRoute} from "../routes/route.Statistic";
 import {UserRoute} from "../routes/route.User";
 import {RoleRoute} from "../routes/route.Role";
 import {HelpRoute} from "../routes/route.Help";
-import {BodyManager} from "../components/content.components/body/body.component";
 
 const storageName = "user";   // Название объект пользователя в локальном хранилище браузера
 const jwt = "token";   // Название поля в куки для сохранения токена пользователя
@@ -171,15 +170,8 @@ export const useAuth = () => {
 
         Cookies.remove(jwt);    // Удаляем токен из куки
 
-        // Удаляем пользователя из хранилища
-        store.dispatch(ActionCreator.ActionCreatorAuth.setUser(null));
-
-        // Очищаем боковое меню приложения
-        store.dispatch(ActionCreator.ActionCreatorAuth.setMenu(null));
-
-        // Устанавливаем начальное значение вкладок
-        store.dispatch(ActionCreator.ActionCreatorTab.setTab([{title: "Журнал дефектов и отказов", content: BodyManager, key: "logDO"}]));
-        store.dispatch(ActionCreator.ActionCreatorTab.setActiveKey("logDO"));
+        // Возвращаем начальное состояние redux
+        store.dispatch({type: "USER_LOGOUT", payload: undefined});
 
     }, []);
 

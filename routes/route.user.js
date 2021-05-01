@@ -4,8 +4,8 @@ const {check, validationResult} = require("express-validator");
 const bcrypt = require("bcryptjs");
 
 const User = require("../schemes/User");
-const Role = require("../schemes/Role");
 const UserDto = require("../dto/UserDto");
+const AuthMiddleware = require("../middlewares/auth.middleware");
 
 const router = Router();
 
@@ -26,148 +26,181 @@ const checkMiddleware = [
 ];
 
 // Возвращает запись по коду
-router.get("/users/:id", async (req, res) => {
-    const _id = req.params.id;  // Получение id записи
+router.get(
+    "/users/:id",
+    (req, res, next) => {
+        AuthMiddleware.canRead(req, res, next, "users").then(null);
+    },
+    async (req, res) => {
+        const _id = req.params.id;  // Получение id записи
 
-    try {
-        let item, isNewItem = true, roles;
+        try {
+            let item, isNewItem = true;
 
-        if (_id === "-1") {
-            // Создание новой записи
-            item = new User({userName: "", person: null, firstName: "", secondName: "", email: "", mailing: false,
-                approved: false, roles: []});
-        } else {
-            // Получение существующей записи
-            item = await User.findById({_id}).populate("person").populate("roles").select("-password");
-            isNewItem = false;
+            if (_id === "-1") {
+                // Создание новой записи
+                item = new User({
+                    userName: "", person: null, firstName: "", secondName: "", email: "", mailing: false,
+                    approved: false, roles: []
+                });
+            } else {
+                // Получение существующей записи
+                item = await User.findById({_id}).populate("person").populate("roles").select("-password");
+                isNewItem = false;
+            }
+
+            if (!item) return res.status(400).json({message: `Запись с кодом ${_id} не найдена`});
+
+            res.status(200).json({isNewItem, user: item});
+        } catch (err) {
+            console.log(err);
+            res.status(500).json({message: `Ошибка при открытии записи с кодом ${_id}: ${err}`});
         }
-
-        if (!item) return res.status(400).json({message: `Запись с кодом ${_id} не существует`});
-
-        res.status(201).json({isNewItem, user: item});
-    } catch (err) {
-        console.log(err);
-        res.status(500).json({message: `Ошибка при открытии записи с кодом ${_id}: ${err}`});
-    }
-});
+    });
 
 // Возвращает все записи
-router.get("/users", async (req, res) => {
-    try {
-        // Получаем все записи раздела "Пользователи", кроме поля "пароль"
-        const items = await User.find({}).populate("person").populate("roles").select("-password");
+router.get(
+    "/users",
+    (req, res, next) => {
+        AuthMiddleware.canRead(req, res, next, "users").then(null);
+    },
+    async (req, res) => {
+        try {
+            // Получаем все записи раздела "Пользователи", кроме поля "пароль"
+            const items = await User.find({}).populate("person").populate("roles").select("-password");
 
-        let itemsDto = [];
+            let itemsDto = [];
 
-        // Изменяем запись для вывода в таблицу
-        if (items && items.length) itemsDto = items.map(item => new UserDto(item));
+            // Изменяем запись для вывода в таблицу
+            if (items && items.length) itemsDto = items.map(item => new UserDto(item));
 
-        res.json(itemsDto);
-    } catch (err) {
-        console.log(err);
-        res.status(500).json({message: "Ошибка при получении записей: " + err});
-    }
-});
+            res.status(200).json(itemsDto);
+        } catch (err) {
+            console.log(err);
+            res.status(500).json({message: "Ошибка при получении записей: " + err});
+        }
+    });
 
 // Сохраняет новую запись
-router.post("/users", checkMiddleware, async (req, res) => {
-    try {
-        // Проверка валидации полей раздела "Характеристики оборудования"
-        const errors = validationResult(req);
+router.post(
+    "/users",
+    checkMiddleware,
+    (req, res, next) => {
+        AuthMiddleware.canEdit(req, res, next, "users").then(null);
+    },
+    async (req, res) => {
+        try {
+            // Проверка валидации полей раздела "Характеристики оборудования"
+            const errors = validationResult(req);
 
-        if (!errors.isEmpty()) return res.status(400).json({message: "Некоректные данные при создании записи"});
+            if (!errors.isEmpty()) return res.status(400).json({message: "Некоректные данные при создании записи"});
 
-        // Получаем объект записи с фронтенда
-        const {userName, person, firstName, secondName, email, password, mailing, approved, roles} = req.body;
+            // Получаем объект записи с фронтенда
+            const {userName, person, firstName, secondName, email, password, mailing, approved, roles} = req.body;
 
-        // Ищем запись в базе данных по наименованию
-        let item = await User.findOne({userName}).populate("person").populate("roles").select("-password");
+            // Ищем запись в базе данных по наименованию
+            let item = await User.findOne({userName}).populate("person").populate("roles").select("-password");
 
-        // Проверяем на существование записи с указанным именем
-        if (item)
-            return res.status(400).json({message: `Запись с наименованием ${userName} уже существует`});
+            // Проверяем на существование записи с указанным именем
+            if (item)
+                return res.status(404).json({message: `Запись с наименованием ${userName} уже существует`});
 
-        const hashedPassword = password ? await bcrypt.hash(password, 12) : null;   // Хешируем пароль
+            const hashedPassword = password ? await bcrypt.hash(password, 12) : null;   // Хешируем пароль
 
-        // Создаем новый экземпляр записи
-        item = hashedPassword
-            ? new User({userName, person, firstName, secondName, email, password: hashedPassword, mailing,
-                approved, roles})
-            : new User({userName, person, firstName, secondName, email, mailing,
-                approved, roles})
+            // Создаем новый экземпляр записи
+            item = hashedPassword
+                ? new User({
+                    userName, person, firstName, secondName, email, password: hashedPassword, mailing,
+                    approved, roles
+                })
+                : new User({
+                    userName, person, firstName, secondName, email, mailing,
+                    approved, roles
+                })
 
-        await item.save();  // Сохраняем запись в базе данных
+            await item.save();  // Сохраняем запись в базе данных
 
-        const currentItem = await User.findOne({_id: item._id})
-            .populate("person")
-            .populate("roles")
-            .select("-password");
+            const currentItem = await User.findOne({_id: item._id})
+                .populate("person")
+                .populate("roles")
+                .select("-password");
 
-        // Изменяем запись для вывода в таблицу
-        const savedItem = new UserDto(currentItem);
+            // Изменяем запись для вывода в таблицу
+            const savedItem = new UserDto(currentItem);
 
-        res.status(201).json({message: "Запись сохранена", item: savedItem});
-    } catch (err) {
-        console.log(err);
-        res.status(500).json({message: "Ошибка при создании записи: " + err});
-    }
-});
+            res.status(201).json({message: "Запись сохранена", item: savedItem});
+        } catch (err) {
+            console.log(err);
+            res.status(500).json({message: "Ошибка при создании записи: " + err});
+        }
+    });
 
 // Изменяет запись
-router.put("/users", checkMiddleware, async (req, res) => {
-    try {
-        // Проверка валидации полей раздела "Характеристики оборудования"
-        const errors = validationResult(req);
+router.put(
+    "/users",
+    checkMiddleware,
+    (req, res, next) => {
+        AuthMiddleware.canEdit(req, res, next, "users").then(null);
+    },
+    async (req, res) => {
+        try {
+            // Проверка валидации полей раздела "Характеристики оборудования"
+            const errors = validationResult(req);
 
-        if (!errors.isEmpty()) return res.status(400).json({message: "Некоректные данные при изменении записи"});
+            if (!errors.isEmpty()) return res.status(400).json({message: "Некоректные данные при изменении записи"});
 
-        // Получаем объект записи с фронтенда
-        const {_id, userName, person, firstName, secondName, email, password, mailing, approved, roles} = req.body;
+            // Получаем объект записи с фронтенда
+            const {_id, userName, person, firstName, secondName, email, password, mailing, approved, roles} = req.body;
 
-        // Ищем запись в базе данных по уникальному идентификатору, кроме поля "пароль"
-        const item = await User.findById({_id}).populate("person").populate("roles").select("-password");
+            // Ищем запись в базе данных по уникальному идентификатору, кроме поля "пароль"
+            const item = await User.findById({_id}).populate("person").populate("roles").select("-password");
 
-        // Проверяем на существование записи с уникальным идентификатором
-        if (!item) return res.status(400).json({message: `Запись с кодом ${_id} не найдена`});
+            // Проверяем на существование записи с уникальным идентификатором
+            if (!item) return res.status(404).json({message: `Запись с кодом ${_id} не найдена`});
 
-        const hashedPassword = password ? await bcrypt.hash(password, 12) : null;   // Хешируем пароль
+            const hashedPassword = password ? await bcrypt.hash(password, 12) : null;   // Хешируем пароль
 
-        item.userName = userName;
-        item.person = person;
-        item.firstName = firstName;
-        item.secondName = secondName;
-        item.email = email;
-        if (hashedPassword) item.password = hashedPassword;
-        item.mailing = mailing;
-        item.approved = approved;
-        item.roles = roles;
+            item.userName = userName;
+            item.person = person;
+            item.firstName = firstName;
+            item.secondName = secondName;
+            item.email = email;
+            if (hashedPassword) item.password = hashedPassword;
+            item.mailing = mailing;
+            item.approved = approved;
+            item.roles = roles;
 
-        await item.save();  // Сохраняем запись в базу данных
+            await item.save();  // Сохраняем запись в базу данных
 
-        const currentItem = await User.findOne({_id}).populate("person").populate("roles").select("-password");
+            const currentItem = await User.findOne({_id}).populate("person").populate("roles").select("-password");
 
-        // Изменяем запись для вывода в таблицу
-        const savedItem = new UserDto(currentItem);
+            // Изменяем запись для вывода в таблицу
+            const savedItem = new UserDto(currentItem);
 
-        res.status(201).json({message: "Запись сохранена", item: savedItem});
-    } catch (err) {
-        console.log(err);
-        res.status(500).json({message: "Ошибка при обновлении записи: " + err});
-    }
-});
+            res.status(201).json({message: "Запись сохранена", item: savedItem});
+        } catch (err) {
+            console.log(err);
+            res.status(500).json({message: "Ошибка при обновлении записи: " + err});
+        }
+    });
 
 // Удаляет запись
-router.delete("/users/:id", async (req, res) => {
-    const _id = req.params.id;  // Получаем _id записи
+router.delete(
+    "/users/:id",
+    (req, res, next) => {
+        AuthMiddleware.canEdit(req, res, next, "users").then(null);
+    },
+    async (req, res) => {
+        const _id = req.params.id;  // Получаем _id записи
 
-    try {
-        await User.deleteOne({_id});    // Удаление записи из базы данных по id записи
+        try {
+            await User.deleteOne({_id});    // Удаление записи из базы данных по id записи
 
-        res.status(201).json({message: "Запись успешно удалена"});
-    } catch (err) {
-        console.log(err);
-        res.status(500).json({message: `Ошибка при удалении записи с кодом ${_id}: ${err}`});
-    }
-});
+            res.status(200).json({message: "Запись успешно удалена"});
+        } catch (err) {
+            console.log(err);
+            res.status(500).json({message: `Ошибка при удалении записи с кодом ${_id}: ${err}`});
+        }
+    });
 
 module.exports = router;

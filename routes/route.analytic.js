@@ -7,6 +7,7 @@ const Equipment = require("../schemes/Equipment");
 const TaskStatus = require("../schemes/TaskStatus");
 const LogDO = require("../schemes/LogDO");
 const LogDoDto = require("../dto/LogDoDto");
+const AuthMiddleware = require("../middlewares/auth.middleware");
 
 const router = Router();
 
@@ -339,222 +340,160 @@ const getRatingOrders = async (ids) => {
 }
 
 // Возвращает данные для аналитики
-router.get("/current-state", async (req, res) => {
-    try {
-        let departments, equipment, fullStatusesFalse, statusesFalse, statusesTrue, logDOs;
-
+router.get(
+    "/current-state",
+    (req, res, next) => {
+        AuthMiddleware.canRead(req, res, next, "analytic").then(null);
+    },
+    async (req, res) => {
         try {
-            departments = await Department.find({});
-            equipment = await Equipment.find({});
-            fullStatusesFalse = await TaskStatus.find({isFinish: false});
-            statusesFalse = await TaskStatus.find({isFinish: false}).select("_id");
-            statusesTrue = await TaskStatus.find({isFinish: true}).select("_id");
-            logDOs = await LogDO.find({});
-        } catch (err) {
-            console.log(err);
-            res.status(500).json({
-                message: "Возникла ошибка при получении записей из баз данных 'Подразделения', 'Состояния заявок' и 'Оборудование' (current-state)"
-            });
-        }
+            let departments, equipment, fullStatusesFalse, statusesFalse, statusesTrue, logDOs;
 
-        // Формируем массив удовлетворяющих записей с идентификатором (_id), где isFinish = false/true
-        const idsFalse = statusesFalse.map(status => status._id);
-        const idsTrue = statusesTrue.map(status => status._id);
-
-        // Неназначенные заявки
-        let unassignedTasks = 0;
-        try {
-            unassignedTasks = await getUnassignedTasks();
-        } catch (err) {
-            console.log(err);
-            res.status(500).json({message: "Возникла ошибка при получении неназначенных заявок: " + err});
-        }
-
-        // Заявки в работе
-        let inWorkTasks = 0;
-        try {
-            inWorkTasks = await getInWorkTasks(idsFalse);
-        } catch (err) {
-            console.log(err);
-            res.status(500).json({message: "Возникла ошибка при получении заявок в работе: " + err});
-        }
-
-        // Не принятые заявки
-        let notAccepted = 0;
-        try {
-            notAccepted = await getNotAccepted(idsTrue);
-        } catch (err) {
-            console.log(err);
-            res.status(500).json({message: "Возникла ошибка при получении не принятых заявок: " + err});
-        }
-
-        // Загруженность подразделений
-        let workloadDepartments = 0;
-        try {
-            workloadDepartments = await getWorkloadDepartments(fullStatusesFalse, departments);
-        } catch (err) {
-            console.log(err);
-            res.status(500).json({message: "Возникла ошибка при получении загруженности подразделений: " + err});
-        }
-
-        // Динамика отказов
-        const failureDynamics = getFailureDynamics(logDOs);
-
-        // Среднее время реагирования
-        let averageResponseTime = 0;
-        try {
-            averageResponseTime = await getAverageResponseTime();
-        } catch (err) {
-            console.log(err);
-            res.status(500).json({message: "Возникла ошибка при получении среднего времени реагирования: " + err});
-        }
-
-        // Среднее время выполнения
-        let averageClosingTime = 0;
-        try {
-            averageClosingTime = await getAverageClosingTime();
-        } catch (err) {
-            console.log(err);
-            res.status(500).json({message: "Возникла ошибка при получении среднего времени выполнения: " + err});
-        }
-
-        // Изменение простоев
-        const changeDowntime = getChangeDowntime(logDOs, true);
-
-        // Изменение отказов
-        const changeRefusal = getChangeDowntime(logDOs);
-
-        // Рейтинг отказов за 12 месяцев (Топ-5)
-        let bounceRating = [];
-        try {
-            bounceRating = await getBounceRating(equipment);
-        } catch (err) {
-            console.log(err);
-            res.status(500).json({message: "Возникла ошибка при получении рейтинга отказов: " + err});
-        }
-
-        // Рейтинг незакрытых заявок (Топ-5)
-        let ratingOrders = [];
-        try {
-            ratingOrders = await getRatingOrders(statusesFalse);
-        } catch (err) {
-            console.log(err);
-            res.status(500).json({message: "Возникла ошибка при получении рейтинга незакрытых заявок: " + err});
-        }
-
-        // Отправляем ответ
-        res.status(201).json({
-            unassignedTasks,
-            inWorkTasks,
-            notAccepted,
-            workloadDepartments,
-            failureDynamics,
-            averageResponseTime,
-            averageClosingTime,
-            changeDowntime,
-            changeRefusal,
-            bounceRating,
-            ratingOrders
-        });
-    } catch (e) {
-        console.log(e)
-        res.status(500).json({message: "Ошибка при получении данных аналитики"})
-    }
-});
-
-// Возвращает записи ЖДО при клике на "Неназначенные заявки"
-router.get("/go-to-logDO/unassignedTasks", async (req, res) => {
-    try {
-        let departments = [], equipment = [];
-        try {
-            equipment = await Equipment.find({}).populate("parent");      // Получаем всё оборудование
-            departments = await Department.find({}).populate("parent");   // Получаем все подразделения
-        } catch (err) {
-            console.log(err);
-            res.status(500).json({
-                message: "Возникла ошибка при получении записей из баз данных 'Подразделения' и 'Оборудование' (unassignedTasks): " + err
-            });
-        }
-
-        // Даем запрос в бд, передавая фильтр и нужные даты
-        await LogDO.find({responsible: null, taskStatus: null}, function (err, items) {
-            // Обработка ошибки
-            if (err) {
+            try {
+                departments = await Department.find({});
+                equipment = await Equipment.find({});
+                fullStatusesFalse = await TaskStatus.find({isFinish: false});
+                statusesFalse = await TaskStatus.find({isFinish: false}).select("_id");
+                statusesTrue = await TaskStatus.find({isFinish: true}).select("_id");
+                logDOs = await LogDO.find({});
+            } catch (err) {
                 console.log(err);
                 res.status(500).json({
-                    message: "Возникла ошибка при получении записей из базы данных ЖДО (unassignedTasks): " + err
+                    message: "Возникла ошибка при получении записей из баз данных 'Подразделения', 'Состояния заявок' и 'Оборудование' (current-state)"
                 });
             }
 
-            // Получаем начальную и конечную даты записей
-            const startDate = moment(items[0].date).format(dateFormat);
-            const endDate = moment(items[items.length - 1].date).format(dateFormat);
+            // Формируем массив удовлетворяющих записей с идентификатором (_id), где isFinish = false/true
+            const idsFalse = statusesFalse.map(status => status._id);
+            const idsTrue = statusesTrue.map(status => status._id);
 
-            // Получаем готовый массив записей ЖДО
-            const itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
+            // Неназначенные заявки
+            let unassignedTasks = 0;
+            try {
+                unassignedTasks = await getUnassignedTasks();
+            } catch (err) {
+                console.log(err);
+                res.status(500).json({message: "Возникла ошибка при получении неназначенных заявок: " + err});
+            }
+
+            // Заявки в работе
+            let inWorkTasks = 0;
+            try {
+                inWorkTasks = await getInWorkTasks(idsFalse);
+            } catch (err) {
+                console.log(err);
+                res.status(500).json({message: "Возникла ошибка при получении заявок в работе: " + err});
+            }
+
+            // Не принятые заявки
+            let notAccepted = 0;
+            try {
+                notAccepted = await getNotAccepted(idsTrue);
+            } catch (err) {
+                console.log(err);
+                res.status(500).json({message: "Возникла ошибка при получении не принятых заявок: " + err});
+            }
+
+            // Загруженность подразделений
+            let workloadDepartments = 0;
+            try {
+                workloadDepartments = await getWorkloadDepartments(fullStatusesFalse, departments);
+            } catch (err) {
+                console.log(err);
+                res.status(500).json({message: "Возникла ошибка при получении загруженности подразделений: " + err});
+            }
+
+            // Динамика отказов
+            const failureDynamics = getFailureDynamics(logDOs);
+
+            // Среднее время реагирования
+            let averageResponseTime = 0;
+            try {
+                averageResponseTime = await getAverageResponseTime();
+            } catch (err) {
+                console.log(err);
+                res.status(500).json({message: "Возникла ошибка при получении среднего времени реагирования: " + err});
+            }
+
+            // Среднее время выполнения
+            let averageClosingTime = 0;
+            try {
+                averageClosingTime = await getAverageClosingTime();
+            } catch (err) {
+                console.log(err);
+                res.status(500).json({message: "Возникла ошибка при получении среднего времени выполнения: " + err});
+            }
+
+            // Изменение простоев
+            const changeDowntime = getChangeDowntime(logDOs, true);
+
+            // Изменение отказов
+            const changeRefusal = getChangeDowntime(logDOs);
+
+            // Рейтинг отказов за 12 месяцев (Топ-5)
+            let bounceRating = [];
+            try {
+                bounceRating = await getBounceRating(equipment);
+            } catch (err) {
+                console.log(err);
+                res.status(500).json({message: "Возникла ошибка при получении рейтинга отказов: " + err});
+            }
+
+            // Рейтинг незакрытых заявок (Топ-5)
+            let ratingOrders = [];
+            try {
+                ratingOrders = await getRatingOrders(statusesFalse);
+            } catch (err) {
+                console.log(err);
+                res.status(500).json({message: "Возникла ошибка при получении рейтинга незакрытых заявок: " + err});
+            }
 
             // Отправляем ответ
-            res.status(201).json({itemsDto, startDate, endDate, alert: "Неназначенные заявки"});
-        })
-            .sort({date: 1})
-            .populate("applicant")
-            .populate({
-                path: "equipment",
-                populate: {
-                    path: "parent",
-                    model: "Equipment"
-                }
-            })
-            .populate({
-                    path: "department",
-                    populate: {
-                        path: "parent",
-                        model: "Department"
-                    }
-                }
-            )
-            .populate("responsible")
-            .populate("taskStatus")
-            .populate("files");
-    } catch (err) {
-        console.log(err);
-        res.status(500).json({message: "Возникла ошибка при переходе в раздел ЖДО при клике на 'Неназначенные заявки' " + err});
-    }
-});
-
-// Возвращает записи ЖДО при клике на "Заявки в работе"
-router.get("/go-to-logDO/inWorkTasks", async (req, res) => {
-    try {
-        let departments = [], equipment = [];
-        try {
-            equipment = await Equipment.find({}).populate("parent");      // Получаем всё оборудование
-            departments = await Department.find({}).populate("parent");   // Получаем все подразделения
-        } catch (err) {
-            console.log(err);
-            res.status(500).json({
-                message: "Возникла ошибка при получении записей из баз данных 'Подразделения' и 'Оборудование' (inWorkTasks): " + err
+            res.status(200).json({
+                unassignedTasks,
+                inWorkTasks,
+                notAccepted,
+                workloadDepartments,
+                failureDynamics,
+                averageResponseTime,
+                averageClosingTime,
+                changeDowntime,
+                changeRefusal,
+                bounceRating,
+                ratingOrders
             });
+        } catch (e) {
+            console.log(e)
+            res.status(500).json({message: "Ошибка при получении данных аналитики"})
         }
+    });
 
-        // Выполняем поиск в базе данных "TaskStatus" по полю "isFinish"
-        await TaskStatus.find({isFinish: false}, async function (err, docs) {
-            // Обработка ошибки
-            if (err) {
+// Возвращает записи ЖДО при клике на "Неназначенные заявки"
+router.get(
+    "/go-to-logDO/unassignedTasks",
+    (req, res, next) => {
+        AuthMiddleware.canRead(req, res, next, "logDO").then(null);
+    },
+    async (req, res) => {
+        try {
+            let departments = [], equipment = [];
+            try {
+                equipment = await Equipment.find({}).populate("parent");      // Получаем всё оборудование
+                departments = await Department.find({}).populate("parent");   // Получаем все подразделения
+            } catch (err) {
                 console.log(err);
                 res.status(500).json({
-                    message: "Возникла ошибка при получении записей из базы данных Состояние заявок (inWorkTasks) " + err
+                    message: "Возникла ошибка при получении записей из баз данных 'Подразделения' и 'Оборудование' (unassignedTasks): " + err
                 });
             }
 
-            // Формируем массив удовлетворяющих записей с идентификатором (_id), где isFinish = false
-            const ids = docs.map(doc => doc._id);
-
-            await LogDO.find({taskStatus: {$in: ids}}, function (err, items) {
+            // Даем запрос в бд, передавая фильтр и нужные даты
+            await LogDO.find({responsible: null, taskStatus: null}, function (err, items) {
                 // Обработка ошибки
                 if (err) {
                     console.log(err);
                     res.status(500).json({
-                        message: "Возникла ошибка при получении записей из базы данных ЖДО (inWorkTasks) " + err
+                        message: "Возникла ошибка при получении записей из базы данных ЖДО (unassignedTasks): " + err
                     });
                 }
 
@@ -566,9 +505,9 @@ router.get("/go-to-logDO/inWorkTasks", async (req, res) => {
                 const itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
 
                 // Отправляем ответ
-                res.status(201).json({itemsDto, startDate, endDate, alert: "Заявки в работе"});
+                res.status(200).json({itemsDto, startDate, endDate, alert: "Неназначенные заявки"});
             })
-                .sort({date: 1})
+                .sort({date: -1})
                 .populate("applicant")
                 .populate({
                     path: "equipment",
@@ -588,45 +527,51 @@ router.get("/go-to-logDO/inWorkTasks", async (req, res) => {
                 .populate("responsible")
                 .populate("taskStatus")
                 .populate("files");
-        })
-    } catch (err) {
-        console.log(err);
-        res.status(500).json({message: "Возникла ошибка при переходе в раздел ЖДО при клике на 'Заявки в работе' " + err});
-    }
-});
-
-// Возвращает записи ЖДО при клике на "Непринятые заявки"
-router.get("/go-to-logDO/notAccepted", async (req, res) => {
-    try {
-        let departments = [], equipment = [];
-        try {
-            equipment = await Equipment.find({}).populate("parent");      // Получаем всё оборудование
-            departments = await Department.find({}).populate("parent");   // Получаем все подразделения
         } catch (err) {
             console.log(err);
-            res.status(500).json({
-                message: "Возникла ошибка при получении записей из баз данных 'Подразделения' и 'Оборудование' (notAccepted): " + err
-            });
+            res.status(500).json({message: "Возникла ошибка при переходе в раздел ЖДО при клике на 'Неназначенные заявки' " + err});
         }
+    });
 
-        // Выполняем поиск в базе данных "TaskStatus" по полю "isFinish"
-        await TaskStatus.find({isFinish: true}, async function (err, docs) {
-            // Обработка ошибки
-            if (err) {
+// Возвращает записи ЖДО при клике на "Заявки в работе"
+router.get(
+    "/go-to-logDO/inWorkTasks",
+    (req, res, next) => {
+        AuthMiddleware.canRead(req, res, next, "logDO").then(null);
+    },
+    async (req, res) => {
+        try {
+            let departments = [], equipment = [];
+            try {
+                equipment = await Equipment.find({}).populate("parent");      // Получаем всё оборудование
+                departments = await Department.find({}).populate("parent");   // Получаем все подразделения
+            } catch (err) {
                 console.log(err);
-                res.status(500).json({message: "Возникла ошибка при получении записей из базы данных Состояние заявок (notAccepted) " + err});
+                res.status(500).json({
+                    message: "Возникла ошибка при получении записей из баз данных 'Подразделения' и 'Оборудование' (inWorkTasks): " + err
+                });
             }
 
-            // Формируем массив удовлетворяющих записей с идентификатором (_id), где isFinish = true
-            const ids = docs.map(doc => doc._id);
+            // Выполняем поиск в базе данных "TaskStatus" по полю "isFinish"
+            await TaskStatus.find({isFinish: false}, async function (err, docs) {
+                // Обработка ошибки
+                if (err) {
+                    console.log(err);
+                    res.status(500).json({
+                        message: "Возникла ошибка при получении записей из базы данных Состояние заявок (inWorkTasks) " + err
+                    });
+                }
 
-            await LogDO.find(
-                {$and: [{taskStatus: {$in: ids}}, {acceptTask: false}]},
-                function (err, items) {
+                // Формируем массив удовлетворяющих записей с идентификатором (_id), где isFinish = false
+                const ids = docs.map(doc => doc._id);
+
+                await LogDO.find({taskStatus: {$in: ids}}, function (err, items) {
                     // Обработка ошибки
                     if (err) {
                         console.log(err);
-                        res.status(500).json({message: "Возникла ошибка при получении записей из базы данных ЖДО (notAccepted) " + err});
+                        res.status(500).json({
+                            message: "Возникла ошибка при получении записей из базы данных ЖДО (inWorkTasks) " + err
+                        });
                     }
 
                     // Получаем начальную и конечную даты записей
@@ -637,94 +582,9 @@ router.get("/go-to-logDO/notAccepted", async (req, res) => {
                     const itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
 
                     // Отправляем ответ
-                    res.status(201).json({itemsDto, startDate, endDate, alert: "Непринятые заявки"});
+                    res.status(200).json({itemsDto, startDate, endDate, alert: "Заявки в работе"});
                 })
-                .sort({date: 1})
-                .populate("applicant")
-                .populate({
-                    path: "equipment",
-                    populate: {
-                        path: "parent",
-                        model: "Equipment"
-                    }
-                })
-                .populate({
-                        path: "department",
-                        populate: {
-                            path: "parent",
-                            model: "Department"
-                        }
-                    }
-                )
-                .populate("responsible")
-                .populate("taskStatus")
-                .populate("files");
-        })
-    } catch (err) {
-        console.log(err);
-        res.status(500).json({message: "Возникла ошибка при переходе в раздел ЖДО " + err});
-    }
-});
-
-// Возвращает записи ЖДО при клике на гистограмму
-router.post("/go-to-logDO/bar", async (req, res) => {
-    try {
-        const {department, taskStatus} = req.body;   // Извлекаем объект из тела запроса
-
-        let departments = [], equipment = [];
-        try {
-            equipment = await Equipment.find({}).populate("parent");      // Получаем всё оборудование
-            departments = await Department.find({}).populate("parent");   // Получаем все подразделения
-        } catch (err) {
-            console.log(err);
-            res.status(500).json({
-                message: "Возникла ошибка при получении записей из баз данных 'Подразделения' и 'Оборудование' (bar): " + err
-            });
-        }
-
-        // Выполняем поиск в базе данных "TaskStatus" по полю "name"
-        await TaskStatus.find({name: taskStatus}, async function (err, docs) {
-            // Обработка ошибки
-            if (err) {
-                console.log(err);
-                res.status(500).json({message: "Возникла ошибка при получении записей из базы данных Состояние заявки (bar) " + err});
-            }
-
-            // Формируем массив удовлетворяющих записей с идентификатором (_id), где name = taskStatus
-            const idsTasks = docs.map(doc => doc._id);
-
-            // Выполняем поиск в базе данных "Department" по полю "name"
-            await Department.find({name: department}, async function (err, docs) {
-                // Обработка ошибки
-                if (err) {
-                    console.log(err);
-                    res.status(500).json({message: "Возникла ошибка при получении записей из базы данных Подразделения (bar) " + err});
-                }
-
-                // Формируем массив удовлетворяющих записей с идентификатором (_id), где name = department
-                const idsDepartments = docs.map(doc => doc._id);
-
-                await LogDO.find(
-                    {$and: [{taskStatus: {$in: idsTasks}}, {department: {$in: idsDepartments}}]},
-                    function (err, items) {
-                        // Обработка ошибки
-                        if (err) {
-                            console.log(err);
-                            res.status(500).json({message: "Возникла ошибка при получении записей из базы данных ЖДО (bar) " + err});
-                        }
-
-                        // Получаем начальную и конечную даты записей
-                        const startDate = moment(items[0].date).format(dateFormat);
-                        const endDate = moment(items[items.length - 1].date).format(dateFormat);
-
-                        // Получаем готовый массив записей ЖДО
-                        const itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
-
-                        // Отправляем ответ
-                        res.status(201).json({itemsDto, startDate, endDate, alert: "Загруженность подразделений"});
-                    }
-                )
-                    .sort({date: 1})
+                    .sort({date: -1})
                     .populate("applicant")
                     .populate({
                         path: "equipment",
@@ -745,195 +605,226 @@ router.post("/go-to-logDO/bar", async (req, res) => {
                     .populate("taskStatus")
                     .populate("files");
             })
-        })
-    } catch (err) {
-        console.log(err);
-        res.status(500).json({message: "Возникла ошибка при переходе в раздел ЖДО " + err});
-    }
-});
+        } catch (err) {
+            console.log(err);
+            res.status(500).json({message: "Возникла ошибка при переходе в раздел ЖДО при клике на 'Заявки в работе' " + err});
+        }
+    });
+
+// Возвращает записи ЖДО при клике на "Непринятые заявки"
+router.get(
+    "/go-to-logDO/notAccepted",
+    (req, res, next) => {
+        AuthMiddleware.canRead(req, res, next, "logDO").then(null);
+    },
+    async (req, res) => {
+        try {
+            let departments = [], equipment = [];
+            try {
+                equipment = await Equipment.find({}).populate("parent");      // Получаем всё оборудование
+                departments = await Department.find({}).populate("parent");   // Получаем все подразделения
+            } catch (err) {
+                console.log(err);
+                res.status(500).json({
+                    message: "Возникла ошибка при получении записей из баз данных 'Подразделения' и 'Оборудование' (notAccepted): " + err
+                });
+            }
+
+            // Выполняем поиск в базе данных "TaskStatus" по полю "isFinish"
+            await TaskStatus.find({isFinish: true}, async function (err, docs) {
+                // Обработка ошибки
+                if (err) {
+                    console.log(err);
+                    res.status(500).json({message: "Возникла ошибка при получении записей из базы данных Состояние заявок (notAccepted) " + err});
+                }
+
+                // Формируем массив удовлетворяющих записей с идентификатором (_id), где isFinish = true
+                const ids = docs.map(doc => doc._id);
+
+                await LogDO.find(
+                    {$and: [{taskStatus: {$in: ids}}, {acceptTask: false}]},
+                    function (err, items) {
+                        // Обработка ошибки
+                        if (err) {
+                            console.log(err);
+                            res.status(500).json({message: "Возникла ошибка при получении записей из базы данных ЖДО (notAccepted) " + err});
+                        }
+
+                        // Получаем начальную и конечную даты записей
+                        const startDate = moment(items[0].date).format(dateFormat);
+                        const endDate = moment(items[items.length - 1].date).format(dateFormat);
+
+                        // Получаем готовый массив записей ЖДО
+                        const itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
+
+                        // Отправляем ответ
+                        res.status(200).json({itemsDto, startDate, endDate, alert: "Непринятые заявки"});
+                    })
+                    .sort({date: -1})
+                    .populate("applicant")
+                    .populate({
+                        path: "equipment",
+                        populate: {
+                            path: "parent",
+                            model: "Equipment"
+                        }
+                    })
+                    .populate({
+                            path: "department",
+                            populate: {
+                                path: "parent",
+                                model: "Department"
+                            }
+                        }
+                    )
+                    .populate("responsible")
+                    .populate("taskStatus")
+                    .populate("files");
+            })
+        } catch (err) {
+            console.log(err);
+            res.status(500).json({message: "Возникла ошибка при переходе в раздел ЖДО " + err});
+        }
+    });
+
+// Возвращает записи ЖДО при клике на гистограмму
+router.post(
+    "/go-to-logDO/bar",
+    (req, res, next) => {
+        AuthMiddleware.canRead(req, res, next, "logDO").then(null);
+    },
+    async (req, res) => {
+        try {
+            const {department, taskStatus} = req.body;   // Извлекаем объект из тела запроса
+
+            let departments = [], equipment = [];
+            try {
+                equipment = await Equipment.find({}).populate("parent");      // Получаем всё оборудование
+                departments = await Department.find({}).populate("parent");   // Получаем все подразделения
+            } catch (err) {
+                console.log(err);
+                res.status(500).json({
+                    message: "Возникла ошибка при получении записей из баз данных 'Подразделения' и 'Оборудование' (bar): " + err
+                });
+            }
+
+            // Выполняем поиск в базе данных "TaskStatus" по полю "name"
+            await TaskStatus.find({name: taskStatus}, async function (err, docs) {
+                // Обработка ошибки
+                if (err) {
+                    console.log(err);
+                    res.status(500).json({message: "Возникла ошибка при получении записей из базы данных Состояние заявки (bar) " + err});
+                }
+
+                // Формируем массив удовлетворяющих записей с идентификатором (_id), где name = taskStatus
+                const idsTasks = docs.map(doc => doc._id);
+
+                // Выполняем поиск в базе данных "Department" по полю "name"
+                await Department.find({name: department}, async function (err, docs) {
+                    // Обработка ошибки
+                    if (err) {
+                        console.log(err);
+                        res.status(500).json({message: "Возникла ошибка при получении записей из базы данных Подразделения (bar) " + err});
+                    }
+
+                    // Формируем массив удовлетворяющих записей с идентификатором (_id), где name = department
+                    const idsDepartments = docs.map(doc => doc._id);
+
+                    await LogDO.find(
+                        {$and: [{taskStatus: {$in: idsTasks}}, {department: {$in: idsDepartments}}]},
+                        function (err, items) {
+                            // Обработка ошибки
+                            if (err) {
+                                console.log(err);
+                                res.status(500).json({message: "Возникла ошибка при получении записей из базы данных ЖДО (bar) " + err});
+                            }
+
+                            // Получаем начальную и конечную даты записей
+                            const startDate = moment(items[0].date).format(dateFormat);
+                            const endDate = moment(items[items.length - 1].date).format(dateFormat);
+
+                            // Получаем готовый массив записей ЖДО
+                            const itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
+
+                            // Отправляем ответ
+                            res.status(200).json({itemsDto, startDate, endDate, alert: "Загруженность подразделений"});
+                        }
+                    )
+                        .sort({date: -1})
+                        .populate("applicant")
+                        .populate({
+                            path: "equipment",
+                            populate: {
+                                path: "parent",
+                                model: "Equipment"
+                            }
+                        })
+                        .populate({
+                                path: "department",
+                                populate: {
+                                    path: "parent",
+                                    model: "Department"
+                                }
+                            }
+                        )
+                        .populate("responsible")
+                        .populate("taskStatus")
+                        .populate("files");
+                })
+            })
+        } catch (err) {
+            console.log(err);
+            res.status(500).json({message: "Возникла ошибка при переходе в раздел ЖДО " + err});
+        }
+    });
 
 // Возвращает записи ЖДО при клике на линейную диаграмму
-router.post("/go-to-logDO/line", async (req, res) => {
-    try {
-        const {fullDate} = req.body;   // Извлекаем объект из тела запроса
-
-        // Перевод выбранной даты в миллисекунды
-        const millisecondsStart = moment(fullDate).startOf("day").valueOf();
-        const millisecondsEnd = moment(fullDate).endOf("day").valueOf();
-
-        let departments = [], equipment = [];
+router.post(
+    "/go-to-logDO/line",
+    (req, res, next) => {
+        AuthMiddleware.canRead(req, res, next, "logDO").then(null);
+    },
+    async (req, res) => {
         try {
-            equipment = await Equipment.find({}).populate("parent");      // Получаем всё оборудование
-            departments = await Department.find({}).populate("parent");   // Получаем все подразделения
-        } catch (err) {
-            console.log(err);
-            res.status(500).json({
-                message: "Возникла ошибка при получении записей из баз данных 'Подразделения' и 'Оборудование' (line): " + err
-            });
-        }
+            const {fullDate} = req.body;   // Извлекаем объект из тела запроса
 
-        // Даем запрос в бд, передавая фильтр и нужные даты
-        await LogDO.find(
-            {date: {$gte: millisecondsStart, $lte: millisecondsEnd}},
-            function (err, items) {
-                // Обработка ошибки
-                if (err) {
-                    console.log(err);
-                    res.status(500).json({message: "Возникла ошибка при получении записей из базы данных ЖДО (line) " + err});
-                }
+            // Перевод выбранной даты в миллисекунды
+            const millisecondsStart = moment(fullDate).startOf("day").valueOf();
+            const millisecondsEnd = moment(fullDate).endOf("day").valueOf();
 
-                // Получаем начальную и конечную даты записей
-                const startDate = moment(items[0].date).format(dateFormat);
-                const endDate = moment(items[items.length - 1].date).format(dateFormat);
-
-                // Получаем готовый массив записей ЖДО
-                const itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
-
-                // Отправляем ответ
-                res.status(201).json({itemsDto, startDate, endDate, alert: "Динамика отказов"});
-            }
-        )
-            .sort({date: 1})
-            .populate("applicant")
-            .populate({
-                path: "equipment",
-                populate: {
-                    path: "parent",
-                    model: "Equipment"
-                }
-            })
-            .populate({
-                    path: "department",
-                    populate: {
-                        path: "parent",
-                        model: "Department"
-                    }
-                }
-            )
-            .populate("responsible")
-            .populate("taskStatus")
-            .populate("files");
-    } catch (err) {
-        console.log(err);
-        res.status(500).json({message: "Возникла ошибка при переходе в раздел ЖДО " + err});
-    }
-});
-
-// Возвращает записи ЖДО при клике на "Рейтинг отказов за 12 месяцев"
-router.get("/go-to-logDO/rating/bounceRating", async (req, res) => {
-    try {
-        // Рассчитываем количество миллисекунд до предыдущего года
-        const prevYearMilliseconds = moment().subtract(1, "year").valueOf();
-
-        let departments = [], equipment = [];
-        try {
-            equipment = await Equipment.find({}).populate("parent");      // Получаем всё оборудование
-            departments = await Department.find({}).populate("parent");   // Получаем все подразделения
-        } catch (err) {
-            console.log(err);
-            res.status(500).json({
-                message: "Возникла ошибка при получении записей из баз данных 'Подразделения' и 'Оборудование' (bounceRating): " + err
-            });
-        }
-
-        // Даем запрос в бд, передавая нужную дату
-        await LogDO.find(
-            {
-                equipment: {$ne: null},
-                date: {$gte: prevYearMilliseconds, $lte: moment().valueOf()}
-            },
-            function (err, items) {
-                // Обработка ошибки
-                if (err) {
-                    console.log(err);
-                    res.status(500).json({message: "Возникла ошибка при получении записей из базы данных ЖДО (bounceRating) " + err});
-                }
-
-                // Получаем начальную и конечную даты записей
-                const startDate = moment(items[0].date).format(dateFormat);
-                const endDate = moment(items[items.length - 1].date).format(dateFormat);
-
-                // Сортируем записи по полю "Оборудование.Наименование"
-                items = items.sort((a, b) => a.equipment.name < b.equipment.name ? 1 : -1);
-
-                // Сортируем записи в порядке убывания по полю "Оборудование"
-                items = items.sort((a, b) => {
-                    const countA = items.filter(logDO => logDO.equipment._id.toString() === a.equipment._id.toString());
-                    const countB = items.filter(logDO => logDO.equipment._id.toString() === b.equipment._id.toString());
-
-                    return countA.length < countB.length ? 1 : -1;
+            let departments = [], equipment = [];
+            try {
+                equipment = await Equipment.find({}).populate("parent");      // Получаем всё оборудование
+                departments = await Department.find({}).populate("parent");   // Получаем все подразделения
+            } catch (err) {
+                console.log(err);
+                res.status(500).json({
+                    message: "Возникла ошибка при получении записей из баз данных 'Подразделения' и 'Оборудование' (line): " + err
                 });
-
-                // Получаем массив записей ЖДО
-                const itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
-
-                // Отправляем ответ
-                res.status(201).json({itemsDto, startDate, endDate, alert: "Рейтинг отказов за 12 месяцев (Топ-5)"});
             }
-        )
-            .sort({date: 1})
-            .populate("applicant")
-            .populate({
-                path: "equipment",
-                populate: {
-                    path: "parent",
-                    model: "Equipment"
-                }
-            })
-            .populate({
-                    path: "department",
-                    populate: {
-                        path: "parent",
-                        model: "Department"
+
+            // Даем запрос в бд, передавая фильтр и нужные даты
+            await LogDO.find(
+                {date: {$gte: millisecondsStart, $lte: millisecondsEnd}},
+                function (err, items) {
+                    // Обработка ошибки
+                    if (err) {
+                        console.log(err);
+                        res.status(500).json({message: "Возникла ошибка при получении записей из базы данных ЖДО (line) " + err});
                     }
+
+                    // Получаем начальную и конечную даты записей
+                    const startDate = moment(items[0].date).format(dateFormat);
+                    const endDate = moment(items[items.length - 1].date).format(dateFormat);
+
+                    // Получаем готовый массив записей ЖДО
+                    const itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
+
+                    // Отправляем ответ
+                    res.status(200).json({itemsDto, startDate, endDate, alert: "Динамика отказов"});
                 }
             )
-            .populate("responsible")
-            .populate("taskStatus")
-            .populate("files");
-    } catch (err) {
-        console.log(err);
-        res.status(500).json({message: "Возникла ошибка при переходе в раздел ЖДО " + err});
-    }
-});
-
-// Возвращает записи ЖДО при клике на "Рейтинг незакрытых заявок"
-router.get("/go-to-logDO/rating/ratingOrders", async (req, res) => {
-    try {
-        let departments = [];
-        try {
-            departments = await Department.find({}).populate("parent");   // Получаем все подразделения
-        } catch (err) {
-            console.log(err);
-            res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Подразделения' (ratingOrders) " + err});
-        }
-
-        let equipment = [];
-        try {
-            equipment = await Equipment.find({}).populate("parent");   // Получаем всё оборудование
-        } catch (err) {
-            console.log(err);
-            res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Оборудование' (ratingOrders) " + err});
-        }
-
-        let statuses = [];
-        try {
-            // Выполняем поиск в базе данных "TaskStatus" по полю "isFinish"
-            statuses = await TaskStatus.find({isFinish: false}).select("_id");
-        } catch (err) {
-            console.log(err);
-            res.status(500).json({message: "Возникла ошибка при получении записей из базы данных Состояние заявки (ratingOrders) " + err});
-        }
-
-        // Формируем массив удовлетворяющих записей с идентификатором (_id), где isFinish = false
-        const ids = statuses.map(status => status._id);
-
-        let items;
-        try {
-            // Выполняем поиск в базе данных "LogDO" по полю "taskStatus"
-            items = await LogDO.find(
-                {$or: [{taskStatus: {$in: ids}}, {taskStatus: null}]})
-                .sort({date: 1})
+                .sort({date: -1})
                 .populate("applicant")
                 .populate({
                     path: "equipment",
@@ -948,36 +839,191 @@ router.get("/go-to-logDO/rating/ratingOrders", async (req, res) => {
                             path: "parent",
                             model: "Department"
                         }
-                    })
+                    }
+                )
                 .populate("responsible")
                 .populate("taskStatus")
                 .populate("files");
         } catch (err) {
             console.log(err);
-            res.status(500).json({message: "Возникла ошибка при получении записей из базы данных ЖДО (ratingOrders) " + err});
+            res.status(500).json({message: "Возникла ошибка при переходе в раздел ЖДО " + err});
         }
+    });
 
-        // Получаем начальную и конечную даты записей
-        const startDate = moment(items[0].date).format(dateFormat);
-        const endDate = moment(items[items.length - 1].date).format(dateFormat);
+// Возвращает записи ЖДО при клике на "Рейтинг отказов за 12 месяцев"
+router.get(
+    "/go-to-logDO/rating/bounceRating",
+    (req, res, next) => {
+        AuthMiddleware.canRead(req, res, next, "logDO").then(null);
+    },
+    async (req, res) => {
+        try {
+            // Рассчитываем количество миллисекунд до предыдущего года
+            const prevYearMilliseconds = moment().subtract(1, "year").valueOf();
 
-        // Сортируем записи в порядке убывания по незавершенному статусу заявки
-        items = items.sort((a, b) => {
-            const firstDiff = moment().valueOf() - moment(a.date).valueOf();
-            const secondDiff = moment().valueOf() - moment(b.date).valueOf();
+            let departments = [], equipment = [];
+            try {
+                equipment = await Equipment.find({}).populate("parent");      // Получаем всё оборудование
+                departments = await Department.find({}).populate("parent");   // Получаем все подразделения
+            } catch (err) {
+                console.log(err);
+                res.status(500).json({
+                    message: "Возникла ошибка при получении записей из баз данных 'Подразделения' и 'Оборудование' (bounceRating): " + err
+                });
+            }
 
-            return firstDiff - secondDiff > 0 ? -1 : 1;
-        });
+            // Даем запрос в бд, передавая нужную дату
+            await LogDO.find(
+                {
+                    equipment: {$ne: null},
+                    date: {$gte: prevYearMilliseconds, $lte: moment().valueOf()}
+                },
+                function (err, items) {
+                    // Обработка ошибки
+                    if (err) {
+                        console.log(err);
+                        res.status(500).json({message: "Возникла ошибка при получении записей из базы данных ЖДО (bounceRating) " + err});
+                    }
 
-        // Получаем готовый массив записей ЖДО
-        const itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
+                    // Получаем начальную и конечную даты записей
+                    const startDate = moment(items[0].date).format(dateFormat);
+                    const endDate = moment(items[items.length - 1].date).format(dateFormat);
 
-        // Отправляем ответ
-        res.status(201).json({itemsDto, startDate, endDate, alert: "Рейтинг незакрытых заявок (Топ-5)"});
-    } catch (err) {
-        console.log(err);
-        res.status(500).json({message: "Возникла ошибка при переходе в раздел ЖДО " + err});
-    }
-});
+                    // Сортируем записи по полю "Оборудование.Наименование"
+                    items = items.sort((a, b) => a.equipment.name < b.equipment.name ? 1 : -1);
+
+                    // Сортируем записи в порядке убывания по полю "Оборудование"
+                    items = items.sort((a, b) => {
+                        const countA = items.filter(logDO => logDO.equipment._id.toString() === a.equipment._id.toString());
+                        const countB = items.filter(logDO => logDO.equipment._id.toString() === b.equipment._id.toString());
+
+                        return countA.length < countB.length ? 1 : -1;
+                    });
+
+                    // Получаем массив записей ЖДО
+                    const itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
+
+                    // Отправляем ответ
+                    res.status(200).json({
+                        itemsDto,
+                        startDate,
+                        endDate,
+                        alert: "Рейтинг отказов за 12 месяцев (Топ-5)"
+                    });
+                }
+            )
+                .sort({date: -1})
+                .populate("applicant")
+                .populate({
+                    path: "equipment",
+                    populate: {
+                        path: "parent",
+                        model: "Equipment"
+                    }
+                })
+                .populate({
+                        path: "department",
+                        populate: {
+                            path: "parent",
+                            model: "Department"
+                        }
+                    }
+                )
+                .populate("responsible")
+                .populate("taskStatus")
+                .populate("files");
+        } catch (err) {
+            console.log(err);
+            res.status(500).json({message: "Возникла ошибка при переходе в раздел ЖДО " + err});
+        }
+    });
+
+// Возвращает записи ЖДО при клике на "Рейтинг незакрытых заявок"
+router.get(
+    "/go-to-logDO/rating/ratingOrders",
+    (req, res, next) => {
+        AuthMiddleware.canRead(req, res, next, "logDO").then(null);
+    },
+    async (req, res) => {
+        try {
+            let departments = [];
+            try {
+                departments = await Department.find({}).populate("parent");   // Получаем все подразделения
+            } catch (err) {
+                console.log(err);
+                res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Подразделения' (ratingOrders) " + err});
+            }
+
+            let equipment = [];
+            try {
+                equipment = await Equipment.find({}).populate("parent");   // Получаем всё оборудование
+            } catch (err) {
+                console.log(err);
+                res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Оборудование' (ratingOrders) " + err});
+            }
+
+            let statuses = [];
+            try {
+                // Выполняем поиск в базе данных "TaskStatus" по полю "isFinish"
+                statuses = await TaskStatus.find({isFinish: false}).select("_id");
+            } catch (err) {
+                console.log(err);
+                res.status(500).json({message: "Возникла ошибка при получении записей из базы данных Состояние заявки (ratingOrders) " + err});
+            }
+
+            // Формируем массив удовлетворяющих записей с идентификатором (_id), где isFinish = false
+            const ids = statuses.map(status => status._id);
+
+            let items;
+            try {
+                // Выполняем поиск в базе данных "LogDO" по полю "taskStatus"
+                items = await LogDO.find(
+                    {$or: [{taskStatus: {$in: ids}}, {taskStatus: null}]})
+                    .sort({date: -1})
+                    .populate("applicant")
+                    .populate({
+                        path: "equipment",
+                        populate: {
+                            path: "parent",
+                            model: "Equipment"
+                        }
+                    })
+                    .populate({
+                        path: "department",
+                        populate: {
+                            path: "parent",
+                            model: "Department"
+                        }
+                    })
+                    .populate("responsible")
+                    .populate("taskStatus")
+                    .populate("files");
+            } catch (err) {
+                console.log(err);
+                res.status(500).json({message: "Возникла ошибка при получении записей из базы данных ЖДО (ratingOrders) " + err});
+            }
+
+            // Получаем начальную и конечную даты записей
+            const startDate = moment(items[0].date).format(dateFormat);
+            const endDate = moment(items[items.length - 1].date).format(dateFormat);
+
+            // Сортируем записи в порядке убывания по незавершенному статусу заявки
+            items = items.sort((a, b) => {
+                const firstDiff = moment().valueOf() - moment(a.date).valueOf();
+                const secondDiff = moment().valueOf() - moment(b.date).valueOf();
+
+                return firstDiff - secondDiff > 0 ? -1 : 1;
+            });
+
+            // Получаем готовый массив записей ЖДО
+            const itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
+
+            // Отправляем ответ
+            res.status(200).json({itemsDto, startDate, endDate, alert: "Рейтинг незакрытых заявок (Топ-5)"});
+        } catch (err) {
+            console.log(err);
+            res.status(500).json({message: "Возникла ошибка при переходе в раздел ЖДО " + err});
+        }
+    });
 
 module.exports = router;
