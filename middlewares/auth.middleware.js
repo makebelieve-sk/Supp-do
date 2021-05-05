@@ -8,6 +8,7 @@ const {checkRoleUser} = require("../helper");
 class AuthMiddleware {
     async checkAuth(req, res, next) {
         try {
+            console.log("url: ", req.url)
             const method = req.method;
 
             const url = req.url
