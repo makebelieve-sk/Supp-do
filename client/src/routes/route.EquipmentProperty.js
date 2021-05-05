@@ -11,7 +11,7 @@ import {NoticeError, storeEquipmentProperties} from "./helper";
 
 export const EquipmentPropertyRoute = {
     // Адрес для работы с разделом "Характеристики оборудования"
-    base_url: "/api/directory/equipment-property/",
+    base_url: "/api/directory/equipmentProperties/",
     // Получение всех записей
     getAll: async function () {
         try {

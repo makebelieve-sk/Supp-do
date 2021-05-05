@@ -1,18 +1,27 @@
+// Файл сервера
 const express = require("express");
-const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
 const path = require("path");
+const cookieParser = require("cookie-parser");
 const fileUpload = require("express-fileupload");
+
 const config = require("./config/default.json");
+const AuthMiddleware = require("./middlewares/auth.middleware");
 
 const app = express();
 
+// Регистрируем мидлвары
 app.use(express.json({extended: true}));
 app.use(cookieParser(config.jwtSecret));
 
 // Регистрируем маршруты
-app.use("/api", require("./routes/route.logDO"));
+// Авторизация
 app.use("/api/auth", require("./routes/route.auth"));
+
+// Для всех роутов, указанных ниже, используется мидлвар проверки авторизации и ролей пользователя
+app.use(AuthMiddleware.checkAuth);
+
+// Разделы приложения
 app.use("/api/analytic", require("./routes/route.analytic"));
 app.use("/api/directory", require("./routes/route.profession"));
 app.use("/api/directory", require("./routes/route.department"));
@@ -20,10 +29,12 @@ app.use("/api/directory", require("./routes/route.person"));
 app.use("/api/directory", require("./routes/route.taskStatus"));
 app.use("/api/directory", require("./routes/route.equipmentProperty"));
 app.use("/api/directory", require("./routes/route.equipment"));
+app.use("/api", require("./routes/route.logDO"));
 app.use("/api/admin", require("./routes/route.help"));
 app.use("/api/admin", require("./routes/route.user"));
 app.use("/api/admin", require("./routes/route.role"));
 
+// Работа с файлами
 app.use(fileUpload({createParentPath: true}));
 app.use("/public", express.static("public"));
 app.use("/files", require("./routes/route.upload"));
@@ -47,11 +58,11 @@ async function start() {
             useCreateIndex: true
         });
 
-        app.listen(PORT, () => console.log(`App has been started on port: ${PORT} with ENV ${process.env.NODE_ENV}`));
+        app.listen(PORT, () => console.log(`Приложение запущено на порту ${PORT} в режиме ${process.env.NODE_ENV}`));
     } catch (e) {
-        console.log("Server error: ", e);
+        console.log("Ошибка сервера: ", e);
         process.exit(1);
     }
 }
 
-start();
+start().then(r => console.log(r));

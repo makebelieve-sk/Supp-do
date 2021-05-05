@@ -5,7 +5,6 @@ const {check, validationResult} = require("express-validator");
 const Person = require("../schemes/Person");
 const Department = require("../schemes/Department");
 const PersonDto = require("../dto/PersonDto");
-const AuthMiddleware = require("../middlewares/auth.middleware");
 
 const router = Router();
 
@@ -21,206 +20,179 @@ const checkMiddleware = [
 ];
 
 // Возвращает запись по коду
-router.get(
-    "/people/:id",
-    (req, res, next) => {
-        AuthMiddleware.canRead(req, res, next, "people").then(null);
-    },
-    async (req, res) => {
-        const _id = req.params.id;  // Получение id записи
+router.get("/people/:id", async (req, res) => {
+    const _id = req.params.id;  // Получение id записи
 
-        try {
-            let item, isNewItem = true;
+    try {
+        let item, isNewItem = true;
 
-            if (_id === "-1") {
-                // Создание новой записи
-                item = new Person({tabNumber: null, name: "", notes: "", department: null, profession: null});
-            } else {
-                // Получение существующей записи
-                item = await Person.findById({_id})
-                    .populate({
-                        path: "department",
-                        populate: {
-                            path: "parent",
-                            model: "Department"
-                        }
-                    })
-                    .populate("profession");
-                isNewItem = false;
-            }
-
-            if (!item) return res.status(404).json({message: `Запись с кодом ${_id} не существует`});
-
-            res.status(200).json({isNewItem, person: item});
-        } catch (err) {
-            console.log(err);
-            res.status(500).json({message: `Ошибка при открытии записи с кодом ${_id}: ${err}`});
+        if (_id === "-1") {
+            // Создание новой записи
+            item = new Person({tabNumber: null, name: "", notes: "", department: null, profession: null});
+        } else {
+            // Получение существующей записи
+            item = await Person.findById({_id})
+                .populate({
+                    path: "department",
+                    populate: {
+                        path: "parent",
+                        model: "Department"
+                    }
+                })
+                .populate("profession");
+            isNewItem = false;
         }
-    });
+
+        if (!item) return res.status(404).json({message: `Запись с кодом ${_id} не существует`});
+
+        res.status(200).json({isNewItem, person: item});
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: `Ошибка при открытии записи с кодом ${_id}: ${err}`});
+    }
+});
 
 // Возвращает все записи
-router.get(
-    "/people/",
-    (req, res, next) => {
-        AuthMiddleware.canRead(req, res, next, "people").then(null);
-    },
-    async (req, res) => {
-        try {
-            // Получаем все записи подразделений
-            const departments = await Department.find({}).populate("parent");
+router.get("/people/", async (req, res) => {
+    try {
+        // Получаем все записи подразделений
+        const departments = await Department.find({}).populate("parent");
 
-            // Получаем все записи раздела "Персонал"
-            const items = await Person.find({})
-                .populate({
-                    path: "department",
-                    populate: {
-                        path: "parent",
-                        model: "Department"
-                    }
-                })
-                .populate("profession");
+        // Получаем все записи раздела "Персонал"
+        const items = await Person.find({})
+            .populate({
+                path: "department",
+                populate: {
+                    path: "parent",
+                    model: "Department"
+                }
+            })
+            .populate("profession");
 
-            let itemsDto = [];
+        let itemsDto = [];
 
-            // Изменяем запись для вывода в таблицу
-            if (items && items.length) itemsDto = items.map(item => new PersonDto(item, departments));
+        // Изменяем запись для вывода в таблицу
+        if (items && items.length) itemsDto = items.map(item => new PersonDto(item, departments));
 
-            res.status(200).json(itemsDto);
-        } catch (err) {
-            console.log(err);
-            res.status(500).json({message: "Ошибка при получении записей: " + err});
-        }
-    });
+        res.status(200).json(itemsDto);
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: "Ошибка при получении записей: " + err});
+    }
+});
 
 // Сохраняет новую запись
-router.post(
-    "/people",
-    checkMiddleware,
-    (req, res, next) => {
-        AuthMiddleware.canEdit(req, res, next, "people").then(null);
-    },
-    async (req, res) => {
-        try {
-            // Проверка валидации полей раздела "Персонал"
-            const errors = validationResult(req);
+router.post("/people", checkMiddleware, async (req, res) => {
+    try {
+        // Проверка валидации полей раздела "Персонал"
+        const errors = validationResult(req);
 
-            if (!errors.isEmpty())
-                return res.status(400).json({
-                    errors: errors.array(),
-                    message: "Некоректные данные при создании записи"
-                });
+        if (!errors.isEmpty())
+            return res.status(400).json({
+                errors: errors.array(),
+                message: "Некоректные данные при создании записи"
+            });
 
-            const {name, notes, department, profession} = req.body; // Получаем объект записи с фронтенда
+        const {name, notes, department, profession} = req.body; // Получаем объект записи с фронтенда
 
-            const item = await Person.findOne({name});  // Ищем запись в базе данных по наименованию
+        const item = await Person.findOne({name});  // Ищем запись в базе данных по наименованию
 
-            // Проверяем на существование записи с указанным именем
-            if (item)
-                return res.status(404).json({message: `Запись о сотруднике с именем ${name} уже существует`});
+        // Проверяем на существование записи с указанным именем
+        if (item)
+            return res.status(404).json({message: `Запись о сотруднике с именем ${name} уже существует`});
 
-            const newItem = new Person({name, department, profession, notes});  // Создаем новый экземпляр записи
+        const newItem = new Person({name, department, profession, notes});  // Создаем новый экземпляр записи
 
-            await newItem.save();   // Сохраняем запись в базе данных
+        await newItem.save();   // Сохраняем запись в базе данных
 
-            // Получаем все записи подразделений
-            const departments = await Department.find({}).populate("parent");
+        // Получаем все записи подразделений
+        const departments = await Department.find({}).populate("parent");
 
-            // Ищем запись в базе данных по наименованию
-            const currentPerson = await Person.findOne({name})
-                .populate({
-                    path: "department",
-                    populate: {
-                        path: "parent",
-                        model: "Department"
-                    }
-                })
-                .populate("profession");
+        // Ищем запись в базе данных по наименованию
+        const currentPerson = await Person.findOne({name})
+            .populate({
+                path: "department",
+                populate: {
+                    path: "parent",
+                    model: "Department"
+                }
+            })
+            .populate("profession");
 
-            // Изменяем запись для вывода в таблицу
-            const savedItem = new PersonDto(currentPerson, departments);
+        // Изменяем запись для вывода в таблицу
+        const savedItem = new PersonDto(currentPerson, departments);
 
-            res.status(201).json({message: "Запись сохранена", item: savedItem});
-        } catch (err) {
-            console.log(err);
-            res.status(500).json({message: "Ошибка при создании записи: " + err});
-        }
-    });
+        res.status(201).json({message: "Запись сохранена", item: savedItem});
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: "Ошибка при создании записи: " + err});
+    }
+});
 
 // Изменяет запись
-router.put(
-    "/people",
-    checkMiddleware,
-    (req, res, next) => {
-        AuthMiddleware.canEdit(req, res, next, "people").then(null);
-    },
-    async (req, res) => {
-        try {
-            // Проверка валидации полей раздела "Характеристики оборудования"
-            const errors = validationResult(req);
+router.put("/people", checkMiddleware, async (req, res) => {
+    try {
+        // Проверка валидации полей раздела "Характеристики оборудования"
+        const errors = validationResult(req);
 
-            if (!errors.isEmpty())
-                return res.status(400).json({
-                    errors: errors.array(),
-                    message: "Некоректные данные при создании записи"
-                });
+        if (!errors.isEmpty())
+            return res.status(400).json({
+                errors: errors.array(),
+                message: "Некоректные данные при создании записи"
+            });
 
-            const {_id, name, notes, department, profession} = req.body;    // Получаем объект записи с фронтенда
+        const {_id, name, notes, department, profession} = req.body;    // Получаем объект записи с фронтенда
 
-            // Ищем запись в базе данных по уникальному идентификатору
-            const item = await Person.findById({_id}).populate("department").populate("profession");
+        // Ищем запись в базе данных по уникальному идентификатору
+        const item = await Person.findById({_id}).populate("department").populate("profession");
 
-            // Проверяем на существование записи с уникальным идентификатором
-            if (!item)
-                return res.status(404).json({message: `Запись с кодом ${_id} не найдена`});
+        // Проверяем на существование записи с уникальным идентификатором
+        if (!item)
+            return res.status(404).json({message: `Запись с кодом ${_id} не найдена`});
 
-            item.name = name;
-            item.department = department;
-            item.profession = profession;
-            item.notes = notes;
+        item.name = name;
+        item.department = department;
+        item.profession = profession;
+        item.notes = notes;
 
-            await item.save();  // Сохраняем запись в базу данных
+        await item.save();  // Сохраняем запись в базу данных
 
-            // Пролучаем все запиис подразделений
-            const departments = await Department.find({}).populate("parent");
+        // Пролучаем все запиис подразделений
+        const departments = await Department.find({}).populate("parent");
 
-            // Ищем запись в базе данных по уникальному идентификатору
-            const currentItem = await Person.findById({_id})
-                .populate({
-                    path: "department",
-                    populate: {
-                        path: "parent",
-                        model: "Department"
-                    }
-                })
-                .populate("profession");
+        // Ищем запись в базе данных по уникальному идентификатору
+        const currentItem = await Person.findById({_id})
+            .populate({
+                path: "department",
+                populate: {
+                    path: "parent",
+                    model: "Department"
+                }
+            })
+            .populate("profession");
 
-            // Изменяем запись для вывода в таблицу
-            const savedItem = new PersonDto(currentItem, departments);
+        // Изменяем запись для вывода в таблицу
+        const savedItem = new PersonDto(currentItem, departments);
 
-            res.status(201).json({message: "Запись сохранена", item: savedItem});
-        } catch (err) {
-            console.log(err);
-            res.status(500).json({message: "Ошибка при обновлении записи: " + err});
-        }
-    });
+        res.status(201).json({message: "Запись сохранена", item: savedItem});
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: "Ошибка при обновлении записи: " + err});
+    }
+});
 
 // Удаляет запись
-router.delete(
-    "/people/:id",
-    (req, res, next) => {
-        AuthMiddleware.canEdit(req, res, next, "people").then(null);
-    },
-    async (req, res) => {
-        const _id = req.params.id;  // Получение id записи
+router.delete("/people/:id", async (req, res) => {
+    const _id = req.params.id;  // Получение id записи
 
-        try {
-            await Person.deleteOne({_id});  // Удаление записи из базы данных по id записи
+    try {
+        await Person.deleteOne({_id});  // Удаление записи из базы данных по id записи
 
-            res.status(200).json({message: "Запись успешно удалена"});
-        } catch (err) {
-            console.log(err);
-            res.status(500).json({message: `Ошибка при удалении записи с кодом ${_id}: ${err}`});
-        }
-    });
+        res.status(200).json({message: "Запись успешно удалена"});
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: `Ошибка при удалении записи с кодом ${_id}: ${err}`});
+    }
+});
 
 module.exports = router;

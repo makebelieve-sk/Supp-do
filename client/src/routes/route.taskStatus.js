@@ -11,7 +11,7 @@ import {NoticeError, storeTask} from "./helper";
 
 export const TaskStatusRoute = {
     // Адрес для работы с разделом "Состояние заявок"
-    base_url: "/api/directory/taskStatus/",
+    base_url: "/api/directory/tasks/",
     // Получение всех записей
     getAll: async function () {
         try {

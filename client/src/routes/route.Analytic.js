@@ -9,9 +9,9 @@ import {NoticeError} from "./helper";
 
 export const AnalyticRoute = {
     // Адрес для работы с разделом "Аналитика"
-    base_url: "/api/analytic/current-state",
+    base_url: "/api/analytic/analytic",
     // Адрес для работы с разделом "Аналитика"
-    url_to_logDO: "/api/analytic/go-to-logDO",
+    url_to_logDO: "/api/analytic/logDO",
     // Получение всех данных для раздела "Аналитика"
     getAll: async function () {
         try {

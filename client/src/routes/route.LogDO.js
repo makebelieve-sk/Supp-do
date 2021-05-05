@@ -12,7 +12,7 @@ import {NoticeError, storeDepartments, storeEquipment, storeLogDO, storePeople, 
 
 export const LogDORoute = {
     // Адрес для работы с разделом "Журнал дефектов и отказов"
-    base_url: "/api/log-do/",
+    base_url: "/api/logDO/",
     // Адрес для работы с файлами
     file_url: "/files/",
     // Получение всех записей
@@ -46,7 +46,7 @@ export const LogDORoute = {
             const departments = await request("/api/directory/departments/");
             const people = await request("/api/directory/people/");
             const equipment = await request("/api/directory/equipment/");
-            const tasks = await request("/api/directory/taskStatus/");
+            const tasks = await request("/api/directory/tasks/");
 
             // Записываем полученные записи раздела "Подразделения" в хранилище
             storeDepartments(departments);

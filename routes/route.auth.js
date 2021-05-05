@@ -151,12 +151,12 @@ router.post("/login", checkMiddlewareAuth, async (req, res) => {
         const user = await User.findOne({userName}).select("password approved");
 
         // Проверяем на существование записи
-        if (!user) return res.status(500).json({message: "Такой пользователь не существует"});
+        if (!user) return res.status(500).json({message: "Неверный пользователь или пароль"});
 
         const isMatch = await bcrypt.compare(password, user.password);  // Сравниваем пароли
 
         // Проверяем введенный пароль
-        if (!isMatch) return res.status(400).json({message: "Неверный пароль, попробуйте снова"});
+        if (!isMatch) return res.status(400).json({message: "Неверный пользователь или пароль"});
 
         if (!user.approved) return res.status(500).json({message: "Данный пользователь не одобрен администратором"});
 
@@ -167,7 +167,7 @@ router.post("/login", checkMiddlewareAuth, async (req, res) => {
         const token = jwt.sign(
             {userId: currentUser._id},
             config.jwtSecret,
-            {expiresIn: "1h"}
+            {expiresIn: "30min"}
         );
 
         res.status(200).json({token, userId: currentUser._id, user: currentUser});

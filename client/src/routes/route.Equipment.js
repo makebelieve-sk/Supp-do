@@ -24,7 +24,7 @@ export const EquipmentRoute = {
 
             // Получаем все записи разделов "Характеристики оборудования" и "Оборудование"
             const itemsEquipment = await request(this.base_url);
-            const itemsEquipmentProperties = await request("/api/directory/equipment-property/");
+            const itemsEquipmentProperties = await request("/api/directory/equipmentProperties/");
 
             // Записываем полученные записи раздела "Оборудование" в хранилище
             storeEquipment(itemsEquipment);
