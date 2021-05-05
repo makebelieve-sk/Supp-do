@@ -19,25 +19,23 @@ app.use(cookieParser(config.jwtSecret));
 app.use("/api/auth", require("./routes/route.auth"));
 
 // Для всех роутов, указанных ниже, используется мидлвар проверки авторизации и ролей пользователя
-app.use(AuthMiddleware.checkAuth);
-
 // Разделы приложения
-app.use("/api/analytic", require("./routes/route.analytic"));
-app.use("/api/directory", require("./routes/route.profession"));
-app.use("/api/directory", require("./routes/route.department"));
-app.use("/api/directory", require("./routes/route.person"));
-app.use("/api/directory", require("./routes/route.taskStatus"));
-app.use("/api/directory", require("./routes/route.equipmentProperty"));
-app.use("/api/directory", require("./routes/route.equipment"));
-app.use("/api", require("./routes/route.logDO"));
-app.use("/api/admin", require("./routes/route.help"));
-app.use("/api/admin", require("./routes/route.user"));
-app.use("/api/admin", require("./routes/route.role"));
+app.use("/api/analytic", AuthMiddleware.checkAuth, require("./routes/route.analytic"));
+app.use("/api/directory", AuthMiddleware.checkAuth, require("./routes/route.profession"));
+app.use("/api/directory", AuthMiddleware.checkAuth, require("./routes/route.department"));
+app.use("/api/directory", AuthMiddleware.checkAuth, require("./routes/route.person"));
+app.use("/api/directory", AuthMiddleware.checkAuth, require("./routes/route.taskStatus"));
+app.use("/api/directory", AuthMiddleware.checkAuth, require("./routes/route.equipmentProperty"));
+app.use("/api/directory", AuthMiddleware.checkAuth, require("./routes/route.equipment"));
+app.use("/api", AuthMiddleware.checkAuth, require("./routes/route.logDO"));
+app.use("/api/admin", AuthMiddleware.checkAuth, require("./routes/route.help"));
+app.use("/api/admin", AuthMiddleware.checkAuth, require("./routes/route.user"));
+app.use("/api/admin", AuthMiddleware.checkAuth, require("./routes/route.role"));
 
 // Работа с файлами
 app.use(fileUpload({createParentPath: true}));
 app.use("/public", express.static("public"));
-app.use("/files", require("./routes/route.upload"));
+app.use("/files", AuthMiddleware.checkAuth, require("./routes/route.upload"));
 
 const PORT = config.port || 5000;
 

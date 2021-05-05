@@ -8,7 +8,6 @@ const {checkRoleUser} = require("../helper");
 class AuthMiddleware {
     async checkAuth(req, res, next) {
         try {
-            console.log("url: ", req.url)
             const method = req.method;
 
             const url = req.url
@@ -19,7 +18,7 @@ class AuthMiddleware {
                 .split("/")[1];
 
             if (!method) return res.status(500).json({message: "Http метод не распознан"});
-            if (!url) return res.status(500).json({message: "Неверно указан url-адрес"});
+            if (!url) return res.status(500).json({message: "Неверно указан url-адрес", body: req.url});
             if (!req.cookies) return res.status(500).json({message: "Ошибка чтения файлов cookies"});
 
             const token = req.cookies.token;    // Получение токена пользователя
