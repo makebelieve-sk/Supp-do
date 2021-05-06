@@ -77,6 +77,19 @@ export const RoleRoute = {
                 }
             }
 
+            // Обновляем поле роли объекта пользователя в редаксе, если активный и редактируемый пользователи совпадают
+            const currentUser = store.getState().reducerAuth.user;
+
+            if (currentUser && currentUser.roles && currentUser.roles.length && data && data.item) {
+                currentUser.roles.forEach((role, index)=> {
+                    if (role._id === data.item._id) {
+                        currentUser.roles[index] = data.item;
+                    }
+                });
+
+                store.dispatch(ActionCreator.ActionCreatorAuth.setUser(currentUser));
+            }
+
             // Останавливаем спиннер загрузки
             setLoading(false);
 
@@ -94,6 +107,27 @@ export const RoleRoute = {
         try {
             // Устанавливаем спиннер загрузки
             setLoadingDelete(true);
+
+            // Не даем удалить роль пользователя в редакс, если она осталась последняя и если активный и редактируемый пользователи совпадают
+            const currentUser = store.getState().reducerAuth.user;
+
+            if (currentUser && currentUser.roles && _id) {
+                if (currentUser.roles.length > 1) {
+                    currentUser.roles.forEach((role, index)=> {
+                        if (role._id === _id) {
+                            currentUser.roles.splice(index, 1);
+                        }
+                    });
+                } else {
+                    message.error("Невозможно удалить последнюю роль данного пользователя");
+                    // Останавливаем спиннер, и скрываем всплывающее окно
+                    setLoadingDelete(false);
+                    setVisiblePopConfirm(false);
+                    return null;
+                }
+
+                store.dispatch(ActionCreator.ActionCreatorAuth.setUser(currentUser));
+            }
 
             // Удаляем запись
             const data = await request(this.base_url + _id, "DELETE");

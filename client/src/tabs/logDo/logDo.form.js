@@ -47,7 +47,7 @@ export const LogDoForm = ({item}) => {
 
     if (user && user.roles && user.roles.length) {
         user.roles.forEach(role => {
-            flag = !!role.permissions[13].edit;
+            flag = role.permissions[13].edit;
         });
     }
 

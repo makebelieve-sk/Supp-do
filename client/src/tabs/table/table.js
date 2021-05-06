@@ -133,6 +133,8 @@ export const TableComponent = ({specKey}) => {
     const closeAlert = async () => {
         setMarginBottomAlert("0px");      // Убираем отступ после алерта
         store.dispatch(ActionCreator.ActionCreatorLogDO.setAlert(null));    // Обновляем фильтр таблицы
+        store.dispatch(ActionCreator.ActionCreatorLogDO.setDate(moment().startOf("month").format(TabOptions.dateFormat) + "/" +
+            moment().endOf("month").format(TabOptions.dateFormat)));
         await LogDORoute.getAll();              // Обновляем данные в таблице
     }
 

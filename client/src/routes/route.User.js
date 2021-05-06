@@ -94,6 +94,13 @@ export const UserRoute = {
                 }
             }
 
+            // Обновляем пользователя в редаксе, если активный и редактируемый пользователи совпадают
+            const currentUser = store.getState().reducerAuth.user;
+
+            if (currentUser && data && data.toUpdateUser && currentUser._id === data.toUpdateUser._id) {
+                store.dispatch(ActionCreator.ActionCreatorAuth.setUser(data.toUpdateUser));
+            }
+
             // Останавливаем спиннер загрузки
             setLoading(false);
 
@@ -111,6 +118,17 @@ export const UserRoute = {
         try {
             // Устанавливаем спиннер загрузки
             setLoadingDelete(true);
+
+            // Не разрешаем удалять пользователя из редакса, если активный и редактируемый пользователи совпадают
+            const currentUser = store.getState().reducerAuth.user;
+
+            if (currentUser._id === _id) {
+                message.error("Чтобы удалить себя, обратитесь к администратору");
+                // Останавливаем спиннер, и скрываем всплывающее окно
+                setLoadingDelete(false);
+                setVisiblePopConfirm(false);
+                return null;
+            }
 
             // Удаляем запись
             const data = await request(this.base_url + _id, "DELETE");

@@ -149,12 +149,16 @@ router.put("/users", checkMiddleware, async (req, res) => {
 
         await item.save();  // Сохраняем запись в базу данных
 
-        const currentItem = await User.findOne({_id}).populate("person").populate("roles").select("-password");
+        const currentItem = await User
+            .findOne({_id})
+            .populate("person")
+            .populate("roles")
+            .select("-password");
 
         // Изменяем запись для вывода в таблицу
         const savedItem = new UserDto(currentItem);
 
-        res.status(201).json({message: "Запись сохранена", item: savedItem});
+        res.status(201).json({message: "Запись сохранена", item: savedItem, toUpdateUser: currentItem});
     } catch (err) {
         console.log(err);
         res.status(500).json({message: "Ошибка при обновлении записи: " + err});
