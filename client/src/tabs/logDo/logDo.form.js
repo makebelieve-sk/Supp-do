@@ -52,7 +52,7 @@ export const LogDoForm = ({item}) => {
     }
 
     // Состояние отображения галочки "Работа принята"
-    const [visibleAcceptTask, setVisibleAcceptTask] = useState(user.person._id === item.applicantId || flag);
+    const [visibleAcceptTask, setVisibleAcceptTask] = useState((user.person ? user.person._id === item.applicantId : false) || flag);
 
     // Инициализируем хук состояния формы от AntDesign
     const [form] = Form.useForm();
@@ -209,10 +209,12 @@ export const LogDoForm = ({item}) => {
                                                                 applicantId: value
                                                             });
 
-                                                            // Обновляем отображение галочки "Работа принята"
-                                                            user.person._id === value || flag
-                                                                ? setVisibleAcceptTask(true)
-                                                                : setVisibleAcceptTask(false);
+                                                            if (user.person) {
+                                                                // Обновляем отображение галочки "Работа принята"
+                                                                user.person._id === value || flag
+                                                                    ? setVisibleAcceptTask(true)
+                                                                    : setVisibleAcceptTask(false);
+                                                            }
                                                         }}
                                                     />
                                                 </Form.Item>

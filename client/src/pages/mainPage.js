@@ -3,7 +3,6 @@ import React, {useState, useEffect} from "react";
 import {Layout, Button, Row, Col, Modal} from "antd";
 import {MenuUnfoldOutlined, MenuFoldOutlined, QuestionCircleOutlined} from "@ant-design/icons";
 import ReactHtmlParser from "react-html-parser";
-import Cookies from "js-cookie";
 
 import {LogDORoute} from "../routes/route.LogDO";
 import {ContentComponent} from "../components/content.components/content/content.component";

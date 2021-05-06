@@ -13,12 +13,11 @@ class AuthMiddleware {
             const url = req.url
                 .replace("/api", "")
                 .replace("/directory", "")
-                .replace("/analytic", "")
                 .replace("/admin", "")
                 .split("/")[1];
 
             if (!method) return res.status(500).json({message: "Http метод не распознан"});
-            if (!url) return res.status(500).json({message: "Неверно указан url-адрес", body: req.url});
+            if (!url) return res.status(500).json({message: "Неверно указан url-адрес"});
             if (!req.cookies) return res.status(500).json({message: "Ошибка чтения файлов cookies"});
 
             const token = req.cookies.token;    // Получение токена пользователя
@@ -31,13 +30,27 @@ class AuthMiddleware {
                 decoded = jwt.verify(token, config.jwtSecret);    // Расшифровываем токен
 
                 if (!decoded.userId) return res.status(401).json({message: "Вы не авторизованы"});
+
+                if (decoded) {
+                    // Обновляем существующий токен
+                    const updateToken = jwt.sign({userId: decoded.userId, a: 1}, config.jwtSecret, {expiresIn: "30min"});
+
+                    decoded = jwt.verify(updateToken, config.jwtSecret);    // Расшифровываем токен
+
+                    if (!decoded.userId) return res.status(401).json({message: "Вы не авторизованы"});
+
+                    res.cookie("token", updateToken);   // Обновляем токен пользователя, перезаписывая куки
+                }
             } catch (e) {
-                console.log(e);
+                // Если токен просрочен, то выдаем ошибку 401
+                console.log(e.message);
                 return res.status(401).json({message: "Время жизни токена истекло"});
             }
 
             // Проверяем юрл, в двух случаях нужно только проверить авторизирован ли пользователь
-            if (url !== "upload" || req.url.slice(0, 10) !== "/help/get/") {
+            if (!req.url.includes("cancel") && !req.url.includes("delete") && !req.url.includes("upload")
+                && !req.url.includes("help/get")
+            ) {
                 // Находим текущего пользователя с ролями
                 const user = await User.findById({_id: decoded.userId}).populate("roles").select("roles");
 

@@ -174,7 +174,7 @@ const storeLogDO = (items) => {
  * @param items - записи раздела
  */
 const storeRole = (items) => {
-    if (items) {
+    if (items && items.length) {
         const reducerRole = store.getState().reducerRole.roles;
 
         // Если массивы не равны, то обновляем хранилище redux

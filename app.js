@@ -4,11 +4,18 @@ const mongoose = require("mongoose");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const fileUpload = require("express-fileupload");
+const cors = require("cors");
 
 const config = require("./config/default.json");
 const AuthMiddleware = require("./middlewares/auth.middleware");
 
 const app = express();
+const corsOptions = {
+    origin: "*",
+    credentials: true
+};
+
+app.use(cors(corsOptions));
 
 // Регистрируем мидлвары
 app.use(express.json({extended: true}));
@@ -63,4 +70,4 @@ async function start() {
     }
 }
 
-start().then(r => console.log(r));
+start().then(null);
