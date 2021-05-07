@@ -9,6 +9,8 @@ const headerLogDO = "Дата заявки, Оборудование, Описа
 const headerHelp = "Наименование, Текст, Дата изменения";
 const headerUser = "Имя пользователя, Имя, Фамилия, Роли, Электронная почта, Одобрен";
 const headerRole = "Наименование, Описание";
+const headerStatisticRating = "Оборудование, Не назначенные, В работе, Выполенные, Принятые, Количество отказов, Общая продолжительность простоев";
+const headerStatisticList = "Оборудование, Описание, Исполнитель, Статус, Продолжительность";
 
 export {
     headerProfession,
@@ -21,4 +23,6 @@ export {
     headerHelp,
     headerUser,
     headerRole,
+    headerStatisticRating,
+    headerStatisticList,
 }

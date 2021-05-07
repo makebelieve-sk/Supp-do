@@ -10,7 +10,7 @@ import {NoticeError} from "./helper";
 export const AnalyticRoute = {
     // Адрес для работы с разделом "Аналитика"
     base_url: "/api/analytic/analytic",
-    // Адрес для работы с разделом "Аналитика"
+    // Адрес для перехода в раздел ЖДО
     url_to_logDO: "/api/analytic/logDO",
     // Получение всех данных для раздела "Аналитика"
     getAll: async function () {
@@ -45,15 +45,15 @@ export const AnalyticRoute = {
         }
     },
     // Переход в раздел ЖДО
-    goToLogDO: async function (url, filter) {
+    goToLogDO: async function (url, filter, url_to_logDO = this.url_to_logDO) {
         try {
             // Устанавливаем спиннер загрузки данных в таблицу
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(true));
 
             // Получаем все данные
             const items = !filter
-                ? await request(this.url_to_logDO + url)
-                : await request(this.url_to_logDO + url, "POST", filter);
+                ? await request(url_to_logDO + url)
+                : await request(url_to_logDO + url, "POST", filter);
 
             if (items) {
                 const reduxLogDO = store.getState().reducerLogDO.logDO;

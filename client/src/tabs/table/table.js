@@ -33,6 +33,8 @@ export const TableComponent = ({specKey}) => {
         help: state.reducerHelp.help,
         users: state.reducerUser.users,
         roles: state.reducerRole.roles,
+        statisticRating: state.reducerStatistic.statistic.rating,
+        statisticList: state.reducerStatistic.statistic.list,
         date: state.reducerLogDO.date,
         legend: state.reducerLogDO.legend,
         alert: state.reducerLogDO.alert,

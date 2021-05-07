@@ -12,6 +12,8 @@ import {
     HelpColumns,
     UserColumns,
     RoleColumns,
+    StatisticRatingColumns,
+    StatisticListColumns,
 } from "../../../options/tab.options/table.options/columns";
 
 import {
@@ -25,6 +27,8 @@ import {
     headerHelp,
     headerUser,
     headerRole,
+    headerStatisticRating,
+    headerStatisticList,
 } from "../../../options/tab.options/table.options/exportHeaders";
 
 import {ProfessionRoute} from "../../../routes/route.profession";
@@ -159,7 +163,6 @@ const map = new Map([
         getTableHeader: headerLogDO,
         getPrintName: "Журнал дефектов и отказов",
         getPrintData: () => store.getState().reducerLogDO.logDO,
-        // model: LogDORoute
     }],
     ["help", {
         openRecordTab: (_id) => openRecord(
@@ -207,7 +210,20 @@ const map = new Map([
         model: RoleRoute
     }],
     ["analytic", {model: AnalyticRoute}],
-    ["statistic", {model: StatisticRoute}],
+    ["statistic-rating", {
+        getColumns: StatisticRatingColumns,
+        getTableHeader: headerStatisticRating,
+        getPrintName: "Статистика/Рейтинг отказов",
+        getPrintData: () => store.getState().reducerStatistic.statistic.rating,
+        model: StatisticRoute
+    }],
+    ["statistic-list", {
+        getColumns: StatisticListColumns,
+        getTableHeader: headerStatisticList,
+        getPrintName: "Статистика/Перечень незакрытых заявок",
+        getPrintData: () => store.getState().reducerStatistic.statistic.list,
+        model: StatisticRoute
+    }]
 ]);
 
 /**

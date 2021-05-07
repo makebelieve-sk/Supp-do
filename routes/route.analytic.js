@@ -323,7 +323,7 @@ const getRatingOrders = async (ids) => {
             logDOs.forEach(logDO => {
                 result.push({
                     id: logDO._id,
-                    name: logDO.equipment.name,
+                    name: logDO.equipment ? logDO.equipment.name : "",
                     value: ((moment().valueOf() - moment(logDO.date).valueOf()) / 1000 / 60 / 60 / 24).toFixed(1)
                 });
             });

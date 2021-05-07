@@ -753,6 +753,115 @@ const RoleColumns = [
     }
 ];
 
+// Создание колонок для раздела "Статистика" вкладки Рейтинг
+const StatisticRatingColumns = [
+    {
+        title: "Оборудование",
+        dataIndex: "equipment",
+        key: "equipment",
+        width: 100,
+        sorter: (a, b) => a.equipment.length - b.equipment.length,
+        sortDirections: ["descend", "ascend"],
+    },
+    {
+        title: "Заявки, шт",
+        chidlren: [
+            {
+                title: "Не назначенные",
+                dataIndex: "notAssigned",
+                key: "notAssigned",
+                width: 100,
+                sorter: (a, b) => a.notAssigned.length - b.notAssigned.length,
+                sortDirections: ["descend", "ascend"],
+            },
+            {
+                title: "В работе",
+                dataIndex: "inWork",
+                key: "inWork",
+                width: 100,
+                sorter: (a, b) => a.inWork.length - b.inWork.length,
+                sortDirections: ["descend", "ascend"],
+            },
+            {
+                title: "Выполненные",
+                dataIndex: "done",
+                key: "done",
+                width: 100,
+                sorter: (a, b) => a.done.length - b.done.length,
+                sortDirections: ["descend", "ascend"],
+            },
+            {
+                title: "Принятые",
+                dataIndex: "accept",
+                key: "accept",
+                width: 100,
+                sorter: (a, b) => a.accept.length - b.accept.length,
+                sortDirections: ["descend", "ascend"],
+            },
+        ]
+    },
+    {
+        title: "Кол-во отказов, шт",
+        dataIndex: "failure",
+        key: "failure",
+        width: 100,
+        sorter: (a, b) => a.failure.length - b.failure.length,
+        sortDirections: ["descend", "ascend"],
+    },
+    {
+        title: "Общая продолжительность простоев, ч",
+        dataIndex: "during",
+        key: "during",
+        width: 100,
+        sorter: (a, b) => a.during.length - b.during.length,
+        sortDirections: ["descend", "ascend"],
+    },
+];
+
+// Создание колонок для раздела "Статистика" вкладки Перечень
+const StatisticListColumns = [
+    {
+        title: "Оборудование",
+        dataIndex: "equipment",
+        key: "equipment",
+        width: 100,
+        sorter: (a, b) => a.equipment.length - b.equipment.length,
+        sortDirections: ["descend", "ascend"],
+    },
+    {
+        title: "Описание",
+        dataIndex: "notes",
+        key: "notes",
+        width: 100,
+        sorter: (a, b) => a.notes.length - b.notes.length,
+        sortDirections: ["descend", "ascend"],
+    },
+    {
+        title: "Исполнитель",
+        dataIndex: "applicant",
+        key: "applicant",
+        width: 100,
+        sorter: (a, b) => a.applicant.length - b.applicant.length,
+        sortDirections: ["descend", "ascend"],
+    },
+    {
+        title: "Статус",
+        dataIndex: "status",
+        key: "status",
+        width: 100,
+        sorter: (a, b) => a.status.length - b.status.length,
+        sortDirections: ["descend", "ascend"],
+    },
+    {
+        title: "Продолжительность, ч",
+        dataIndex: "during",
+        key: "during",
+        width: 100,
+        sorter: (a, b) => a.during.length - b.during.length,
+        sortDirections: ["descend", "ascend"],
+    },
+];
+
 export {
     ProfessionColumns,
     DepartmentColumns,
@@ -764,4 +873,6 @@ export {
     HelpColumns,
     UserColumns,
     RoleColumns,
+    StatisticRatingColumns,
+    StatisticListColumns,
 };

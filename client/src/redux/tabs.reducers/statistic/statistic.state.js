@@ -1,6 +1,10 @@
 // Инициализация состояния для раздела "Статистика"
 const initialState = {
-    statistic: [],          // Записи журнала
+    // Записи журнала
+    statistic: {
+        rating: [],
+        list: []
+    },
     error: null,       // Ошибка
 };
 
