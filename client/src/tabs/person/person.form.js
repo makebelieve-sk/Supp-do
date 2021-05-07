@@ -174,7 +174,7 @@ export const PersonForm = ({item}) => {
                     </Form.Item>
 
                     <Form.Item label="Профессия" name="profession"
-                               rules={[{required: true, message: "Выберите сотрудника!"}]}>
+                               rules={[{required: true, message: "Выберите профессию!"}]}>
                         <Row>
                             <Col xs={{span: 21}} sm={{span: 21}} md={{span: 22}} lg={{span: 22}} xl={{span: 22}}>
                                 <Form.Item name="profession" noStyle>

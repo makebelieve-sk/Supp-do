@@ -48,6 +48,14 @@ router.get("/equipment/:id", async (req, res) => {
                 .populate("properties.equipmentProperty")
                 .populate("files");
             isNewItem = false;
+
+            item.properties.push({
+                equipmentProperty: "Не выбрано",
+                value: "",
+                id: Date.now(),
+                name: 0,
+                _id: null
+            })
         }
 
         if (!item) return res.status(404).json({message: `Запись с кодом ${_id} не существует`});

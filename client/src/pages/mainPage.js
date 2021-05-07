@@ -83,6 +83,7 @@ export const MainPage = () => {
                             visible={isModalVisible}
                             onCancel={() => setIsModalVisible(false)}
                             cancelText="Закрыть"
+                            width="60%"
                         >
                             {help.text}
                         </Modal>

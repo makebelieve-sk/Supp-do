@@ -60,6 +60,10 @@ export const EquipmentForm = ({item}) => {
 
                 characteristicArr.push(obj);
             });
+
+            // if (!item.properties.includes({_id: null, value: ""})) {
+            //     characteristicArr.push({equipmentProperty: null, value: ""});
+            // }
         }
 
         // Установка значений формы
