@@ -1,3 +1,4 @@
+// Настройки таблицы
 import {getTableHeader} from "../../../helpers/mappers/tabs.mappers/table.helper";
 import {getFilteredData} from "../../global.options/global.options";
 

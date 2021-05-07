@@ -8,6 +8,10 @@ import {LogDORoute} from "../../../routes/route.LogDO";
 import {AuthContext} from "../../../context/auth.context";
 import OpenTableTab from "../../../helpers/functions/tabs.functions/openTableTab";
 import {checkRoleUser} from "../../../helpers/mappers/general.mappers/checkRoleUser";
+import store from "../../../redux/store";
+import {ActionCreator} from "../../../redux/combineActions";
+import moment from "moment";
+import TabOptions from "../../../options/tab.options/record.options/record.options";
 
 import logo from "../../../assets/logo.png";
 import "./sider.css";
@@ -75,11 +79,17 @@ export const SiderComponent = ({collapsed}) => {
 
     return (
         <Layout.Sider trigger={null} collapsible collapsed={collapsed} width={300}>
-            <div className="logo" onClick={() => OpenTableTab(
-                "Журнал дефектов и отказов",
-                "logDO",
-                LogDORoute
-            )}>
+            <div className="logo" onClick={() => {
+                // Обновляем датапикер
+                store.dispatch(ActionCreator.ActionCreatorLogDO.setDate(moment().startOf("month").format(TabOptions.dateFormat) + "/" +
+                    moment().endOf("month").format(TabOptions.dateFormat)));
+
+                OpenTableTab(
+                    "Журнал дефектов и отказов",
+                    "logDO",
+                    LogDORoute
+                )
+            }}>
                 <img src={logo} alt="Лого" className="logo-image"/>
 
                 {collapsed ? null : "СУПП ДО"}

@@ -2,7 +2,9 @@
 const {Router} = require("express");
 const {check, validationResult} = require("express-validator");
 
+const User = require("../schemes/User");
 const Role = require("../schemes/Role");
+const {permissions} = require("./helper");
 
 const router = Router();
 
@@ -19,60 +21,71 @@ const checkMiddleware = [
 
 // Возвращает запись по коду
 router.get("/roles/:id", async (req, res) => {
-    const _id = req.params.id;  // Получение id записи
-
     try {
-        let item, isNewItem = true;
+        const _id = req.params.id;  // Получение id записи
 
-        // Создаем массив разрешений
-        const permissions = [
-            {title: "Профессии", read: false, edit: false, key: "professions"},
-            {title: "Подразделения", read: false, edit: false, key: "departments"},
-            {title: "Персонал", read: false, edit: false, key: "people"},
-            {title: "Перечень оборудования", read: false, edit: false, key: "equipment"},
-            {title: "Характеристики оборудования", read: false, edit: false, key: "equipmentProperties"},
-            {title: "Состояния заявок", read: false, edit: false, key: "tasks"},
-            {title: "Журнал дефектов и отказов", read: true, edit: true, key: "logDO"},
-            {title: "Помощь", read: false, edit: false, key: "help"},
-            {title: "Пользователи", read: false, edit: false, key: "users"},
-            {title: "Роли", read: false, edit: false, key: "roles"},
-            {title: "Журнал действий пользователей", read: false, edit: false, key: "logs"},
-            {title: "Аналитика", read: false, edit: false, key: "analytic"},
-            {title: "Статистика", read: false, edit: false, key: "statistic"},
-            {title: "Принятие работы", read: false, edit: false, key: "acceptTask"},
-        ];
+        let item, isNewItem = true;
 
         if (_id === "-1") {
             item = new Role({name: "", notes: "", permissions});    // Создание новой записи
         } else {
             item = await Role.findById({_id});  // Получение существующей записи
             isNewItem = false;
+
+            // Проверка на равенство разрешений записи и исходного массива разрешений
+            if (item && item.permissions && item.permissions.length) {
+                let keysPermissions = [], keysItemPermissions = [];
+
+                // Создаем массив ключей из исходного массива разрешений
+                permissions.forEach(perm => keysPermissions.push(perm.key));
+
+                // Создаем массив ключей из массива разрешений записи
+                item.permissions.forEach(perm => keysItemPermissions.push(perm.key));
+
+                // Если массив ключей из исходного массива разрешений не содержит ключ из массива ключей
+                // из массива permissions записи, то добавляем разрешение
+                keysPermissions.forEach((key, index) => {
+                    if (!keysItemPermissions.includes(key)) {
+                        const permission = permissions.find(perm => perm.key === key);
+
+                        if (permission) item.permissions.splice(index, 0, permission);
+                    }
+                });
+
+                // Если массив ключей из массива разрешений записи не содержит ключ из массива ключей
+                // из исходного массива permissions, то добавляем разрешение
+                keysItemPermissions.forEach(key => {
+                    if (!keysPermissions.includes(key)) {
+                        const foundPerm = item.permissions.find(permission => permission.key === key);
+                        const indexPerm = item.permissions.indexOf(foundPerm);
+
+                        if (foundPerm && indexPerm >= 0) {
+                            item.permissions.splice(indexPerm, 1);
+                        }
+                    }
+                });
+            }
+
+            // Обновляем данную роль у пользователей
+            const usersWithThisRole = await User
+                .find()
+                .all("roles", [item])
+                .populate("roles")
+                .populate("person")
+                .select("-password");
+
+            if (usersWithThisRole && usersWithThisRole.length) {
+                usersWithThisRole.forEach(user => {
+                    user.roles.forEach((role, index) => {
+                        if (role._id === item._id) {
+                            user.roles[index] = item;
+                        }
+                    });
+                });
+            }
         }
 
         if (!item) return res.status(404).json({message: `Запись с кодом ${_id} не существует`});
-
-        // Проверка на равенство разделов
-        if (item.permissions.length !== permissions.length) {
-            if (item.permissions.length < permissions.length) {
-                // Если мы добавили раздел
-                permissions.forEach((permission, index) => {
-                    if (!item.permissions[index]) item.permissions.push(permission);
-                });
-            } else {
-                // Если мы удалили раздел
-                let result = [];
-
-                permissions.forEach(permission => {
-                    item.permissions.forEach(perm => {
-                        if (perm.key === permission.key) result.push(perm);
-                    });
-                });
-
-                item.permissions = result;
-            }
-
-            await item.save();  // Сохраняем запись с обновленными разрешениями
-        }
 
         res.status(200).json({isNewItem, role: item});
     } catch (err) {

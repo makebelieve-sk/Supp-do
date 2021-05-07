@@ -1,4 +1,4 @@
-// Компонент предохранитель
+// Страница ошибки
 import React, {Component} from "react";
 import ErrorIndicator from "../components/content.components/errorIndicator/errorIndicator.component";
 

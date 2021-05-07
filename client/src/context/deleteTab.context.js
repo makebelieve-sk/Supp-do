@@ -1,3 +1,4 @@
+// Создание контекста для удаления вкладки записи
 import {createContext} from "react";
 
 const onRemove = () => {};

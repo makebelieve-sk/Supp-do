@@ -1,4 +1,4 @@
-// Компонент, строющий таблицу раздела для печати
+// Печать таблицы раздела
 import React from "react";
 
 import {getPrintFilteredData} from "../../global.options/global.options";

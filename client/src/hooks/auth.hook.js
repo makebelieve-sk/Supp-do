@@ -1,4 +1,4 @@
-// Хук, отвечающий за регистрацию/вход/выход и запись пользвотеля в хранилища
+// Хук, отвечающий за регистрацию/вход/выход и запись пользователя в хранилище и куки
 import {useState, useEffect, useCallback} from "react";
 import {LaptopOutlined, MenuUnfoldOutlined, StockOutlined, UserOutlined} from "@ant-design/icons";
 import Cookies from "js-cookie";

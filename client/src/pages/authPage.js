@@ -1,3 +1,4 @@
+// Страница авторизации
 import React, {useState} from "react";
 
 import {AuthComponent} from "../components/auth.components/auth/auth.component";

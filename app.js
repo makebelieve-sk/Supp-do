@@ -1,4 +1,4 @@
-// Файл сервера
+// Главный файл сервера
 const express = require("express");
 const mongoose = require("mongoose");
 const path = require("path");
@@ -10,6 +10,7 @@ const config = require("./config/default.json");
 const AuthMiddleware = require("./middlewares/auth.middleware");
 
 const app = express();
+
 const corsOptions = {
     origin: "*",
     credentials: true
@@ -44,14 +45,12 @@ app.use(fileUpload({createParentPath: true}));
 app.use("/public", express.static("public"));
 app.use("/files", AuthMiddleware.checkAuth, require("./routes/route.upload"));
 
-const PORT = config.port || 5000;
-
 if (process.env.NODE_ENV === "production") {
-    app.use("/", express.static(path.join(__dirname, "client", "build")))
+    app.use("/", express.static(path.join(__dirname, "client", "build")));
 
     app.get("*", (req, res) => {
         res.sendFile(path.resolve(__dirname, "client", "build", "index.html"))
-    })
+    });
 }
 
 async function start() {
@@ -62,6 +61,8 @@ async function start() {
             useUnifiedTopology: true,
             useCreateIndex: true
         });
+
+        const PORT = config.port || 5000;
 
         app.listen(PORT, () => console.log(`Приложение запущено на порту ${PORT} в режиме ${process.env.NODE_ENV}`));
     } catch (e) {

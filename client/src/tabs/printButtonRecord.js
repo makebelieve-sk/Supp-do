@@ -1,4 +1,4 @@
-// Компонент, возвращающий кнопку печати таблиц
+// Печать записи
 import React from "react";
 import ReactToPrint from "react-to-print";
 import {Button} from "antd";

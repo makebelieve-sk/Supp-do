@@ -95,11 +95,15 @@ export const RoleForm = ({item}) => {
                                     permissions && permissions.length
                                         ? permissions.map((perm, index) => (
                                             <tr key={perm.key}>
-                                                <td className="link" onClick={() => OpenTableTab(
+                                                <td className="link" onClick={() => {
+                                                    if (perm.key === "acceptTask") return null;
+
+                                                    OpenTableTab(
                                                         perm.title,
                                                         perm.key,
                                                         perm.key !== "logDO" ? getModel(perm.key) : LogDORoute
-                                                    )}
+                                                    )
+                                                }}
                                                 >
                                                     {perm.title}
                                                 </td>

@@ -279,9 +279,7 @@ const getPrintTable = (key) => {
 /**
  * Функция возврата модели раздела
  * @param key - ключ раздела
- * @returns {{cancel: function(*): void, fillItem: function(*): void, getAll: function(): Promise<void>,
- * get: function(*): Promise<void>, base_url: string, save: function(*=, *, *=): Promise<void>,
- * delete: function(*, *, *, *=): Promise<void>}} - модель раздела
+ * @returns any - модель раздела
  */
 const getModel = (key) => {
     if (map.has(key)) {
