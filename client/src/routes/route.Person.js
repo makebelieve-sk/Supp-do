@@ -8,6 +8,7 @@ import {request} from "../helpers/functions/general.functions/request.helper";
 import setFieldRecord from "../helpers/mappers/general.mappers/setFieldRecord";
 import {compareObjects} from "../helpers/functions/general.functions/compare";
 import {NoticeError, storeDepartments, storePeople, storeProfessions} from "./helper";
+import {onRemove} from "../components/content.components/content/content.component";
 
 export const PersonRoute = {
     // Адрес для работы с разделом "Персонал"
@@ -28,7 +29,7 @@ export const PersonRoute = {
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorPerson.setErrorTable("Возникла ошибка при получении записей: " + e.message));
+            store.dispatch(ActionCreator.ActionCreatorPerson.setErrorTablePerson("Возникла ошибка при получении записей: " + e.message));
             NoticeError.getAll(e.message); // Вызываем функцию обработки ошибки
         }
     },
@@ -37,6 +38,18 @@ export const PersonRoute = {
         try {
             // Получаем редактируемую запись
             const item = await request(this.base_url + id);
+
+            if (typeof item === "string") {
+                // Обнуляем редактируемую запись
+                store.dispatch(ActionCreator.ActionCreatorPerson.setRowDataPerson(null));
+
+                await this.getAll();    // Обновляем записи раздела
+
+                onRemove("personItem", "remove")  // Удаляем открытую вкладку
+
+                return null;
+            }
+
             const professions = await request("/api/directory/professions/");
             const departments = await request("/api/directory/departments/");
 
@@ -50,13 +63,15 @@ export const PersonRoute = {
             if (item) this.fillItem(item);
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorPerson.setErrorRecord("Возникла ошибка при получении записи: " + e.message));
+            store.dispatch(ActionCreator.ActionCreatorPerson.setErrorRecordPerson("Возникла ошибка при получении записи: " + e.message));
             NoticeError.get(e.message); // Вызываем функцию обработки ошибки
         }
     },
     // Сохранение записи
-    save: async function (item, setLoading, onRemove) {
+    save: async function (item, setLoading) {
         try {
+            await this.getAll();    // Обновляем все записи раздела
+
             // Устанавливаем спиннер загрузки
             setLoading(true);
 
@@ -65,6 +80,22 @@ export const PersonRoute = {
 
             // Получаем сохраненную запись
             const data = await request(this.base_url, method, item);
+
+            if (typeof data === "string") {
+                // Останавливаем спиннер загрузки
+                setLoading(false);
+
+                // Обнуляем объект поля "Персонал" (при нажатии на "+")
+                store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldPerson({
+                    key: null,
+                    formValues: null
+                }));
+
+                // Удаление текущей вкладки
+                onRemove("personItem", "remove")  // Удаляем открытую вкладку
+
+                return null;
+            }
 
             if (data) {
                 // Выводим сообщение от сервера
@@ -92,33 +123,55 @@ export const PersonRoute = {
                     // Обновляем поле
                     setFieldRecord(replaceField, data.item);
                 }
+
+                // Останавливаем спиннер загрузки
+                setLoading(false);
+
+                // Обнуляем объект поля "Персонал" (при нажатии на "+")
+                store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldPerson({
+                    key: null,
+                    formValues: null
+                }));
+
+                // Удаление текущей вкладки
+                onRemove("personItem", "remove")  // Удаляем открытую вкладку
+            } else {
+                // Останавливаем спиннер загрузки
+                setLoading(false);
+
+                // Обнуляем объект поля "Персонал" (при нажатии на "+")
+                store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldPerson({
+                    key: null,
+                    formValues: null
+                }));
             }
-
-            // Останавливаем спиннер загрузки
-            setLoading(false);
-
-            // Обнуляем объект поля "Персонал" (при нажатии на "+")
-            store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldPerson({
-                key: null,
-                formValues: null
-            }));
-
-            // Удаление текущей вкладки
-            this.cancel(onRemove);
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorPerson.setErrorRecord("Возникла ошибка при сохранении записи: " + e.message));
+            store.dispatch(ActionCreator.ActionCreatorPerson.setErrorRecordPerson("Возникла ошибка при сохранении записи: " + e.message));
             NoticeError.save(e.message, setLoading);    // Вызываем функцию обработки ошибки
         }
     },
     // Удаление записи
-    delete: async function (_id, setLoadingDelete, setVisiblePopConfirm, onRemove) {
+    delete: async function (_id, setLoadingDelete, setVisiblePopConfirm) {
         try {
+            await this.getAll();    // Обновляем все записи раздела
+
             // Устанавливаем спиннер загрузки
             setLoadingDelete(true);
 
             // Удаляем запись
             const data = await request(this.base_url + _id, "DELETE");
+
+            if (typeof data === "string") {
+                // Останавливаем спиннер, и скрываем всплывающее окно
+                setLoadingDelete(false);
+                setVisiblePopConfirm(false);
+
+                // Удаление текущей вкладки
+                onRemove("personItem", "remove");
+
+                return null;
+            }
 
             if (data) {
                 // Вывод сообщения
@@ -133,23 +186,23 @@ export const PersonRoute = {
                 if (foundPerson && indexPerson >= 0) {
                     store.dispatch(ActionCreator.ActionCreatorPerson.deletePerson(indexPerson));
                 }
+
+                // Останавливаем спиннер, и скрываем всплывающее окно
+                setLoadingDelete(false);
+                setVisiblePopConfirm(false);
+
+                // Удаление текущей вкладки
+                onRemove("personItem", "remove");
+            } else {
+                // Останавливаем спиннер, и скрываем всплывающее окно
+                setLoadingDelete(false);
+                setVisiblePopConfirm(false);
             }
-
-            // Останавливаем спиннер, и скрываем всплывающее окно
-            setLoadingDelete(false);
-            setVisiblePopConfirm(false);
-
-            // Удаление текущей вкладки
-            this.cancel(onRemove);
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
             store.dispatch(ActionCreator.ActionCreatorPerson.setErrorRecord("Возникла ошибка при удалении записи: " + e.message));
             NoticeError.delete(e.message, setLoadingDelete, setVisiblePopConfirm);    // Вызываем функцию обработки ошибки
         }
-    },
-    // Нажатие на кнопку "Отмена"
-    cancel: function (onRemove) {
-        onRemove("personItem", "remove");
     },
     // Заполнение модели "Персонал"
     fillItem: function (item) {

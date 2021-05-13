@@ -40,20 +40,20 @@ export const AnalyticRoute = {
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(false));
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorAnalytic.setError("Возникла ошибка при получении записей: " + e.message));
+            store.dispatch(ActionCreator.ActionCreatorAnalytic.setErrorAnalytic("Возникла ошибка при получении записей: " + e.message));
             NoticeError.getAll(e.message); // Вызываем функцию обработки ошибки
         }
     },
     // Переход в раздел ЖДО
-    goToLogDO: async function (url, filter, url_to_logDO = this.url_to_logDO) {
+    goToLogDO: async function (url, filter = null) {
         try {
             // Устанавливаем спиннер загрузки данных в таблицу
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(true));
 
             // Получаем все данные
-            const items = !filter
-                ? await request(url_to_logDO + url)
-                : await request(url_to_logDO + url, "POST", filter);
+            const items = filter
+                ? await request(this.url_to_logDO + url, "POST", filter)
+                : await request(this.url_to_logDO + url);
 
             if (items) {
                 const reduxLogDO = store.getState().reducerLogDO.logDO;
@@ -68,7 +68,7 @@ export const AnalyticRoute = {
                 store.dispatch(ActionCreator.ActionCreatorLogDO.setDate(date));
 
                 // Обновление легенды статусов
-                store.dispatch(ActionCreator.ActionCreatorLogDO.setLegend(items.statusLegend));
+                store.dispatch(ActionCreator.ActionCreatorLogDO.setLegend(items.statusLegend ? items.statusLegend : null));
 
                 // Устанавливаем подсказку (какой фильтр сейчас есть у таблицы)
                 store.dispatch(ActionCreator.ActionCreatorLogDO.setAlert(items.alert));
@@ -85,7 +85,7 @@ export const AnalyticRoute = {
             // Останавливаем спиннер загрузки данных в таблицу
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorLogDO.setErrorTable("Возникла ошибка при переходе в раздел ЖДО: " + e.message));
+            store.dispatch(ActionCreator.ActionCreatorLogDO.setErrorTableLogDO("Возникла ошибка при переходе в раздел ЖДО: " + e.message));
             console.log(e.message);
             message.error("Возникла ошибка при переходе в раздел ЖДО: ", e.message);
             throw new Error(e.message);

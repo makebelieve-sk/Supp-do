@@ -23,7 +23,7 @@ export const RatingComponent = ({title, param, data}) => {
                         <table className="table">
                             <thead>
                             <tr>
-                                <th className="ta-center">Оборудование</th>
+                                <th className="ta-left">Оборудование</th>
                                 <th className="ta-center">{param}</th>
                             </tr>
                             </thead>
@@ -32,7 +32,7 @@ export const RatingComponent = ({title, param, data}) => {
                                 data && data.length
                                     ? data.map(obj => (
                                         <tr key={obj.id}>
-                                            <td className="ta-center">{obj.name}</td>
+                                            <td className="ta-left">{obj.name}</td>
                                             <td className="ta-center">{obj.value}</td>
                                         </tr>
                                     ))

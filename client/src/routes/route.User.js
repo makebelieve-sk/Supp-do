@@ -7,6 +7,7 @@ import {User} from "../model/User";
 import {request} from "../helpers/functions/general.functions/request.helper";
 import {compareArrays, compareObjects} from "../helpers/functions/general.functions/compare";
 import {NoticeError, storePeople, storeRole} from "./helper";
+import {onRemove} from "../components/content.components/content/content.component";
 
 export const UserRoute = {
     // Адрес для работы с разделом "Пользователи"
@@ -36,8 +37,8 @@ export const UserRoute = {
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorUser.setErrorTable("Возникла ошибка при получении записей: " + e));
-            NoticeError.getAll(e); // Вызываем функцию обработки ошибки
+            store.dispatch(ActionCreator.ActionCreatorUser.setErrorTableUser("Возникла ошибка при получении записей: " + e.message));
+            NoticeError.getAll(e.message); // Вызываем функцию обработки ошибки
         }
     },
     // Получение редактируемой записи о пользователе
@@ -45,6 +46,18 @@ export const UserRoute = {
         try {
             // Получаем редактируемую запись о пользователе
             const item = await request(this.base_url + id);
+
+            if (typeof item === "string") {
+                // Обнуляем редактируемую запись
+                store.dispatch(ActionCreator.ActionCreatorUser.setRowDataUser(null));
+
+                await this.getAll();    // Обновляем записи раздела
+
+                onRemove("userItem", "remove")  // Удаляем открытую вкладку
+
+                return null;
+            }
+
             const people = await request("/api/directory/people/");
             const roles = await request("/api/admin/roles/");
 
@@ -58,13 +71,15 @@ export const UserRoute = {
             if (item) this.fillItem(item);
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorUser.setErrorRecord("Возникла ошибка при получении записи: " + e.message));
+            store.dispatch(ActionCreator.ActionCreatorUser.setErrorRecordUser("Возникла ошибка при получении записи: " + e.message));
             NoticeError.get(e.message); // Вызываем функцию обработки ошибки
         }
     },
     // Сохранение записи о пользователе
-    save: async function (item, setLoading, onRemove) {
+    save: async function (item, setLoading) {
         try {
+            await this.getAll();    // Обновляем все записи раздела
+
             // Устанавливаем спиннер загрузки
             setLoading(true);
 
@@ -73,6 +88,16 @@ export const UserRoute = {
 
             // Получаем сохраненную запись
             const data = await request(this.base_url, method, item);
+
+            if (typeof data === "string") {
+                // Останавливаем спиннер загрузки
+                setLoading(false);
+
+                // Удаление текущей вкладки
+                onRemove("userItem", "remove");
+
+                return null;
+            }
 
             if (data) {
                 // Выводим сообщение от сервера
@@ -92,30 +117,35 @@ export const UserRoute = {
                         store.dispatch(ActionCreator.ActionCreatorUser.editUser(indexUser, data.item));
                     }
                 }
+
+                // Обновляем пользователя в редаксе, если активный и редактируемый пользователи совпадают
+                const currentUser = store.getState().reducerAuth.user;
+
+                if (currentUser && data && data.toUpdateUser && currentUser._id === data.toUpdateUser._id) {
+                    store.dispatch(ActionCreator.ActionCreatorAuth.setUser(data.toUpdateUser));
+                }
+
+                // Останавливаем спиннер загрузки
+                setLoading(false);
+
+                // Удаление текущей вкладки
+                onRemove("userItem", "remove");
+            } else {
+                // Останавливаем спиннер загрузки
+                setLoading(false);
             }
-
-            // Обновляем пользователя в редаксе, если активный и редактируемый пользователи совпадают
-            const currentUser = store.getState().reducerAuth.user;
-
-            if (currentUser && data && data.toUpdateUser && currentUser._id === data.toUpdateUser._id) {
-                store.dispatch(ActionCreator.ActionCreatorAuth.setUser(data.toUpdateUser));
-            }
-
-            // Останавливаем спиннер загрузки
-            setLoading(false);
-
-            // Удаление текущей вкладки
-            this.cancel(onRemove);
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorUser.setErrorRecord("Возникла ошибка при сохранении записи: " + e.message));
+            store.dispatch(ActionCreator.ActionCreatorUser.setErrorRecordUser("Возникла ошибка при сохранении записи: " + e.message));
             NoticeError.save(e.message, setLoading);    // Вызываем функцию обработки ошибки
         }
 
     },
     // Удаление записи о пользователе
-    delete: async function (_id, setLoadingDelete, setVisiblePopConfirm, onRemove) {
+    delete: async function (_id, setLoadingDelete, setVisiblePopConfirm) {
         try {
+            await this.getAll();    // Обновляем все записи раздела
+
             // Устанавливаем спиннер загрузки
             setLoadingDelete(true);
 
@@ -133,6 +163,17 @@ export const UserRoute = {
             // Удаляем запись
             const data = await request(this.base_url + _id, "DELETE");
 
+            if (typeof data === "string") {
+                // Останавливаем спиннер, и скрываем всплывающее окно
+                setLoadingDelete(false);
+                setVisiblePopConfirm(false);
+
+                // Удаление текущей вкладки
+                onRemove("userItem", "remove");
+
+                return null;
+            }
+
             if (data) {
                 // Вывод сообщения
                 message.success(data.message);
@@ -147,25 +188,23 @@ export const UserRoute = {
                 if (foundUser && indexUser >= 0) {
                     store.dispatch(ActionCreator.ActionCreatorUser.deleteUser(indexUser));
                 }
+
+                // Останавливаем спиннер, и скрываем всплывающее окно
+                setLoadingDelete(false);
+                setVisiblePopConfirm(false);
+
+                // Удаление текущей вкладки
+                onRemove("userItem", "remove");
+            } else {
+                // Останавливаем спиннер, и скрываем всплывающее окно
+                setLoadingDelete(false);
+                setVisiblePopConfirm(false);
             }
-
-            // Останавливаем спиннер, и скрываем всплывающее окно
-            setLoadingDelete(false);
-            setVisiblePopConfirm(false);
-
-            // Удаление текущей вкладки
-            this.cancel(onRemove)
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorUser.setErrorRecord("Возникла ошибка при удалении записи: " + e.message));
+            store.dispatch(ActionCreator.ActionCreatorUser.setErrorRecordUser("Возникла ошибка при удалении записи: " + e.message));
             NoticeError.delete(e.message, setLoadingDelete, setVisiblePopConfirm);    // Вызываем функцию обработки ошибки
         }
-
-    },
-    // Нажатие на кнопку "Отмена"
-    cancel: function (onRemove) {
-        // Удаление текущей вкладки
-        onRemove("userItem", "remove");
     },
     // Заполнение модели "Пользователи"
     fillItem: function (item) {

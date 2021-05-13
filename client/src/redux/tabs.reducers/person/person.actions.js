@@ -5,8 +5,8 @@ import {
     DELETE_PERSON,
     GET_ALL_PEOPLE,
     SET_ROW_DATA_PERSON,
-    SET_ERROR_RECORD,
-    SET_ERROR_TABLE,
+    SET_ERROR_RECORD_PERSON,
+    SET_ERROR_TABLE_PERSON,
 } from "./person.constants";
 
 const ActionCreatorPerson = {
@@ -47,16 +47,16 @@ const ActionCreatorPerson = {
         }
     },
     // Установка ошибки для записи
-    setErrorRecord: (error) => {
+    setErrorRecordPerson: (error) => {
         return {
-            type: SET_ERROR_RECORD,
+            type: SET_ERROR_RECORD_PERSON,
             payload: error
         }
     },
     // Установка ошибки для таблицы
-    setErrorTable: (error) => {
+    setErrorTablePerson: (error) => {
         return {
-            type: SET_ERROR_TABLE,
+            type: SET_ERROR_TABLE_PERSON,
             payload: error
         }
     },

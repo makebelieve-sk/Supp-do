@@ -6,8 +6,8 @@ import {
     DELETE_DEPARTMENT,
     GET_ALL_DEPARTMENTS,
     SET_ROW_DATA_DEPARTMENT,
-    SET_ERROR_RECORD,
-    SET_ERROR_TABLE,
+    SET_ERROR_RECORD_DEPARTMENT,
+    SET_ERROR_TABLE_DEPARTMENT,
 } from "./department.constants";
 
 export default function reducerDepartment(state = initialState, action) {
@@ -39,15 +39,15 @@ export default function reducerDepartment(state = initialState, action) {
                 ...state,
                 rowDataDepartment: action.payload
             };
-        case SET_ERROR_RECORD:
+        case SET_ERROR_RECORD_DEPARTMENT:
             return {
                 ...state,
-                errorRecord: action.payload
+                errorRecordDepartment: action.payload
             };
-        case SET_ERROR_TABLE:
+        case SET_ERROR_TABLE_DEPARTMENT:
             return {
                 ...state,
-                errorTable: action.payload
+                errorTableDepartment: action.payload
             };
         default:
             return state;

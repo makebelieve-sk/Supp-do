@@ -2,8 +2,8 @@
 const initialState = {
     departments: [],            // Записи журнала
     rowDataDepartment: null,    // Редактируемая запись
-    errorTable: null,           // Ошибка в таблице
-    errorRecord: null,          // Ошибка в записи
+    errorTableDepartment: null,           // Ошибка в таблице
+    errorRecordDepartment: null,          // Ошибка в записи
 };
 
 export default initialState;

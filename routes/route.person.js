@@ -148,7 +148,18 @@ router.put("/people", checkMiddleware, async (req, res) => {
 
         // Проверяем на существование записи с уникальным идентификатором
         if (!item)
-            return res.status(404).json({message: `Запись с кодом ${_id} не найдена`});
+            return res.status(404).json({message: `Запись с именем ${name} (${_id}) не найдена`});
+
+        // Ищем все записи персонала
+        const people = await Person.find({});
+
+        if (people && people.length) {
+            for (let i = 0; i < people.length; i++) {
+                if (people[i].name === name && people[i]._id.toString() !== _id.toString()) {
+                    return res.status(400).json({message: "Подразделение с таким именем уже существует"});
+                }
+            }
+        }
 
         item.name = name;
         item.department = department;
@@ -157,7 +168,7 @@ router.put("/people", checkMiddleware, async (req, res) => {
 
         await item.save();  // Сохраняем запись в базу данных
 
-        // Пролучаем все запиис подразделений
+        // Получаем все записи подразделений
         const departments = await Department.find({}).populate("parent");
 
         // Ищем запись в базе данных по уникальному идентификатору
@@ -186,9 +197,14 @@ router.delete("/people/:id", async (req, res) => {
     const _id = req.params.id;  // Получение id записи
 
     try {
-        await Person.deleteOne({_id});  // Удаление записи из базы данных по id записи
+        const item = await Person.findById({_id});  // Ищем текущую запись
 
-        res.status(200).json({message: "Запись успешно удалена"});
+        if (item) {
+            await Person.deleteOne({_id});  // Удаление записи из базы данных по id записи
+            return res.status(200).json({message: "Запись успешно удалена"});
+        } else {
+            return res.status(404).json({message: "Данная запись уже была удалена"});
+        }
     } catch (err) {
         console.log(err);
         res.status(500).json({message: `Ошибка при удалении записи с кодом ${_id}: ${err}`});

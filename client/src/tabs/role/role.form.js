@@ -1,13 +1,13 @@
 // Компонент формы записи раздела "Роли"
-import React, {useContext, useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Card, Checkbox, Form, Input} from "antd";
 
 import {onFailed, TabButtons} from "../tab.functions";
-import {DeleteTabContext} from "../../context/deleteTab.context";
 import {RoleRoute} from "../../routes/route.Role";
 import {LogDORoute} from "../../routes/route.LogDO";
 import OpenTableTab from "../../helpers/functions/tabs.functions/openTableTab";
 import {getModel} from "../../helpers/mappers/tabs.mappers/table.helper";
+import {onRemove} from "../../components/content.components/content/content.component";
 
 import "./role.form.css";
 
@@ -21,9 +21,6 @@ export const RoleForm = ({item}) => {
 
     // Инициализируем хук состояния формы от AntDesign
     const [form] = Form.useForm();
-
-    // Получаем функцию удаления вкладки onRemove из контекста
-    const onRemove = useContext(DeleteTabContext);
 
     // При обновлении item устанавливаем форме начальные значения
     useEffect(() => {
@@ -41,14 +38,12 @@ export const RoleForm = ({item}) => {
     const saveHandler = async (values) => {
         values.permissions = permissions;
 
-        await RoleRoute.save(values, setLoadingSave, onRemove);
+        await RoleRoute.save(values, setLoadingSave);
     }
 
     // Обработка нажатия на кнопку "Удалить"
     const deleteHandler = async (setLoadingDelete, setVisiblePopConfirm) =>
-        await RoleRoute.delete(item._id, setLoadingDelete, setVisiblePopConfirm, onRemove);
-
-    const cancelHandler = () => RoleRoute.cancel(onRemove);
+        await RoleRoute.delete(item._id, setLoadingDelete, setVisiblePopConfirm);
 
     return (
         <Card.Meta
@@ -145,7 +140,7 @@ export const RoleForm = ({item}) => {
                         loadingSave={loadingSave}
                         item={item}
                         deleteHandler={deleteHandler}
-                        cancelHandler={cancelHandler}
+                        cancelHandler={() => onRemove("roleItem", "remove")}
                     />
                 </Form>
             }

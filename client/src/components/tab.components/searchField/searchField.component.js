@@ -1,9 +1,10 @@
+// Компонент поля для поиска
 import React, {useMemo} from "react";
 import {Input} from "antd";
 
 import "./tabsHeader.css";
 
-export const Header = ({filterText, setFilterText}) => {
+export const SearchField = ({filterText, setFilterText}) => {
     // Фукнция вызывается, когда изменяются переменные в массиве зависимостей
     return useMemo(() => {
         return (

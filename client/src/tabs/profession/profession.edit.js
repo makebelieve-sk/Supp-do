@@ -11,7 +11,7 @@ export const ProfessionTab = () => {
     const {item, loadingSkeleton, error} = useSelector((state) => ({
         item: state.reducerProfession.rowDataProfession,
         loadingSkeleton: state.reducerLoading.loadingSkeleton,
-        error: state.reducerProfession.errorRecord
+        error: state.reducerProfession.errorRecordProfession
     }));
 
     const display = loadingSkeleton ? "none" : "block"; // Установка стиля отображения содержимого вкладки

@@ -227,48 +227,48 @@ const getChangeDowntime = (logDOs, flag) => {
             {
                 month: moment().format("MMMM")[0].toUpperCase() + moment().format("MMMM").slice(1, 3) + ". "
                     + moment().subtract(1, "year").format("YYYY"),
-                value: downtimePrevYear.toString()
+                value: downtimePrevYear
             },
             {
                 month: moment().subtract(2, "month").format("MMMM")[0].toUpperCase()
                     + moment().subtract(2, "month").format("MMMM").slice(1, 3) + ". "
                     + moment().format("YYYY"),
-                value: downtimePrevTwoMonth.toString()
+                value: downtimePrevTwoMonth
             },
             {
                 month: moment().subtract(1, "month").format("MMMM")[0].toUpperCase()
                     + moment().subtract(1, "month").format("MMMM").slice(1, 3) + ". "
                     + moment().format("YYYY"),
-                value: downtimePrevMonth.toString()
+                value: downtimePrevMonth
             },
             {
                 month: moment().format("MMMM")[0].toUpperCase() + moment().format("MMMM").slice(1, 3) + ". "
                     + moment().format("YYYY"),
-                value: downtimeCurrentMonth.toString()
+                value: downtimeCurrentMonth
             },
         ]
         : [
             {
                 month: moment().format("MMMM")[0].toUpperCase() + moment().format("MMMM").slice(1, 3) + ". "
                     + moment().subtract(1, "year").format("YYYY"),
-                value: prevYearLogDOs.length.toString()
+                value: prevYearLogDOs.length
             },
             {
                 month: moment().subtract(2, "month").format("MMMM")[0].toUpperCase()
                     + moment().subtract(2, "month").format("MMMM").slice(1, 3) + ". "
                     + moment().format("YYYY"),
-                value: prevTwoMonthLogDOs.length.toString()
+                value: prevTwoMonthLogDOs.length
             },
             {
                 month: moment().subtract(1, "month").format("MMMM")[0].toUpperCase()
                     + moment().subtract(1, "month").format("MMMM").slice(1, 3) + ". "
                     + moment().format("YYYY"),
-                value: prevMonthLogDOs.length.toString()
+                value: prevMonthLogDOs.length
             },
             {
                 month: moment().format("MMMM")[0].toUpperCase() + moment().format("MMMM").slice(1, 3) + ". "
                     + moment().format("YYYY"),
-                value: currentMonthLogDOs.length.toString()
+                value: currentMonthLogDOs.length
             },
         ];
 }
@@ -341,7 +341,7 @@ const getRatingOrders = async (ids) => {
 // Возвращает данные для аналитики
 router.get("/analytic", async (req, res) => {
     try {
-        let departments, equipment, fullStatusesFalse, statusesFalse, statusesTrue, logDOs;
+        let departments = [], equipment = [], fullStatusesFalse = [], statusesFalse = [], statusesTrue = [], logDOs = [];
 
         try {
             departments = await Department.find({});
@@ -357,9 +357,11 @@ router.get("/analytic", async (req, res) => {
             });
         }
 
+        let idsFalse = [], idsTrue = [];
+
         // Формируем массив удовлетворяющих записей с идентификатором (_id), где isFinish = false/true
-        const idsFalse = statusesFalse.map(status => status._id);
-        const idsTrue = statusesTrue.map(status => status._id);
+        if (statusesFalse) idsFalse = statusesFalse.map(status => status._id);
+        if (statusesTrue) idsTrue = statusesTrue.map(status => status._id);
 
         // Неназначенные заявки
         let unassignedTasks = 0;
@@ -476,6 +478,16 @@ router.get("/logDO/unassignedTasks", async (req, res) => {
             });
         }
 
+        // Получаем все записи состояний заявок
+        let statuses = [];
+
+        try {
+            statuses = await TaskStatus.find({});
+        } catch (err) {
+            console.log(err);
+            res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Состояния заявок' (/logDO/dto)"});
+        }
+
         // Даем запрос в бд, передавая фильтр и нужные даты
         await LogDO.find({responsible: null, taskStatus: null}, function (err, items) {
             // Обработка ошибки
@@ -493,8 +505,37 @@ router.get("/logDO/unassignedTasks", async (req, res) => {
             // Получаем готовый массив записей ЖДО
             const itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
 
+            let statusLegend = [];  // Инициализация массива легенд статусов
+
+            if (statuses && statuses.length) {
+                statuses.forEach(task => {
+                    const countTasks = items.filter(logDO =>
+                        logDO.taskStatus && logDO.taskStatus._id.toString() === task._id.toString());
+
+                    if (countTasks.length)
+                        statusLegend.push({
+                            id: task._id,
+                            name: task.name,
+                            count: countTasks.length,
+                            color: task.color
+                        });
+                });
+
+                // Сколько записей без статуса
+                const countWithoutStatus = items.filter(logDOs => !logDOs.taskStatus).length;
+
+                if (countWithoutStatus)
+                    statusLegend.push({
+                        id: Date.now(),
+                        name: "Без статуса",
+                        count: countWithoutStatus,
+                        color: "#FFFFFF",
+                        borderColor: "black"
+                    });
+            }
+
             // Отправляем ответ
-            res.status(200).json({itemsDto, startDate, endDate, alert: "Неназначенные заявки"});
+            res.status(200).json({itemsDto, startDate, endDate, alert: "Неназначенные заявки", statusLegend});
         })
             .sort({date: -1})
             .populate("applicant")
@@ -1026,12 +1067,22 @@ router.get("/logDO/rating/bounceRating", async (req, res) => {
                 const endDate = moment(items[items.length - 1].date).format(dateFormat);
 
                 // Сортируем записи по полю "Оборудование.Наименование"
-                items = items.sort((a, b) => a.equipment.name < b.equipment.name ? 1 : -1);
+                items = items.sort((a, b) => {
+                    if (a.equipment && b.equipment)
+                        return a.equipment.name < b.equipment.name ? 1 : -1;
+                });
 
                 // Сортируем записи в порядке убывания по полю "Оборудование"
                 items = items.sort((a, b) => {
-                    const countA = items.filter(logDO => logDO.equipment._id.toString() === a.equipment._id.toString());
-                    const countB = items.filter(logDO => logDO.equipment._id.toString() === b.equipment._id.toString());
+                    const countA = items.filter(logDO => {
+                        if (logDO.equipment && a.equipment)
+                            return logDO.equipment._id.toString() === a.equipment._id.toString();
+                    });
+
+                    const countB = items.filter(logDO => {
+                        if (logDO.equipment && b.equipment)
+                            return logDO.equipment._id.toString() === b.equipment._id.toString();
+                    });
 
                     return countA.length < countB.length ? 1 : -1;
                 });

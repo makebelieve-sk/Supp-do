@@ -6,8 +6,8 @@ import {
     DELETE_EQUIPMENT_PROPERTY,
     GET_ALL_EQUIPMENT_PROPERTIES,
     SET_ROW_DATA_EQUIPMENT_PROPERTY,
-    SET_ERROR_RECORD,
-    SET_ERROR_TABLE,
+    SET_ERROR_RECORD_EQUIPMENT_PROPERTY,
+    SET_ERROR_TABLE_EQUIPMENT_PROPERTY,
 } from "./equipmentProperty.constants";
 
 export default function reducerEquipmentProperty(state = initialState, action) {
@@ -39,15 +39,15 @@ export default function reducerEquipmentProperty(state = initialState, action) {
                 ...state,
                 rowDataEquipmentProperty:  action.payload
             };
-        case SET_ERROR_RECORD:
+        case SET_ERROR_RECORD_EQUIPMENT_PROPERTY:
             return {
                 ...state,
-                errorRecord: action.payload
+                errorRecordEquipmentProperty: action.payload
             };
-        case SET_ERROR_TABLE:
+        case SET_ERROR_TABLE_EQUIPMENT_PROPERTY:
             return {
                 ...state,
-                errorTable: action.payload
+                errorTableEquipmentProperty: action.payload
             };
         default:
             return state;

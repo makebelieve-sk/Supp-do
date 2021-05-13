@@ -12,13 +12,25 @@ export const request = async (url, method = "GET", body = null, headers = {}) =>
         const response = await fetch(url, {method, body, headers});
         const data = await response.json();
 
+        if (response.status === 400) {
+            console.log(data.message);
+            message.error(data.message);
+            return null;
+        }
+
         if (response.status === 401) {
             // Удаляем все данные пользователя из хранилища браузера
             await localStorage.removeItem("user");
 
-            message.error();
+            message.error(data.message);
 
             return window.location.replace("/login");  // Перенаправляем пользоавтеля на страницу входа
+        }
+
+        if (response.status === 404) {
+            console.log(data.message);
+            message.error(data.message);
+            return data.message;
         }
 
         if (!response.ok) {

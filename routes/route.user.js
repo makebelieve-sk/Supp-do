@@ -133,7 +133,18 @@ router.put("/users", checkMiddleware, async (req, res) => {
         const item = await User.findById({_id}).populate("person").populate("roles").select("-password");
 
         // Проверяем на существование записи с уникальным идентификатором
-        if (!item) return res.status(404).json({message: `Запись с кодом ${_id} не найдена`});
+        if (!item) return res.status(404).json({message: `Запись с именем ${name} (${_id}) не найдена`});
+
+        // Ищем все подразделения
+        const users = await User.find({});
+
+        if (users && users.length) {
+            for (let i = 0; i < users.length; i++) {
+                if (users[i].name === name && users[i]._id.toString() !== _id.toString()) {
+                    return res.status(400).json({message: "Пользователь с таким именем уже существует"});
+                }
+            }
+        }
 
         const hashedPassword = password ? await bcrypt.hash(password, 12) : null;   // Хешируем пароль
 
@@ -167,12 +178,17 @@ router.put("/users", checkMiddleware, async (req, res) => {
 
 // Удаляет запись
 router.delete("/users/:id", async (req, res) => {
-    const _id = req.params.id;  // Получаем _id записи
-
     try {
-        await User.deleteOne({_id});    // Удаление записи из базы данных по id записи
+        const _id = req.params.id;  // Получаем _id записи
 
-        res.status(200).json({message: "Запись успешно удалена"});
+        const item = await User.findById({_id});  // Ищем текущую запись
+
+        if (item) {
+            await User.deleteOne({_id});    // Удаление записи из базы данных по id записи
+            return res.status(200).json({message: "Запись успешно удалена"});
+        } else {
+            return res.status(404).json({message: "Данная запись уже была удалена"});
+        }
     } catch (err) {
         console.log(err);
         res.status(500).json({message: `Ошибка при удалении записи с кодом ${_id}: ${err}`});

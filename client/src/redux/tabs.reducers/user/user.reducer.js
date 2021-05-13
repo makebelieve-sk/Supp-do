@@ -6,8 +6,8 @@ import {
     DELETE_USER,
     GET_ALL_USERS,
     SET_ROW_DATA_USER,
-    SET_ERROR_RECORD,
-    SET_ERROR_TABLE,
+    SET_ERROR_RECORD_USER,
+    SET_ERROR_TABLE_USER,
 } from "./user.constants";
 
 export default function reducerUser(state = initialState, action) {
@@ -39,15 +39,15 @@ export default function reducerUser(state = initialState, action) {
                 ...state,
                 rowDataUser: action.payload
             };
-        case SET_ERROR_RECORD:
+        case SET_ERROR_RECORD_USER:
             return {
                 ...state,
-                errorRecord: action.payload
+                errorRecordUser: action.payload
             };
-        case SET_ERROR_TABLE:
+        case SET_ERROR_TABLE_USER:
             return {
                 ...state,
-                errorTable: action.payload
+                errorTableUser: action.payload
             };
         default:
             return state;

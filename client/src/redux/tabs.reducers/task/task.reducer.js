@@ -6,8 +6,8 @@ import {
     DELETE_TASK,
     GET_ALL_TASKS,
     SET_ROW_DATA_TASK,
-    SET_ERROR_RECORD,
-    SET_ERROR_TABLE,
+    SET_ERROR_RECORD_TASK,
+    SET_ERROR_TABLE_TASK,
 } from "./task.constants";
 
 export default function reducerTask(state = initialState, action) {
@@ -39,15 +39,15 @@ export default function reducerTask(state = initialState, action) {
                 ...state,
                 rowDataTask:  action.payload
             };
-        case SET_ERROR_RECORD:
+        case SET_ERROR_RECORD_TASK:
             return {
                 ...state,
-                errorRecord: action.payload
+                errorRecordTask: action.payload
             };
-        case SET_ERROR_TABLE:
+        case SET_ERROR_TABLE_TASK:
             return {
                 ...state,
-                errorTable: action.payload
+                errorTableTask: action.payload
             };
         default:
             return state;

@@ -42,7 +42,8 @@ import {HelpRoute} from "../../../routes/route.Help";
 import {RoleRoute} from "../../../routes/route.Role";
 import {UserRoute} from "../../../routes/route.User";
 import {AnalyticRoute} from "../../../routes/route.Analytic";
-import {StatisticRoute} from "../../../routes/route.Statistic";
+import {StatisticRatingRoute} from "../../../routes/route.StatisticRating";
+import {StatisticListRoute} from "../../../routes/route.StatisticList";
 
 import {ProfessionTab} from "../../../tabs/profession/profession.edit";
 import {DepartmentTab} from "../../../tabs/department/department.edit";
@@ -210,19 +211,19 @@ const map = new Map([
         model: RoleRoute
     }],
     ["analytic", {model: AnalyticRoute}],
-    ["statistic-rating", {
+    ["statisticRating", {
         getColumns: StatisticRatingColumns,
         getTableHeader: headerStatisticRating,
         getPrintName: "Статистика/Рейтинг отказов",
-        getPrintData: () => store.getState().reducerStatistic.statistic.rating,
-        model: StatisticRoute
+        getPrintData: () => store.getState().reducerStatistic.statisticRating,
+        model: StatisticRatingRoute
     }],
-    ["statistic-list", {
+    ["statisticList", {
         getColumns: StatisticListColumns,
         getTableHeader: headerStatisticList,
         getPrintName: "Статистика/Перечень незакрытых заявок",
-        getPrintData: () => store.getState().reducerStatistic.statistic.list,
-        model: StatisticRoute
+        getPrintData: () => store.getState().reducerStatistic.statisticList,
+        model: StatisticListRoute
     }]
 ]);
 

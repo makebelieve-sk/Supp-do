@@ -106,7 +106,18 @@ router.put("/tasks", checkMiddleware, async (req, res) => {
         const item = await TaskStatus.findById({_id});
 
         // Проверяем на существование записи с уникальным идентификатором
-        if (!item) return res.status(404).json({message: `Запись с кодом ${_id} не найдена`});
+        if (!item) return res.status(404).json({message: `Запись с именем ${name} (${_id}) не найдена`});
+
+        // Ищем все записи состояний
+        const tasks = await TaskStatus.find({});
+
+        if (tasks && tasks.length) {
+            for (let i = 0; i < tasks.length; i++) {
+                if (tasks[i].name === name && tasks[i]._id.toString() !== _id.toString()) {
+                    return res.status(400).json({message: "Состояние заявки с таким именем уже существует"});
+                }
+            }
+        }
 
         item.name = name;
         item.color = color;
@@ -127,9 +138,14 @@ router.delete("/tasks/:id", async (req, res) => {
     const _id = req.params.id;  // Получение id записи
 
     try {
-        await TaskStatus.deleteOne({_id});  // Удаление записи из базы данных по id записи
+        const item = await TaskStatus.findById({_id});  // Ищем текущую запись
 
-        res.status(200).json({message: "Запись о состоянии заявки успешно удалена"});
+        if (item) {
+            await TaskStatus.deleteOne({_id});  // Удаление записи из базы данных по id записи
+            return res.status(200).json({message: "Запись о состоянии заявки успешно удалена"});
+        } else {
+            return res.status(404).json({message: "Данная запись уже была удалена"});
+        }
     } catch (err) {
         console.log(err);
         res.status(500).json({message: `Ошибка при удалении записи с кодом ${_id}: ${err}`});

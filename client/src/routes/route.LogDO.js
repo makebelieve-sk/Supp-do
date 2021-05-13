@@ -9,6 +9,7 @@ import {compareObjects} from "../helpers/functions/general.functions/compare";
 import {request} from "../helpers/functions/general.functions/request.helper";
 import TabOptions from "../options/tab.options/record.options/record.options";
 import {NoticeError, storeDepartments, storeEquipment, storeLogDO, storePeople, storeTask} from "./helper";
+import {onRemove} from "../components/content.components/content/content.component";
 
 export const LogDORoute = {
     // Адрес для работы с разделом "Журнал дефектов и отказов"
@@ -34,7 +35,7 @@ export const LogDORoute = {
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorLogDO.setErrorTable("Возникла ошибка при получении записей: " + e.message));
+            store.dispatch(ActionCreator.ActionCreatorLogDO.setErrorTableLogDO("Возникла ошибка при получении записей: " + e.message));
             NoticeError.getAll(e.message); // Вызываем функцию обработки ошибки
         }
     },
@@ -43,6 +44,18 @@ export const LogDORoute = {
         try {
             // Получаем запись
             const item = await request(this.base_url + id);
+
+            if (typeof item === "string") {
+                // Обнуляем редактируемую запись
+                store.dispatch(ActionCreator.ActionCreatorLogDO.setRowDataLogDO(null));
+
+                await this.getAll();    // Обновляем записи раздела
+
+                onRemove("logDOItem", "remove")  // Удаляем открытую вкладку
+
+                return null;
+            }
+
             const departments = await request("/api/directory/departments/");
             const people = await request("/api/directory/people/");
             const equipment = await request("/api/directory/equipment/");
@@ -64,18 +77,28 @@ export const LogDORoute = {
             if (item) this.fillItem(item);
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorLogDO.setErrorRecord("Возникла ошибка при получении записи: " + e.message));
+            store.dispatch(ActionCreator.ActionCreatorLogDO.setErrorRecordLogDO("Возникла ошибка при получении записи: " + e.message));
             NoticeError.get(e.message); // Вызываем функцию обработки ошибки
         }
     },
     // Сохранение записи
-    save: async function (item, setLoading, onRemove) {
+    save: async function (item, setLoading) {
         try {
             // Устанавливаем метод запроса
             const method = item.isNewItem ? "POST" : "PUT";
 
             // Получаем сохраненную запись
             const data = await request(this.base_url, method, item);
+
+            if (typeof data === "string") {
+                // Останавливаем спиннер загрузки
+                setLoading(false);
+
+                // Удаление текущей вкладки
+                onRemove("logDOItem", "remove");
+
+                return null;
+            }
 
             if (data) {
                 // Выводим сообщение от сервера
@@ -96,26 +119,31 @@ export const LogDORoute = {
                         store.dispatch(ActionCreator.ActionCreatorLogDO.editLogDO(indexLogDO, data.item));
                     }
                 }
+
+                // Обновляем список записей в таблице по выбранной дате
+                const currentDate = store.getState().reducerLogDO.date;
+                await this.getAll(currentDate);
+
+                // Останавливаем спиннер загрузки
+                setLoading(false);
+
+                // Удаление текущей вкладки
+                onRemove("logDOItem", "remove");
+            } else {
+                // Останавливаем спиннер загрузки
+                setLoading(false);
             }
-
-            // Останавливаем спиннер загрузки
-            setLoading(false);
-
-            // Удаление текущей вкладки
-            onRemove("logDOItem", "remove");
-
-            // Обновляем список записей в таблице по выбранной дате
-            const currentDate = store.getState().reducerLogDO.date;
-            await this.getAll(currentDate);
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorLogDO.setErrorRecord("Возникла ошибка при сохранении записи: " + e.message));
+            store.dispatch(ActionCreator.ActionCreatorLogDO.setErrorRecordLogDO("Возникла ошибка при сохранении записи: " + e.message));
             NoticeError.save(e.message, setLoading);    // Вызываем функцию обработки ошибки
         }
     },
     // Удаление записи
-    delete: async function (_id, setLoadingDelete, setVisiblePopConfirm, onRemove) {
+    delete: async function (_id, setLoadingDelete, setVisiblePopConfirm) {
         try {
+            // await this.getAll();    // Обновляем все записи раздела
+
             // Устанавливаем спиннер загрузки
             setLoadingDelete(true);
 
@@ -141,23 +169,31 @@ export const LogDORoute = {
                     if (foundLogDO && indexLogDO >= 0) {
                         store.dispatch(ActionCreator.ActionCreatorLogDO.deleteLogDO(indexLogDO));
                     }
+
+                    // Обновляем список записей в таблице по выбранной дате
+                    const currentDate = store.getState().reducerLogDO.date;
+                    await this.getAll(currentDate);
+
+                    // Останавливаем спиннер, и скрываем всплывающее окно
+                    setLoadingDelete(false);
+                    setVisiblePopConfirm(false);
+
+                    // Удаление текущей вкладки
+                    onRemove("logDOItem", "remove");
+                } else {
+                    // Останавливаем спиннер, и скрываем всплывающее окно
+                    setLoadingDelete(false);
+                    setVisiblePopConfirm(false);
                 }
-
-                // Останавливаем спиннер, и скрываем всплывающее окно
-                setLoadingDelete(false);
-                setVisiblePopConfirm(false);
-
-                // Удаление текущей вкладки
-                onRemove("logDOItem", "remove");
             }
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorLogDO.setErrorRecord("Возникла ошибка при удалении записи: " + e.message));
+            store.dispatch(ActionCreator.ActionCreatorLogDO.setErrorRecordLogDO("Возникла ошибка при удалении записи: " + e.message));
             NoticeError.delete(e.message, setLoadingDelete, setVisiblePopConfirm);    // Вызываем функцию обработки ошибки
         }
     },
     // Нажатие на кнопку "Отмена"
-    cancel: async function (onRemove, setLoadingCancel) {
+    cancel: async function (setLoadingCancel) {
         try {
             setLoadingCancel(true);
 
@@ -170,7 +206,7 @@ export const LogDORoute = {
         } catch (e) {
             setLoadingCancel(false);
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorLogDO.setErrorRecord("Возникла ошибка при удалении добавленных файлов из записи: " + e.message));
+            store.dispatch(ActionCreator.ActionCreatorLogDO.setErrorRecordLogDO("Возникла ошибка при удалении добавленных файлов из записи: " + e.message));
             NoticeError.cancel(e.message);    // Вызываем функцию обработки ошибки
         }
     },

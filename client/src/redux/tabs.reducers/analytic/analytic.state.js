@@ -2,7 +2,7 @@
 const initialState = {
     analytic: null,             // Записи журнала
     prevAnalyticData: null,     // Редактируемая запись
-    error: null,                // Ошибка
+    errorAnalytic: null,                // Ошибка
 };
 
 export default initialState;

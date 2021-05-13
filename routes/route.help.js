@@ -109,7 +109,18 @@ router.put("/help", checkMiddleware, async (req, res) => {
         const item = await Help.findById({_id});
 
         // Проверяем на существование записи с уникальным идентификатором
-        if (!item) return res.status(404).json({message: `Запись с кодом ${_id} не найдена`});
+        if (!item) return res.status(404).json({message: `Запись с именем ${name} (${_id}) не найдена`});
+
+        // Ищем все подразделения
+        const helps = await Help.find({});
+
+        if (helps && helps.length) {
+            for (let i = 0; i < helps.length; i++) {
+                if (helps[i].name === name && helps[i]._id.toString() !== _id.toString()) {
+                    return res.status(400).json({message: "Подразделение с таким именем уже существует"});
+                }
+            }
+        }
 
         item.name = name;
         item.text = text;
@@ -126,12 +137,17 @@ router.put("/help", checkMiddleware, async (req, res) => {
 
 // Удаляет запись
 router.delete("/help/:id", async (req, res) => {
-    const _id = req.params.id;  // Получение id записи
-
     try {
-        await Help.deleteOne({_id});    // Удаление записи из базы данных по id записи
+        const _id = req.params.id;  // Получение id записи
 
-        res.status(200).json({message: "Запись успешно удалена"});
+        const item = await Help.findById({_id});  // Ищем текущую запись
+
+        if (item) {
+            await Help.deleteOne({_id});    // Удаление записи из базы данных по id записи
+            return res.status(200).json({message: "Запись успешно удалена"});
+        } else {
+            return res.status(404).json({message: "Данная запись уже была удалена"});
+        }
     } catch (err) {
         console.log(err);
         res.status(500).json({message: `Ошибка при удалении записи с кодом ${_id}: ${err}`});

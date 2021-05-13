@@ -5,8 +5,8 @@ import {
     DELETE_TASK,
     GET_ALL_TASKS,
     SET_ROW_DATA_TASK,
-    SET_ERROR_RECORD,
-    SET_ERROR_TABLE,
+    SET_ERROR_RECORD_TASK,
+    SET_ERROR_TABLE_TASK,
 } from "./task.constants";
 
 const ActionCreatorTask = {
@@ -47,16 +47,16 @@ const ActionCreatorTask = {
         }
     },
     // Установка ошибки для записи
-    setErrorRecord: (error) => {
+    setErrorRecordTask: (error) => {
         return {
-            type: SET_ERROR_RECORD,
+            type: SET_ERROR_RECORD_TASK,
             payload: error
         }
     },
     // Установка ошибки для таблицы
-    setErrorTable: (error) => {
+    setErrorTableTask: (error) => {
         return {
-            type: SET_ERROR_TABLE,
+            type: SET_ERROR_TABLE_TASK,
             payload: error
         }
     },

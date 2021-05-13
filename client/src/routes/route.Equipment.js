@@ -10,6 +10,7 @@ import {getParents} from "../helpers/functions/general.functions/replaceField";
 import {compareObjects} from "../helpers/functions/general.functions/compare";
 import setFieldRecord from "../helpers/mappers/general.mappers/setFieldRecord";
 import {NoticeError, storeEquipment, storeEquipmentProperties} from "./helper";
+import {onRemove} from "../components/content.components/content/content.component";
 
 export const EquipmentRoute = {
     // Адрес для работы с разделом "Оборудование"
@@ -36,7 +37,7 @@ export const EquipmentRoute = {
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorEquipment.setErrorTable("Возникла ошибка при получении записей: " + e.message));
+            store.dispatch(ActionCreator.ActionCreatorEquipment.setErrorTableEquipment("Возникла ошибка при получении записей: " + e.message));
             NoticeError.getAll(e.message); // Вызываем функцию обработки ошибки
         }
     },
@@ -46,17 +47,30 @@ export const EquipmentRoute = {
             // Получаем редактируемую запись
             const item = await request(this.base_url + id);
 
+            if (typeof item === "string") {
+                // Обнуляем редактируемую запись
+                store.dispatch(ActionCreator.ActionCreatorEquipment.setRowDataEquipment(null));
+
+                await this.getAll();    // Обновляем записи раздела
+
+                onRemove("equipmentItem", "remove")  // Удаляем открытую вкладку
+
+                return null;
+            }
+
             // Заполняем модель записи
             if (item) this.fillItem(item);
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorEquipment.setErrorRecord("Возникла ошибка при получении записи: " + e.message));
+            store.dispatch(ActionCreator.ActionCreatorEquipment.setErrorRecordEquipment("Возникла ошибка при получении записи: " + e.message));
             NoticeError.get(e.message); // Вызываем функцию обработки ошибки
         }
     },
     // Сохранение записи
-    save: async function (item, setLoading, onRemove, equipment) {
+    save: async function (item, setLoading, equipment) {
         try {
+            await this.getAll();    // Обновляем все записи раздела
+
             // Устанавливаем спиннер загрузки
             setLoading(true);
 
@@ -65,6 +79,22 @@ export const EquipmentRoute = {
 
             // Получаем сохраненную запись
             const data = await request(this.base_url, method, item);
+
+            if (typeof data === "string") {
+                // Останавливаем спиннер загрузки
+                setLoading(false);
+
+                // Обнуляем объект поля "Подразделения" (при нажатии на "+")
+                store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldEquipment({
+                    key: null,
+                    formValues: null
+                }));
+
+                // Удаление текущей вкладки
+                onRemove("equipmentItem", "remove");
+
+                return null;
+            }
 
             if (data) {
                 // Выводим сообщение от сервера
@@ -97,33 +127,55 @@ export const EquipmentRoute = {
                     // Обновляем поле
                     setFieldRecord(replaceField, data.item);
                 }
+
+                // Останавливаем спиннер загрузки
+                setLoading(false);
+
+                // Обнуляем объект поля "Оборудование" (при нажатии на "+")
+                store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldEquipment({
+                    key: null,
+                    formValues: null
+                }));
+
+                // Удаление текущей вкладки
+                onRemove("equipmentItem", "remove");
+            } else {
+                // Останавливаем спиннер загрузки
+                setLoading(false);
+
+                // Обнуляем объект поля "Оборудование" (при нажатии на "+")
+                store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldEquipment({
+                    key: null,
+                    formValues: null
+                }));
             }
-
-            // Останавливаем спиннер загрузки
-            setLoading(false);
-
-            // Обнуляем объект поля "Оборудование" (при нажатии на "+")
-            store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldEquipment({
-                key: null,
-                formValues: null
-            }));
-
-            // Удаление текущей вкладки
-            onRemove("equipmentItem", "remove");
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorEquipment.setErrorRecord("Возникла ошибка при сохранении записи: " + e.message));
+            store.dispatch(ActionCreator.ActionCreatorEquipment.setErrorRecordEquipment("Возникла ошибка при сохранении записи: " + e.message));
             NoticeError.save(e.message, setLoading);    // Вызываем функцию обработки ошибки
         }
     },
     // Удаление записи
-    delete: async function (_id, setLoadingDelete, setVisiblePopConfirm, onRemove) {
+    delete: async function (_id, setLoadingDelete, setVisiblePopConfirm) {
         try {
+            await this.getAll();    // Обновляем все записи раздела
+
             // Устанавливаем спиннер загрузки
             setLoadingDelete(true);
 
             // Удаляем файлы
             const fileInfo = await request(this.file_url + "delete/" + _id, "DELETE", {model: "equipment"});
+
+            if (typeof fileInfo === "string") {
+                // Останавливаем спиннер, и скрываем всплывающее окно
+                setLoadingDelete(false);
+                setVisiblePopConfirm(false);
+
+                // Удаление текущей вкладки
+                onRemove("equipmentItem", "remove");
+
+                return null;
+            }
 
             if (fileInfo) {
                 // Удаляем запись
@@ -152,15 +204,19 @@ export const EquipmentRoute = {
 
                 // Удаление текущей вкладки
                 onRemove("equipmentItem", "remove");
+            } else {
+                // Останавливаем спиннер, и скрываем всплывающее окно
+                setLoadingDelete(false);
+                setVisiblePopConfirm(false);
             }
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorEquipment.setErrorRecord("Возникла ошибка при удалении записи: " + e.message));
+            store.dispatch(ActionCreator.ActionCreatorEquipment.setErrorRecordEquipment("Возникла ошибка при удалении записи: " + e.message));
             NoticeError.delete(e.message, setLoadingDelete, setVisiblePopConfirm);    // Вызываем функцию обработки ошибки
         }
     },
     // Нажатие на кнопку "Отмена"
-    cancel: async function (onRemove, setLoadingCancel) {
+    cancel: async function (setLoadingCancel) {
         try {
             setLoadingCancel(true);
 
@@ -173,7 +229,7 @@ export const EquipmentRoute = {
         } catch (e) {
             setLoadingCancel(false);
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorEquipment.setErrorRecord("Возникла ошибка при удалении добавленных файлов из записи: " + e.message));
+            store.dispatch(ActionCreator.ActionCreatorEquipment.setErrorRecordEquipment("Возникла ошибка при удалении добавленных файлов из записи: " + e.message));
             NoticeError.cancel(e.message);    // Вызываем функцию обработки ошибки
         }
     },

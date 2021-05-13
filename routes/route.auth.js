@@ -118,14 +118,14 @@ router.post("/login", checkMiddlewareAuth, async (req, res) => {
         const user = await User.findOne({userName}).select("password approved");
 
         // Проверяем на существование записи
-        if (!user) return res.status(500).json({message: "Неверный пользователь или пароль"});
+        if (!user) return res.status(400).json({message: "Неверный пользователь или пароль"});
 
         const isMatch = await bcrypt.compare(password, user.password);  // Сравниваем пароли
 
         // Проверяем введенный пароль
         if (!isMatch) return res.status(400).json({message: "Неверный пользователь или пароль"});
 
-        if (!user.approved) return res.status(500).json({message: "Данный пользователь не одобрен администратором"});
+        if (!user.approved) return res.status(400).json({message: "Данный пользователь не одобрен администратором"});
 
         // Ищем запись в базе данных по имени пользователя, популизируя все вложенные поля и не работаю с полем 'Пароль'
         const currentUser = await User.findOne({userName}).populate("roles").populate("person").select("-password");

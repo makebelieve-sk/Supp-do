@@ -5,8 +5,8 @@ import {
     DELETE_DEPARTMENT,
     GET_ALL_DEPARTMENTS,
     SET_ROW_DATA_DEPARTMENT,
-    SET_ERROR_RECORD,
-    SET_ERROR_TABLE,
+    SET_ERROR_RECORD_DEPARTMENT,
+    SET_ERROR_TABLE_DEPARTMENT,
 } from "./department.constants";
 
 const ActionCreatorDepartment = {
@@ -47,16 +47,16 @@ const ActionCreatorDepartment = {
         }
     },
     // Установка ошибки для записи
-    setErrorRecord: (error) => {
+    setErrorRecordDepartment: (error) => {
         return {
-            type: SET_ERROR_RECORD,
+            type: SET_ERROR_RECORD_DEPARTMENT,
             payload: error
         }
     },
     // Установка ошибки для таблицы
-    setErrorTable: (error) => {
+    setErrorTableDepartment: (error) => {
         return {
-            type: SET_ERROR_TABLE,
+            type: SET_ERROR_TABLE_DEPARTMENT,
             payload: error
         }
     },

@@ -32,7 +32,7 @@ router.get("/departments/:id", async (req, res) => {
         }
 
         if (!item)
-            return res.status(404).json({message: `Подразделение с кодом ${req.params.id} не существует`});
+            return res.status(404).json({message: `Подразделение с кодом ${_id} не существует`});
 
         res.status(200).json({isNewItem, department: item});
     } catch (err) {
@@ -76,7 +76,7 @@ router.post("/departments", checkMiddleware, async (req, res) => {
 
         // Проверяем на принадлежность отдела
         if (parent && name === parent.name)
-            return res.status(500).json({message: "Отдел не может принадлежать сам себе"});
+            return res.status(400).json({message: "Отдел не может принадлежать сам себе"});
 
         const newItem = new Department({name, notes, parent});  // Создаем новый экземпляр записи
 
@@ -111,15 +111,23 @@ router.put("/departments", checkMiddleware, async (req, res) => {
         const item = await Department.findById({_id}).populate("parent");
 
         // Ищем все подразделения
-        const departments = await Department.find({}).populate("parent");
+        const departments = await Department.find({});
+
+        if (departments && departments.length) {
+            for (let i = 0; i < departments.length; i++) {
+                if (departments[i].name === name && departments[i]._id.toString() !== _id.toString()) {
+                    return res.status(400).json({message: "Подразделение с таким именем уже существует"});
+                }
+            }
+        }
 
         // Проверяем на существование записи с уникальным идентификатором
         if (!item)
-            return res.status(404).json({message: `Подразделение с кодом ${_id} не найдено`});
+            return res.status(404).json({message: `Подразделение с именем ${name} (${_id}) не найдено`});
 
         // Проверяем на принадлежность отдела
         if (parent && name === parent.name)
-            return res.status(500).json({message: "Отдел не может принадлежать сам себе"});
+            return res.status(400).json({message: "Отдел не может принадлежать сам себе"});
 
         item.parent = parent;
 
@@ -129,7 +137,7 @@ router.put("/departments", checkMiddleware, async (req, res) => {
                 if (parent && parent.parent) {
                     if (parent.parent._id.toString() === _id.toString()) {
                         item.parent = null;
-                        return res.status(500).json({message: "Отдел не может принадлежать сам себе (циклическая ссылка)"});
+                        return res.status(400).json({message: "Отдел не может принадлежать сам себе (циклическая ссылка)"});
                     } else {
                         const parentItem = departments.find(department => department._id.toString() === parent.parent._id.toString());
 
@@ -162,9 +170,9 @@ router.put("/departments", checkMiddleware, async (req, res) => {
 
 // Удаляет запись
 router.delete("/departments/:id", async (req, res) => {
-    const _id = req.params.id;  // Получение id записи
-
     try {
+        const _id = req.params.id;  // Получение id записи
+
         // Получение всех записей подразделений
         const departments = await Department.find({}).populate("parent");
 
@@ -172,14 +180,19 @@ router.delete("/departments/:id", async (req, res) => {
         if (departments && departments.length) {
             for (let i = 0; i < departments.length; i++) {
                 if (departments[i].parent && departments[i].parent._id.toString() === _id.toString()) {
-                    return res.status(500).json({message: "Невозможно удалить оборудование, т.к. у него есть дочернее оборудование"});
+                    return res.status(400).json({message: "Невозможно удалить оборудование, т.к. у него есть дочернее оборудование"});
                 }
             }
         }
 
-        await Department.deleteOne({_id});  // Удаление записи из базы данных по id записи
+        const item = await Department.findById({_id});  // Ищем текущую запись
 
-        res.status(200).json({message: "Подразделение успешно удалено"});
+        if (item) {
+            await Department.deleteOne({_id});  // Удаление записи из базы данных по id записи
+            return res.status(200).json({message: "Подразделение успешно удалено"});
+        } else {
+            return res.status(404).json({message: "Данная запись уже была удалена"});
+        }
     } catch (err) {
         console.log(err);
         res.status(500).json({message: `Ошибка при удалении подразделения с кодом ${_id}: ${err}`});

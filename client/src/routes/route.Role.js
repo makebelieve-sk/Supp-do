@@ -7,6 +7,7 @@ import {Role} from "../model/Role";
 import {request} from "../helpers/functions/general.functions/request.helper";
 import {compareObjects} from "../helpers/functions/general.functions/compare";
 import {NoticeError, storeRole} from "./helper";
+import {onRemove} from "../components/content.components/content/content.component";
 
 export const RoleRoute = {
     // Адрес для работы с разделом "Роли"
@@ -27,7 +28,7 @@ export const RoleRoute = {
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorRole.setErrorTable("Возникла ошибка при получении записей: " + e.message));
+            store.dispatch(ActionCreator.ActionCreatorRole.setErrorTableRole("Возникла ошибка при получении записей: " + e.message));
             NoticeError.getAll(e.message); // Вызываем функцию обработки ошибки
         }
     },
@@ -37,17 +38,30 @@ export const RoleRoute = {
             // Получаем редактируемую запись
             const item = await request(this.base_url + id);
 
+            if (typeof item === "string") {
+                // Обнуляем редактируемую запись
+                store.dispatch(ActionCreator.ActionCreatorRole.setRowDataRole(null));
+
+                await this.getAll();    // Обновляем записи раздела
+
+                onRemove("roleItem", "remove")  // Удаляем открытую вкладку
+
+                return null;
+            }
+
             // Заполняем модель записи
             if (item) this.fillItem(item);
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorRole.setErrorRecord("Возникла ошибка при получении записи: " + e.message));
+            store.dispatch(ActionCreator.ActionCreatorRole.setErrorRecordRole("Возникла ошибка при получении записи: " + e.message));
             NoticeError.get(e.message); // Вызываем функцию обработки ошибки
         }
     },
     // Сохранение роли
     save: async function (item, setLoading, onRemove) {
         try {
+            await this.getAll();    // Обновляем все записи раздела
+
             // Устанавливаем спиннер загрузки
             setLoading(true);
 
@@ -56,6 +70,16 @@ export const RoleRoute = {
 
             // Получаем сохраненную запись
             const data = await request(this.base_url, method, item);
+
+            if (typeof data === "string") {
+                // Останавливаем спиннер загрузки
+                setLoading(false);
+
+                // Удаление текущей вкладки
+                onRemove("roleItem", "remove");
+
+                return null;
+            }
 
             if (data) {
                 // Выводим сообщение от сервера
@@ -75,29 +99,32 @@ export const RoleRoute = {
                         store.dispatch(ActionCreator.ActionCreatorRole.editRole(indexRole, data.item));
                     }
                 }
+
+                // Обновляем поле роли объекта пользователя в редаксе, если активный и редактируемый пользователи совпадают
+                const currentUser = store.getState().reducerAuth.user;
+
+                if (currentUser && currentUser.roles && currentUser.roles.length && data && data.item) {
+                    currentUser.roles.forEach((role, index)=> {
+                        if (role._id === data.item._id) {
+                            currentUser.roles[index] = data.item;
+                        }
+                    });
+
+                    store.dispatch(ActionCreator.ActionCreatorAuth.setUser(currentUser));
+                }
+
+                // Останавливаем спиннер загрузки
+                setLoading(false);
+
+                // Удаление текущей вкладки
+                onRemove("roleItem", "remove");
+            } else {
+                // Останавливаем спиннер загрузки
+                setLoading(false);
             }
-
-            // Обновляем поле роли объекта пользователя в редаксе, если активный и редактируемый пользователи совпадают
-            const currentUser = store.getState().reducerAuth.user;
-
-            if (currentUser && currentUser.roles && currentUser.roles.length && data && data.item) {
-                currentUser.roles.forEach((role, index)=> {
-                    if (role._id === data.item._id) {
-                        currentUser.roles[index] = data.item;
-                    }
-                });
-
-                store.dispatch(ActionCreator.ActionCreatorAuth.setUser(currentUser));
-            }
-
-            // Останавливаем спиннер загрузки
-            setLoading(false);
-
-            // Удаление текущей вкладки
-            this.cancel(onRemove);
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorRole.setErrorRecord("Возникла ошибка при сохранении записи: " + e.message));
+            store.dispatch(ActionCreator.ActionCreatorRole.setErrorRecordRole("Возникла ошибка при сохранении записи: " + e.message));
             NoticeError.save(e.message, setLoading);    // Вызываем функцию обработки ошибки
         }
 
@@ -105,6 +132,8 @@ export const RoleRoute = {
     // Удаление роли
     delete: async function (_id, setLoadingDelete, setVisiblePopConfirm, onRemove) {
         try {
+            await this.getAll();    // Обновляем все записи раздела
+
             // Устанавливаем спиннер загрузки
             setLoadingDelete(true);
 
@@ -132,6 +161,17 @@ export const RoleRoute = {
             // Удаляем запись
             const data = await request(this.base_url + _id, "DELETE");
 
+            if (typeof data === "string") {
+                // Останавливаем спиннер, и скрываем всплывающее окно
+                setLoadingDelete(false);
+                setVisiblePopConfirm(false);
+
+                // Удаление текущей вкладки
+                onRemove("roleItem", "remove");
+
+                return null;
+            }
+
             if (data) {
                 // Вывод сообщения
                 message.success(data.message);
@@ -146,24 +186,23 @@ export const RoleRoute = {
                 if (foundRole && indexRole >= 0) {
                     store.dispatch(ActionCreator.ActionCreatorRole.deleteRole(indexRole));
                 }
+
+                // Останавливаем спиннер, и скрываем всплывающее окно
+                setLoadingDelete(false);
+                setVisiblePopConfirm(false);
+
+                // Удаление текущей вкладки
+                onRemove("roleItem", "remove");
+            } else {
+                // Останавливаем спиннер, и скрываем всплывающее окно
+                setLoadingDelete(false);
+                setVisiblePopConfirm(false);
             }
-
-            // Останавливаем спиннер, и скрываем всплывающее окно
-            setLoadingDelete(false);
-            setVisiblePopConfirm(false);
-
-            // Удаление текущей вкладки
-            this.cancel(onRemove)
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorRole.setErrorRecord("Возникла ошибка при удалении записи: " + e.message));
+            store.dispatch(ActionCreator.ActionCreatorRole.setErrorRecordRole("Возникла ошибка при удалении записи: " + e.message));
             NoticeError.delete(e.message, setLoadingDelete, setVisiblePopConfirm);    // Вызываем функцию обработки ошибки
         }
-    },
-    // Нажатие на кнопку "Отмена"
-    cancel: function (onRemove) {
-        // Удаление текущей вкладки
-        onRemove("roleItem", "remove");
     },
     // Заполнение модели "Помощь"
     fillItem: function (item) {

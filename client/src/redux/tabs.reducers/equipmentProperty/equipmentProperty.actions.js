@@ -5,8 +5,8 @@ import {
     DELETE_EQUIPMENT_PROPERTY,
     GET_ALL_EQUIPMENT_PROPERTIES,
     SET_ROW_DATA_EQUIPMENT_PROPERTY,
-    SET_ERROR_RECORD,
-    SET_ERROR_TABLE
+    SET_ERROR_RECORD_EQUIPMENT_PROPERTY,
+    SET_ERROR_TABLE_EQUIPMENT_PROPERTY,
 } from "./equipmentProperty.constants";
 
 const ActionCreatorEquipmentProperty = {
@@ -47,16 +47,16 @@ const ActionCreatorEquipmentProperty = {
         }
     },
     // Установка ошибки для записи
-    setErrorRecord: (error) => {
+    setErrorRecordEquipmentProperty: (error) => {
         return {
-            type: SET_ERROR_RECORD,
+            type: SET_ERROR_RECORD_EQUIPMENT_PROPERTY,
             payload: error
         }
     },
     // Установка ошибки для таблицы
-    setErrorTable: (error) => {
+    setErrorTableEquipmentProperty: (error) => {
         return {
-            type: SET_ERROR_TABLE,
+            type: SET_ERROR_TABLE_EQUIPMENT_PROPERTY,
             payload: error
         }
     },

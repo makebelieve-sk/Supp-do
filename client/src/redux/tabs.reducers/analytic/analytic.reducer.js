@@ -3,7 +3,7 @@ import initialState from "./analytic.state";
 import {
     GET_ALL_ANALYTIC,
     GET_PREV_ANALYTIC_DATA,
-    SET_ERROR,
+    SET_ERROR_ANALYTIC,
 } from "./analytic.constants";
 
 export default function reducerAnalytic(state = initialState, action) {
@@ -18,10 +18,10 @@ export default function reducerAnalytic(state = initialState, action) {
                 ...state,
                 prevAnalyticData: action.payload
             };
-        case SET_ERROR:
+        case SET_ERROR_ANALYTIC:
             return {
                 ...state,
-                error: action.payload
+                errorAnalytic: action.payload
             };
         default:
             return state;

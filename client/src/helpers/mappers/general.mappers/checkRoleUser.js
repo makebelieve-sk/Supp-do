@@ -60,6 +60,8 @@ export const checkRoleUser = (key, user) => {
         key === "personManagement" || key === "equipmentKey" || key === "directory" || key === "analytic-section" ||
         key === "admin" || key === "personal-area") return null;
 
+    key = key === "statisticRating" || key === "statisticList" ? "statistic" : key;
+
     if (map.has(key)) {
         return map.get(key);
     }

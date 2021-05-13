@@ -1,7 +1,7 @@
 // Компонент линейной диаграммы
 import React from "react";
 import {Col, Row} from "antd";
-import {Line} from "@ant-design/charts";
+import {Column} from "@ant-design/charts";
 
 import "./lineChart.css";
 
@@ -11,7 +11,8 @@ export const LineChartComponent = ({data, goToLogDO}) => {
         data: data,
         xField: "date",
         yField: "value",
-        label: {},
+        xAxis: {label: {autoRotate: false}},
+        scrollbar: {type: "horizontal"},
         point: {
             size: 5,
             shape: "diamond",
@@ -21,7 +22,7 @@ export const LineChartComponent = ({data, goToLogDO}) => {
                 lineWidth: 2,
             },
         },
-        tooltip: { showMarkers: false },
+        tooltip: {showMarkers: false},
         state: {
             active: {
                 style: {
@@ -47,12 +48,23 @@ export const LineChartComponent = ({data, goToLogDO}) => {
                 },
             },
         },
-        interactions: [{ type: "marker-active" }],
-        meta: { value: { alias: "Количество" } },
+        interactions: [{type: "marker-active"}],
+        meta: {value: {alias: "Количество"}},
         lineStyle: {
             cursor: "pointer"
         },
+        label: {
+            position: "middle",
+            layout: [
+                { type: "interval-adjust-position" },
+                { type: "interval-hide-overlap" },
+                { type: "adjust-color" },
+            ],
+        },
         height: 200,
+        columnStyle: {
+            cursor: "pointer"
+        },
     };
 
     /**
@@ -75,7 +87,7 @@ export const LineChartComponent = ({data, goToLogDO}) => {
 
             <Row>
                 <Col span={24} className="line-chart">
-                    <Line {...config} onEvent={(chart, event) => onClick(event)} />
+                    <Column {...config} onEvent={(chart, event) => onClick(event)} />
                 </Col>
             </Row>
         </>

@@ -1,19 +1,24 @@
 // Раздел "Статистика"
 import React from "react";
-import {useSelector} from "react-redux";
+import {Tabs} from "antd";
 
-import ErrorIndicator from "../errorIndicator/errorIndicator.component";
+import {TableComponent} from "../../../tabs/table/table";
 
 import "./statistic.css";
 
+const {TabPane} = Tabs;
+
 export const StatisticComponent = () => {
-    const {error} = useSelector(state => ({
-        error: state.reducerStatistic.error
-    }));
-
-    if (error) return <ErrorIndicator errorText={error} />
-
     return (
-        <div>Statistic Tab!!</div>
+        <>
+            <Tabs defaultActiveKey="statisticRating" className="statistic">
+                <TabPane tab="Рейтинг отказов" key="statisticRating">
+                    <TableComponent specKey="statisticRating"/>
+                </TabPane>
+                <TabPane tab="Перечень незакрытых заявок" key="statisticList">
+                    <TableComponent specKey="statisticList"/>
+                </TabPane>
+            </Tabs>
+        </>
     )
 }

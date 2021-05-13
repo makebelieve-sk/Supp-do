@@ -13,7 +13,7 @@ import {EquipmentPropertyRoute} from "../routes/route.EquipmentProperty";
 import {EquipmentRoute} from "../routes/route.Equipment";
 import {TaskStatusRoute} from "../routes/route.taskStatus";
 import {AnalyticRoute} from "../routes/route.Analytic";
-import {StatisticRoute} from "../routes/route.Statistic";
+import {StatisticRatingRoute} from "../routes/route.StatisticRating";
 import {UserRoute} from "../routes/route.User";
 import {RoleRoute} from "../routes/route.Role";
 import {HelpRoute} from "../routes/route.Help";
@@ -103,7 +103,7 @@ export const useAuth = () => {
                     {
                         title: "Статистика",
                         key: "statistic",
-                        route: StatisticRoute
+                        route: StatisticRatingRoute
                     }
                 ]
             },

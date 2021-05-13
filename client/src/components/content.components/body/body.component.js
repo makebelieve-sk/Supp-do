@@ -12,19 +12,20 @@ import "./body.css";
 export const BodyManager = ({specKey}) => {
     const stateObject = useSelector(state => ({
         loadingSkeleton: state.reducerLoading.loadingSkeleton,
-        errorProfession: state.reducerProfession.errorTable,
-        errorDepartment: state.reducerDepartment.errorTable,
-        errorPerson: state.reducerPerson.errorTable,
-        errorTask: state.reducerTask.errorTable,
-        errorEquipmentProperty: state.reducerEquipmentProperty.errorTable,
-        errorEquipment: state.reducerEquipment.errorTable,
-        errorLogDO: state.reducerLogDO.errorTable,
-        errorAnalytic: state.reducerAnalytic.errorTable,
-        errorStatistic: state.reducerStatistic.errorTable,
-        errorHelp: state.reducerHelp.errorTable,
-        errorUser: state.reducerUser.errorTable,
-        errorRole: state.reducerRole.errorTable,
-        // errorLog: state.reducerLog.errorTable,
+        errorProfession: state.reducerProfession.errorTableProfession,
+        errorDepartment: state.reducerDepartment.errorTableDepartment,
+        errorPerson: state.reducerPerson.errorTablePerson,
+        errorTask: state.reducerTask.errorTableTask,
+        errorEquipmentProperty: state.reducerEquipmentProperty.errorTableEquipmentProperty,
+        errorEquipment: state.reducerEquipment.errorTableEquipment,
+        errorLogDO: state.reducerLogDO.errorTableLogDO,
+        errorAnalytic: state.reducerAnalytic.errorAnalytic,
+        errorRating: state.reducerStatistic.errorRating,
+        errorList: state.reducerStatistic.errorList,
+        errorHelp: state.reducerHelp.errorTableHelp,
+        errorUser: state.reducerUser.errorTableUser,
+        errorRole: state.reducerRole.errorTableRole,
+        // errorLog: state.reducerLog.errorTableLog,
     }));
 
     return <div className="container-dto">

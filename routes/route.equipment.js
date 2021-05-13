@@ -101,7 +101,7 @@ router.post("/equipment", checkMiddleware, async (req, res) => {
 
         // Проверяем на принадлежность самому себе
         if (parent && name === parent.name)
-            return res.status(500).json({message: "Объект не может принадлежать сам себе"});
+            return res.status(400).json({message: "Объект не может принадлежать сам себе"});
 
         // Заполнение массива файлов
         if (files && files.length >= 0) {
@@ -136,7 +136,7 @@ router.post("/equipment", checkMiddleware, async (req, res) => {
             .populate("properties.equipmentProperty")
             .populate("files");
 
-        res.status(201).json({message: "Подразделение сохранено", item: currentEquipment});
+        res.status(201).json({message: "Оборудование сохранено", item: currentEquipment});
     } catch (err) {
         console.log(err);
         res.status(500).json({message: "Ошибка при создании записи: " + err});
@@ -167,11 +167,22 @@ router.put("/equipment", checkMiddleware, async (req, res) => {
 
         // Проверяем на существование записи с уникальным идентификатором
         if (!item)
-            return res.status(404).json({message: `Запись с кодом ${_id} не найдена`});
+            return res.status(404).json({message: `Запись с именем ${name} (${_id}) не найдена`});
+
+        // Ищем все подразделения
+        const equipments = await Equipment.find({});
+
+        if (equipments && equipments.length) {
+            for (let i = 0; i < equipments.length; i++) {
+                if (equipments[i].name === name && equipments[i]._id.toString() !== _id.toString()) {
+                    return res.status(400).json({message: "Оборудование с таким именем уже существует"});
+                }
+            }
+        }
 
         // Проверяем на принадлежность самому себе
         if (parent && name === parent.name)
-            return res.status(500).json({message: "Отдел не может принадлежать сам себе"});
+            return res.status(400).json({message: "Отдел не может принадлежать сам себе"});
 
         item.parent = parent;
 
@@ -183,7 +194,7 @@ router.put("/equipment", checkMiddleware, async (req, res) => {
                         item.parent = null;
 
                         return res
-                            .status(500)
+                            .status(400)
                             .json({message: "Отдел не может принадлежать сам себе (циклическая ссылка)"});
                     } else {
                         const parentItem = equipment.find(eq => eq._id.toString() === parent.parent._id.toString());
@@ -266,9 +277,14 @@ router.delete("/equipment/:id", async (req, res) => {
             }
         }
 
-        await Equipment.deleteOne({_id});   // Удаление записи из базы данных по id записи
+        const item = await Equipment.findById({_id});  // Ищем текущую запись
 
-        res.status(200).json({message: "Запись успешно удалена"});
+        if (item) {
+            await Equipment.deleteOne({_id});   // Удаление записи из базы данных по id записи
+            return res.status(200).json({message: "Запись успешно удалена"});
+        } else {
+            return res.status(404).json({message: "Данная запись уже была удалена"});
+        }
     } catch (err) {
         console.log(err);
         res.status(500).json({message: `Ошибка при удалении записи с кодом ${_id}: ${err}`});

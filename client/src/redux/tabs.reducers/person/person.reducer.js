@@ -6,8 +6,8 @@ import {
     DELETE_PERSON,
     GET_ALL_PEOPLE,
     SET_ROW_DATA_PERSON,
-    SET_ERROR_RECORD,
-    SET_ERROR_TABLE,
+    SET_ERROR_RECORD_PERSON,
+    SET_ERROR_TABLE_PERSON,
 } from "./person.constants";
 
 export default function reducerPerson(state = initialState, action) {
@@ -39,15 +39,15 @@ export default function reducerPerson(state = initialState, action) {
                 ...state,
                 rowDataPerson:  action.payload
             };
-        case SET_ERROR_RECORD:
+        case SET_ERROR_RECORD_PERSON:
             return {
                 ...state,
-                errorRecord: action.payload
+                errorRecordPerson: action.payload
             };
-        case SET_ERROR_TABLE:
+        case SET_ERROR_TABLE_PERSON:
             return {
                 ...state,
-                errorTable: action.payload
+                errorTablePerson: action.payload
             };
         default:
             return state;

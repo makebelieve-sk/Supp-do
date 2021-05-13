@@ -17,7 +17,7 @@ export default function getErrorTable(key, stateObject) {
         ["equipment", stateObject.errorEquipment],
         ["logDO", stateObject.errorLogDO],
         ["analytic", stateObject.errorAnalytic],
-        ["statistic", stateObject.errorStatistic],
+        ["statistic", stateObject.errorRating || stateObject.errorList],
         ["help", stateObject.errorHelp],
         ["users", stateObject.errorUser],
         ["roles", stateObject.errorRole],

@@ -2,8 +2,8 @@
 const initialState = {
     help: [],               // Записи раздела
     rowDataHelp: null,      // Редактируемая запись
-    errorRecord: null,      // Ошибка в записи
-    errorTable: null,       // Ошибка в таблице
+    errorRecordHelp: null,      // Ошибка в записи
+    errorTableHelp: null,       // Ошибка в таблице
 };
 
 export default initialState;

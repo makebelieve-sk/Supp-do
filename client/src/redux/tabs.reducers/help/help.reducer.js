@@ -6,8 +6,8 @@ import {
     DELETE_HELP,
     GET_ALL_HELP,
     SET_ROW_DATA_HELP,
-    SET_ERROR_RECORD,
-    SET_ERROR_TABLE
+    SET_ERROR_RECORD_HELP,
+    SET_ERROR_TABLE_HELP,
 } from "./help.constants";
 
 export default function reducerHelp(state = initialState, action) {
@@ -39,15 +39,15 @@ export default function reducerHelp(state = initialState, action) {
                 ...state,
                 rowDataHelp: action.payload
             };
-        case SET_ERROR_RECORD:
+        case SET_ERROR_RECORD_HELP:
             return {
                 ...state,
-                errorRecord: action.payload
+                errorRecordHelp: action.payload
             };
-        case SET_ERROR_TABLE:
+        case SET_ERROR_TABLE_HELP:
             return {
                 ...state,
-                errorTable: action.payload
+                errorTableHelp: action.payload
             };
         default:
             return state;

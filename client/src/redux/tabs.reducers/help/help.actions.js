@@ -5,8 +5,8 @@ import {
     DELETE_HELP,
     GET_ALL_HELP,
     SET_ROW_DATA_HELP,
-    SET_ERROR_RECORD,
-    SET_ERROR_TABLE,
+    SET_ERROR_RECORD_HELP,
+    SET_ERROR_TABLE_HELP,
 } from "./help.constants";
 
 const ActionCreatorHelp = {
@@ -47,16 +47,16 @@ const ActionCreatorHelp = {
         }
     },
     // Установка ошибки для записи
-    setErrorRecord: (error) => {
+    setErrorRecordHelp: (error) => {
         return {
-            type: SET_ERROR_RECORD,
+            type: SET_ERROR_RECORD_HELP,
             payload: error
         }
     },
     // Установка ошибки для таблицы
-    setErrorTable: (error) => {
+    setErrorTableHelp: (error) => {
         return {
-            type: SET_ERROR_TABLE,
+            type: SET_ERROR_TABLE_HELP,
             payload: error
         }
     },

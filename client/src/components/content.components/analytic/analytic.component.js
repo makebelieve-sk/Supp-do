@@ -14,14 +14,38 @@ import store from "../../../redux/store";
 import {ActionCreator} from "../../../redux/combineActions";
 import emptyTab from "../../../helpers/functions/tabs.functions/emptyTab";
 import {BodyManager} from "../body/body.component";
-import ErrorIndicator from "../errorIndicator/errorIndicator.component";
 
 import "./analytic.css";
+import moment from "moment";
 
-const { useBreakpoint } = Grid; // Извлекаем хук useBreakpoint из Grid Antd
+const {useBreakpoint} = Grid; // Извлекаем хук useBreakpoint из Grid Antd
+
+/**
+ * Функция обработки перехода в раздел ЖДО
+ * url - адрес
+ * filter - объект фильтр
+ */
+export const goToLogDO = async (url, filter) => {
+    try {
+        // Устанавливаем показ спиннера загрузки при открытии вкладки раздела
+        store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(true));
+
+        // Создаем пустую вкладку
+        emptyTab("Журнал дефектов и отказов", BodyManager, "logDO");
+
+        await AnalyticRoute.goToLogDO(url, filter);
+
+        // Останавливаем показ спиннера загрузки при открытии вкладки раздела
+        store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(false));
+    } catch (e) {
+        // Останавливаем показ спиннера загрузки при появлении ошибки
+        store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(false));
+    }
+};
 
 export const AnalyticComponent = () => {
     let circleSize = true;
+
     // Получаем текущий размер окна браузера
     const screens = useBreakpoint();
 
@@ -29,18 +53,15 @@ export const AnalyticComponent = () => {
         .filter(screen => !!screen[1])
         .map(screen => screen[0]);
 
-    if (currentScreen[currentScreen.length - 1] === "xs" ||
-        currentScreen[currentScreen.length - 1] === "sm" ||
-        currentScreen[currentScreen.length - 1] === "md" ||
-        currentScreen[currentScreen.length - 1] === "lg") {
+    if (currentScreen[currentScreen.length - 1] === "xs" || currentScreen[currentScreen.length - 1] === "sm" ||
+        currentScreen[currentScreen.length - 1] === "md" || currentScreen[currentScreen.length - 1] === "lg") {
         circleSize = false;
     }
 
     // Получаем из хранилища объект текущий аналитики, предыдущий объект аналитики (для сравнения)
-    const {analytic, prevAnalyticData, error} = useSelector(state => ({
+    const {analytic, prevAnalyticData} = useSelector(state => ({
         analytic: state.reducerAnalytic.analytic,
-        prevAnalyticData: state.reducerAnalytic.prevAnalyticData,
-        error: state.reducerAnalytic.error
+        prevAnalyticData: state.reducerAnalytic.prevAnalyticData
     }));
 
     /**
@@ -58,30 +79,10 @@ export const AnalyticComponent = () => {
             : "сут";
     }
 
-    /**
-     * Функция обработки перехода в раздел ЖДО
-     * url - адрес
-     * filter - объект фильтр
-     */
-    const goToLogDO = async (url, filter) => {
-        try {
-            // Устанавливаем показ спиннера загрузки при открытии вкладки раздела
-            store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(true));
-
-            // Создаем пустую вкладку
-            emptyTab("Журнал дефектов и отказов", BodyManager, "logDO");
-
-            await AnalyticRoute.goToLogDO(url, filter);
-
-            // Останавливаем показ спиннера загрузки при открытии вкладки раздела
-            store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(false));
-        } catch (e) {
-            // Останавливаем показ спиннера загрузки при появлении ошибки
-            store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(false));
-        }
-    };
-
-    if (error) return <ErrorIndicator errorText={error} />
+    // Рассчитываем текущую дату (дд:мм)
+    const currentDate = moment().date() + moment().month().toString().length === 1 ?
+        `0${+moment().month() + 1}`
+        : +moment().month() + 1
 
     return (
         <div className="analytic">
@@ -96,7 +97,7 @@ export const AnalyticComponent = () => {
                         title="Неназначенные заявки"
                         value={analytic ? analytic.unassignedTasks : 0}
                         borderColor={analytic && prevAnalyticData &&
-                        prevAnalyticData.unassignedTasks > analytic.unassignedTasks ? "red" : "green"}
+                            prevAnalyticData.unassignedTasks < analytic.unassignedTasks ? "red" : "green"}
                     />
                 </Col>
 
@@ -110,7 +111,7 @@ export const AnalyticComponent = () => {
                         title="Заявки в работе"
                         value={analytic ? analytic.inWorkTasks : 0}
                         borderColor={analytic && prevAnalyticData
-                        && prevAnalyticData.inWorkTasks > analytic.inWorkTasks ? "red" : "green"}
+                        && prevAnalyticData.inWorkTasks < analytic.inWorkTasks ? "red" : "green"}
                     />
                 </Col>
 
@@ -124,15 +125,16 @@ export const AnalyticComponent = () => {
                         title="Непринятые заявки"
                         value={analytic ? analytic.notAccepted : 0}
                         borderColor={analytic && prevAnalyticData
-                        && prevAnalyticData.notAccepted > analytic.notAccepted ? "red" : "green"}
+                        && prevAnalyticData.notAccepted < analytic.notAccepted ? "red" : "green"}
                     />
                 </Col>
 
                 {/*Загруженность подразделений*/}
                 <Col xs={24} sm={24} md={24} lg={24} xl={12} className="bar-char-border">
                     <BarChartComponent
-                        data={analytic && analytic.workloadDepartments ?
-                            analytic.workloadDepartments : [{department: "0", value: "0"}]}
+                        data={analytic && analytic.workloadDepartments
+                            ? analytic.workloadDepartments
+                            : [{department: currentDate, value: 0}]}
                         goToLogDO={goToLogDO}
                     />
                 </Col>
@@ -143,7 +145,7 @@ export const AnalyticComponent = () => {
                 <Col xs={24} sm={24} md={24} lg={24} xl={18} className="block-1">
                     <LineChartComponent
                         data={analytic && analytic.failureDynamics ?
-                            analytic.failureDynamics : [{data: "0", value: "0"}]}
+                            analytic.failureDynamics : [{data: currentDate, value: 0}]}
                         goToLogDO={goToLogDO}
                     />
                 </Col>
@@ -156,20 +158,22 @@ export const AnalyticComponent = () => {
                                 title={"Ср. время реагирования, " + getUnits(analytic ? analytic.averageResponseTime : null)}
                                 value={analytic && analytic.averageResponseTime ? analytic.averageResponseTime : 0}
                                 borderColor={analytic && prevAnalyticData && analytic.averageResponseTime
-                                && analytic.averageResponseTime.length
-                                && prevAnalyticData.averageResponseTime && prevAnalyticData.averageResponseTime.length
-                                && prevAnalyticData.averageResponseTime.length > analytic.averageResponseTime.length ? "red" : "green"}
+                                    && analytic.averageResponseTime.length
+                                    && prevAnalyticData.averageResponseTime && prevAnalyticData.averageResponseTime.length
+                                    && prevAnalyticData.averageResponseTime.length < analytic.averageResponseTime.length
+                                        ? "red" : "green"}
                                 size={circleSize}
                             />
                         </Col>
-                        <Col xs={24} sm={12} md={12} lg={12} xl={24}  className="col-circle-5">
+                        <Col xs={24} sm={12} md={12} lg={12} xl={24} className="col-circle-5">
                             <CircleComponent
                                 title={"Ср. время выполнения, " + getUnits(analytic ? analytic.averageClosingTime : null)}
                                 value={analytic && analytic.averageClosingTime ? analytic.averageClosingTime : 0}
                                 borderColor={analytic && prevAnalyticData && analytic.averageClosingTime
-                                && analytic.averageClosingTime.length
-                                && prevAnalyticData.averageClosingTime && prevAnalyticData.averageClosingTime.length
-                                && prevAnalyticData.averageClosingTime.length > analytic.averageClosingTime.length ? "red" : "green"}
+                                    && analytic.averageClosingTime.length
+                                    && prevAnalyticData.averageClosingTime && prevAnalyticData.averageClosingTime.length
+                                    && prevAnalyticData.averageClosingTime.length < analytic.averageClosingTime.length
+                                        ? "red" : "green"}
                                 size={circleSize}
                                 upBorder={true}
                             />
@@ -184,8 +188,9 @@ export const AnalyticComponent = () => {
                     <ColumnChartComponent
                         title="Продолжительность простоев, мин"
                         data={analytic && analytic.changeDowntime ? analytic.changeDowntime : [{
-                            month: "0",
-                            value: "0"
+                            month: moment().format("MMMM")[0].toUpperCase() +
+                                moment().format("MMMM").slice(1, 3) + ". " + moment().format("YYYY"),
+                            value: 0
                         }]}
                     />
                 </Col>
@@ -194,7 +199,11 @@ export const AnalyticComponent = () => {
                 <Col xs={24} sm={12} md={12} lg={6} xl={6} className="col-column-2">
                     <ColumnChartComponent
                         title="Количество отказов, шт."
-                        data={analytic && analytic.changeRefusal ? analytic.changeRefusal : [{month: "0", value: "0"}]}
+                        data={analytic && analytic.changeRefusal ? analytic.changeRefusal : [{
+                            month: moment().format("MMMM")[0].toUpperCase() +
+                                moment().format("MMMM").slice(1, 3) + ". " + moment().format("YYYY"),
+                            value: 0
+                        }]}
                     />
                 </Col>
 

@@ -11,7 +11,7 @@ export const UserTab = () => {
     const {item, loadingSkeleton, error} = useSelector((state) => ({
         item: state.reducerUser.rowDataUser,
         loadingSkeleton: state.reducerLoading.loadingSkeleton,
-        error: state.reducerUser.errorRecord
+        error: state.reducerUser.errorRecordUser
     }));
 
     const display = loadingSkeleton ? "none" : "block"; // Установка стиля отображения содержимого вкладки

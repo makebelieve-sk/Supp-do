@@ -4,8 +4,8 @@ const initialState = {
     rowDataEquipment: null,     // Редактируемая запись
     selectsArray: [],           // Массив строчек вкладки "Характеристики"
     files: [],                  // Массив файлов
-    errorRecord: null,          // Ошибка в записи
-    errorTable: null,           // Ошибка в таблице
+    errorRecordEquipment: null,          // Ошибка в записи
+    errorTableEquipment: null,           // Ошибка в таблице
 };
 
 export default initialState;

@@ -5,8 +5,8 @@ import {
     DELETE_USER,
     GET_ALL_USERS,
     SET_ROW_DATA_USER,
-    SET_ERROR_RECORD,
-    SET_ERROR_TABLE,
+    SET_ERROR_RECORD_USER,
+    SET_ERROR_TABLE_USER,
 } from "./user.constants";
 
 const ActionCreatorUser = {
@@ -47,16 +47,16 @@ const ActionCreatorUser = {
         }
     },
     // Установка ошибки для записи
-    setErrorRecord: (error) => {
+    setErrorRecordUser: (error) => {
         return {
-            type: SET_ERROR_RECORD,
+            type: SET_ERROR_RECORD_USER,
             payload: error
         }
     },
     // Установка ошибки для таблицы
-    setErrorTable: (error) => {
+    setErrorTableUser: (error) => {
         return {
-            type: SET_ERROR_TABLE,
+            type: SET_ERROR_TABLE_USER,
             payload: error
         }
     },

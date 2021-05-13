@@ -1,46 +1,25 @@
 // Компонент формы записи раздела "Журнал дефектов и отказов"
 import moment from "moment";
-import React, {useState, useEffect, useMemo, useContext} from "react";
+import React, {useState, useEffect} from "react";
 import {Button, Checkbox, Col, DatePicker, Form, Input, Row, Select, Tabs, Card, Tooltip} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
 
 import {UploadComponent} from "../../components/tab.components/upload/upload.component";
 import {LogDORoute} from "../../routes/route.LogDO";
-import {dropdownRender, onFailed, TabButtons} from "../tab.functions";
+import {getOptions, onFailed, TabButtons} from "../tab.functions";
 import {openRecordTab} from "../../helpers/mappers/tabs.mappers/table.helper";
 import TabOptions from "../../options/tab.options/record.options/record.options";
 import store from "../../redux/store";
 import {ActionCreator} from "../../redux/combineActions";
-import {DeleteTabContext} from "../../context/deleteTab.context";
-import {getParents} from "../../helpers/functions/general.functions/replaceField";
 import {checkRoleUser} from "../../helpers/mappers/general.mappers/checkRoleUser";
 
 export const LogDoForm = ({item}) => {
-    // Инициализация стейта для показа спиннера загрузки при изменении записи, обновлении выпадающих списков
+    // Инициализация стейта для показа спиннера загрузки при изменении записи
     const [loadingSave, setLoadingSave] = useState(false);
     const [loadingCancel, setLoadingCancel] = useState(false);
-    const [loadingDepartment, setLoadingDepartment] = useState(false);
-    const [loadingApplicant, setLoadingApplicant] = useState(false);
-    const [loadingEquipment, setLoadingEquipment] = useState(false);
-    const [loadingResponsible, setLoadingResponsible] = useState(false);
-    const [loadingState, setLoadingState] = useState(false);
 
-    // Пустое значение выпадающего списка
-    const emptyDropdown = useMemo(() => [{label: "Не выбрано", value: null}], []);
-
-    const user = store.getState().reducerAuth.user; // Получаем объект пользователя
-
-    // Инициализация значений для выпадающих списков
-    const [departments, setDepartments] = useState(item.department ? [{label: item.department.name, value: item.department._id}] : emptyDropdown);
-    const [applicant, setApplicant] = useState(item.isNewItem && user && user.person
-        ? [{label: user.person.name, value: user.person._id}]
-        : item.applicant
-            ? [{label: item.applicant.name, value: item.applicant._id}]
-            : emptyDropdown
-    );
-    const [equipment, setEquipment] = useState(item.equipment ? [{label: item.equipment.name, value: item.equipment._id}] : emptyDropdown);
-    const [responsible, setResponsible] = useState(item.responsible ? [{label: item.responsible.name, value: item.responsible._id}] : emptyDropdown);
-    const [taskStatus, setState] = useState(item.taskStatus ? [{label: item.taskStatus.name, value: item.taskStatus._id}] : emptyDropdown);
+    // Получаем объект пользователя
+    const user = store.getState().reducerAuth.user;
 
     // Для каждой роли, проверяем возможность редактирования галочки "Работа принята"
     let flag = false;
@@ -57,25 +36,8 @@ export const LogDoForm = ({item}) => {
     // Инициализируем хук состояния формы от AntDesign
     const [form] = Form.useForm();
 
-    // Получаем функцию удаления вкладки onRemove из контекста
-    const onRemove = useContext(DeleteTabContext);
-
     // При обновлении item устанавливаем форме начальные значения
     useEffect(() => {
-        const departments = store.getState().reducerDepartment.departments;
-        const equipment = store.getState().reducerEquipment.equipment;
-
-        setDepartments(item.department ? [{label: getParents(item.department, departments) + item.department.name, value: item.department._id}] : emptyDropdown);
-        setApplicant(item.isNewItem && user && user.person
-            ? [{label: user.person.name, value: user.person._id}]
-            : item.applicant
-                ? [{label: item.applicant.name, value: item.applicant._id}]
-                : emptyDropdown
-        );
-        setEquipment(item.equipment ? [{label: getParents(item.equipment, equipment) + item.equipment.name, value: item.equipment._id}] : emptyDropdown);
-        setResponsible(item.responsible ? [{label: item.responsible.name, value: item.responsible._id}] : emptyDropdown);
-        setState(item.taskStatus ? [{label: item.taskStatus.name, value: item.taskStatus._id}] : emptyDropdown);
-
         form.setFieldsValue({
             _id: item._id,
             date: item.date ? moment(item.date, TabOptions.dateFormat) : moment(),
@@ -102,7 +64,7 @@ export const LogDoForm = ({item}) => {
             equipmentId: item.equipmentId ? item.equipmentId : null,
             taskStatusId: item.taskStatusId ? item.taskStatusId : null
         });
-    }, [item, form, emptyDropdown, user]);
+    }, [item, form, user]);
 
     // Создание заголовка раздела и имени формы
     const title = item.isNewItem ? "Создание записи в журнале дефектов и отказов" : "Редактирование записи в журнале дефектов и отказов";
@@ -126,16 +88,16 @@ export const LogDoForm = ({item}) => {
         delete record.responsibleId;
 
         // Для сохранения записи обращаемся к модели
-        await LogDORoute.save(record, setLoadingSave, onRemove);
+        await LogDORoute.save(record, setLoadingSave);
     };
 
     // Обработка нажатия на кнопку "Удалить"
     const deleteHandler = async (setLoadingDelete, setVisiblePopConfirm) => {
-        await LogDORoute.delete(item._id, setLoadingDelete, setVisiblePopConfirm, onRemove);
+        await LogDORoute.delete(item._id, setLoadingDelete, setVisiblePopConfirm);
     };
 
     // Обработка нажатия на кнопку "Отмена"
-    const cancelHandler = () => LogDORoute.cancel(onRemove, setLoadingCancel);
+    const cancelHandler = () => LogDORoute.cancel(setLoadingCancel);
 
     // Настройка компонента UploadComponent (вкладка "Файлы")
     const uploadProps = {
@@ -196,9 +158,7 @@ export const LogDoForm = ({item}) => {
                                                         filterOption={(input, option) =>
                                                             option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
                                                         }
-                                                        options={applicant}
-                                                        onDropdownVisibleChange={open => dropdownRender(open, setLoadingApplicant, setApplicant, "people")}
-                                                        loading={loadingApplicant}
+                                                        options={getOptions(store.getState().reducerPerson.people)}
                                                         onChange={(value) => {
                                                             const people = store.getState().reducerPerson.people;
 
@@ -272,9 +232,7 @@ export const LogDoForm = ({item}) => {
                                                 filterOption={(input, option) =>
                                                     option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
                                                 }
-                                                options={equipment}
-                                                onDropdownVisibleChange={open => dropdownRender(open, setLoadingEquipment, setEquipment, "equipment")}
-                                                loading={loadingEquipment}
+                                                options={getOptions(store.getState().reducerEquipment.equipment)}
                                                 onChange={(value) => {
                                                     const equipment = store.getState().reducerEquipment.equipment;
 
@@ -364,9 +322,7 @@ export const LogDoForm = ({item}) => {
                                                         filterOption={(input, option) =>
                                                             option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
                                                         }
-                                                        options={responsible}
-                                                        loading={loadingResponsible}
-                                                        onDropdownVisibleChange={open => dropdownRender(open, setLoadingResponsible, setResponsible, "people")}
+                                                        options={getOptions(store.getState().reducerPerson.people)}
                                                         onChange={(value) => {
                                                             const people = store.getState().reducerPerson.people;
                                                             const departments = store.getState().reducerDepartment.departments;
@@ -380,19 +336,6 @@ export const LogDoForm = ({item}) => {
                                                                     return null;
                                                                 }
                                                             });
-
-                                                            // Устанавливаем значение в выпадающий список
-                                                            if (foundDepartment) {
-                                                                setDepartments([{
-                                                                    label: getParents(foundDepartment, departments) + foundDepartment.name,
-                                                                    value: foundDepartment._id
-                                                                }])
-                                                            } else {
-                                                                setDepartments([{
-                                                                    label: "Не выбрано",
-                                                                    value: null
-                                                                }])
-                                                            }
 
                                                             form.setFieldsValue({
                                                                 responsible: foundResponsible,
@@ -452,9 +395,7 @@ export const LogDoForm = ({item}) => {
                                                         filterOption={(input, option) =>
                                                             option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
                                                         }
-                                                        options={departments}
-                                                        loading={loadingDepartment}
-                                                        onDropdownVisibleChange={open => dropdownRender(open, setLoadingDepartment, setDepartments, "departments")}
+                                                        options={getOptions(store.getState().reducerDepartment.departments)}
                                                         onChange={(value) => {
                                                             const departments = store.getState().reducerDepartment.departments;
 
@@ -524,9 +465,7 @@ export const LogDoForm = ({item}) => {
                                                 filterOption={(input, option) =>
                                                     option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
                                                 }
-                                                options={taskStatus}
-                                                loading={loadingState}
-                                                onDropdownVisibleChange={open => dropdownRender(open, setLoadingState, setState, "taskStatus")}
+                                                options={getOptions(store.getState().reducerTask.tasks)}
                                                 onChange={(value) => {
                                                     const tasks = store.getState().reducerTask.tasks;
 

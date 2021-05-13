@@ -31,7 +31,7 @@ router.get("/professions/:id", async (req, res) => {
             isNewItem = false;
         }
 
-        if (!item) return res.status(404).json({message: `Профессия с кодом ${_id} не существует`});
+        if (!item) return res.status(404).json({message: `Профессия с именем ${name} (${_id}) не существует`});
 
         res.status(200).json({isNewItem, profession: item});
     } catch (err) {
@@ -100,7 +100,17 @@ router.put("/professions", checkMiddleware, async (req, res) => {
         const item = await Profession.findById({_id});
 
         // Проверяем на существование записи с уникальным идентификатором
-        if (!item) return res.status(404).json({message: `Профессия с кодом ${_id} не найдена`});
+        if (!item) return res.status(404).json({message: `Профессия с именем ${name} (${_id}) не существует`});
+
+        const items = await Profession.find({});    // Ищем все записи профессий
+
+        if (items && items.length) {
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].name === name && items[i]._id.toString() !== _id.toString()) {
+                    return res.status(400).json({message: "Профессия с таким именем уже существует"});
+                }
+            }
+        }
 
         item.name = name;
         item.notes = notes;
@@ -119,9 +129,14 @@ router.delete("/professions/:id", async (req, res) => {
     const _id = req.params.id;  // Получение id записи
 
     try {
-        await Profession.deleteOne({_id});  // Удаление записи из базы данных по id записи
+        const item = await Profession.findById({_id});  // Ищем текущую запись
 
-        res.status(200).json({message: "Профессия успешно удалена"});
+        if (item) {
+            await Profession.deleteOne({_id});  // Удаление записи из базы данных по id записи
+            return res.status(200).json({message: "Профессия успешно удалена"});
+        } else {
+            return res.status(404).json({message: "Данная запись уже была удалена"});
+        }
     } catch (err) {
         console.log(err);
         res.status(500).json({message: `Ошибка при удалении профессии с кодом ${_id}: ${err}`});

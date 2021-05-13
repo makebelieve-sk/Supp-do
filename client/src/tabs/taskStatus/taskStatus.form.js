@@ -1,12 +1,12 @@
 // Компонент формы записи раздела "Состояние заявки"
-import React, {useContext, useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {SketchPicker} from "react-color";
 import {Card, Button, Checkbox, Col, Dropdown, Form, Input, Row} from "antd";
 import {EditOutlined} from "@ant-design/icons";
 
 import {onFailed, TabButtons} from "../tab.functions";
 import {TaskStatusRoute} from "../../routes/route.taskStatus";
-import {DeleteTabContext} from "../../context/deleteTab.context";
+import {onRemove} from "../../components/content.components/content/content.component";
 
 export const TaskStatusForm = ({item}) => {
     // Состояние для отображения выпадающего меню для колонок, спиннера загрузки при изменении записи, поля "Цвет"
@@ -16,9 +16,6 @@ export const TaskStatusForm = ({item}) => {
 
     // Инициализация хука от Form antd
     const [form] = Form.useForm();
-
-    // Получаем функцию удаления вкладки onRemove из контекста
-    const onRemove = useContext(DeleteTabContext);
 
     // При обновлении item устанавливаем форме начальные значения и текущий цвет кнопки
     useEffect(() => {
@@ -38,14 +35,11 @@ export const TaskStatusForm = ({item}) => {
     const title = item.isNewItem ? "Создание записи о состоянии заявки" : "Редактирование записи о состоянии заявки";
 
     // Обработка нажатия на кнопку "Сохранить"
-    const saveHandler = async (values) => await TaskStatusRoute.save(values, setLoadingSave, onRemove);
+    const saveHandler = async (values) => await TaskStatusRoute.save(values, setLoadingSave);
 
     // Обработка нажатия на кнопку "Удалить"
-    const deleteHandler = async (setLoadingDelete, setVisiblePopConfirm) => {
-        await TaskStatusRoute.delete(item._id, setLoadingDelete, setVisiblePopConfirm, onRemove);
-    };
-
-    const cancelHandler = () => TaskStatusRoute.cancel(onRemove);
+    const deleteHandler = async (setLoadingDelete, setVisiblePopConfirm) =>
+        await TaskStatusRoute.delete(item._id, setLoadingDelete, setVisiblePopConfirm);
 
     // Создание компонента цветового пикера
     const colorPickerComponent = <SketchPicker
@@ -123,7 +117,7 @@ export const TaskStatusForm = ({item}) => {
                         loadingSave={loadingSave}
                         item={item}
                         deleteHandler={deleteHandler}
-                        cancelHandler={cancelHandler}
+                        cancelHandler={() => onRemove("taskStatusItem", "remove")}
                     />
                 </Form>
             }

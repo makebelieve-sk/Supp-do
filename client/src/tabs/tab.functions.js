@@ -95,32 +95,4 @@ const CheckTypeTab = (item, deleteHandler, specKey = null, activeKey, user, getC
 // Вывод сообщения валидации формы
 const onFailed = () => message.error("Заполните обязательные поля").then(null);
 
-// Обновление выпадающего списка
-const dropdownRender = (open, setLoadingSelect, setOptions, key) => {
-    if (open) {
-        setLoadingSelect(true);
-
-        let items = [];
-
-        const map = new Map([
-            ["professions", store.getState().reducerProfession.professions],
-            ["departments", store.getState().reducerDepartment.departments],
-            ["people", store.getState().reducerPerson.people],
-            ["equipment", store.getState().reducerEquipment.equipment],
-            ["equipmentProperty", store.getState().reducerEquipmentProperty.equipmentProperties],
-            ["taskStatus", store.getState().reducerTask.tasks],
-        ]);
-
-        if (map.has(key)) {
-            items = map.get(key);
-        } else {
-            message.error(`Раздел с ключём ${key} не существует (заполнение выпадающих списков)`).then(null);
-        }
-
-        setOptions(getOptions(items));
-
-        setLoadingSelect(false);
-    }
-}
-
-export {getOptions, TabButtons, onFailed, dropdownRender}
+export {getOptions, TabButtons, onFailed}

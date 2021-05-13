@@ -5,8 +5,8 @@ import {
     DELETE_ROLE,
     GET_ALL_ROLES,
     SET_ROW_DATA_ROLE,
-    SET_ERROR_RECORD,
-    SET_ERROR_TABLE,
+    SET_ERROR_RECORD_ROLE,
+    SET_ERROR_TABLE_ROLE,
 } from "./role.constants";
 
 const ActionCreatorRole = {
@@ -47,16 +47,16 @@ const ActionCreatorRole = {
         }
     },
     // Установка ошибки для записи
-    setErrorRecord: (error) => {
+    setErrorRecordRole: (error) => {
         return {
-            type: SET_ERROR_RECORD,
+            type: SET_ERROR_RECORD_ROLE,
             payload: error
         }
     },
     // Установка ошибки для таблицы
-    setErrorTable: (error) => {
+    setErrorTableRole: (error) => {
         return {
-            type: SET_ERROR_TABLE,
+            type: SET_ERROR_TABLE_ROLE,
             payload: error
         }
     },

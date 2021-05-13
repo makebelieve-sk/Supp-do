@@ -97,6 +97,10 @@
     border-top: 1px solid grey;
 }
 
+.xxl .upBorder {
+    border-top: 1px solid grey;
+}
+
 .xl .title-small {
     border-left: 1px solid grey;
 }

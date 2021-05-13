@@ -1,25 +1,15 @@
 // Компонент формы записи раздела "Подразделения"
-import React, {useContext, useEffect, useMemo, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Card, Form, Input, Select} from "antd";
-import {dropdownRender, onFailed, TabButtons} from "../tab.functions";
+import {getOptions, onFailed, TabButtons} from "../tab.functions";
 
 import {DepartmentRoute} from "../../routes/route.Department";
-import {DeleteTabContext} from "../../context/deleteTab.context";
 import store from "../../redux/store";
-import {getParents} from "../../helpers/functions/general.functions/replaceField";
+import {onRemove} from "../../components/content.components/content/content.component";
 
 export const DepartmentForm = ({item}) => {
-    // Пустое значение выпадающего списка
-    const emptyDropdown = useMemo(() => [{label: "Не выбрано", value: null}], []);
-
-    const departments = store.getState().reducerDepartment.departments; // Получаем список подразделений
-
-    // Создание состояния для значений в выпадающем списке "Принадлежит"
-    const [departmentsOptions, setDepartments] = useState(item.parent ? [{label: getParents(item.parent, departments) + item.parent.name, value: item.parent._id}] : emptyDropdown);
-
-    // Инициализация состояния для показа индикатора загрузки при изменении записи и обновлении выпадающего списка
+    // Инициализация состояния для показа индикатора загрузки при изменении записи
     const [loadingSave, setLoadingSave] = useState(false);
-    const [loadingSelect, setLoadingSelect] = useState(false);
 
     // Создание заголовка раздела и имени формы
     const title = item.isNewItem ? "Создание подразделения" : "Редактирование подразделения";
@@ -27,15 +17,8 @@ export const DepartmentForm = ({item}) => {
     // Инициализируем хук состояния формы от AntDesign
     const [form] = Form.useForm();
 
-    // Получаем функцию удаления вкладки onRemove из контекста
-    const onRemove = useContext(DeleteTabContext);
-
     // При обновлении item устанавливаем форме начальные значения
     useEffect(() => {
-        const departments = store.getState().reducerDepartment.departments;
-
-        setDepartments(item.parent ? [{label: getParents(item.parent, departments) + item.parent.name, value: item.parent._id}] : emptyDropdown);
-
         form.setFieldsValue({
             _id: item._id,
             isNewItem: item.isNewItem,
@@ -43,7 +26,7 @@ export const DepartmentForm = ({item}) => {
             notes: item.notes.trim(),
             parent: item.parent ? item.parent._id : null,
         });
-    }, [item, form, emptyDropdown]);
+    }, [item, form]);
 
     // Обработка нажатия на кнопку "Сохранить"
     const saveHandler = async (values) => {
@@ -52,15 +35,13 @@ export const DepartmentForm = ({item}) => {
         // Проверяем, есть ли выбранный элемент в списке
         values.parent = departments.find(department => department._id === values.parent);
 
-        await DepartmentRoute.save(values, setLoadingSave, onRemove, departments);
+        await DepartmentRoute.save(values, setLoadingSave, departments);
     };
 
     // Обработка нажатия на кнопку "Удалить"
     const deleteHandler = async (setLoadingDelete, setVisiblePopConfirm) => {
-        await DepartmentRoute.delete(item._id, setLoadingDelete, setVisiblePopConfirm, onRemove);
+        await DepartmentRoute.delete(item._id, setLoadingDelete, setVisiblePopConfirm);
     };
-
-    const cancelHandler = () => DepartmentRoute.cancel(onRemove);
 
     return (
         <Card.Meta
@@ -83,9 +64,7 @@ export const DepartmentForm = ({item}) => {
                             filterOption={(input, option) =>
                                 option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
                             }
-                            options={departmentsOptions}
-                            onDropdownVisibleChange={open => dropdownRender(open, setLoadingSelect, setDepartments, "departments")}
-                            loading={loadingSelect}
+                            options={getOptions(store.getState().reducerDepartment.departments)}
                             onChange={value => {
                                 const departments = store.getState().reducerDepartment.departments;
 
@@ -112,7 +91,7 @@ export const DepartmentForm = ({item}) => {
                         loadingSave={loadingSave}
                         item={item}
                         deleteHandler={deleteHandler}
-                        cancelHandler={cancelHandler}
+                        cancelHandler={() => onRemove("departmentItem", "remove")}
                     />
                 </Form>
             }

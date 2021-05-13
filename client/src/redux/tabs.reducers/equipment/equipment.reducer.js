@@ -13,8 +13,8 @@ import {
     ADD_FILE,
     DELETE_FILE,
     GET_ALL_FILES,
-    SET_ERROR_RECORD,
-    SET_ERROR_TABLE,
+    SET_ERROR_RECORD_EQUIPMENT,
+    SET_ERROR_TABLE_EQUIPMENT,
 } from "./equipment.constants";
 
 export default function reducerEquipment(state = initialState, action) {
@@ -84,15 +84,15 @@ export default function reducerEquipment(state = initialState, action) {
                 ...state,
                 files: action.payload
             };
-        case SET_ERROR_RECORD:
+        case SET_ERROR_RECORD_EQUIPMENT:
             return {
                 ...state,
-                errorRecord: action.payload
+                errorRecordEquipment: action.payload
             };
-        case SET_ERROR_TABLE:
+        case SET_ERROR_TABLE_EQUIPMENT:
             return {
                 ...state,
-                errorTable: action.payload
+                errorTableEquipment: action.payload
             };
         default:
             return state;

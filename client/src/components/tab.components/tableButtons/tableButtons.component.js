@@ -1,8 +1,8 @@
 // Компонент, отрисовывающий кнопки таблицы
-import React, {useState, useMemo} from "react";
+import React, {useMemo, useState} from "react";
 import {useSelector} from "react-redux";
-import {Button, Menu, Dropdown, Checkbox} from "antd";
-import {PlusOutlined, FileExcelOutlined, EditOutlined} from "@ant-design/icons";
+import {Button, Checkbox, Dropdown, Menu} from "antd";
+import {EditOutlined, FileExcelOutlined, PlusOutlined} from "@ant-design/icons";
 
 import {checkRoleUser} from "../../../helpers/mappers/general.mappers/checkRoleUser";
 import {getColumns, getTableHeader, openRecordTab} from "../../../helpers/mappers/tabs.mappers/table.helper";
@@ -46,17 +46,19 @@ export const ButtonsComponent = ({specKey, onExport, setColumnsTable}) => {
 
             let filtered = columns;
 
-            for (let i = 0; i < checkedColumnsTable.length; i++)
+            for (let i = 0; i < checkedColumnsTable.length; i++) {
                 filtered = filtered.filter(el => {
                     let dataIndex = el.dataIndex;
 
                     if (Array.isArray(dataIndex)) {
                         dataIndex = dataIndex[0];
                     }
+
                     return dataIndex !== checkedColumnsTable[i];
                 });
+            }
 
-            setColumnsTable(filtered)
+            setColumnsTable(filtered);
             setCheckedColumns(checkedColumnsTable);
         }
 
@@ -83,10 +85,14 @@ export const ButtonsComponent = ({specKey, onExport, setColumnsTable}) => {
             <div className="wrapper_buttons">
                 {
                     user && checkRoleUser(specKey, user).edit
-                        ? <Button className={`button ${short}`} icon={<PlusOutlined/>} type="primary"
-                                  onClick={() => openRecordTab(specKey, "-1")}>
+                        ? <Button
+                            className={`button ${short}`}
+                            icon={<PlusOutlined/>}
+                            type="primary"
+                            onClick={() => openRecordTab(specKey, "-1")}
+                        >
                             {getContent("Добавить")}
-                    </Button>
+                        </Button>
                         : null
                 }
 
@@ -96,7 +102,8 @@ export const ButtonsComponent = ({specKey, onExport, setColumnsTable}) => {
                 <PrintButton headers={headers} specKey={specKey} short={short} getContent={getContent}/>
 
                 <Dropdown overlay={dropdownMenu} onVisibleChange={handleVisibleChange} visible={visible}>
-                    <Button className={`button ${short} last_button`} icon={<EditOutlined/>}>{getContent("Колонки")}</Button>
+                    <Button className={`button ${short} last_button`}
+                            icon={<EditOutlined/>}>{getContent("Колонки")}</Button>
                 </Dropdown>
             </div>
         );

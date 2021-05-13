@@ -1,10 +1,10 @@
 // Компонент формы записи раздела "Характеристики оборудования"
-import React, {useContext, useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Card, Form, Input} from "antd";
 
 import {onFailed, TabButtons} from "../tab.functions";
 import {EquipmentPropertyRoute} from "../../routes/route.EquipmentProperty";
-import {DeleteTabContext} from "../../context/deleteTab.context";
+import {onRemove} from "../../components/content.components/content/content.component";
 
 export const EquipmentPropertyForm = ({item}) => {
     // Инициализация состояния для показа спиннера загрузки при сохранении/удалении записи
@@ -12,9 +12,6 @@ export const EquipmentPropertyForm = ({item}) => {
 
     // Инициализируем хук состояния формы от AntDesign
     const [form] = Form.useForm();
-
-    // Получаем функцию удаления вкладки onRemove из контекста
-    const onRemove = useContext(DeleteTabContext);
 
     // При обновлении item устанавливаем форме начальные значения
     useEffect(() => {
@@ -30,14 +27,11 @@ export const EquipmentPropertyForm = ({item}) => {
     const title = item.isNewItem ? "Создание характеристики оборудования" : "Редактирование характеристики оборудования";
 
     // Обработка нажатия на кнопку "Сохранить"
-    const saveHandler = async (values) => await EquipmentPropertyRoute.save(values, setLoadingSave, onRemove);
+    const saveHandler = async (values) => await EquipmentPropertyRoute.save(values, setLoadingSave);
 
     // Обработка нажатия на кнопку "Удалить"
-    const deleteHandler = async (setLoadingDelete, setVisiblePopConfirm) => {
-        await EquipmentPropertyRoute.delete(item._id, setLoadingDelete, setVisiblePopConfirm, onRemove);
-    };
-
-    const cancelHandler = () => EquipmentPropertyRoute.cancel(onRemove);
+    const deleteHandler = async (setLoadingDelete, setVisiblePopConfirm) =>
+        await EquipmentPropertyRoute.delete(item._id, setLoadingDelete, setVisiblePopConfirm);
 
     return (
         <Card.Meta
@@ -70,7 +64,7 @@ export const EquipmentPropertyForm = ({item}) => {
                         loadingSave={loadingSave}
                         item={item}
                         deleteHandler={deleteHandler}
-                        cancelHandler={cancelHandler}
+                        cancelHandler={() => onRemove("equipmentPropertyItem", "remove")}
                     />
                 </Form>
             }

@@ -12,8 +12,8 @@ import {
     GET_ALL_FILES,
     SET_LEGEND,
     SET_ALERT,
-    SET_ERROR_RECORD,
-    SET_ERROR_TABLE,
+    SET_ERROR_RECORD_LOGDO,
+    SET_ERROR_TABLE_LOGDO,
 } from "./logDO.constants";
 
 const ActionCreatorLogDO = {
@@ -103,16 +103,16 @@ const ActionCreatorLogDO = {
         }
     },
     // Установка ошибки для записи
-    setErrorRecord: (error) => {
+    setErrorRecordLogDO: (error) => {
         return {
-            type: SET_ERROR_RECORD,
+            type: SET_ERROR_RECORD_LOGDO,
             payload: error
         }
     },
     // Установка ошибки для таблицы
-    setErrorTable: (error) => {
+    setErrorTableLogDO: (error) => {
         return {
-            type: SET_ERROR_TABLE,
+            type: SET_ERROR_TABLE_LOGDO,
             payload: error
         }
     },

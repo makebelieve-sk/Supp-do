@@ -3,14 +3,15 @@ import React, {useMemo} from "react";
 import {Button, Col, Form, Input, Row, Select, Tooltip} from "antd";
 import {DeleteOutlined, PlusOutlined} from "@ant-design/icons";
 
-import {openRecordTab} from "../../../helpers/mappers/tabs.mappers/table.helper";
-
-import "./characteristic.css";
 import store from "../../../redux/store";
 import {ActionCreator} from "../../../redux/combineActions";
+import {openRecordTab} from "../../../helpers/mappers/tabs.mappers/table.helper";
 import {checkRoleUser} from "../../../helpers/mappers/general.mappers/checkRoleUser";
+import {getOptions} from "../../../tabs/tab.functions";
 
-export const CharacteristicComponent = ({equipmentPropertyToOptions, dropdownRender, loadingSelectCharacteristics, setLoadingSelectCharacteristics, setEquipmentPropertyToOptions, form, user}) => {
+import "./characteristic.css";
+
+export const CharacteristicComponent = ({form, user}) => {
     // Добавление строки во вкладке "Характеристики"
     const addRowProperty = (index, add, fields) => {
         if (index === fields.length - 1) {
@@ -41,9 +42,7 @@ export const CharacteristicComponent = ({equipmentPropertyToOptions, dropdownRen
                                                     option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
                                                 }
                                                 onClick={() => addRowProperty(index, add, fields)}
-                                                options={equipmentPropertyToOptions}
-                                                onDropdownVisibleChange={open => dropdownRender(open, setLoadingSelectCharacteristics, setEquipmentPropertyToOptions, "equipmentProperty")}
-                                                loading={loadingSelectCharacteristics}
+                                                options={getOptions(store.getState().reducerEquipmentProperty.equipmentProperties)}
                                             />
                                         </Form.Item>
                                     </Col>
@@ -112,5 +111,5 @@ export const CharacteristicComponent = ({equipmentPropertyToOptions, dropdownRen
                 </>
             }}
         </Form.List>
-    ), [equipmentPropertyToOptions, dropdownRender, loadingSelectCharacteristics, setEquipmentPropertyToOptions, setLoadingSelectCharacteristics, form, user])
+    ), [form, user])
 }

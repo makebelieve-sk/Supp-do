@@ -1,7 +1,7 @@
 // Компонент, возвращающий кнопку печати таблиц
 import React from "react";
 import ReactToPrint from "react-to-print";
-import {Button} from "antd";
+import {Button, message} from "antd";
 import {PrinterOutlined} from "@ant-design/icons";
 
 import PrintTable from "../../../options/tab.options/table.options/print-table";
@@ -44,10 +44,51 @@ export default class PrintButton extends React.Component {
                     onBeforeGetContent={() => {
                         const {name, getData} = getPrintTable(this.props.specKey);
 
-                        // Обновляем состояние данных таблицы
-                        this.setState({name, data: getData()});
+                        let data = getData();
+                        let result = [];
 
-                        return Promise.resolve();
+                        if (data && data.length) {
+                            data.forEach(printObj => {
+                                if (printObj.nameWithParent) {
+                                    const assign = Object.assign({}, printObj);
+
+                                    assign.name = assign.nameWithParent;
+                                    delete assign.nameWithParent;
+
+                                    result.push(assign);
+                                } else if (printObj.satisfies) {
+                                    const assign = Object.assign({}, printObj);
+
+                                    delete assign.satisfies;
+
+                                    result.push(assign);
+                                } else if (printObj.permissions) {
+                                    const assign = Object.assign({}, printObj);
+
+                                    delete assign.permissions;
+
+                                    result.push(assign);
+                                } else if (printObj.name && printObj.name.label) {
+                                    result.push({
+                                        ...printObj,
+                                        name: printObj.name.label
+                                    });
+                                } else {
+                                    result.push(printObj);
+                                }
+                            })
+                        }
+
+                        // Обновляем состояние данных таблицы
+                        this.setState({name, data: result});
+
+                        // Если записей в таблице нет, то не начинаем печатать
+                        if (getData() && getData().length) {
+                            return Promise.resolve();
+                        } else {
+                            message.warning("Записи в таблице отсутствуют").then(null);
+                            return Promise.reject();
+                        }
                     }}
                 />
 

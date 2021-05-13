@@ -137,7 +137,7 @@ const TasksColumns = [
 
             return {
                 props: {style: {background: record.color}},
-                children: formattedIsFinish,
+                children: <div style={{textAlign: "center"}}>{formattedIsFinish}</div>,
             };
         },
     },
@@ -193,7 +193,6 @@ const refDepartment = React.createRef();
 const refTask = React.createRef();
 const refState = React.createRef();
 const refPlanDateDone = React.createRef();
-// const refContent = React.createRef();
 
 // Создание колонок для раздела "Журнал дефектов и отказов"
 const LogDOColumns = [
@@ -595,51 +594,7 @@ const LogDOColumns = [
                     textToHighlight={text ? text.toString() : ""}
                 /> : text,
         })
-    },
-    // {
-    //     title: "Содержание работ",
-    //     dataIndex: "content",
-    //     key: "content",
-    //     width: 145,
-    //     ellipsis: {showTitle: false},
-    //     sorter: (a, b) => a.content.length - b.content.length,
-    //     sortDirections: ["descend", "ascend"],
-    //     filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}) => (
-    //         <div style={{padding: 8}}>
-    //             <Input
-    //                 ref={refContent}
-    //                 placeholder="Поиск по содержаниям работ"
-    //                 value={selectedKeys[0]}
-    //                 onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-    //                 onPressEnter={confirm}
-    //                 style={{width: 188, marginBottom: 8, display: "block"}}
-    //             />
-    //             <Space>
-    //                 <Button type="primary" onClick={confirm} icon={<SearchOutlined/>} size="small" style={{width: 90}}>
-    //                     Найти
-    //                 </Button>
-    //
-    //                 <Button onClick={clearFilters} size="small" style={{width: 90}}>
-    //                     Сбросить
-    //                 </Button>
-    //             </Space>
-    //         </div>
-    //     ),
-    //     filterIcon: filtered => <SearchOutlined style={{color: filtered ? "#1890ff" : undefined}}/>,
-    //     onFilter: (value, record) => record["content"].toString().toLowerCase().includes(value.toLowerCase()),
-    //     onFilterDropdownVisibleChange: visible =>
-    //         visible ? setTimeout(() => refContent.current.select(), 100) : null,
-    //     render: (text, record) => ({
-    //         props: {style: {background: record.color}},
-    //         children: refContent.current && refContent.current.props.value && refContent.current.props.value.length ?
-    //             <Highlighter
-    //                 highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
-    //                 searchWords={[refContent.current.props.value]}
-    //                 autoEscape
-    //                 textToHighlight={text ? text.toString() : ""}
-    //             /> : <Tooltip placement="topLeft" title={text}>{text}</Tooltip>,
-    //     })
-    // }
+    }
 ];
 
 // Создание колонок для раздела "Помощь"
@@ -760,53 +715,53 @@ const StatisticRatingColumns = [
         dataIndex: "equipment",
         key: "equipment",
         width: 100,
-        sorter: (a, b) => a.equipment.length - b.equipment.length,
-        sortDirections: ["descend", "ascend"],
+        sorter: (a, b) => b.equipment.length - a.equipment.length,
+        sortDirections: ["descend", "ascend"]
     },
     {
-        title: "Заявки, шт",
-        chidlren: [
-            {
-                title: "Не назначенные",
-                dataIndex: "notAssigned",
-                key: "notAssigned",
-                width: 100,
-                sorter: (a, b) => a.notAssigned.length - b.notAssigned.length,
-                sortDirections: ["descend", "ascend"],
-            },
-            {
-                title: "В работе",
-                dataIndex: "inWork",
-                key: "inWork",
-                width: 100,
-                sorter: (a, b) => a.inWork.length - b.inWork.length,
-                sortDirections: ["descend", "ascend"],
-            },
-            {
-                title: "Выполненные",
-                dataIndex: "done",
-                key: "done",
-                width: 100,
-                sorter: (a, b) => a.done.length - b.done.length,
-                sortDirections: ["descend", "ascend"],
-            },
-            {
-                title: "Принятые",
-                dataIndex: "accept",
-                key: "accept",
-                width: 100,
-                sorter: (a, b) => a.accept.length - b.accept.length,
-                sortDirections: ["descend", "ascend"],
-            },
-        ]
+        title: "Не назначенные заявки",
+        dataIndex: "notAssigned",
+        key: "notAssigned",
+        width: 100,
+        sorter: (a, b) => a.notAssigned > b.notAssigned ? 1 : -1,
+        sortDirections: ["descend", "ascend"],
+        align: "center"
+    },
+    {
+        title: "Заявки в работе",
+        dataIndex: "inWork",
+        key: "inWork",
+        width: 100,
+        sorter: (a, b) => a.inWork > b.inWork ? 1 : -1,
+        sortDirections: ["descend", "ascend"],
+        align: "center"
+    },
+    {
+        title: "Выполненные заявки",
+        dataIndex: "done",
+        key: "done",
+        width: 100,
+        sorter: (a, b) => a.done > b.done ? 1 : -1,
+        sortDirections: ["descend", "ascend"],
+        align: "center"
+    },
+    {
+        title: "Принятые заявки",
+        dataIndex: "accept",
+        key: "accept",
+        width: 100,
+        sorter: (a, b) => a.accept > b.accept ? 1 : -1,
+        sortDirections: ["descend", "ascend"],
+        align: "center"
     },
     {
         title: "Кол-во отказов, шт",
         dataIndex: "failure",
         key: "failure",
         width: 100,
-        sorter: (a, b) => a.failure.length - b.failure.length,
+        sorter: (a, b) => a.failure > b.failure ? 1 : -1,
         sortDirections: ["descend", "ascend"],
+        align: "center"
     },
     {
         title: "Общая продолжительность простоев, ч",
@@ -815,6 +770,7 @@ const StatisticRatingColumns = [
         width: 100,
         sorter: (a, b) => a.during.length - b.during.length,
         sortDirections: ["descend", "ascend"],
+        align: "center"
     },
 ];
 
@@ -827,6 +783,10 @@ const StatisticListColumns = [
         width: 100,
         sorter: (a, b) => a.equipment.length - b.equipment.length,
         sortDirections: ["descend", "ascend"],
+        render: (text, record) => ({
+            props: {style: {background: record.color}},
+            children: <Tooltip placement="topLeft" title={record.equipmentTooltip}>{text}</Tooltip>,
+        })
     },
     {
         title: "Описание",
@@ -835,6 +795,10 @@ const StatisticListColumns = [
         width: 100,
         sorter: (a, b) => a.notes.length - b.notes.length,
         sortDirections: ["descend", "ascend"],
+        render: (text, record) => ({
+            props: {style: {background: record.color}},
+            children: text,
+        })
     },
     {
         title: "Исполнитель",
@@ -843,14 +807,22 @@ const StatisticListColumns = [
         width: 100,
         sorter: (a, b) => a.applicant.length - b.applicant.length,
         sortDirections: ["descend", "ascend"],
+        render: (text, record) => ({
+            props: {style: {background: record.color}},
+            children: text,
+        })
     },
     {
         title: "Статус",
-        dataIndex: "status",
-        key: "status",
+        dataIndex: "taskStatus",
+        key: "taskStatus",
         width: 100,
-        sorter: (a, b) => a.status.length - b.status.length,
+        sorter: (a, b) => a.taskStatus.length - b.taskStatus.length,
         sortDirections: ["descend", "ascend"],
+        render: (text, record) => ({
+            props: {style: {background: record.color}},
+            children: record.taskStatus ? record.taskStatus.name : "",
+        })
     },
     {
         title: "Продолжительность, ч",
@@ -859,6 +831,11 @@ const StatisticListColumns = [
         width: 100,
         sorter: (a, b) => a.during.length - b.during.length,
         sortDirections: ["descend", "ascend"],
+        render: (text, record) => ({
+            props: {style: {background: record.color ? record.color : "fff"}},
+            children: text,
+        }),
+        align: "center"
     },
 ];
 

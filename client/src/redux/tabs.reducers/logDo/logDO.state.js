@@ -11,8 +11,8 @@ const initialState = {
         moment().endOf("month").format(TabOptions.dateFormat),
     legend: null,           // Легенда статусов
     alert: null,            // Блок, появляющийся после перехода в таблицу ЖДО с Аналитики
-    errorRecord: null,      // Ошибка в записи
-    errorTable: null,       // Ошибка в таблице
+    errorRecordLogDO: null,      // Ошибка в записи
+    errorTableLogDO: null,       // Ошибка в таблице
 };
 
 export default initialState;

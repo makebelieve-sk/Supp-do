@@ -11,7 +11,7 @@ export const TaskTab = () => {
     const {item, loadingSkeleton, error} = useSelector((state) => ({
         item: state.reducerTask.rowDataTask,
         loadingSkeleton: state.reducerLoading.loadingSkeleton,
-        error: state.reducerTask.errorRecord
+        error: state.reducerTask.errorRecordTask
     }));
 
     const display = loadingSkeleton ? "none" : "block"; // Установка стиля отображения содержимого вкладки

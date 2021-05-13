@@ -5,8 +5,8 @@ import {
     DELETE_PROFESSION,
     GET_ALL_PROFESSIONS,
     SET_ROW_DATA_PROFESSION,
-    SET_ERROR_RECORD,
-    SET_ERROR_TABLE,
+    SET_ERROR_RECORD_PROFESSION,
+    SET_ERROR_TABLE_PROFESSION,
 } from "./profession.constants";
 
 const ActionCreatorProfession = {
@@ -47,16 +47,16 @@ const ActionCreatorProfession = {
         }
     },
     // Установка ошибки для записи
-    setErrorRecord: (error) => {
+    setErrorRecordProfession: (error) => {
         return {
-            type: SET_ERROR_RECORD,
+            type: SET_ERROR_RECORD_PROFESSION,
             payload: error
         }
     },
     // Установка ошибки для таблицы
-    setErrorTable: (error) => {
+    setErrorTableProfession: (error) => {
         return {
-            type: SET_ERROR_TABLE,
+            type: SET_ERROR_TABLE_PROFESSION,
             payload: error
         }
     },

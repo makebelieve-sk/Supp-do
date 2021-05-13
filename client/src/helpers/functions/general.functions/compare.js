@@ -5,6 +5,8 @@
  * @returns возвращается булево значение {boolean}
  */
 function compareArrays(array1, array2) {
+    if (!array1.length || !array2.length) return true;
+
     const sortArray1 = array1.sort();
     const sortArray2 = array2.sort();
 

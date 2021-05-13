@@ -1,53 +1,30 @@
 // Компонент формы записи раздела "Оборудование"
-import React, {useContext, useEffect, useMemo, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Card, Form, Input, Select, Tabs} from "antd";
 
 import store from "../../redux/store";
 import {ActionCreator} from "../../redux/combineActions";
-import {DeleteTabContext} from "../../context/deleteTab.context";
 import {EquipmentRoute} from "../../routes/route.Equipment";
 import {CharacteristicComponent} from "../../components/tab.components/characteristic/characteristic.component";
 import {UploadComponent} from "../../components/tab.components/upload/upload.component";
-import {dropdownRender, getOptions, onFailed, TabButtons} from "../tab.functions";
-import {getParents} from "../../helpers/functions/general.functions/replaceField";
+import {getOptions, onFailed, TabButtons} from "../tab.functions";
 
 export const EquipmentForm = ({item}) => {
-    // Инициализация стейта для показа спиннера загрузки при сохранении/удалении записи, обновлении выпадающих списков
-    // и списка файлов
+    // Инициализация стейта для показа спиннера загрузки при сохранении/удалении записи и списка файлов
     const [loadingSave, setLoadingSave] = useState(false);
-    const [loadingEquipment, setLoadingEquipment] = useState(false);
-    const [loadingSelectCharacteristics, setLoadingSelectCharacteristics] = useState(false);
     const [loadingCancel, setLoadingCancel] = useState(false);
 
-    // Пустое значение выпадающего списка
-    const emptyDropdown = useMemo(() => [{label: "Не выбрано", value: null}], []);
-
-    const equipment = store.getState().reducerEquipment.equipment;  // Получаем список оборудования
-    const equipmentProperties = store.getState().reducerEquipmentProperty.equipmentProperties;  // Получаем список характеристик
-    const user = store.getState().reducerAuth.user; // Получаем объект пользователя
-
-    // Создание стейта для значений в выпадающих списках
-    const [options, setOptions] = useState(item.parent ? [{label: getParents(item.parent, equipment) + item.parent.name, value: item.parent._id}] : emptyDropdown);
-    const [equipmentPropertyToOptions, setEquipmentPropertyToOptions] = useState(getOptions(equipmentProperties));
+    // Получаем объект пользователя
+    const user = store.getState().reducerAuth.user;
 
     // Инициализируем хук состояния формы от AntDesign
     const [form] = Form.useForm();
-
-    // Получаем функцию удаления вкладки onRemove из контекста
-    const onRemove = useContext(DeleteTabContext);
 
     // Создание заголовка раздела и имени формы
     const title = item.isNewItem ? "Создание оборудования" : "Редактирование оборудования";
 
     // Изменение значений формы
     useEffect(() => {
-        const equipment = store.getState().reducerEquipment.equipment;
-        const equipmentProperties = store.getState().reducerEquipmentProperty.equipmentProperties;
-
-        // Обновление выпадающих списков
-        setOptions(item.parent ? [{label: getParents(item.parent, equipment) + item.parent.name, value: item.parent._id}] : emptyDropdown);
-        setEquipmentPropertyToOptions(getOptions(equipmentProperties));
-
         let characteristicArr = [];
 
         // Начальное значение выбранного элемента в выпадающих списках на вкладке Характеристики
@@ -60,10 +37,6 @@ export const EquipmentForm = ({item}) => {
 
                 characteristicArr.push(obj);
             });
-
-            // if (!item.properties.includes({_id: null, value: ""})) {
-            //     characteristicArr.push({equipmentProperty: null, value: ""});
-            // }
         }
 
         // Установка значений формы
@@ -75,7 +48,7 @@ export const EquipmentForm = ({item}) => {
             parent: item.parent ? item.parent._id : null,
             properties: item.properties && item.properties.length ? characteristicArr : [{equipmentProperty: null, value: ""}]
         });
-    }, [form, item, emptyDropdown]);
+    }, [form, item]);
 
     // Обработка нажатия на кнопку "Сохранить"
     const saveHandler = async (values) => {
@@ -98,26 +71,17 @@ export const EquipmentForm = ({item}) => {
 
         values.files = files;
 
-        await EquipmentRoute.save(values, setLoadingSave, onRemove, equipment);
+        await EquipmentRoute.save(values, setLoadingSave, equipment);
     };
 
     // Обработка нажатия на кнопку "Удалить"
-    const deleteHandler = async (setLoadingDelete, setVisiblePopConfirm) => {
-        await EquipmentRoute.delete(item._id, setLoadingDelete, setVisiblePopConfirm, onRemove);
-    };
+    const deleteHandler = async (setLoadingDelete, setVisiblePopConfirm) =>
+        await EquipmentRoute.delete(item._id, setLoadingDelete, setVisiblePopConfirm);
 
-    const cancelHandler = () => EquipmentRoute.cancel(onRemove, setLoadingCancel);
+    const cancelHandler = () => EquipmentRoute.cancel(setLoadingCancel);
 
     // Настройка компонента CharacteristicComponent (вкладка "Характеристики")
-    const characteristicProps = {
-        equipmentPropertyToOptions,
-        dropdownRender,
-        loadingSelectCharacteristics,
-        setLoadingSelectCharacteristics,
-        setEquipmentPropertyToOptions,
-        form,
-        user
-    };
+    const characteristicProps = {form, user};
 
     // Настройка компонента UploadComponent (вкладка "Файлы")
     const uploadProps = {
@@ -150,11 +114,7 @@ export const EquipmentForm = ({item}) => {
                                     filterOption={(input, option) =>
                                         option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
                                     }
-                                    options={options}
-                                    onDropdownVisibleChange={async open => {
-                                        await dropdownRender(open, setLoadingEquipment, setOptions, "equipment");
-                                    }}
-                                    loading={loadingEquipment}
+                                    options={getOptions(store.getState().reducerEquipment.equipment)}
                                     onChange={(value) => {
                                         const equipment = store.getState().reducerEquipment.equipment;
 

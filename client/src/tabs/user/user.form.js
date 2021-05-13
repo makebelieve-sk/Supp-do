@@ -1,31 +1,22 @@
 // Компонент формы записи раздела "Пользователи"
-import React, {useContext, useEffect, useMemo, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Button, Card, Checkbox, Col, Form, Input, Row, Select, Tooltip} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
 
-import {dropdownRender, onFailed, TabButtons} from "../tab.functions";
-import {DeleteTabContext} from "../../context/deleteTab.context";
+import {getOptions, onFailed, TabButtons} from "../tab.functions";
 import {UserRoute} from "../../routes/route.User";
 import store from "../../redux/store";
 import {ActionCreator} from "../../redux/combineActions";
 import {openRecordTab} from "../../helpers/mappers/tabs.mappers/table.helper";
 import {checkRoleUser} from "../../helpers/mappers/general.mappers/checkRoleUser";
+import {onRemove} from "../../components/content.components/content/content.component";
 
 export const UserForm = ({item}) => {
-    // Пустое значение выпадающего списка
-    const emptyDropdown = useMemo(() => [{label: "Не выбрано", value: null}], []);
-
-    const user = store.getState().reducerAuth.user; // Получаем объект пользователя
-
-    // Создание состояний для значений в выпадающих списках "Подразделения" и "Профессии"
-    const [options, setOptions] = useState(item.person ? [{
-        label: item.person.name,
-        value: item.person._id
-    }] : emptyDropdown);
+    // Получаем объект пользователя
+    const user = store.getState().reducerAuth.user;
 
     // Инициализация состояния для показа спиннера загрузки при сохранении и удалении записи
     const [loadingSave, setLoadingSave] = useState(false);
-    const [loadingOptions, setLoadingOptions] = useState(false);
 
     // Создание состояний для списка ролей
     const [checkboxOptions, setCheckboxOptions] = useState([]);
@@ -36,14 +27,8 @@ export const UserForm = ({item}) => {
     // Инициализируем хук состояния формы от AntDesign
     const [form] = Form.useForm();
 
-    // Получаем функцию удаления вкладки onRemove из контекста
-    const onRemove = useContext(DeleteTabContext);
-
     // При обновлении item устанавливаем форме начальные значения
     useEffect(() => {
-        // Обновление выпадающего списка
-        setOptions(item.person ? [{label: item.person.name, value: item.person._id}] : emptyDropdown);
-
         const roles = store.getState().reducerRole.roles;   // Получение списка ролей из хранилища
 
         // Получаем список всех чекбоксов (ролей)
@@ -80,7 +65,7 @@ export const UserForm = ({item}) => {
             approved: item.approved,
             roles: defaultChecked
         });
-    }, [item, form, emptyDropdown]);
+    }, [item, form]);
 
     // Обработка нажатия на кнопку "Сохранить"
     const saveHandler = async (values) => {
@@ -103,14 +88,12 @@ export const UserForm = ({item}) => {
             values.roles = result;
         }
 
-        await UserRoute.save(values, setLoadingSave, onRemove);
+        await UserRoute.save(values, setLoadingSave);
     }
 
     // Обработка нажатия на кнопку "Удалить"
     const deleteHandler = async (setLoadingDelete, setVisiblePopConfirm) =>
-        await UserRoute.delete(item._id, setLoadingDelete, setVisiblePopConfirm, onRemove);
-
-    const cancelHandler = () => UserRoute.cancel(onRemove);
+        await UserRoute.delete(item._id, setLoadingDelete, setVisiblePopConfirm);
 
     return (
         <Card.Meta
@@ -159,9 +142,7 @@ export const UserForm = ({item}) => {
                                                 filterOption={(input, option) =>
                                                     option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
                                                 }
-                                                options={options}
-                                                onDropdownVisibleChange={open => dropdownRender(open, setLoadingOptions, setOptions, "people")}
-                                                loading={loadingOptions}
+                                                options={getOptions(store.getState().reducerPerson.people)}
                                                 onChange={_id => {
                                                     const people = store.getState().reducerPerson.people;
 
@@ -320,7 +301,7 @@ export const UserForm = ({item}) => {
                         loadingSave={loadingSave}
                         item={item}
                         deleteHandler={deleteHandler}
-                        cancelHandler={cancelHandler}
+                        cancelHandler={() => onRemove("userItem", "remove")}
                     />
                 </Form>
             }

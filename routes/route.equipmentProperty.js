@@ -101,7 +101,18 @@ router.put("/equipmentProperties", checkMiddleware, async (req, res) => {
         const item = await EquipmentProperty.findById({_id});
 
         // Проверяем на существование записи с уникальным идентификатором
-        if (!item) return res.status(404).json({message: `Характеристика с кодом ${_id} не найдена`});
+        if (!item) return res.status(404).json({message: `Характеристика с именем ${name} (${_id}) не найдена`});
+
+        // Ищем все подразделения
+        const equipmentProperties = await EquipmentProperty.find({});
+
+        if (departments && equipmentProperties.length) {
+            for (let i = 0; i < equipmentProperties.length; i++) {
+                if (equipmentProperties[i].name === name && equipmentProperties[i]._id.toString() !== _id.toString()) {
+                    return res.status(400).json({message: "Характеристика с таким именем уже существует"});
+                }
+            }
+        }
 
         item.name = name;
         item.notes = notes;
@@ -120,9 +131,14 @@ router.delete("/equipmentProperties/:id", async (req, res) => {
     const _id = req.params.id;  // Получение id записи
 
     try {
-        await EquipmentProperty.deleteOne({_id});   // Удаление записи из базы данных по id записи
+        const item = await Department.findById({_id});  // Ищем текущую запись
 
-        res.status(200).json({message: "Характеристика успешно удалена"});
+        if (item) {
+            await EquipmentProperty.deleteOne({_id});   // Удаление записи из базы данных по id записи
+            return res.status(200).json({message: "Характеристика успешно удалена"});
+        } else {
+            return res.status(404).json({message: "Данная запись уже была удалена"});
+        }
     } catch (err) {
         console.log(err);
         res.status(500).json({message: `Ошибка при удалении характеристики с кодом ${_id}: ${err}`});

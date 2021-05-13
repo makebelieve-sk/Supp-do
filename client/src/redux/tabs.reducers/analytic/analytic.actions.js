@@ -2,7 +2,7 @@
 import {
     GET_ALL_ANALYTIC,
     GET_PREV_ANALYTIC_DATA,
-    SET_ERROR,
+    SET_ERROR_ANALYTIC,
 } from "./analytic.constants";
 
 const ActionCreatorAnalytic = {
@@ -21,9 +21,9 @@ const ActionCreatorAnalytic = {
         }
     },
     // Установка ошибки
-    setError: (error) => {
+    setErrorAnalytic: (error) => {
         return {
-            type: SET_ERROR,
+            type: SET_ERROR_ANALYTIC,
             payload: error
         }
     },

@@ -11,7 +11,7 @@ export const HelpTab = () => {
     const {item, loadingSkeleton, error} = useSelector((state) => ({
         item: state.reducerHelp.rowDataHelp,
         loadingSkeleton: state.reducerLoading.loadingSkeleton,
-        error: state.reducerHelp.errorRecord
+        error: state.reducerHelp.errorRecordHelp
     }));
 
     const display = loadingSkeleton ? "none" : "block"; // Установка стиля отображения содержимого вкладки

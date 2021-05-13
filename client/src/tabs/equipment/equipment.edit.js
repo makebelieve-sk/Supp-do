@@ -11,7 +11,7 @@ export const EquipmentTab = () => {
     const {item, loadingSkeleton, error} = useSelector((state) => ({
         item: state.reducerEquipment.rowDataEquipment,
         loadingSkeleton: state.reducerLoading.loadingSkeleton,
-        error: state.reducerEquipment.errorRecord
+        error: state.reducerEquipment.errorRecordEquipment
     }));
 
     const display = loadingSkeleton ? "none" : "block"; // Установка стиля отображения содержимого вкладки

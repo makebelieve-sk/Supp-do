@@ -2,8 +2,8 @@
 const initialState = {
     roles: [],              // Записи раздела
     rowDataRole: null,      // Редактируемая запись
-    errorRecord: null,      // Ошибка в записи
-    errorTable: null,       // Ошибка в таблице
+    errorRecordRole: null,      // Ошибка в записи
+    errorTableRole: null,       // Ошибка в таблице
 };
 
 export default initialState;

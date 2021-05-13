@@ -10,7 +10,7 @@ class AuthMiddleware {
         try {
             const method = req.method;
 
-            const url = req.url
+            let url = req.url
                 .replace("/api", "")
                 .replace("/directory", "")
                 .replace("/admin", "")
@@ -49,7 +49,7 @@ class AuthMiddleware {
 
             // Проверяем юрл, в двух случаях нужно только проверить авторизирован ли пользователь
             if (!req.url.includes("cancel") && !req.url.includes("delete") && !req.url.includes("upload")
-                && !req.url.includes("help/get")
+                && !req.url.includes("help/get") && !req.url.includes("/logDO/rating")
             ) {
                 // Находим текущего пользователя с ролями
                 const user = await User.findById({_id: decoded.userId}).populate("roles").select("roles");
@@ -57,6 +57,8 @@ class AuthMiddleware {
                 if (!user) return res.status(403).json({message: "Такого пользователя не существует"});
 
                 if (user.roles && user.roles.length) {
+                    if (url === "statistic-rating" || url === "statistic-list") url = "statistic";
+
                     const access = method === "GET" ? checkRoleUser(url, user).read : checkRoleUser(url, user).edit;
                     const accessAction = method === "GET" ? "просмотра" : "редактирования";
 

@@ -1,9 +1,10 @@
 // Компонент формы записи раздела "Профессии"
-import React, {useContext, useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Card, Form, Input} from "antd";
+
 import {onFailed, TabButtons} from "../tab.functions";
 import {ProfessionRoute} from "../../routes/route.profession";
-import {DeleteTabContext} from "../../context/deleteTab.context";
+import {onRemove} from "../../components/content.components/content/content.component";
 
 export const ProfessionForm = ({item}) => {
     // Инициализация состояния для показа спиннера загрузки при сохранении и удалении записи
@@ -14,9 +15,6 @@ export const ProfessionForm = ({item}) => {
 
     // Инициализируем хук состояния формы от AntDesign
     const [form] = Form.useForm();
-
-    // Получаем функцию удаления вкладки onRemove из контекста
-    const onRemove = useContext(DeleteTabContext);
 
     // При обновлении item устанавливаем форме начальные значения
     useEffect(() => {
@@ -29,14 +27,12 @@ export const ProfessionForm = ({item}) => {
     }, [item, form]);
 
     // Обработка нажатия на кнопку "Сохранить"
-    const saveHandler = async (values) => await ProfessionRoute.save(values, setLoadingSave, onRemove);
+    const saveHandler = async (values) => await ProfessionRoute.save(values, setLoadingSave);
 
     // Обработка нажатия на кнопку "Удалить"
     const deleteHandler = async (setLoadingDelete, setVisiblePopConfirm) => {
-        await ProfessionRoute.delete(item._id, setLoadingDelete, setVisiblePopConfirm, onRemove);
+        await ProfessionRoute.delete(item._id, setLoadingDelete, setVisiblePopConfirm);
     };
-
-    const cancelHandler = () => ProfessionRoute.cancel(onRemove);
 
     return (
         <Card.Meta
@@ -69,7 +65,7 @@ export const ProfessionForm = ({item}) => {
                         loadingSave={loadingSave}
                         item={item}
                         deleteHandler={deleteHandler}
-                        cancelHandler={cancelHandler}
+                        cancelHandler={() => onRemove("professionItem", "remove")}
                     />
                 </Form>
             }

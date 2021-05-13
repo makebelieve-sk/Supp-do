@@ -11,7 +11,7 @@ export const RoleTab = () => {
     const {item, loadingSkeleton, error} = useSelector((state) => ({
         item: state.reducerRole.rowDataRole,
         loadingSkeleton: state.reducerLoading.loadingSkeleton,
-        error: state.reducerRole.errorRecord
+        error: state.reducerRole.errorRecordRole
     }));
 
     const display = loadingSkeleton ? "none" : "block"; // Установка стиля отображения содержимого вкладки

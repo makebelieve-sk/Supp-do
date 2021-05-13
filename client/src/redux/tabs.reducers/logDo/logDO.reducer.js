@@ -13,8 +13,8 @@ import {
     GET_ALL_FILES,
     SET_LEGEND,
     SET_ALERT,
-    SET_ERROR_RECORD,
-    SET_ERROR_TABLE,
+    SET_ERROR_RECORD_LOGDO,
+    SET_ERROR_TABLE_LOGDO,
 } from "./logDO.constants";
 
 export default function reducerLogDO(state = initialState, action) {
@@ -82,15 +82,15 @@ export default function reducerLogDO(state = initialState, action) {
                 ...state,
                 alert: action.payload
             };
-        case SET_ERROR_RECORD:
+        case SET_ERROR_RECORD_LOGDO:
             return {
                 ...state,
-                errorRecord: action.payload
+                errorRecordLogDO: action.payload
             };
-        case SET_ERROR_TABLE:
+        case SET_ERROR_TABLE_LOGDO:
             return {
                 ...state,
-                errorTable: action.payload
+                errorTableLogDO: action.payload
             };
         default:
             return state;

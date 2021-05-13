@@ -12,8 +12,8 @@ import {
     ADD_FILE,
     DELETE_FILE,
     GET_ALL_FILES,
-    SET_ERROR_RECORD,
-    SET_ERROR_TABLE,
+    SET_ERROR_RECORD_EQUIPMENT,
+    SET_ERROR_TABLE_EQUIPMENT,
 } from "./equipment.constants";
 
 const ActionCreatorEquipment = {
@@ -104,16 +104,16 @@ const ActionCreatorEquipment = {
         }
     },
     // Установка ошибки для записи
-    setErrorRecord: (error) => {
+    setErrorRecordEquipment: (error) => {
         return {
-            type: SET_ERROR_RECORD,
+            type: SET_ERROR_RECORD_EQUIPMENT,
             payload: error
         }
     },
     // Установка ошибки для таблицы
-    setErrorTable: (error) => {
+    setErrorTableEquipment: (error) => {
         return {
-            type: SET_ERROR_TABLE,
+            type: SET_ERROR_TABLE_EQUIPMENT,
             payload: error
         }
     },

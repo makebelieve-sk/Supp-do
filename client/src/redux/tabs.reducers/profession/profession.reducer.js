@@ -6,8 +6,8 @@ import {
     DELETE_PROFESSION,
     GET_ALL_PROFESSIONS,
     SET_ROW_DATA_PROFESSION,
-    SET_ERROR_RECORD,
-    SET_ERROR_TABLE,
+    SET_ERROR_RECORD_PROFESSION,
+    SET_ERROR_TABLE_PROFESSION,
 } from "./profession.constants";
 
 export default function reducerProfession(state = initialState, action) {
@@ -39,15 +39,15 @@ export default function reducerProfession(state = initialState, action) {
                 ...state,
                 rowDataProfession: action.payload
             };
-        case SET_ERROR_RECORD:
+        case SET_ERROR_RECORD_PROFESSION:
             return {
                 ...state,
-                errorRecord: action.payload
+                errorRecordProfession: action.payload
             };
-        case SET_ERROR_TABLE:
+        case SET_ERROR_TABLE_PROFESSION:
             return {
                 ...state,
-                errorTable: action.payload
+                errorTableProfession: action.payload
             };
         default:
             return state;

@@ -2,8 +2,8 @@
 const initialState = {
     tasks: [],              // Записи журнала
     rowDataTask: null,      // Редактируемая запись
-    errorRecord: null,      // Ошибка в записи
-    errorTable: null,       // Ошибка в таблице
+    errorRecordTask: null,      // Ошибка в записи
+    errorTableTask: null,       // Ошибка в таблице
 };
 
 export default initialState;

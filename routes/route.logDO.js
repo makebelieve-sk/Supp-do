@@ -92,7 +92,7 @@ router.get("/logDO/:id", async (req, res) => {
             isNewItem = false;
         }
 
-        if (!item) return res.status(500).json({message: `Запись с кодом ${_id} не существует`});
+        if (!item) return res.status(400).json({message: `Запись с кодом ${_id} не существует`});
 
         res.status(200).json({logDo: item, isNewItem});
     } catch (e) {
@@ -384,7 +384,7 @@ router.put("/logDO", checkMiddleware, async (req, res) => {
         const item = await LogDO.findById({_id});   // Ищем запись в базе данных по уникальному идентификатору
 
         // Проверяем на существование записи с уникальным идентификатором
-        if (!item) return res.status(404).json({message: `Запись с кодом ${_id} не найдена`});
+        if (!item) return res.status(404).json({message: `Запись с именем ${name} (${_id}) не найдена`});
 
         // Если исполнитель не существует, то высчитываем время с момента назначения до момента создания заявки
         if (!item.responsible && responsible)
@@ -494,9 +494,14 @@ router.delete("/logDO/:id", async (req, res) => {
     const _id = req.params.id;  // Получение id записи
 
     try {
-        await LogDO.deleteOne({_id});   // Удаление записи из базы данных по id записи
+        const item = await LogDO.findById({_id});  // Ищем текущую запись
 
-        res.status(200).json({message: "Запись успешно удалена"});
+        if (item) {
+            await LogDO.deleteOne({_id});   // Удаление записи из базы данных по id записи
+            return res.status(200).json({message: "Запись успешно удалена"});
+        } else {
+            return res.status(404).json({message: "Данная запись уже была удалена"});
+        }
     } catch (e) {
         res.status(500).json({message: `Ошибка при удалении записи с кодом ${_id}`});
     }

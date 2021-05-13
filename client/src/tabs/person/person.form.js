@@ -1,59 +1,28 @@
 // Компонент формы записи раздела "Персонал"
-import React, {useContext, useEffect, useMemo, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Button, Card, Col, Form, Input, Row, Select, Tooltip} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
 
 import store from "../../redux/store";
 import {PersonRoute} from "../../routes/route.Person";
-import {DeleteTabContext} from "../../context/deleteTab.context";
-import {dropdownRender, onFailed, TabButtons} from "../tab.functions";
+import {getOptions, onFailed, TabButtons} from "../tab.functions";
 import {openRecordTab} from "../../helpers/mappers/tabs.mappers/table.helper";
-import {getParents} from "../../helpers/functions/general.functions/replaceField";
 import {ActionCreator} from "../../redux/combineActions";
 import {checkRoleUser} from "../../helpers/mappers/general.mappers/checkRoleUser";
+import {onRemove} from "../../components/content.components/content/content.component";
 
 export const PersonForm = ({item}) => {
-    // Пустое значение выпадающего списка
-    const emptyDropdown = useMemo(() => [{label: "Не выбрано", value: null}], []);
-
-    const departments = store.getState().reducerDepartment.departments; // Получаем список подразделений
-    const user = store.getState().reducerAuth.user; // Получаем объект пользователя
-
-    // Создание состояний для значений в выпадающих списках "Подразделения" и "Профессии"
-    const [departmentsOptions, setDepartmentsOptions] = useState(item.department ? [{
-        label: getParents(item.department, departments) + item.department.name,
-        value: item.department._id
-    }] : emptyDropdown);
-    const [professionsOptions, setProfessionsOptions] = useState(item.profession ? [{
-        label: item.profession.name,
-        value: item.profession._id
-    }] : emptyDropdown);
+    // Получаем объект пользователя
+    const user = store.getState().reducerAuth.user;
 
     // Инициализация состояний для показа спиннера загрузки при сохранении записи и в выпадающих меню
     const [loadingSave, setLoadingSave] = useState(false);
-    const [loadingDepartment, setLoadingDepartment] = useState(false);
-    const [loadingSelectProfession, setLoadingSelectProfession] = useState(false);
 
     // Создание хука form
     const [form] = Form.useForm();
 
-    // Получаем функцию удаления вкладки onRemove из контекста
-    const onRemove = useContext(DeleteTabContext);
-
     // Изменение значений формы
     useEffect(() => {
-        const departments = store.getState().reducerDepartment.departments;
-
-        // Обновление выпадающих списков
-        setDepartmentsOptions(item.department ? [{
-            label: getParents(item.department, departments) + item.department.name,
-            value: item.department._id
-        }] : emptyDropdown);
-        setProfessionsOptions(item.profession ? [{
-            label: item.profession.name,
-            value: item.profession._id
-        }] : emptyDropdown);
-
         // Установка значений формы
         form.setFieldsValue({
             _id: item._id,
@@ -63,7 +32,7 @@ export const PersonForm = ({item}) => {
             department: item.department ? item.department._id : null,
             profession: item.profession ? item.profession._id : null
         });
-    }, [form, item, emptyDropdown]);
+    }, [form, item]);
 
     // Создание заголовка раздела и имени формы
     const title = item.isNewItem ? "Создание записи о сотруднике" : "Редактирование записи о сотруднике";
@@ -79,15 +48,12 @@ export const PersonForm = ({item}) => {
         values.department = departments.find(department => department._id === values.department);
         values.profession = professions.find(profession => profession._id === values.profession);
 
-        await PersonRoute.save(values, setLoadingSave, onRemove);
+        await PersonRoute.save(values, setLoadingSave);
     };
 
     // Обработка нажатия на кнопку "Удалить"
-    const deleteHandler = async (setLoadingDelete, setVisiblePopConfirm) => {
-        await PersonRoute.delete(item._id, setLoadingDelete, setVisiblePopConfirm, onRemove);
-    };
-
-    const cancelHandler = () => PersonRoute.cancel(onRemove);
+    const deleteHandler = async (setLoadingDelete, setVisiblePopConfirm) =>
+        await PersonRoute.delete(item._id, setLoadingDelete, setVisiblePopConfirm);
 
     return (
         <Card.Meta
@@ -122,9 +88,7 @@ export const PersonForm = ({item}) => {
                                         filterOption={(input, option) =>
                                             option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
                                         }
-                                        options={departmentsOptions}
-                                        onDropdownVisibleChange={open => dropdownRender(open, setLoadingDepartment, setDepartmentsOptions, "departments")}
-                                        loading={loadingDepartment}
+                                        options={getOptions(store.getState().reducerDepartment.departments)}
                                         onChange={_id => {
                                             const departments = store.getState().reducerDepartment.departments;
 
@@ -183,9 +147,7 @@ export const PersonForm = ({item}) => {
                                         filterOption={(input, option) =>
                                             option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
                                         }
-                                        options={professionsOptions}
-                                        onDropdownVisibleChange={open => dropdownRender(open, setLoadingSelectProfession, setProfessionsOptions, "professions")}
-                                        loading={loadingSelectProfession}
+                                        options={getOptions(store.getState().reducerProfession.professions)}
                                         onChange={_id => {
                                             const professions = store.getState().reducerProfession.professions;
 
@@ -243,7 +205,7 @@ export const PersonForm = ({item}) => {
                         loadingSave={loadingSave}
                         item={item}
                         deleteHandler={deleteHandler}
-                        cancelHandler={cancelHandler}
+                        cancelHandler={() => onRemove("personItem", "remove")}
                     />
                 </Form>
             }

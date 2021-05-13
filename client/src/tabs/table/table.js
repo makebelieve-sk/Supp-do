@@ -1,23 +1,21 @@
-import moment from "moment";
+// Компонент таблицы
 import React, {useState, useMemo} from "react";
-import {useSelector, useDispatch} from "react-redux";
-import {message, Row, Table, DatePicker, Col, Badge, Alert} from "antd";
-import {FilterOutlined} from "@ant-design/icons";
+import {useSelector} from "react-redux";
+import {Row, Table, Col} from "antd";
 
-import store from "../../redux/store";
-import {ActionCreator} from "../../redux/combineActions";
-import {LogDORoute} from "../../routes/route.LogDO";
-import {Header} from "../../components/tab.components/tabsHeader/tableHeader.component";
-import {ButtonsComponent} from "../../components/tab.components/tableButtons/tableButtons.component";
 import getTableData from "../../helpers/mappers/tabs.mappers/getTableData";
 import {getColumns, openRecordTab} from "../../helpers/mappers/tabs.mappers/table.helper";
-import TabOptions from "../../options/tab.options/record.options/record.options";
 import tableSettings from "../../options/tab.options/table.options/settings";
 import {getFilteredData} from "../../options/global.options/global.options";
+import {TableHeaderComponent} from "../../components/tab.components/tableHeader/tableHeader.component";
+import {TableAlertComponent} from "../../components/tab.components/tableAlert/tableAlert.component";
+import {TableBadgeComponent} from "../../components/tab.components/tableBadge/tableBadge.component";
 
 import "./table.css";
-
-const {RangePicker} = DatePicker;
+import {StatisticRatingRoute} from "../../routes/route.StatisticRating";
+import {StatisticListRoute} from "../../routes/route.StatisticList";
+import store from "../../redux/store";
+import {goToLogDO} from "../../components/content.components/analytic/analytic.component";
 
 export const TableComponent = ({specKey}) => {
     // Получение индикатора загрузки таблицы и записей всех разделов
@@ -33,30 +31,19 @@ export const TableComponent = ({specKey}) => {
         help: state.reducerHelp.help,
         users: state.reducerUser.users,
         roles: state.reducerRole.roles,
-        statisticRating: state.reducerStatistic.statistic.rating,
-        statisticList: state.reducerStatistic.statistic.list,
-        date: state.reducerLogDO.date,
+        statisticRating: state.reducerStatistic.statisticRating,
+        statisticList: state.reducerStatistic.statisticList,
         legend: state.reducerLogDO.legend,
         alert: state.reducerLogDO.alert,
         activeKey: state.reducerTab.activeKey,
     }));
-    const dispatch = useDispatch();
 
     // Получение колонок для таблицы и состояния для редактирования записи
     const columns = useMemo(() => getColumns(specKey), [specKey]);
 
-    // Установка времени в датапикере
-    const date = stateObject.date
-        ? [moment(stateObject.date.split("/")[0], TabOptions.dateFormat),
-            moment(stateObject.date.split("/")[1], TabOptions.dateFormat)]
-        : [moment().startOf(("month")), moment().endOf(("month"))];
-
     // Создание стейта для текстового поля, отфильтрованных колонок, выбранных колонок и начальных колонок
     const [filterText, setFilterText] = useState("");
     const [columnsTable, setColumnsTable] = useState(columns);
-
-    // Инициализация состояний для отступа снизу алерта
-    const [marginBottomAlert, setMarginBottomAlert] = useState("20px");
 
     // Получение данных для таблицы
     const data = getTableData(specKey, stateObject[specKey]);
@@ -114,97 +101,19 @@ export const TableComponent = ({specKey}) => {
         });
     }
 
-    // Реализация экспорта
-    const onExport = () => data && data.length > 0 ?
-        tableSettings.export(data, specKey) : message.error("Записи в таблице отсутствуют");
-
-    // Изменение времени в датапикере
-    const onChange = async (value, dateString) => {
-        const date = dateString[0] + "/" + dateString[1];
-
-        await LogDORoute.getAll(date);
-
-        // Записываем текущий диапазон даты в хранилище
-        dispatch(ActionCreator.ActionCreatorLogDO.setDate(date));
-    }
-
-    /**
-     * Функция закрытия алерта
-     * @returns {Promise<void>}
-     */
-    const closeAlert = async () => {
-        setMarginBottomAlert("0px");      // Убираем отступ после алерта
-        store.dispatch(ActionCreator.ActionCreatorLogDO.setAlert(null));    // Обновляем фильтр таблицы
-        // Обновляем датапикер
-        store.dispatch(ActionCreator.ActionCreatorLogDO.setDate(moment().startOf("month").format(TabOptions.dateFormat) + "/" +
-            moment().endOf("month").format(TabOptions.dateFormat)));
-        await LogDORoute.getAll();              // Обновляем данные в таблице
-    }
-
     return (
         <>
-            <Row className="container" justify="space-between" align="middle" gutter={16}>
-                <Col flex="1 1 auto" className="item">
-                    <Header filterText={filterText} setFilterText={setFilterText}/>
-                </Col>
+            <TableHeaderComponent
+                data={data}
+                specKey={specKey}
+                filterText={filterText}
+                setFilterText={setFilterText}
+                setColumnsTable={setColumnsTable}
+            />
 
-                <Col flex="1 1 auto" className="item">
-                    {
-                        specKey === "logDO"
-                            ?
-                                <RangePicker
-                                    allowClear={false}
-                                    showTime={{format: "HH:mm"}}
-                                    format={TabOptions.dateFormat}
-                                    onChange={onChange}
-                                    value={date}
-                                    style={{width: "100%"}}
-                                />
-                        : null
-                }
-                </Col>
+            <TableBadgeComponent legend={stateObject.legend} specKey={specKey}/>
 
-                <Col flex="0 1 auto">
-                    <ButtonsComponent specKey={specKey} onExport={onExport} setColumnsTable={setColumnsTable}/>
-                </Col>
-            </Row>
-
-            {
-                stateObject.legend && specKey === "logDO"
-                    ? <Row className="row-badges">
-                        {stateObject.legend.map(legend => (
-                            <Col key={legend.id} className="col-badge">
-                                <Badge
-                                    count={`${legend.name} ${legend.count}`}
-                                    style={{
-                                        backgroundColor: legend.color,
-                                        borderColor: legend.borderColor ?  legend.borderColor : "#1f1f1f",
-                                        color: legend.borderColor ?  legend.borderColor : "#1f1f1f",
-                                        height: "30px", lineHeight: "30px", paddingLeft: "15px", paddingRight: "15px"
-                                    }}
-                                />
-                            </Col>
-                        ))}
-                    </Row>
-                    : null
-            }
-
-            {
-                stateObject.alert && specKey === "logDO"
-                    ? <Row style={{marginBottom: marginBottomAlert}}>
-                        <Col>
-                            <Alert
-                                message={stateObject.alert}
-                                type="warning"
-                                icon={<FilterOutlined/>}
-                                showIcon
-                                closable
-                                onClose={closeAlert}
-                            />
-                        </Col>
-                    </Row>
-                    : null
-            }
+            <TableAlertComponent alert={stateObject.alert} specKey={specKey}/>
 
             <Row>
                 <Col span={24}>
@@ -216,7 +125,24 @@ export const TableComponent = ({specKey}) => {
                         dataSource={columnsTable && columnsTable.length === 0 ? null : Array.from(filteredItems)}
                         columns={columnsTable}
                         rowKey={record => record._id.toString()}
-                        onRow={row => ({onClick: () => openRecordTab(specKey, row._id)})}
+                        onRow={row => ({
+                            onClick: async () => {
+                                if (specKey === "statisticRating" || specKey === "statisticList") {
+                                    specKey === "statisticRating"
+                                        ? await goToLogDO("/rating", {
+                                            satisfies: row.satisfies,
+                                            equipment: row.equipment,
+                                            date: store.getState().reducerStatistic.dateRating
+                                        })
+
+                                        : await goToLogDO("/list", {
+                                            date: store.getState().reducerStatistic.dateList
+                                        });
+                                } else {
+                                    openRecordTab(specKey, row._id);
+                                }
+                            }
+                        })}
                         loading={stateObject.loadingTable}
                         className={specKey === "logDO" ? "table-logDo" : "table-usual"}
                     />

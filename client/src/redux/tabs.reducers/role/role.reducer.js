@@ -6,8 +6,8 @@ import {
     DELETE_ROLE,
     GET_ALL_ROLES,
     SET_ROW_DATA_ROLE,
-    SET_ERROR_RECORD,
-    SET_ERROR_TABLE,
+    SET_ERROR_RECORD_ROLE,
+    SET_ERROR_TABLE_ROLE,
 } from "./role.constants";
 
 export default function reducerRole(state = initialState, action) {
@@ -39,15 +39,15 @@ export default function reducerRole(state = initialState, action) {
                 ...state,
                 rowDataRole: action.payload
             };
-        case SET_ERROR_RECORD:
+        case SET_ERROR_RECORD_ROLE:
             return {
                 ...state,
-                errorRecord: action.payload
+                errorRecordRole: action.payload
             };
-        case SET_ERROR_TABLE:
+        case SET_ERROR_TABLE_ROLE:
             return {
                 ...state,
-                errorTable: action.payload
+                errorTableRole: action.payload
             };
         default:
             return state;

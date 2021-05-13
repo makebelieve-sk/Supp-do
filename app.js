@@ -29,6 +29,7 @@ app.use("/api/auth", require("./routes/route.auth"));
 // Для всех роутов, указанных ниже, используется мидлвар проверки авторизации и ролей пользователя
 // Разделы приложения
 app.use("/api/analytic", AuthMiddleware.checkAuth, require("./routes/route.analytic"));
+app.use("/api/analytic", AuthMiddleware.checkAuth, require("./routes/route.statistic"));
 app.use("/api/directory", AuthMiddleware.checkAuth, require("./routes/route.profession"));
 app.use("/api/directory", AuthMiddleware.checkAuth, require("./routes/route.department"));
 app.use("/api/directory", AuthMiddleware.checkAuth, require("./routes/route.person"));

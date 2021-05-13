@@ -146,6 +146,19 @@ router.put("/roles", checkMiddleware, async (req, res) => {
 
         const item = await Role.findById({_id});    // Ищем запись в базе данных по уникальному идентификатору
 
+        if (!item) return res.status(400).json({message: `Роль с именем ${name} (${_id}) не найдена`});
+
+        // Ищем все подразделения
+        const roles = await Role.find({});
+
+        if (roles && roles.length) {
+            for (let i = 0; i < roles.length; i++) {
+                if (roles[i].name === name && roles[i]._id.toString() !== _id.toString()) {
+                    return res.status(400).json({message: "Роль с таким именем уже существует"});
+                }
+            }
+        }
+
         item.name = name;
         item.notes = notes;
         item.permissions = permissions;
@@ -164,9 +177,14 @@ router.delete("/roles/:id", async (req, res) => {
     const _id = req.params.id;  // Получаем _id записи
 
     try {
-        await Role.deleteOne({_id});    // Удаление записи из базы данных по id записи
+        const item = await Role.findById({_id});  // Ищем текущую запись
 
-        res.status(200).json({message: "Запись успешно удалена"});
+        if (item) {
+            await Role.deleteOne({_id});    // Удаление записи из базы данных по id записи
+            return res.status(200).json({message: "Запись успешно удалена"});
+        } else {
+            return res.status(404).json({message: "Данная запись уже была удалена"});
+        }
     } catch (err) {
         console.log(err);
         res.status(500).json({message: `Ошибка при удалении записи с кодом ${_id}: ${err}`});
