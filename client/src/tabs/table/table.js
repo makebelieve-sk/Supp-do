@@ -3,19 +3,17 @@ import React, {useState, useMemo} from "react";
 import {useSelector} from "react-redux";
 import {Row, Table, Col} from "antd";
 
+import store from "../../redux/store";
 import getTableData from "../../helpers/mappers/tabs.mappers/getTableData";
 import {getColumns, openRecordTab} from "../../helpers/mappers/tabs.mappers/table.helper";
 import tableSettings from "../../options/tab.options/table.options/settings";
 import {getFilteredData} from "../../options/global.options/global.options";
+import {goToLogDO} from "../../components/content.components/analytic/analytic.component";
 import {TableHeaderComponent} from "../../components/tab.components/tableHeader/tableHeader.component";
 import {TableAlertComponent} from "../../components/tab.components/tableAlert/tableAlert.component";
 import {TableBadgeComponent} from "../../components/tab.components/tableBadge/tableBadge.component";
 
 import "./table.css";
-import {StatisticRatingRoute} from "../../routes/route.StatisticRating";
-import {StatisticListRoute} from "../../routes/route.StatisticList";
-import store from "../../redux/store";
-import {goToLogDO} from "../../components/content.components/analytic/analytic.component";
 
 export const TableComponent = ({specKey}) => {
     // Получение индикатора загрузки таблицы и записей всех разделов
