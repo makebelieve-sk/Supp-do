@@ -1,6 +1,6 @@
 // Хук, отвечающий за регистрацию/вход/выход и запись пользователя в хранилище и куки
 import {useState, useEffect, useCallback} from "react";
-import {LaptopOutlined, MenuUnfoldOutlined, StockOutlined, UserOutlined} from "@ant-design/icons";
+import {LaptopOutlined, MenuUnfoldOutlined, StockOutlined} from "@ant-design/icons";
 import Cookies from "js-cookie";
 
 import store from "../redux/store";
@@ -17,7 +17,6 @@ import {StatisticRatingRoute} from "../routes/route.StatisticRating";
 import {UserRoute} from "../routes/route.User";
 import {RoleRoute} from "../routes/route.Role";
 import {HelpRoute} from "../routes/route.Help";
-import {ChangePasswordRoute} from "../routes/route.ChangePassword";
 
 const storageName = "user";   // Название объект пользователя в локальном хранилище браузера
 const jwt = "token";   // Название поля в куки для сохранения токена пользователя
@@ -140,24 +139,7 @@ export const useAuth = () => {
                         model: HelpRoute
                     }
                 ]
-            },
-            {
-                title: "Личный кабинет",
-                key: "personal-area",
-                icon: <UserOutlined/>,
-                children: [
-                    {
-                        title: "Сменить пароль",
-                        key: "changePassword",
-                        route: ChangePasswordRoute
-                    },
-                    {
-                        title: "Выйти",
-                        key: "logout",
-                        url: "/login"
-                    }
-                ]
-            },
+            }
         ]));
     }, []);
 

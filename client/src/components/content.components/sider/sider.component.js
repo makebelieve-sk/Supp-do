@@ -3,8 +3,10 @@ import React, {useContext, useEffect, useState} from "react";
 import {useSelector} from "react-redux";
 import {Link} from "react-router-dom";
 import {Layout, Menu} from "antd";
+import {UserOutlined} from "@ant-design/icons";
 
 import {LogDORoute} from "../../../routes/route.LogDO";
+import {ChangePasswordRoute} from "../../../routes/route.ChangePassword";
 import {AuthContext} from "../../../context/auth.context";
 import OpenTableTab from "../../../helpers/functions/tabs.functions/openTableTab";
 import {checkRoleUser} from "../../../helpers/mappers/general.mappers/checkRoleUser";
@@ -130,13 +132,7 @@ export const SiderComponent = ({collapsed}) => {
                                                     }
                                                 </SubMenu>
                                             } else {
-                                                if (subgroup.url) {
-                                                    return <Menu.Item key={subgroup.key}>
-                                                        <Link to={subgroup.url} onClick={() => auth.logout()}>
-                                                            {subgroup.title}
-                                                        </Link>
-                                                    </Menu.Item>
-                                                } else if (subgroup.route) {
+                                                if (subgroup.route) {
                                                     return <Menu.Item key={subgroup.key} onClick={() =>
                                                         OpenTableTab(subgroup.title, subgroup.key, subgroup.route)}
                                                     >
@@ -157,6 +153,23 @@ export const SiderComponent = ({collapsed}) => {
                         })
                         : null
                 }
+
+                <SubMenu title="Личный кабинет" key="personal-area" icon={<UserOutlined/>}>
+                    <Menu.Item
+                        key="changePassword"
+                        onClick={() => OpenTableTab("Сменить пароль", "changePassword", ChangePasswordRoute)}
+                    >
+                        Сменить пароль
+                    </Menu.Item>
+                    <Menu.Item
+                        key="logout"
+                        onClick={() => auth.logout()}
+                    >
+                        <Link to="/login" onClick={() => auth.logout()}>
+                            Выйти
+                        </Link>
+                    </Menu.Item>
+                </SubMenu>
             </Menu>
         </Layout.Sider>
     )

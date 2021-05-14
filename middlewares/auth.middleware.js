@@ -14,7 +14,6 @@ class AuthMiddleware {
                 .replace("/api", "")
                 .replace("/directory", "")
                 .replace("/admin", "")
-                .replace("/auth", "")
                 .split("/")[1];
 
             if (!method) return res.status(500).json({message: "Http метод не распознан"});

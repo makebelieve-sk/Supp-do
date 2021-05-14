@@ -40,7 +40,6 @@ app.use("/api", AuthMiddleware.checkAuth, require("./routes/route.logDO"));
 app.use("/api/admin", AuthMiddleware.checkAuth, require("./routes/route.help"));
 app.use("/api/admin", AuthMiddleware.checkAuth, require("./routes/route.user"));
 app.use("/api/admin", AuthMiddleware.checkAuth, require("./routes/route.role"));
-app.use("/api/auth", AuthMiddleware.checkAuth, require("./routes/route.changePassword"));
 
 // Работа с файлами
 app.use(fileUpload({createParentPath: true}));
