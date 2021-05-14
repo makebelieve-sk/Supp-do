@@ -24,7 +24,7 @@ export const HelpTab = () => {
 
                     <div style={{display}}>
                         {useMemo(() => {
-                            if (error) return <ErrorIndicator errorText={error} />
+                            if (error) return <ErrorIndicator error={error} />
                             if (item) return <HelpForm item={item} />
 
                             return null;

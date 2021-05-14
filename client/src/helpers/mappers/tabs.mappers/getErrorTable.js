@@ -1,5 +1,6 @@
 // Определение ошибки раздела
 import {message} from "antd";
+import {ActionCreator} from "../../../redux/combineActions";
 
 /**
  * Функция определения ошибки раздела
@@ -9,21 +10,64 @@ import {message} from "antd";
 export default function getErrorTable(key, stateObject) {
     // Карта соответствия ключа вкладки и ошибки таблицы
     const map = new Map([
-        ["professions", stateObject.errorProfession],
-        ["departments", stateObject.errorDepartment],
-        ["people", stateObject.errorPerson],
-        ["tasks", stateObject.errorTask],
-        ["equipmentProperties", stateObject.errorEquipmentProperty],
-        ["equipment", stateObject.errorEquipment],
-        ["logDO", stateObject.errorLogDO],
-        ["analytic", stateObject.errorAnalytic],
-        ["statistic", stateObject.errorRating || stateObject.errorList],
-        ["help", stateObject.errorHelp],
-        ["users", stateObject.errorUser],
-        ["roles", stateObject.errorRole],
-        // ["logs", stateObject.errorLog],
+        ["professions", {
+            errorText: stateObject.errorProfession,
+            action: ActionCreator.ActionCreatorProfession.setErrorTableProfession(null)
+        }],
+        ["departments", {
+            errorText: stateObject.errorDepartment,
+            action: ActionCreator.ActionCreatorDepartment.setErrorTableDepartment(null)
+        }],
+        ["people", {
+            errorText: stateObject.errorPerson,
+            action: ActionCreator.ActionCreatorPerson.setErrorTablePerson(null)
+        }],
+        ["tasks", {
+            errorText: stateObject.errorTask,
+            action: ActionCreator.ActionCreatorTask.setErrorTableTask(null)
+        }],
+        ["equipmentProperties", {
+            errorText: stateObject.errorEquipmentProperty,
+            action: ActionCreator.ActionCreatorEquipmentProperty.setErrorTableEquipmentProperty(null)
+        }],
+        ["equipment", {
+            errorText: stateObject.errorEquipment,
+            action: ActionCreator.ActionCreatorEquipment.setErrorTableEquipment(null)
+        }],
+        ["logDO", {
+            errorText: stateObject.errorLogDO,
+            action: ActionCreator.ActionCreatorLogDO.setErrorTableLogDO(null)
+        }],
+        ["analytic", {
+            errorText: stateObject.errorAnalytic,
+            action: ActionCreator.ActionCreatorAnalytic.setErrorAnalytic(null)
+        }],
+        ["statistic", stateObject.errorRating
+            ? {errorText: stateObject.errorRating, action: ActionCreator.ActionCreatorStatistic.setErrorRating(null)}
+            : {errorText: stateObject.errorList, action: ActionCreator.ActionCreatorStatistic.setErrorList(null)}
+        ],
+        ["changePassword", {
+            errorText: stateObject.errorChangePassword,
+            action: ActionCreator.ActionCreatorChangePassword.setErrorChangePassword(null)
+        }],
+        ["help", {
+            errorText: stateObject.errorHelp,
+            action: ActionCreator.ActionCreatorHelp.setErrorTableHelp(null)
+        }],
+        ["users", {
+            errorText: stateObject.errorUser,
+            action: ActionCreator.ActionCreatorUser.setErrorTableUser(null)
+        }],
+        ["roles", {
+            errorText: stateObject.errorRole,
+            action: ActionCreator.ActionCreatorRole.setErrorTableRole(null)
+        }],
+        // ["logs", {
+        //     errorText: stateObject.errorLog,
+        //     action: ActionCreator.ActionCreatorLog.setErrorTableLog
+        // }],
     ]);
-
+    
     if (map.has(key)) {
         return map.get(key);
     } else {

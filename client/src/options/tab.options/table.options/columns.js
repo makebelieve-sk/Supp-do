@@ -1,6 +1,5 @@
 // Создание колонок таблиц
 import React from "react";
-import ReactHtmlParser from "react-html-parser";
 import {Button, Input, Space, Tooltip} from "antd";
 import {CheckOutlined, SearchOutlined} from "@ant-design/icons";
 import Highlighter from "react-highlight-words";
@@ -601,22 +600,19 @@ const LogDOColumns = [
 const HelpColumns = [
     {
         title: "Название раздела",
-        dataIndex: ["name", "label"],
+        dataIndex: "name",
         key: "name",
         width: 100,
-        sorter: (a, b) => a.name.label.length - b.name.label.length,
+        sorter: (a, b) => a.name.length - b.name.length,
         sortDirections: ["descend", "ascend"],
     },
     {
         title: "Текст",
-        dataIndex: "text",
-        key: "text",
+        dataIndex: "textParser",
+        key: "textParser",
         width: 100,
-        sorter: (a, b) => a.text.length - b.text.length,
+        sorter: (a, b) => a.textParser.length - b.textParser.length,
         sortDirections: ["descend", "ascend"],
-        render: text => ({
-            children: <div>{ReactHtmlParser(text.length > 100 ? text.slice(0, 100) + " ..." : text)}</div>
-        })
     },
     {
         title: "Дата изменения",
@@ -629,8 +625,7 @@ const HelpColumns = [
 
             return start.diff(end, "milliseconds") > 0;
         },
-        sortDirections: ["descend", "ascend"],
-        render: (text, record) => ({children: moment(record.date).format(TabOptions.dateFormat)})
+        sortDirections: ["descend", "ascend"]
     }
 ];
 
@@ -813,7 +808,7 @@ const StatisticListColumns = [
         })
     },
     {
-        title: "Статус",
+        title: "Состояние",
         dataIndex: "taskStatus",
         key: "taskStatus",
         width: 100,
@@ -821,7 +816,7 @@ const StatisticListColumns = [
         sortDirections: ["descend", "ascend"],
         render: (text, record) => ({
             props: {style: {background: record.color}},
-            children: record.taskStatus ? record.taskStatus.name : "",
+            children: record.taskStatus ? record.taskStatus : "",
         })
     },
     {

@@ -50,6 +50,20 @@ export const AnalyticRoute = {
             // Устанавливаем спиннер загрузки данных в таблицу
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(true));
 
+            if (filter) {
+                store.dispatch(ActionCreator.ActionCreatorLogDO.setAlert({
+                    alert: null,
+                    filter,
+                    url,
+                }));
+            } else {
+                store.dispatch(ActionCreator.ActionCreatorLogDO.setAlert({
+                    alert: null,
+                    filter: null,
+                    url,
+                }));
+            }
+
             // Получаем все данные
             const items = filter
                 ? await request(this.url_to_logDO + url, "POST", filter)
@@ -71,7 +85,14 @@ export const AnalyticRoute = {
                 store.dispatch(ActionCreator.ActionCreatorLogDO.setLegend(items.statusLegend ? items.statusLegend : null));
 
                 // Устанавливаем подсказку (какой фильтр сейчас есть у таблицы)
-                store.dispatch(ActionCreator.ActionCreatorLogDO.setAlert(items.alert));
+                if (items.alert) {
+                    const alert = store.getState().reducerLogDO.alert;
+
+                    store.dispatch(ActionCreator.ActionCreatorLogDO.setAlert({
+                        ...alert,
+                        alert: items.alert
+                    }));
+                }
 
                 if (shouldUpdate) {
                     // Записываем данные аналитики в хранилище

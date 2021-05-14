@@ -3,7 +3,7 @@ import React, {useState} from "react";
 
 import {AuthComponent} from "../components/auth.components/auth/auth.component";
 import {RegistrationComponent} from "../components/auth.components/reg/reg.component";
-import {ChangePasswordComponent} from "../components/auth.components/changePassword/changePassword.component";
+import {ChangePasswordComponent} from "../tabs/changePassword/changePassword.component";
 
 export const AuthPage = () => {
     // Создание стейта для показа формы регистрации и смены пароля

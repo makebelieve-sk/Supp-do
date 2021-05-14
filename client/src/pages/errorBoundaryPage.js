@@ -20,7 +20,7 @@ export default class ErrorBoundaryPage extends Component {
 
     render() {
         return this.state.error
-            ? <ErrorIndicator errorText={this.state.error + " " + this.state.errorInfo.componentStack} />
+            ? <ErrorIndicator error={this.state.error + " " + this.state.errorInfo.componentStack} />
             : this.props.children;
     }
 }

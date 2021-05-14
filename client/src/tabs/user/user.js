@@ -24,7 +24,7 @@ export const UserTab = () => {
 
                     <div style={{display}}>
                         {useMemo(() => {
-                            if (error) return <ErrorIndicator errorText={error} />
+                            if (error) return <ErrorIndicator error={error} />
                             if (item) return <UserForm item={item} />
 
                             return null;

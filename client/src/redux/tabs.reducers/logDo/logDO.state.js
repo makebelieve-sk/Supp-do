@@ -10,7 +10,12 @@ const initialState = {
     date: moment().startOf("month").format(TabOptions.dateFormat) + "/" +
         moment().endOf("month").format(TabOptions.dateFormat),
     legend: null,           // Легенда статусов
-    alert: null,            // Блок, появляющийся после перехода в таблицу ЖДО с Аналитики
+    // Блок, появляющийся после перехода в таблицу ЖДО с Аналитики
+    alert: {
+        alert: null,
+        filter: null,
+        url: null
+    },
     errorRecordLogDO: null,      // Ошибка в записи
     errorTableLogDO: null,       // Ошибка в таблице
 };

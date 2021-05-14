@@ -58,7 +58,7 @@ export const RoleRoute = {
         }
     },
     // Сохранение роли
-    save: async function (item, setLoading, onRemove) {
+    save: async function (item, setLoading) {
         try {
             await this.getAll();    // Обновляем все записи раздела
 

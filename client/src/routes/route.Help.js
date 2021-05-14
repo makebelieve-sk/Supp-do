@@ -1,5 +1,6 @@
 // Методы модели "Помощь"
 import {message} from "antd";
+import ReactHtmlParser from "react-html-parser";
 
 import store from "../redux/store";
 import {ActionCreator} from "../redux/combineActions";
@@ -22,6 +23,14 @@ export const HelpRoute = {
             const items = await request(this.base_url);
 
             if (items) {
+                items.forEach(item => {
+                    item.textParser = item.text
+                        ? ReactHtmlParser(item.text.length > 100 ? item.text.slice(0, 100) + " ..." : item.text)
+                        : "";
+
+                    item.text = item.text ? ReactHtmlParser(item.text) : "";
+                });
+
                 const reduxHelp = store.getState().reducerHelp.help;
 
                 // Если массивы не равны, то обновляем хранилище redux
@@ -104,6 +113,16 @@ export const HelpRoute = {
             if (data) {
                 // Выводим сообщение от сервера
                 message.success(data.message);
+
+                data.item.textParser = data.item.text
+                    ? ReactHtmlParser(
+                        data.item.text.length > 100
+                            ? data.item.text.slice(0, 100) + " ..."
+                            : data.item.text
+                    )
+                    : "";
+
+                data.item.text = data.item.text ? ReactHtmlParser(data.item.text) : "";
 
                 // Редактирование записи - изменение записи в хранилище redux,
                 // Сохранение записи - создание записи в хранилище redux

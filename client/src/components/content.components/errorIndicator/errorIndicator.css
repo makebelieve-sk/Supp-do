@@ -23,3 +23,8 @@
     text-align: center;
     font-size: 1.2rem;
 }
+
+.go-back {
+    margin: 0 auto;
+    margin-block: 2em;
+}

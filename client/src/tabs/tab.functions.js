@@ -48,7 +48,9 @@ const TabButtons = ({loadingSave, item, deleteHandler, cancelHandler, loadingCan
                 : null
         }
 
-        {CheckTypeTab(item, deleteHandler, specKey, activeKey, user, getContent, short)}
+        {
+            item ? CheckTypeTab(item, deleteHandler, specKey, activeKey, user, getContent, short) : null
+        }
 
         <Button
             className={`button-style ${short}`}

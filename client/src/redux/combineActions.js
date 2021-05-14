@@ -15,6 +15,7 @@ import ActionCreatorHelp from "./tabs.reducers/help/help.actions";
 import ActionCreatorUser from "./tabs.reducers/user/user.actions";
 import ActionCreatorRole from "./tabs.reducers/role/role.actions";
 import ActionCreatorAuth from "./general.reducers/auth/auth.actions";
+import ActionCreatorChangePassword from "./tabs.reducers/changePassword/changePassword.actions";
 
 export const ActionCreator = {
     ActionCreatorProfession,
@@ -33,4 +34,5 @@ export const ActionCreator = {
     ActionCreatorUser,
     ActionCreatorRole,
     ActionCreatorAuth,
+    ActionCreatorChangePassword,
 }

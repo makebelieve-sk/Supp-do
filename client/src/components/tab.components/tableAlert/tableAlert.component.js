@@ -19,18 +19,26 @@ export const TableAlertComponent = ({alert, specKey}) => {
      */
     const closeAlert = async () => {
         setMarginBottomAlert("0px");      // Убираем отступ после алерта
-        store.dispatch(ActionCreator.ActionCreatorLogDO.setAlert(null));    // Обновляем фильтр таблицы
+
+        // Обновляем фильтр таблицы
+        store.dispatch(ActionCreator.ActionCreatorLogDO.setAlert({
+            alert: null,
+            filter: null,
+            url: null
+        }));
+
         // Обновляем датапикер
         store.dispatch(ActionCreator.ActionCreatorLogDO.setDate(moment().startOf("month").format(TabOptions.dateFormat) + "/" +
             moment().endOf("month").format(TabOptions.dateFormat)));
+
         await LogDORoute.getAll();              // Обновляем данные в таблице
     }
 
-    return alert && specKey === "logDO"
+    return alert && alert.alert && specKey === "logDO"
         ? <Row style={{marginBottom: marginBottomAlert}}>
             <Col>
                 <Alert
-                    message={alert}
+                    message={alert.alert}
                     type="warning"
                     icon={<FilterOutlined/>}
                     showIcon

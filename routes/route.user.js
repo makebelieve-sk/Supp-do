@@ -133,14 +133,14 @@ router.put("/users", checkMiddleware, async (req, res) => {
         const item = await User.findById({_id}).populate("person").populate("roles").select("-password");
 
         // Проверяем на существование записи с уникальным идентификатором
-        if (!item) return res.status(404).json({message: `Запись с именем ${name} (${_id}) не найдена`});
+        if (!item) return res.status(404).json({message: `Запись с именем ${userName} (${_id}) не найдена`});
 
         // Ищем все подразделения
         const users = await User.find({});
 
         if (users && users.length) {
             for (let i = 0; i < users.length; i++) {
-                if (users[i].name === name && users[i]._id.toString() !== _id.toString()) {
+                if (users[i].userName === userName && users[i]._id.toString() !== _id.toString()) {
                     return res.status(400).json({message: "Пользователь с таким именем уже существует"});
                 }
             }

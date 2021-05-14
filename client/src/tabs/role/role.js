@@ -24,7 +24,7 @@ export const RoleTab = () => {
 
                     <div style={{display}}>
                         {useMemo(() => {
-                            if (error) return <ErrorIndicator errorText={error} />
+                            if (error) return <ErrorIndicator error={error} />
                             if (item) return <RoleForm item={item} />
 
                             return null;

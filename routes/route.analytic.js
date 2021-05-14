@@ -499,8 +499,8 @@ router.get("/logDO/unassignedTasks", async (req, res) => {
             }
 
             // Получаем начальную и конечную даты записей
-            const startDate = moment(items[0].date).format(dateFormat);
-            const endDate = moment(items[items.length - 1].date).format(dateFormat);
+            const startDate = moment(items[items.length - 1].date).format(dateFormat);
+            const endDate = moment(items[0].date).format(dateFormat);
 
             // Получаем готовый массив записей ЖДО
             const itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
@@ -535,7 +535,13 @@ router.get("/logDO/unassignedTasks", async (req, res) => {
             }
 
             // Отправляем ответ
-            res.status(200).json({itemsDto, startDate, endDate, alert: "Неназначенные заявки", statusLegend});
+            res.status(200).json({
+                itemsDto,
+                startDate,
+                endDate,
+                alert: "Неназначенные заявки",
+                statusLegend
+            });
         })
             .sort({date: -1})
             .populate("applicant")
@@ -600,7 +606,7 @@ router.get("/logDO/inWorkTasks", async (req, res) => {
             // Формируем массив удовлетворяющих записей с идентификатором (_id), где isFinish = false
             const ids = docs.map(doc => doc._id);
 
-            await LogDO.find({taskStatus: {$in: ids}}, async function (err, items) {
+            await LogDO.find({taskStatus: {$in: ids}, responsible: {$ne: null}}, async function (err, items) {
                 // Обработка ошибки
                 if (err) {
                     console.log(err);
@@ -610,8 +616,8 @@ router.get("/logDO/inWorkTasks", async (req, res) => {
                 }
 
                 // Получаем начальную и конечную даты записей
-                const startDate = moment(items[0].date).format(dateFormat);
-                const endDate = moment(items[items.length - 1].date).format(dateFormat);
+                const startDate = moment(items[items.length - 1].date).format(dateFormat);
+                const endDate = moment(items[0].date).format(dateFormat);
 
                 // Получаем готовый массив записей ЖДО
                 const itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
@@ -720,8 +726,8 @@ router.get("/logDO/notAccepted", async (req, res) => {
                     }
 
                     // Получаем начальную и конечную даты записей
-                    const startDate = moment(items[0].date).format(dateFormat);
-                    const endDate = moment(items[items.length - 1].date).format(dateFormat);
+                    const startDate = moment(items[items.length - 1].date).format(dateFormat);
+                    const endDate = moment(items[0].date).format(dateFormat);
 
                     // Получаем готовый массив записей ЖДО
                     const itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
@@ -843,8 +849,8 @@ router.post("/logDO/bar", async (req, res) => {
                         }
 
                         // Получаем начальную и конечную даты записей
-                        const startDate = moment(items[0].date).format(dateFormat);
-                        const endDate = moment(items[items.length - 1].date).format(dateFormat);
+                        const startDate = moment(items[items.length - 1].date).format(dateFormat);
+                        const endDate = moment(items[0].date).format(dateFormat);
 
                         // Получаем готовый массив записей ЖДО
                         const itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
@@ -957,8 +963,8 @@ router.post("/logDO/line", async (req, res) => {
                 }
 
                 // Получаем начальную и конечную даты записей
-                const startDate = moment(items[0].date).format(dateFormat);
-                const endDate = moment(items[items.length - 1].date).format(dateFormat);
+                const startDate = moment(items[items.length - 1].date).format(dateFormat);
+                const endDate = moment(items[0].date).format(dateFormat);
 
                 // Получаем готовый массив записей ЖДО
                 const itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
@@ -1063,8 +1069,8 @@ router.get("/logDO/rating/bounceRating", async (req, res) => {
                 }
 
                 // Получаем начальную и конечную даты записей
-                const startDate = moment(items[0].date).format(dateFormat);
-                const endDate = moment(items[items.length - 1].date).format(dateFormat);
+                const startDate = moment(items[items.length - 1].date).format(dateFormat);
+                const endDate = moment(items[0].date).format(dateFormat);
 
                 // Сортируем записи по полю "Оборудование.Наименование"
                 items = items.sort((a, b) => {
@@ -1226,8 +1232,8 @@ router.get("/logDO/rating/ratingOrders", async (req, res) => {
         }
 
         // Получаем начальную и конечную даты записей
-        const startDate = moment(items[0].date).format(dateFormat);
-        const endDate = moment(items[items.length - 1].date).format(dateFormat);
+        const startDate = moment(items[items.length - 1].date).format(dateFormat);
+        const endDate = moment(items[0].date).format(dateFormat);
 
         // Сортируем записи в порядке убывания по незавершенному статусу заявки
         items = items.sort((a, b) => {

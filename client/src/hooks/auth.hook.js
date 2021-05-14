@@ -17,6 +17,7 @@ import {StatisticRatingRoute} from "../routes/route.StatisticRating";
 import {UserRoute} from "../routes/route.User";
 import {RoleRoute} from "../routes/route.Role";
 import {HelpRoute} from "../routes/route.Help";
+import {ChangePasswordRoute} from "../routes/route.ChangePassword";
 
 const storageName = "user";   // Название объект пользователя в локальном хранилище браузера
 const jwt = "token";   // Название поля в куки для сохранения токена пользователя
@@ -145,11 +146,11 @@ export const useAuth = () => {
                 key: "personal-area",
                 icon: <UserOutlined/>,
                 children: [
-                    // {
-                    //     title: "Сменить пароль",
-                    //     key: "change-password",
-                    //     url: "/change-password"
-                    // },
+                    {
+                        title: "Сменить пароль",
+                        key: "changePassword",
+                        route: ChangePasswordRoute
+                    },
                     {
                         title: "Выйти",
                         key: "logout",

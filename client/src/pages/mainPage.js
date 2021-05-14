@@ -42,7 +42,7 @@ export const MainPage = () => {
                 ? setHelp({title: item.title, text: <div>{ReactHtmlParser(item.text)}</div>})
                 : setHelp({title: "", text: "В данном разделе текст помощи отсутствует"});
         } catch (e) {
-            setHelp({title: "", text: <ErrorIndicator errorText={e}/>});
+            setHelp({title: "", text: <ErrorIndicator error={e}/>});
         }
     }
 

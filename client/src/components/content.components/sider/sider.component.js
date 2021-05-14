@@ -132,9 +132,7 @@ export const SiderComponent = ({collapsed}) => {
                                             } else {
                                                 if (subgroup.url) {
                                                     return <Menu.Item key={subgroup.key}>
-                                                        <Link to={subgroup.url} onClick={() =>
-                                                            subgroup.key === "logout" ? auth.logout() : alert("Смена пароля")}
-                                                        >
+                                                        <Link to={subgroup.url} onClick={() => auth.logout()}>
                                                             {subgroup.title}
                                                         </Link>
                                                     </Menu.Item>
@@ -162,4 +160,4 @@ export const SiderComponent = ({collapsed}) => {
             </Menu>
         </Layout.Sider>
     )
-};
+}

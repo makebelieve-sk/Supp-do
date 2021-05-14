@@ -14,6 +14,7 @@ class AuthMiddleware {
                 .replace("/api", "")
                 .replace("/directory", "")
                 .replace("/admin", "")
+                .replace("/auth", "")
                 .split("/")[1];
 
             if (!method) return res.status(500).json({message: "Http метод не распознан"});
@@ -34,10 +35,6 @@ class AuthMiddleware {
                 if (decoded) {
                     // Обновляем существующий токен
                     const updateToken = jwt.sign({userId: decoded.userId, a: 1}, config.jwtSecret, {expiresIn: "30min"});
-
-                    decoded = jwt.verify(updateToken, config.jwtSecret);    // Расшифровываем токен
-
-                    if (!decoded.userId) return res.status(401).json({message: "Вы не авторизованы"});
 
                     res.cookie("token", updateToken);   // Обновляем токен пользователя, перезаписывая куки
                 }

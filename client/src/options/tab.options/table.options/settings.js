@@ -1,14 +1,14 @@
 // Настройки таблицы
-import {getTableHeader} from "../../../helpers/mappers/tabs.mappers/table.helper";
+import {getExportName, getTableHeader} from "../../../helpers/mappers/tabs.mappers/table.helper";
 import {getFilteredData} from "../../global.options/global.options";
 
 // Экспорт в эксель
-const downloadCSV = (array, name) => {
+const downloadCSV = (array, key) => {
     const link = document.createElement("a");
-    let csv = convertArrayOfObjectsToCSV(array, name);
+    let csv = convertArrayOfObjectsToCSV(array, key);
     if (csv == null) return;
 
-    const filename = `${name}.csv`;
+    const filename = `${getExportName(key)}.csv`;
 
     if (!csv.match(/^data:text\/csv/i)) {
         csv = `data:text/csv;charset=utf-8,${csv}`;
@@ -18,10 +18,10 @@ const downloadCSV = (array, name) => {
     link.setAttribute("download", filename);
     link.click();
 };
-const convertArrayOfObjectsToCSV = (array, name) => {
+const convertArrayOfObjectsToCSV = (array, key) => {
     let result;
 
-    const headerDataTable = getTableHeader(name);
+    const headerDataTable = getTableHeader(key);
 
     const columnDelimiter = ",";
     const lineDelimiter = "\n";

@@ -17,6 +17,7 @@ import reducerHelp from "./tabs.reducers/help/help.reducer";
 import reducerUser from "./tabs.reducers/user/user.reducer";
 import reducerRole from "./tabs.reducers/role/role.reducer";
 import reducerAuth from "./general.reducers/auth/auth.reducer";
+import reducerChangePassword from "./tabs.reducers/changePassword/changePassword.reducer";
 
 const appReducer = combineReducers({
     reducerProfession,
@@ -35,6 +36,7 @@ const appReducer = combineReducers({
     reducerUser,
     reducerRole,
     reducerAuth,
+    reducerChangePassword,
 });
 
 export const reducer = (state, action) => {

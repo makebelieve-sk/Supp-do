@@ -3,6 +3,7 @@ const {Router} = require("express");
 const {check, validationResult} = require("express-validator");
 
 const Help = require("../schemes/Help");
+const HelpDto = require("../dto/HelpDto");
 
 const router = Router();
 
@@ -53,7 +54,12 @@ router.get("/help", async (req, res) => {
     try {
         const items = await Help.find({});  // Получаем все записи раздела "Характеристики оборудования"
 
-        res.status(200).json(items);
+        let itemsDto = [];
+
+        // Изменяем запись для вывода в таблицу
+        if (items && items.length) itemsDto = items.map(item => new HelpDto(item));
+
+        res.status(200).json(itemsDto);
     } catch (err) {
         console.log(err);
         res.status(500).json({message: "Ошибка при получении записей: " + err});
@@ -84,7 +90,12 @@ router.post("/help", checkMiddleware, async (req, res) => {
 
         await item.save();  // Сохраняем запись в базе данных
 
-        res.status(201).json({message: "Запись сохранена", item});
+        const currentHelp = await Help.findOne({name});
+
+        // Изменяем запись для вывода в таблицу
+        const savedItem = new HelpDto(currentHelp);
+
+        res.status(201).json({message: "Запись сохранена", item: savedItem});
     } catch (err) {
         console.log(err);
         res.status(500).json({message: "Ошибка при создании записи: " + err});
@@ -128,7 +139,12 @@ router.put("/help", checkMiddleware, async (req, res) => {
 
         await item.save();  // Сохраняем запись в базу данных
 
-        res.status(201).json({message: "Запись сохранена", item});
+        const currentHelp = await Help.findById({_id});
+
+        // Изменяем запись для вывода в таблицу
+        const savedItem = new HelpDto(currentHelp);
+
+        res.status(201).json({message: "Запись сохранена", item: savedItem});
     } catch (err) {
         console.log(err);
         res.status(500).json({message: "Ошибка при обновлении записи: " + err});

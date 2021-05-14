@@ -24,7 +24,7 @@ export const EquipmentTab = () => {
 
                     <div style={{display}}>
                         {useMemo(() => {
-                            if (error) return <ErrorIndicator errorText={error} />
+                            if (error) return <ErrorIndicator error={error} />
                             if (item) return <EquipmentForm item={item} />
 
                             return null;

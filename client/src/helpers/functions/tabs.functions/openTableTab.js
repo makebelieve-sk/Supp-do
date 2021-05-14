@@ -20,8 +20,8 @@ export default async function OpenTableTab(title, key, model) {
         if (key === "statistic")
             store.dispatch(ActionCreator.ActionCreatorStatistic.setDateRating(
                 moment().startOf("month").format(TabOptions.dateFormat) + "/" +
-                moment().endOf("month").format(TabOptions.dateFormat))
-            );
+                moment().endOf("month").format(TabOptions.dateFormat)
+            ));
 
         // Устанавливаем показ спиннера загрузки при открытии вкладки раздела
         store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(true));
@@ -29,7 +29,7 @@ export default async function OpenTableTab(title, key, model) {
         // Создаем пустую вкладку
         emptyTab(title, BodyManager, key);
 
-        await model.getAll();
+        if (key !== "changePassword") await model.getAll();
 
         // Останавливаем показ спиннера загрузки при открытии вкладки раздела
         store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(false));

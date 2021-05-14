@@ -44,6 +44,7 @@ export const checkRoleUser = (key, user) => {
         ["logs", canEdit("logs")],
         ["analytic", canEdit("analytic")],
         ["statistic", canEdit("statistic")],
+        ["changePassword", canEdit("changePassword")],
         ["professionItem", canEdit("professions")],
         ["departmentItem", canEdit("departments")],
         ["personItem", canEdit("people")],
@@ -56,16 +57,15 @@ export const checkRoleUser = (key, user) => {
         ["roleItem", canEdit("roles")],
     ]);
 
-    if (key === "userManagement" || key === "personal-area" || key === "analytic-section" || key === "directory" ||
-        key === "personManagement" || key === "equipmentKey" || key === "directory" || key === "analytic-section" ||
-        key === "admin" || key === "personal-area") return null;
+    if (key === "userManagement" || key === "analytic-section" || key === "personManagement" ||
+        key === "equipmentKey" || key === "directory" || key === "analytic-section" || key === "admin" ||
+        key === "personal-area") return null;
 
     key = key === "statisticRating" || key === "statisticList" ? "statistic" : key;
 
     if (map.has(key)) {
         return map.get(key);
-    }
-    else {
+    } else {
         console.log(key);
         message.error(`Раздел с ключём ${key} не существует (проверка роли пользователя)`).then(null);
         return new Error(`Раздел с ключём ${key} не существует (проверка роли пользователя)`);

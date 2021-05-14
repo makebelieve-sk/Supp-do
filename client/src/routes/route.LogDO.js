@@ -10,6 +10,7 @@ import {request} from "../helpers/functions/general.functions/request.helper";
 import TabOptions from "../options/tab.options/record.options/record.options";
 import {NoticeError, storeDepartments, storeEquipment, storeLogDO, storePeople, storeTask} from "./helper";
 import {onRemove} from "../components/content.components/content/content.component";
+import {AnalyticRoute} from "./route.Analytic";
 
 export const LogDORoute = {
     // Адрес для работы с разделом "Журнал дефектов и отказов"
@@ -104,25 +105,33 @@ export const LogDORoute = {
                 // Выводим сообщение от сервера
                 message.success(data.message);
 
-                // Редактирование записи - изменение записи в хранилище redux,
-                // Сохранение записи - создание записи в хранилище redux
-                if (method === "POST") {
-                    store.dispatch(ActionCreator.ActionCreatorLogDO.createLogDO(data.item));
+                // Получаем из редакса объект фильтра
+                const alert = store.getState().reducerLogDO.alert;
+
+                // Если указан фильтр (был переход с аналитики или статистики)
+                if (alert.url || alert.alert) {
+                    await AnalyticRoute.goToLogDO(alert.url, alert.filter);
                 } else {
-                    const logDO = store.getState().reducerLogDO.logDO;
-                    const foundLogDO = logDO.find(log => {
-                        return log._id === item._id;
-                    });
-                    const indexLogDO = logDO.indexOf(foundLogDO);
+                    // Редактирование записи - изменение записи в хранилище redux,
+                    // Сохранение записи - создание записи в хранилище redux
+                    if (method === "POST") {
+                        store.dispatch(ActionCreator.ActionCreatorLogDO.createLogDO(data.item));
+                    } else {
+                        const logDO = store.getState().reducerLogDO.logDO;
+                        const foundLogDO = logDO.find(log => {
+                            return log._id === item._id;
+                        });
+                        const indexLogDO = logDO.indexOf(foundLogDO);
 
-                    if (indexLogDO >= 0 && foundLogDO) {
-                        store.dispatch(ActionCreator.ActionCreatorLogDO.editLogDO(indexLogDO, data.item));
+                        if (indexLogDO >= 0 && foundLogDO) {
+                            store.dispatch(ActionCreator.ActionCreatorLogDO.editLogDO(indexLogDO, data.item));
+                        }
                     }
-                }
 
-                // Обновляем список записей в таблице по выбранной дате
-                const currentDate = store.getState().reducerLogDO.date;
-                await this.getAll(currentDate);
+                    // Обновляем список записей в таблице по выбранной дате
+                    const currentDate = store.getState().reducerLogDO.date;
+                    await this.getAll(currentDate);
+                }
 
                 // Останавливаем спиннер загрузки
                 setLoading(false);

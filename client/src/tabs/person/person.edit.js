@@ -24,7 +24,7 @@ export const PersonTab = () => {
 
                     <div style={{display}}>
                         {useMemo(() => {
-                            if (error) return <ErrorIndicator errorText={error} />
+                            if (error) return <ErrorIndicator error={error} />
                             if (item) return <PersonForm item={item} />
 
                             return null;

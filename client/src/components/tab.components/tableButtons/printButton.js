@@ -49,7 +49,13 @@ export default class PrintButton extends React.Component {
 
                         if (data && data.length) {
                             data.forEach(printObj => {
-                                if (printObj.nameWithParent) {
+                                if (printObj.textParser) {
+                                    const assign = Object.assign({}, printObj);
+
+                                    delete assign.textParser;
+
+                                    result.push(assign);
+                                } else if (printObj.nameWithParent) {
                                     const assign = Object.assign({}, printObj);
 
                                     assign.name = assign.nameWithParent;
