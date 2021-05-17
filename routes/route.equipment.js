@@ -3,8 +3,10 @@ const {Router} = require("express");
 const {check, validationResult} = require("express-validator");
 
 const Equipment = require("../schemes/Equipment");
+const Log = require("../schemes/Log");
 const EquipmentProperty = require("../schemes/EquipmentProperty");
 const File = require("../schemes/File");
+const {getUser} = require("./helper");
 
 const router = Router();
 
@@ -18,6 +20,37 @@ const checkMiddleware = [
         .isString()
         .isLength({max: 255})
 ];
+
+/**
+ * Функция логирования действий пользователея
+ * @param req - объект req запроса
+ * @param res - объект res запроса
+ * @param action - действие пользователя
+ * @param body - удаляемая запись
+ * @returns {Promise<*>} - возвращаем промис (сохранение записи в бд)
+ */
+const logUserActions = async (req, res, action, body = null) => {
+    if (!req.cookies) return res.status(500).json({message: "Ошибка чтения файлов cookies"});
+
+    let {name, notes, parent} = req.body;
+
+    if (body) {
+        name = body.name;
+        notes = body.notes;
+        parent = body.parent;
+    }
+
+    const username = await getUser(req.cookies.token);
+
+    const log = new Log({
+        date: Date.now(),
+        action,
+        username,
+        content: `Раздел: Перечень оборудования, Наименование: ${name}, Примечание: ${notes}, Принадлежит: ${parent ? parent.name : ""}`
+    });
+
+    await log.save();   // Сохраняем запись в Журнал действий пользователя
+}
 
 // Возвращает запись по коду
 router.get("/equipment/:id", async (req, res) => {
@@ -130,6 +163,8 @@ router.post("/equipment", checkMiddleware, async (req, res) => {
         const newItem = new Equipment({parent, name, notes, properties, files: resFileArr});
 
         await newItem.save();   // Сохраняем запись в базе данных
+
+        await logUserActions(req, res, "Сохранение");   // Логируем действие пользвателя
 
         const currentEquipment = await Equipment.findOne({name})
             .populate("parent")
@@ -247,6 +282,8 @@ router.put("/equipment", checkMiddleware, async (req, res) => {
 
         await item.save();  // Сохраняем запись в базу данных
 
+        await logUserActions(req, res, "Редактирование");   // Логируем действие пользвателя
+
         const savedItem = await Equipment.findById({_id})
             .populate("parent")
             .populate("properties.equipmentProperty")
@@ -265,6 +302,8 @@ router.delete("/equipment/:id", async (req, res) => {
 
     try {
         const equipment = await Equipment.find({}).populate("parent");
+
+        await logUserActions(req, res, "Удаление", equipment);   // Логируем действие пользвателя
 
         // Проверяем запись на дочернее оборудование
         if (equipment && equipment.length) {

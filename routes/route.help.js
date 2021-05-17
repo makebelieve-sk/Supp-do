@@ -3,12 +3,44 @@ const {Router} = require("express");
 const {check, validationResult} = require("express-validator");
 
 const Help = require("../schemes/Help");
+const Log = require("../schemes/Log");
 const HelpDto = require("../dto/HelpDto");
+const {getUser} = require("./helper");
 
 const router = Router();
 
 // Валидация полей раздела "Помощь"
 const checkMiddleware = [check("name", "Поле 'Название раздела' должно быть заполнено").notEmpty()];
+
+/**
+ * Функция логирования действий пользователея
+ * @param req - объект req запроса
+ * @param res - объект res запроса
+ * @param action - действие пользователя
+ * @param body - удаляемая запись
+ * @returns {Promise<*>} - возвращаем промис (сохранение записи в бд)
+ */
+const logUserActions = async (req, res, action, body = null) => {
+    if (!req.cookies) return res.status(500).json({message: "Ошибка чтения файлов cookies"});
+
+    let {name, text} = req.body;
+
+    if (body) {
+        name = body.name;
+        text = body.text;
+    }
+
+    const username = await getUser(req.cookies.token);
+
+    const log = new Log({
+        date: Date.now(),
+        action,
+        username,
+        content: `Раздел: Помощь, Наименование: ${name}, Примечание: ${text}`
+    });
+
+    await log.save();   // Сохраняем запись в Журнал действий пользователя
+}
 
 // Возвращает запись по коду
 router.get("/help/:id", async (req, res) => {
@@ -90,6 +122,8 @@ router.post("/help", checkMiddleware, async (req, res) => {
 
         await item.save();  // Сохраняем запись в базе данных
 
+        await logUserActions(req, res, "Сохранение");   // Логируем действие пользвателя
+
         const currentHelp = await Help.findOne({name});
 
         // Изменяем запись для вывода в таблицу
@@ -139,6 +173,8 @@ router.put("/help", checkMiddleware, async (req, res) => {
 
         await item.save();  // Сохраняем запись в базу данных
 
+        await logUserActions(req, res, "Редактирование");   // Логируем действие пользвателя
+
         const currentHelp = await Help.findById({_id});
 
         // Изменяем запись для вывода в таблицу
@@ -157,6 +193,8 @@ router.delete("/help/:id", async (req, res) => {
         const _id = req.params.id;  // Получение id записи
 
         const item = await Help.findById({_id});  // Ищем текущую запись
+
+        await logUserActions(req, res, "Удаление", item);   // Логируем действие пользвателя
 
         if (item) {
             await Help.deleteOne({_id});    // Удаление записи из базы данных по id записи

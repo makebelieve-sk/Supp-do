@@ -41,7 +41,7 @@ const TabButtons = ({loadingSave, item, deleteHandler, cancelHandler, loadingCan
 
     return <Row justify="end" style={{marginTop: 20}} xs={{gutter: [8, 8]}}>
         {
-            checkRoleUser(activeKey, user).edit || activeKey === "changePassword"
+            (checkRoleUser(activeKey, user).edit || activeKey === "changePassword") && activeKey !== "logItem"
                 ? <Button className={`button-style ${short}`} type="primary" htmlType="submit" loading={loadingSave} icon={<CheckOutlined/>}>
                     {getContent("Сохранить")}
                 </Button>
@@ -69,8 +69,8 @@ const CheckTypeTab = (item, deleteHandler, specKey = null, activeKey, user, getC
     const [loadingDelete, setLoadingDelete] = useState(false);
     const [visiblePopConfirm, setVisiblePopConfirm] = useState(false);
 
-    return !item.isNewItem && checkRoleUser(activeKey, user).edit ?
-        <>
+    return (!item.isNewItem && checkRoleUser(activeKey, user).edit) || specKey === "logItem"
+        ? <>
             <Popconfirm
                 title="Вы уверены, что хотите удалить запись?"
                 okText="Удалить"
@@ -90,8 +90,13 @@ const CheckTypeTab = (item, deleteHandler, specKey = null, activeKey, user, getC
                 </Button>
             </Popconfirm>
 
-            {specKey ? <PrintButtonRecord specKey={specKey} getContent={getContent} short={short} /> : null}
-        </> : null;
+            {
+                specKey && specKey !== "logItem"
+                    ? <PrintButtonRecord specKey={specKey} getContent={getContent} short={short} />
+                    : null
+            }
+        </>
+        : null;
 }
 
 // Вывод сообщения валидации формы

@@ -119,7 +119,7 @@ export const RoleForm = ({item}) => {
 
                                                 <td className="center">
                                                     <Checkbox
-                                                        disabled={perm.key === "logDO" || perm.key === "logs" ||
+                                                        disabled={perm.key === "logDO" ||
                                                             perm.key === "analytic" || perm.key === "statistic" ||
                                                             perm.key === "changePassword"}
                                                         checked={perm.edit}

@@ -5,10 +5,12 @@ const {check, validationResult} = require("express-validator");
 
 const File = require("../schemes/File");
 const LogDO = require("../schemes/LogDO");
+const Log = require("../schemes/Log");
 const Department = require("../schemes/Department");
 const Equipment = require("../schemes/Equipment");
 const LogDoDto = require("../dto/LogDoDto");
 const TaskStatus = require("../schemes/TaskStatus");
+const {getUser} = require("./helper");
 
 const router = Router();
 
@@ -38,6 +40,70 @@ const checkMiddleware = [
         .isLength({max: 255}),
     check("acceptTask", "Поле 'Работа принята' должно быть булевым").isBoolean(),
 ];
+
+/**
+ * Функция логирования действий пользователея
+ * @param req - объект req запроса
+ * @param res - объект res запроса
+ * @param action - действие пользователя
+ * @param body - удаляемая запись
+ * @returns {Promise<*>} - возвращаем промис (сохранение записи в бд)
+ */
+const logUserActions = async (req, res, action, body = null) => {
+    if (!req.cookies) return res.status(500).json({message: "Ошибка чтения файлов cookies"});
+
+    let {
+        date,
+        applicant,
+        equipment,
+        notes,
+        sendEmail,
+        productionCheck,
+        department,
+        responsible,
+        task,
+        taskStatus,
+        dateDone,
+        planDateDone,
+        content,
+        downtime,
+        acceptTask
+    } = req.body;
+
+    if (body) {
+        date = body.date;
+        applicant = body.applicant;
+        equipment = body.equipment;
+        notes = body.notes;
+        sendEmail = body.sendEmail;
+        productionCheck = body.productionCheck;
+        department = body.department;
+        responsible = body.responsible;
+        task = body.task;
+        taskStatus = body.taskStatus;
+        dateDone = body.dateDone;
+        planDateDone = body.planDateDone;
+        content = body.content;
+        downtime = body.downtime;
+        acceptTask = body.acceptTask;
+    }
+
+    const username = await getUser(req.cookies.token);
+
+    const log = new Log({
+        date: Date.now(),
+        action,
+        username,
+        content: `Раздел: Журнал дефектов и отказов, Дата заявки: ${date}, Заявитель: ${applicant ? applicant.name : ""}, 
+        Оборудование: ${equipment ? equipment.name : ""}, Описание: ${notes}, Оперативное уведомление ответственных специалистов: ${sendEmail},
+        Производство остановлено: ${productionCheck}, Подразделение: ${department ? department.name : ""}, Ответственный: ${responsible ? responsible.name : ""},
+        Задание: ${task}, Состояние: ${taskStatus ? taskStatus.name : ""}, Дата выполнения: ${dateDone},
+        Планируемая дата выполнения: ${planDateDone}, Содержание работ: ${content}, Время простоя: ${downtime},
+        Работа принята: ${acceptTask},`
+    });
+
+    await log.save();   // Сохраняем запись в Журнал действий пользователя
+}
 
 // Возвращает запись по коду
 router.get("/logDO/:id", async (req, res) => {
@@ -336,6 +402,8 @@ router.post("/logDO", checkMiddleware, async (req, res) => {
             res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Журнал дефектов и отказов' (/logDO, post)"});
         }
 
+        await logUserActions(req, res, "Сохранение");   // Логируем действие пользвателя
+
         // Изменяем запись для вывода в таблицу
         const savedItem = new LogDoDto(currentItem, departmentsItems, equipmentItems);
 
@@ -482,6 +550,8 @@ router.put("/logDO", checkMiddleware, async (req, res) => {
         // Изменяем запись для вывода в таблицу
         const savedItem = new LogDoDto(currentItem, departmentsItems, equipmentItems);
 
+        await logUserActions(req, res, "Редактирование");   // Логируем действие пользвателя
+
         res.status(201).json({message: "Запись сохранена", item: savedItem});
     } catch (err) {
         console.log(err);
@@ -494,7 +564,29 @@ router.delete("/logDO/:id", async (req, res) => {
     const _id = req.params.id;  // Получение id записи
 
     try {
-        const item = await LogDO.findById({_id});  // Ищем текущую запись
+        // Ищем текущую запись
+        const item = await LogDO
+            .findById({_id})
+            .populate("applicant")
+            .populate({
+                path: "equipment",
+                populate: {
+                    path: "parent",
+                    model: "Equipment"
+                }
+            })
+            .populate({
+                    path: "department",
+                    populate: {
+                        path: "parent",
+                        model: "Department"
+                    }
+                }
+            )
+            .populate("responsible")
+            .populate("taskStatus");
+
+        await logUserActions(req, res, "Удаление", item);   // Логируем действие пользвателя
 
         if (item) {
             await LogDO.deleteOne({_id});   // Удаление записи из базы данных по id записи

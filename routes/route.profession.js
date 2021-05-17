@@ -3,6 +3,8 @@ const {Router} = require("express");
 const {check, validationResult} = require("express-validator");
 
 const Profession = require("../schemes/Profession");
+const Log = require("../schemes/Log");
+const {getUser} = require("./helper");
 
 const router = Router();
 
@@ -16,6 +18,36 @@ const checkMiddleware = [
         .isString()
         .isLength({max: 255})
 ];
+
+/**
+ * Функция логирования действий пользователея
+ * @param req - объект req запроса
+ * @param res - объект res запроса
+ * @param action - действие пользователя
+ * @param body - удаляемая запись
+ * @returns {Promise<*>} - возвращаем промис (сохранение записи в бд)
+ */
+const logUserActions = async (req, res, action, body = null) => {
+    if (!req.cookies) return res.status(500).json({message: "Ошибка чтения файлов cookies"});
+
+    let {name, notes} = req.body;
+
+    if (body) {
+        name = body.name;
+        notes = body.notes;
+    }
+
+    const username = await getUser(req.cookies.token);
+
+    const log = new Log({
+        date: Date.now(),
+        action,
+        username,
+        content: `Раздел: Профессии, Наименование: ${name}, Примечание: ${notes}`
+    });
+
+    await log.save();   // Сохраняем запись в Журнал действий пользователя
+}
 
 // Возвращает запись по коду
 router.get("/professions/:id", async (req, res) => {
@@ -75,6 +107,8 @@ router.post("/professions", checkMiddleware, async (req, res) => {
 
         await item.save();  // Сохраняем запись в базе данных
 
+        await logUserActions(req, res, "Сохранение");   // Логируем действие пользвателя
+
         res.status(201).json({message: "Профессия сохранена", item});
     } catch (err) {
         console.log(err);
@@ -117,6 +151,8 @@ router.put("/professions", checkMiddleware, async (req, res) => {
 
         await item.save();  // Сохраняем запись в базу данных
 
+        await logUserActions(req, res, "Редактирование");   // Логируем действие пользвателя
+
         res.status(201).json({message: "Профессия сохранена", item});
     } catch (err) {
         console.log(err);
@@ -130,6 +166,8 @@ router.delete("/professions/:id", async (req, res) => {
 
     try {
         const item = await Profession.findById({_id});  // Ищем текущую запись
+
+        await logUserActions(req, res, "Удаление", item);   // Логируем действие пользвателя
 
         if (item) {
             await Profession.deleteOne({_id});  // Удаление записи из базы данных по id записи

@@ -834,6 +834,47 @@ const StatisticListColumns = [
     },
 ];
 
+// Создание колонок для раздела "Журнал действий пользователя"
+const LogColumns = [
+    {
+        title: "Дата и время",
+        dataIndex: "date",
+        key: "date",
+        width: 50,
+        sorter: (a, b) => {
+            const start = moment(a.date, TabOptions.dateFormat);
+            const end = moment(b.date, TabOptions.dateFormat);
+
+            return start.diff(end, "milliseconds") < 0;
+        },
+        sortDirections: ["descend", "ascend"],
+    },
+    {
+        title: "Действие",
+        dataIndex: "action",
+        key: "action",
+        width: 50,
+        sorter: (a, b) => a.action.length - b.action.length,
+        sortDirections: ["descend", "ascend"],
+    },
+    {
+        title: "Имя пользователя",
+        dataIndex: "username",
+        key: "username",
+        width: 50,
+        sorter: (a, b) => a.username.length - b.username.length,
+        sortDirections: ["descend", "ascend"],
+    },
+    {
+        title: "Содержание записи",
+        dataIndex: "content",
+        key: "content",
+        width: 100,
+        sorter: (a, b) => a.content.length - b.content.length,
+        sortDirections: ["descend", "ascend"],
+    }
+];
+
 export {
     ProfessionColumns,
     DepartmentColumns,
@@ -847,4 +888,5 @@ export {
     RoleColumns,
     StatisticRatingColumns,
     StatisticListColumns,
+    LogColumns,
 };

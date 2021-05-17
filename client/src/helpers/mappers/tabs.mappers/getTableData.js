@@ -24,6 +24,7 @@ export default function getTableData(key, dataStore) {
         ["roles", dataStore],
         ["statisticRating", dataStore],
         ["statisticList", dataStore],
+        ["logs", dataStore],
     ]);
 
     if (map.has(key)) {

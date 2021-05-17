@@ -26,7 +26,7 @@ export const BodyManager = ({specKey}) => {
         errorHelp: state.reducerHelp.errorTableHelp,
         errorUser: state.reducerUser.errorTableUser,
         errorRole: state.reducerRole.errorTableRole,
-        // errorLog: state.reducerLog.errorTableLog,
+        errorLog: state.reducerLog.errorTableLog,
     }));
 
     return <div className="container-dto">

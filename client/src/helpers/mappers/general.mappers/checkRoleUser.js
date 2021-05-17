@@ -55,6 +55,7 @@ export const checkRoleUser = (key, user) => {
         ["helpItem", canEdit("help")],
         ["userItem", canEdit("users")],
         ["roleItem", canEdit("roles")],
+        ["logItem", canEdit("logs")],
     ]);
 
     if (key === "userManagement" || key === "analytic-section" || key === "personManagement" ||

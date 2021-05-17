@@ -3,8 +3,10 @@ const {Router} = require("express");
 const {check, validationResult} = require("express-validator");
 
 const Person = require("../schemes/Person");
+const Log = require("../schemes/Log");
 const Department = require("../schemes/Department");
 const PersonDto = require("../dto/PersonDto");
+const {getUser} = require("./helper");
 
 const router = Router();
 
@@ -18,6 +20,38 @@ const checkMiddleware = [
         .isString()
         .isLength({max: 255})
 ];
+
+/**
+ * Функция логирования действий пользователея
+ * @param req - объект req запроса
+ * @param res - объект res запроса
+ * @param action - действие пользователя
+ * @param body - удаляемая запись
+ * @returns {Promise<*>} - возвращаем промис (сохранение записи в бд)
+ */
+const logUserActions = async (req, res, action, body = null) => {
+    if (!req.cookies) return res.status(500).json({message: "Ошибка чтения файлов cookies"});
+
+    let {name, notes, department, profession} = req.body;
+
+    if (body) {
+        name = body.name;
+        notes = body.notes;
+        department = body.department;
+        profession = body.profession;
+    }
+
+    const username = await getUser(req.cookies.token);
+
+    const log = new Log({
+        date: Date.now(),
+        action,
+        username,
+        content: `Раздел: Персонал, Наименование: ${name}, Примечание: ${notes}, Подразделение: ${department ? department.name : ""}, Профессия: ${profession ? profession.name : ""}`
+    });
+
+    await log.save();   // Сохраняем запись в Журнал действий пользователя
+}
 
 // Возвращает запись по коду
 router.get("/people/:id", async (req, res) => {
@@ -105,6 +139,8 @@ router.post("/people", checkMiddleware, async (req, res) => {
 
         await newItem.save();   // Сохраняем запись в базе данных
 
+        await logUserActions(req, res, "Сохранение");   // Логируем действие пользвателя
+
         // Получаем все записи подразделений
         const departments = await Department.find({}).populate("parent");
 
@@ -168,6 +204,8 @@ router.put("/people", checkMiddleware, async (req, res) => {
 
         await item.save();  // Сохраняем запись в базу данных
 
+        await logUserActions(req, res, "Редактирование");   // Логируем действие пользвателя
+
         // Получаем все записи подразделений
         const departments = await Department.find({}).populate("parent");
 
@@ -197,7 +235,9 @@ router.delete("/people/:id", async (req, res) => {
     const _id = req.params.id;  // Получение id записи
 
     try {
-        const item = await Person.findById({_id});  // Ищем текущую запись
+        const item = await Person.findById({_id}).populate("department").populate("profession")  // Ищем текущую запись
+
+        await logUserActions(req, res, "Удаление", item);   // Логируем действие пользвателя
 
         if (item) {
             await Person.deleteOne({_id});  // Удаление записи из базы данных по id записи

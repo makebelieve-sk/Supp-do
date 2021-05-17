@@ -14,6 +14,7 @@ import {
     RoleColumns,
     StatisticRatingColumns,
     StatisticListColumns,
+    LogColumns,
 } from "../../../options/tab.options/table.options/columns";
 
 import {
@@ -29,6 +30,7 @@ import {
     headerRole,
     headerStatisticRating,
     headerStatisticList,
+    headerLog,
 } from "../../../options/tab.options/table.options/exportHeaders";
 
 import {ProfessionRoute} from "../../../routes/route.profession";
@@ -44,6 +46,7 @@ import {UserRoute} from "../../../routes/route.User";
 import {AnalyticRoute} from "../../../routes/route.Analytic";
 import {StatisticRatingRoute} from "../../../routes/route.StatisticRating";
 import {StatisticListRoute} from "../../../routes/route.StatisticList";
+import {LogRoute} from "../../../routes/route.Log";
 
 import {ProfessionTab} from "../../../tabs/profession/profession.edit";
 import {DepartmentTab} from "../../../tabs/department/department.edit";
@@ -55,6 +58,7 @@ import {LogDOTab} from "../../../tabs/logDo/logDO.edit";
 import {HelpTab} from "../../../tabs/help/help";
 import {UserTab} from "../../../tabs/user/user";
 import {RoleTab} from "../../../tabs/role/role";
+import {LogTab} from "../../../tabs/log/log";
 
 import store from "../../../redux/store";
 import openRecord from "../../functions/tabs.functions/openRecordTab";
@@ -236,7 +240,23 @@ const map = new Map([
         getPrintData: () => store.getState().reducerStatistic.statisticList,
         getExportName: "Перечень не закрытых заявок",
         model: StatisticListRoute,
-    }]
+    }],
+    ["logs", {
+        openRecordTab: (_id) => openRecord(
+            _id,
+            "Просмотр записи",
+            "Просмотр записи",
+            LogTab,
+            "logItem",
+            LogRoute
+        ),
+        getColumns: LogColumns,
+        getTableHeader: headerLog,
+        getPrintName: "Журнал действий пользователей",
+        getPrintData: () => store.getState().reducerLog.logs,
+        getExportName: "Журнал действий пользователей",
+        model: LogRoute
+    }],
 ]);
 
 /**

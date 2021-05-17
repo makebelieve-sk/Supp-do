@@ -3,6 +3,8 @@ const {Router} = require("express");
 const {check, validationResult} = require("express-validator");
 
 const TaskStatus = require("../schemes/TaskStatus");
+const Log = require("../schemes/Log");
+const {getUser} = require("./helper");
 
 const router = Router();
 
@@ -21,6 +23,38 @@ const checkMiddleware = [
         .isLength({max: 255}),
     check("isFinish", "Поле 'Завершено' должно быть булевым").isBoolean()
 ];
+
+/**
+ * Функция логирования действий пользователея
+ * @param req - объект req запроса
+ * @param res - объект res запроса
+ * @param action - действие пользователя
+ * @param body - удаляемая запись
+ * @returns {Promise<*>} - возвращаем промис (сохранение записи в бд)
+ */
+const logUserActions = async (req, res, action, body = null) => {
+    if (!req.cookies) return res.status(500).json({message: "Ошибка чтения файлов cookies"});
+
+    let {name, color, notes, isFinish} = req.body;
+
+    if (body) {
+        name = body.name;
+        notes = body.notes;
+        color = body.color;
+        isFinish = body.isFinish;
+    }
+
+    const username = await getUser(req.cookies.token);
+
+    const log = new Log({
+        date: Date.now(),
+        action,
+        username,
+        content: `Раздел: Состояние заявок, Наименование: ${name}, Примечание: ${notes}, Цвет: ${color}, Завершено: ${isFinish}`
+    });
+
+    await log.save();   // Сохраняем запись в Журнал действий пользователя
+}
 
 // Возвращает запись по коду
 router.get("/tasks/:id", async (req, res) => {
@@ -81,6 +115,8 @@ router.post("/tasks", checkMiddleware, async (req, res) => {
 
         await item.save();  // Сохраняем запись в базе данных
 
+        await logUserActions(req, res, "Сохранение");   // Логируем действие пользвателя
+
         res.status(201).json({message: "Запись о состоянии заявки сохранена", item});
     } catch (err) {
         console.log(err);
@@ -126,6 +162,8 @@ router.put("/tasks", checkMiddleware, async (req, res) => {
 
         await item.save();  // Сохраняем запись в базу данных
 
+        await logUserActions(req, res, "Редактирование");   // Логируем действие пользвателя
+
         res.status(201).json({message: "Запись о состоянии заявки сохранена", item});
     } catch (err) {
         console.log(err);
@@ -139,6 +177,8 @@ router.delete("/tasks/:id", async (req, res) => {
 
     try {
         const item = await TaskStatus.findById({_id});  // Ищем текущую запись
+
+        await logUserActions(req, res, "Удаление", item);   // Логируем действие пользвателя
 
         if (item) {
             await TaskStatus.deleteOne({_id});  // Удаление записи из базы данных по id записи

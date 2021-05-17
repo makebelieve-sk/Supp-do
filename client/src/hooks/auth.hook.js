@@ -17,6 +17,7 @@ import {StatisticRatingRoute} from "../routes/route.StatisticRating";
 import {UserRoute} from "../routes/route.User";
 import {RoleRoute} from "../routes/route.Role";
 import {HelpRoute} from "../routes/route.Help";
+import {LogRoute} from "../routes/route.Log";
 
 const storageName = "user";   // Название объект пользователя в локальном хранилище браузера
 const jwt = "token";   // Название поля в куки для сохранения токена пользователя
@@ -129,7 +130,7 @@ export const useAuth = () => {
                             {
                                 title: "Журнал действий пользователя",
                                 key: "logs",
-                                // model: LogRoute
+                                model: LogRoute
                             }
                         ]
                     },

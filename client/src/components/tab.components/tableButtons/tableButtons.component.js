@@ -1,8 +1,8 @@
 // Компонент, отрисовывающий кнопки таблицы
 import React, {useMemo, useState} from "react";
 import {useSelector} from "react-redux";
-import {Button, Checkbox, Dropdown, Menu} from "antd";
-import {EditOutlined, FileExcelOutlined, PlusOutlined} from "@ant-design/icons";
+import {Button, Checkbox, Dropdown, Menu, Popconfirm} from "antd";
+import {DeleteOutlined, EditOutlined, FileExcelOutlined, PlusOutlined, QuestionCircleOutlined} from "@ant-design/icons";
 
 import {checkRoleUser} from "../../../helpers/mappers/general.mappers/checkRoleUser";
 import {getColumns, getTableHeader, openRecordTab} from "../../../helpers/mappers/tabs.mappers/table.helper";
@@ -10,6 +10,7 @@ import PrintButton from "./printButton";
 import {useWindowWidth} from "../../../hooks/windowWidth.hook";
 
 import "./tableButtons.css";
+import {LogRoute} from "../../../routes/route.Log";
 
 export const ButtonsComponent = ({specKey, onExport, setColumnsTable}) => {
     const user = useSelector(state => state.reducerAuth.user);  // Получение объекта пользователя
@@ -19,6 +20,8 @@ export const ButtonsComponent = ({specKey, onExport, setColumnsTable}) => {
     // Создание состояний для начальных колонок, для отображения выпадающего меню
     const [checkedColumns, setCheckedColumns] = useState([]);
     const [visible, setVisible] = useState(false);
+    const [visiblePopConfirm, setVisiblePopConfirm] = useState(false);
+    const [loadingDelete, setLoadingDelete] = useState(false);
 
     // Получение колонок и шапки таблицы, проверка роли пользователя
     const columns = useMemo(() => getColumns(specKey), [specKey]);
@@ -84,7 +87,7 @@ export const ButtonsComponent = ({specKey, onExport, setColumnsTable}) => {
         return (
             <div className="wrapper_buttons">
                 {
-                    user && checkRoleUser(specKey, user).edit
+                    user && checkRoleUser(specKey, user).edit && specKey !== "logs"
                         ? <Button
                             className={`button ${short}`}
                             icon={<PlusOutlined/>}
@@ -93,6 +96,31 @@ export const ButtonsComponent = ({specKey, onExport, setColumnsTable}) => {
                         >
                             {getContent("Добавить")}
                         </Button>
+                        : null
+                }
+
+                {
+                    user && checkRoleUser(specKey, user).edit && specKey === "logs"
+                        ? <Popconfirm
+                            title="Удалить всё за выбранный период?"
+                            okText="Удалить"
+                            visible={visiblePopConfirm}
+                            onConfirm={async () => {
+                                await LogRoute.deleteByPeriod(setLoadingDelete, setVisiblePopConfirm)
+                            }}
+                            onCancel={() => setVisiblePopConfirm(false)}
+                            okButtonProps={{loading: loadingDelete}}
+                            icon={<QuestionCircleOutlined style={{color: "red"}}/>}
+                        >
+                            <Button
+                                className={`button ${short}`}
+                                type="danger"
+                                icon={<DeleteOutlined/>}
+                                onClick={() => setVisiblePopConfirm(true)}
+                            >
+                                {getContent("Удалить")}
+                            </Button>
+                        </Popconfirm>
                         : null
                 }
 
@@ -107,5 +135,6 @@ export const ButtonsComponent = ({specKey, onExport, setColumnsTable}) => {
                 </Dropdown>
             </div>
         );
-    }, [specKey, onExport, visible, columns, checkedColumns, setCheckedColumns, setColumnsTable, headers, user, screen]);
+    }, [specKey, onExport, visible, columns, checkedColumns, setCheckedColumns, setColumnsTable, headers, user,
+        screen, visiblePopConfirm, setVisiblePopConfirm, loadingDelete, setLoadingDelete]);
 };

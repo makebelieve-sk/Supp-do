@@ -3,7 +3,9 @@ const {Router} = require("express");
 const {check, validationResult} = require("express-validator");
 
 const User = require("../schemes/User");
+const Log = require("../schemes/Log");
 const Role = require("../schemes/Role");
+const {getUser} = require("./helper");
 const {permissions} = require("./helper");
 
 const router = Router();
@@ -18,6 +20,36 @@ const checkMiddleware = [
         .isString()
         .isLength({max: 255})
 ];
+
+/**
+ * Функция логирования действий пользователея
+ * @param req - объект req запроса
+ * @param res - объект res запроса
+ * @param action - действие пользователя
+ * @param body - удаляемая запись
+ * @returns {Promise<*>} - возвращаем промис (сохранение записи в бд)
+ */
+const logUserActions = async (req, res, action, body = null) => {
+    if (!req.cookies) return res.status(500).json({message: "Ошибка чтения файлов cookies"});
+
+    let {name, notes} = req.body;
+
+    if (body) {
+        name = body.name;
+        notes = body.notes;
+    }
+
+    const username = await getUser(req.cookies.token);
+
+    const log = new Log({
+        date: Date.now(),
+        action,
+        username,
+        content: `Раздел: Роли, Наименование: ${name}, Примечание: ${notes}`
+    });
+
+    await log.save();   // Сохраняем запись в Журнал действий пользователя
+}
 
 // Возвращает запись по коду
 router.get("/roles/:id", async (req, res) => {
@@ -126,6 +158,8 @@ router.post("/roles", checkMiddleware, async (req, res) => {
 
         await item.save();  // Сохраняем запись в базе данных
 
+        await logUserActions(req, res, "Сохранение");   // Логируем действие пользвателя
+
         res.status(201).json({message: "Запись сохранена", item});
     } catch (err) {
         console.log(err);
@@ -165,6 +199,8 @@ router.put("/roles", checkMiddleware, async (req, res) => {
 
         await item.save();  // Сохраняем запись в базу данных
 
+        await logUserActions(req, res, "Редактирование");   // Логируем действие пользвателя
+
         res.status(201).json({message: "Запись сохранена", item});
     } catch (err) {
         console.log(err);
@@ -178,6 +214,8 @@ router.delete("/roles/:id", async (req, res) => {
 
     try {
         const item = await Role.findById({_id});  // Ищем текущую запись
+
+        await logUserActions(req, res, "Удаление", item);   // Логируем действие пользвателя
 
         if (item) {
             await Role.deleteOne({_id});    // Удаление записи из базы данных по id записи

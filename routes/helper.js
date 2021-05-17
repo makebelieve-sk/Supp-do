@@ -1,3 +1,9 @@
+// Файл помощник для роутов сервера
+const jwt = require("jsonwebtoken");
+
+const User = require("../schemes/User");
+const config = require("../config/default.json");
+
 // Исходный массив разрешений
 const permissions = [
     {title: "Профессии", read: false, edit: false, key: "professions"},
@@ -29,11 +35,39 @@ const permissionsAdmin = [
     {title: "Помощь", read: true, edit: true, key: "help"},
     {title: "Пользователи", read: true, edit: true, key: "users"},
     {title: "Роли", read: true, edit: true, key: "roles"},
-    {title: "Журнал действий пользователей", read: true, edit: false, key: "logs"},
+    {title: "Журнал действий пользователей", read: true, edit: true, key: "logs"},
     {title: "Аналитика", read: true, edit: false, key: "analytic"},
     {title: "Статистика", read: true, edit: false, key: "statistic"},
     {title: "Смена пароля", read: true, edit: true, key: "changePassword"},
     {title: "Принятие работы", read: false, edit: true, key: "acceptTask"},
 ];
 
-module.exports = {permissions, permissionsAdmin};
+const getUser = async (cookies, res) => {
+    try {
+        const token = cookies;    // Получение токена пользователя
+
+        let decoded;
+
+        try {
+            decoded = jwt.verify(token, config.jwtSecret);    // Расшифровываем токен
+
+            if (!decoded.userId) return res.status(401).json({message: "Вы не авторизованы"});
+        } catch (e) {
+            // Если токен просрочен, то выдаем ошибку 401
+            console.log(e.message);
+            return res.status(401).json({message: "Время жизни токена истекло"});
+        }
+
+        // Находим текущего пользователя с ролями
+        const user = await User.findById({_id: decoded.userId}).select("userName");
+
+        if (!user) return res.status(403).json({message: "Такого пользователя не существует"});
+
+        return user.userName;
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({message: "Ошика получения пользователя"});
+    }
+}
+
+module.exports = {permissions, permissionsAdmin, getUser};

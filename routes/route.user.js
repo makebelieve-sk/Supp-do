@@ -4,7 +4,9 @@ const {check, validationResult} = require("express-validator");
 const bcrypt = require("bcryptjs");
 
 const User = require("../schemes/User");
+const Log = require("../schemes/Log");
 const UserDto = require("../dto/UserDto");
+const {getUser} = require("./helper");
 
 const router = Router();
 
@@ -23,6 +25,39 @@ const checkMiddleware = [
         .notEmpty()
         .isLength({min: 1, max: 255}),
 ];
+
+/**
+ * Функция логирования действий пользователея
+ * @param req - объект req запроса
+ * @param res - объект res запроса
+ * @param action - действие пользователя
+ * @param body - удаляемая запись
+ * @returns {Promise<*>} - возвращаем промис (сохранение записи в бд)
+ */
+const logUserActions = async (req, res, action, body = null) => {
+    if (!req.cookies) return res.status(500).json({message: "Ошибка чтения файлов cookies"});
+
+    let {userName, person, firstName, secondName, email} = req.body;
+
+    if (body) {
+        userName = body.userName;
+        person = body.person;
+        firstName = body.firstName;
+        secondName = body.secondName;
+        email = body.email;
+    }
+
+    const username = await getUser(req.cookies.token);
+
+    const log = new Log({
+        date: Date.now(),
+        action,
+        username,
+        content: `Раздел: Пользователи, Имя пользователя: ${userName}, Сотрудник: ${person ? person.name : ""}, Почта: ${email}, Имя: ${firstName}, Фамилия: ${secondName}`
+    });
+
+    await log.save();   // Сохраняем запись в Журнал действий пользователя
+}
 
 // Возвращает запись по коду
 router.get("/users/:id", async (req, res) => {
@@ -103,6 +138,8 @@ router.post("/users", checkMiddleware, async (req, res) => {
 
         await item.save();  // Сохраняем запись в базе данных
 
+        await logUserActions(req, res, "Сохранение");   // Логируем действие пользвателя
+
         const currentItem = await User.findOne({_id: item._id})
             .populate("person")
             .populate("roles")
@@ -160,6 +197,8 @@ router.put("/users", checkMiddleware, async (req, res) => {
 
         await item.save();  // Сохраняем запись в базу данных
 
+        await logUserActions(req, res, "Редактирование");   // Логируем действие пользвателя
+
         const currentItem = await User
             .findOne({_id})
             .populate("person")
@@ -181,7 +220,9 @@ router.delete("/users/:id", async (req, res) => {
     try {
         const _id = req.params.id;  // Получаем _id записи
 
-        const item = await User.findById({_id});  // Ищем текущую запись
+        const item = await User.findById({_id}).populate("person");  // Ищем текущую запись
+
+        await logUserActions(req, res, "Удаление", item);   // Логируем действие пользвателя
 
         if (item) {
             await User.deleteOne({_id});    // Удаление записи из базы данных по id записи

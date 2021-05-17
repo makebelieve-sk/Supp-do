@@ -62,10 +62,10 @@ export default function getErrorTable(key, stateObject) {
             errorText: stateObject.errorRole,
             action: ActionCreator.ActionCreatorRole.setErrorTableRole(null)
         }],
-        // ["logs", {
-        //     errorText: stateObject.errorLog,
-        //     action: ActionCreator.ActionCreatorLog.setErrorTableLog
-        // }],
+        ["logs", {
+            errorText: stateObject.errorLog,
+            action: ActionCreator.ActionCreatorLog.setErrorTableLog(null)
+        }],
     ]);
     
     if (map.has(key)) {

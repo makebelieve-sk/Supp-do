@@ -15,13 +15,15 @@ import tableSettings from "../../../options/tab.options/table.options/settings";
 import TabOptions from "../../../options/tab.options/record.options/record.options";
 
 import "./tableHeader.css";
+import {LogRoute} from "../../../routes/route.Log";
 
 export const TableHeaderComponent = ({data, specKey, filterText, setFilterText, setColumnsTable}) => {
     // Получение даты ЖДО и статистики в датапикер
-    const {dateLogDO, dateRating, dateList} = useSelector(state => ({
+    const {dateLogDO, dateRating, dateList, dateLog} = useSelector(state => ({
         dateLogDO: state.reducerLogDO.date,
         dateRating: state.reducerStatistic.dateRating,
         dateList: state.reducerStatistic.dateList,
+        dateLog: state.reducerLog.dateLog,
     }));
     const dispatch = useDispatch();
 
@@ -41,6 +43,11 @@ export const TableHeaderComponent = ({data, specKey, filterText, setFilterText, 
     if (specKey === "statisticList" && dateList) {
         date = [moment(dateList.split("/")[0], TabOptions.dateFormat),
             moment(dateList.split("/")[1], TabOptions.dateFormat)];
+    }
+
+    if (specKey === "logs" && dateLog) {
+        date = [moment(dateLog.split("/")[0], TabOptions.dateFormat),
+            moment(dateLog.split("/")[1], TabOptions.dateFormat)];
     }
 
     // Реализация экспорта
@@ -68,6 +75,12 @@ export const TableHeaderComponent = ({data, specKey, filterText, setFilterText, 
             // Записываем текущий диапазон даты в хранилище
             dispatch(ActionCreator.ActionCreatorStatistic.setDateList(date));
         }
+
+        if (specKey === "logs") {
+            await LogRoute.getAll(date);  // Обновляем записи раздела Журнал действий пользователя
+            // Записываем текущий диапазон даты в хранилище
+            dispatch(ActionCreator.ActionCreatorLog.setDateLog(date));
+        }
     }
 
     return (
@@ -80,7 +93,8 @@ export const TableHeaderComponent = ({data, specKey, filterText, setFilterText, 
             {/*Датапикер*/}
             <Col flex="1 1 auto" className="item">
                 <RangePickerComponent
-                    isVisible={specKey === "logDO" || specKey === "statisticRating" || specKey === "statisticList"}
+                    isVisible={specKey === "logDO" || specKey === "statisticRating" || specKey === "statisticList" ||
+                    specKey === "logs"}
                     onChange={onChangeRangePicker}
                     date={date}
                 />

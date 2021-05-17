@@ -3,6 +3,8 @@ const {Router} = require("express");
 const {check, validationResult} = require("express-validator");
 
 const EquipmentProperty = require("../schemes/EquipmentProperty");
+const Log = require("../schemes/Log");
+const {getUser} = require("./helper");
 
 const router = Router();
 
@@ -16,6 +18,36 @@ const checkMiddleware = [
         .isString()
         .isLength({max: 255})
 ];
+
+/**
+ * Функция логирования действий пользователея
+ * @param req - объект req запроса
+ * @param res - объект res запроса
+ * @param action - действие пользователя
+ * @param body - удаляемая запись
+ * @returns {Promise<*>} - возвращаем промис (сохранение записи в бд)
+ */
+const logUserActions = async (req, res, action, body = null) => {
+    if (!req.cookies) return res.status(500).json({message: "Ошибка чтения файлов cookies"});
+
+    let {name, notes} = req.body;
+
+    if (body) {
+        name = body.name;
+        notes = body.notes;
+    }
+
+    const username = await getUser(req.cookies.token);
+
+    const log = new Log({
+        date: Date.now(),
+        action,
+        username,
+        content: `Раздел: Перечень оборудования, Наименование: ${name}, Примечание: ${notes}`
+    });
+
+    await log.save();   // Сохраняем запись в Журнал действий пользователя
+}
 
 // Возвращает запись по коду
 router.get("/equipmentProperties/:id", async (req, res) => {
@@ -76,6 +108,8 @@ router.post("/equipmentProperties", checkMiddleware, async (req, res) => {
 
         const savedItem = await newItem.save(); // Сохраняем запись в базе данных
 
+        await logUserActions(req, res, "Сохранение");   // Логируем действие пользвателя
+
         res.status(201).json({message: "Характеристика сохранена", item: savedItem});
     } catch (err) {
         console.log(err);
@@ -106,7 +140,7 @@ router.put("/equipmentProperties", checkMiddleware, async (req, res) => {
         // Ищем все подразделения
         const equipmentProperties = await EquipmentProperty.find({});
 
-        if (departments && equipmentProperties.length) {
+        if (equipmentProperties && equipmentProperties.length) {
             for (let i = 0; i < equipmentProperties.length; i++) {
                 if (equipmentProperties[i].name === name && equipmentProperties[i]._id.toString() !== _id.toString()) {
                     return res.status(400).json({message: "Характеристика с таким именем уже существует"});
@@ -118,6 +152,8 @@ router.put("/equipmentProperties", checkMiddleware, async (req, res) => {
         item.notes = notes;
 
         await item.save();  // Сохраняем запись в базу данных
+
+        await logUserActions(req, res, "Редактирование");   // Логируем действие пользвателя
 
         res.status(201).json({message: "Характеристика сохранена", item: item});
     } catch (err) {
@@ -131,7 +167,9 @@ router.delete("/equipmentProperties/:id", async (req, res) => {
     const _id = req.params.id;  // Получение id записи
 
     try {
-        const item = await Department.findById({_id});  // Ищем текущую запись
+        const item = await EquipmentProperty.findById({_id});  // Ищем текущую запись
+
+        await logUserActions(req, res, "Удаление", item);   // Логируем действие пользвателя
 
         if (item) {
             await EquipmentProperty.deleteOne({_id});   // Удаление записи из базы данных по id записи
