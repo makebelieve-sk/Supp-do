@@ -32,7 +32,9 @@ export const BarChartComponent = ({data, goToLogDO}) => {
      * @param event - событие мыши
      */
     const onClick = (event) => {
-        if (event.type === "click" && event.data) goToLogDO("/bar", event.data.data);
+        if (event.type === "click" && event.data) {
+            goToLogDO("/bar", event.data.data);
+        }
     };
 
     return (

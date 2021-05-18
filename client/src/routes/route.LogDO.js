@@ -151,8 +151,6 @@ export const LogDORoute = {
     // Удаление записи
     delete: async function (_id, setLoadingDelete, setVisiblePopConfirm) {
         try {
-            // await this.getAll();    // Обновляем все записи раздела
-
             // Устанавливаем спиннер загрузки
             setLoadingDelete(true);
 
@@ -170,18 +168,24 @@ export const LogDORoute = {
                     const logDO = store.getState().reducerLogDO.logDO;
 
                     // Удаляем запись из хранилища redux
-                    let foundLogDO = logDO.find(log => {
-                        return log._id === _id;
-                    });
-                    let indexLogDO = logDO.indexOf(foundLogDO);
+                    const foundLogDO = logDO.find(log => log._id === _id);
+                    const indexLogDO = logDO.indexOf(foundLogDO);
 
                     if (foundLogDO && indexLogDO >= 0) {
                         store.dispatch(ActionCreator.ActionCreatorLogDO.deleteLogDO(indexLogDO));
                     }
 
-                    // Обновляем список записей в таблице по выбранной дате
-                    const currentDate = store.getState().reducerLogDO.date;
-                    await this.getAll(currentDate);
+                    // Получаем из редакса объект фильтра
+                    const alert = store.getState().reducerLogDO.alert;
+
+                    // Если указан фильтр (был переход с аналитики или статистики)
+                    if (alert.url || alert.alert) {
+                        await AnalyticRoute.goToLogDO(alert.url, alert.filter);
+                    } else {
+                        // Обновляем список записей в таблице по выбранной дате
+                        const currentDate = store.getState().reducerLogDO.date;
+                        await this.getAll(currentDate);
+                    }
 
                     // Останавливаем спиннер, и скрываем всплывающее окно
                     setLoadingDelete(false);

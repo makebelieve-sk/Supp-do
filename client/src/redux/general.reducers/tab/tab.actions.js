@@ -5,6 +5,7 @@ import {
     SET_ACTIVE_KEY,
     SET_TABS_IN_HISTORY,
     SET_TABS,
+    SET_PAGE_SIZE,
 } from "./tab.constants";
 
 const ActionCreatorTab = {
@@ -49,6 +50,13 @@ const ActionCreatorTab = {
         return {
             type: SET_TABS,
             payload: tab
+        }
+    },
+    // Установка количества записей на странице таблицы
+    setPageSize: (pageSize) => {
+        return {
+            type: SET_PAGE_SIZE,
+            payload: pageSize
         }
     }
 }

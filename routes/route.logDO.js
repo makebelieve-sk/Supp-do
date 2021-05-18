@@ -2,6 +2,10 @@
 const moment = require("moment");
 const {Router} = require("express");
 const {check, validationResult} = require("express-validator");
+const sendmail = require('sendmail')({
+    smtpHost:'localhost',
+    smtpPort: 3000
+});
 
 const File = require("../schemes/File");
 const LogDO = require("../schemes/LogDO");
@@ -450,6 +454,18 @@ router.put("/logDO", checkMiddleware, async (req, res) => {
         } = req.body;
 
         const item = await LogDO.findById({_id});   // Ищем запись в базе данных по уникальному идентификатору
+
+        if (sendEmail) {
+            sendmail({
+                from: 'skryabin.aleksey99@gmail.com',
+                to: 'skryabin.aleksey99@gmail.com',
+                subject: 'test sendmail',
+                html: 'Mail of test sendmail ',
+            }, function(err, reply) {
+                console.log(err && err.stack);
+                console.dir(reply);
+            });
+        }
 
         // Проверяем на существование записи с уникальным идентификатором
         if (!item) return res.status(404).json({message: `Запись с именем ${name} (${_id}) не найдена`});

@@ -35,6 +35,7 @@ export const TableComponent = ({specKey}) => {
         legend: state.reducerLogDO.legend,
         alert: state.reducerLogDO.alert,
         activeKey: state.reducerTab.activeKey,
+        pageSizeOptions: state.reducerTab.pageSizeOptions,
     }));
 
     // Получение колонок для таблицы и состояния для редактирования записи
@@ -120,7 +121,12 @@ export const TableComponent = ({specKey}) => {
                         bordered
                         size={tableSettings.size}
                         scroll={tableSettings.scroll}
-                        pagination={tableSettings.pagination}
+                        pagination={{
+                            ...tableSettings.pagination,
+                            pageSize: stateObject.pageSizeOptions && stateObject.pageSizeOptions[specKey]
+                                ? stateObject.pageSizeOptions[specKey]
+                                : 10
+                        }}
                         dataSource={columnsTable && columnsTable.length === 0 ? null : Array.from(filteredItems)}
                         columns={columnsTable}
                         rowKey={record => record._id.toString()}

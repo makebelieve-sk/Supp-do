@@ -1,6 +1,10 @@
 // Настройки таблицы
+import Cookies from "js-cookie";
+
 import {getExportName, getTableHeader} from "../../../helpers/mappers/tabs.mappers/table.helper";
 import {getFilteredData} from "../../global.options/global.options";
+import store from "../../../redux/store";
+import {ActionCreator} from "../../../redux/combineActions";
 
 // Экспорт в эксель
 const downloadCSV = (array, key) => {
@@ -58,11 +62,25 @@ const convertArrayOfObjectsToCSV = (array, key) => {
     return result;
 };
 
+const pageSize = "pageSize";   // Название поля в куки для сохранения количества записей на странице таблицы
+
 // Объект настроек таблицы
 const tableSettings = {
     pagination: {
         showSizeChanger: true,
-        pageSizeOptions: ["5", "10", "20", "30"]
+        pageSizeOptions: [10, 20, 50, 100],
+        onShowSizeChange: (_, size) => {
+            // Обновляем куки количества записей на странице таблицы
+            const activeKey = store.getState().reducerTab.activeKey;
+
+            const pageSizeObject = JSON.parse(Cookies.get(pageSize));
+
+            pageSizeObject[activeKey] = size;
+
+            store.dispatch(ActionCreator.ActionCreatorTab.setPageSize(pageSizeObject));
+
+            Cookies.set(pageSize, pageSizeObject);
+        }
     },
     export: downloadCSV,
     size: "small",

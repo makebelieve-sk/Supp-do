@@ -33,6 +33,7 @@
     "jsonwebtoken": "^8.5.1",
     "moment": "^2.29.1",
     "mongoose": "^5.11.11",
+    "nodemailer": "^6.6.0",
     "react-color": "^2.19.3",
     "react-data-table-component": "^7.0.0-alpha-3",
     "react-html-parser": "^2.0.2",
@@ -40,6 +41,7 @@
     "react-router-dom": "^5.2.0",
     "react-to-print": "^2.12.2",
     "redux": "^4.0.5",
+    "sendmail": "^1.6.1",
     "styled-components": "^5.2.1",
     "tinymce": "^5.7.1",
     "tslib": "^2.1.0"

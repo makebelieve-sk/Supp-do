@@ -6,6 +6,7 @@ import {
     SET_ACTIVE_KEY,
     SET_TABS_IN_HISTORY,
     SET_TABS,
+    SET_PAGE_SIZE,
 } from "./tab.constants";
 
 export default function reducerTab(state = initialState, action) {
@@ -39,6 +40,11 @@ export default function reducerTab(state = initialState, action) {
             return {
                 ...state,
                 tabs: action.payload
+            };
+        case SET_PAGE_SIZE:
+            return {
+                ...state,
+                pageSizeOptions: action.payload
             };
         default:
             return state;

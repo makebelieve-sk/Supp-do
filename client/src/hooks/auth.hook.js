@@ -21,6 +21,7 @@ import {LogRoute} from "../routes/route.Log";
 
 const storageName = "user";   // Название объект пользователя в локальном хранилище браузера
 const jwt = "token";   // Название поля в куки для сохранения токена пользователя
+const pageSize = "pageSize";   // Название поля в куки для сохранения количества записей на странице таблицы
 
 export const useAuth = () => {
     const [token, setToken] = useState(null);
@@ -142,6 +143,37 @@ export const useAuth = () => {
                 ]
             }
         ]));
+
+        const cookiesPageSizeOptions = Cookies.get(pageSize);
+
+        // Если в куках есть значение pageSize, то обновляем редакс, иначе обновляем и редакс и куки
+        if (cookiesPageSizeOptions) {
+            const pageSizeObject = JSON.parse(Cookies.get(pageSize));
+
+            store.dispatch(ActionCreator.ActionCreatorTab.setPageSize(pageSizeObject));
+        } else {
+            const pageSizeDefault = 10;
+
+            const pageSizeObject = {
+                professions: pageSizeDefault,
+                departments: pageSizeDefault,
+                people: pageSizeDefault,
+                tasks: pageSizeDefault,
+                equipmentProperties: pageSizeDefault,
+                equipment: pageSizeDefault,
+                logDO: pageSizeDefault,
+                help: pageSizeDefault,
+                users: pageSizeDefault,
+                roles: pageSizeDefault,
+                statisticRating: pageSizeDefault,
+                statisticList: pageSizeDefault,
+                logs: pageSizeDefault,
+            }
+
+            // Записываем объект количества записей на странице таблицы в куки
+            Cookies.set(pageSize, pageSizeObject);
+            store.dispatch(ActionCreator.ActionCreatorTab.setPageSize(pageSizeObject));
+        }
     }, []);
 
     // Функция выхода
@@ -153,6 +185,7 @@ export const useAuth = () => {
         localStorage.removeItem(storageName);
 
         Cookies.remove(jwt);    // Удаляем токен из куки
+        Cookies.remove(pageSize);    // Удаляем токен из куки
 
         // Возвращаем начальное состояние redux
         store.dispatch({type: "USER_LOGOUT", payload: undefined});

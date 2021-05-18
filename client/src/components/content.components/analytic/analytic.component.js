@@ -1,7 +1,8 @@
 // Компонент отображающий раздел "Аналитика"
 import React from "react";
 import {useSelector} from "react-redux";
-import {Col, Row, Grid} from "antd";
+import {Col, Row, Grid, message} from "antd";
+import moment from "moment";
 
 import {LineChartComponent} from "../../tab.components/lineChart/lineChart.component";
 import {BarChartComponent} from "../../tab.components/barChart/barChart.component";
@@ -16,7 +17,6 @@ import emptyTab from "../../../helpers/functions/tabs.functions/emptyTab";
 import {BodyManager} from "../body/body.component";
 
 import "./analytic.css";
-import moment from "moment";
 
 const {useBreakpoint} = Grid; // Извлекаем хук useBreakpoint из Grid Antd
 
@@ -91,11 +91,12 @@ export const AnalyticComponent = () => {
                 <Col
                     xs={24} sm={12} md={8} lg={8} xl={4}
                     className="col-circle-1"
-                    onClick={() => goToLogDO("/unassignedTasks")}
+                    onClick={() =>
+                        analytic && analytic.unassignedTasks ? goToLogDO("/unassignedTasks") : message.warning("Записей нет")}
                 >
                     <CircleComponent
                         title="Неназначенные заявки"
-                        value={analytic ? analytic.unassignedTasks : 0}
+                        value={analytic && analytic.unassignedTasks ? analytic.unassignedTasks : 0}
                         borderColor={analytic && prevAnalyticData &&
                             prevAnalyticData.unassignedTasks < analytic.unassignedTasks ? "red" : "green"}
                     />
@@ -105,11 +106,11 @@ export const AnalyticComponent = () => {
                 <Col
                     xs={24} sm={12} md={8} lg={8} xl={4}
                     className="col-circle-2"
-                    onClick={() => goToLogDO("/inWorkTasks")}
+                    onClick={() => analytic && analytic.inWorkTasks ? goToLogDO("/inWorkTasks") : message.warning("Записей нет")}
                 >
                     <CircleComponent
                         title="Заявки в работе"
-                        value={analytic ? analytic.inWorkTasks : 0}
+                        value={analytic && analytic.inWorkTasks ? analytic.inWorkTasks : 0}
                         borderColor={analytic && prevAnalyticData
                         && prevAnalyticData.inWorkTasks < analytic.inWorkTasks ? "red" : "green"}
                     />
@@ -119,11 +120,11 @@ export const AnalyticComponent = () => {
                 <Col
                     xs={24} sm={24} md={8} lg={8} xl={4}
                     className="col-circle-3"
-                    onClick={() => goToLogDO("/notAccepted")}
+                    onClick={() => analytic && analytic.notAccepted ? goToLogDO("/notAccepted") : message.warning("Записей нет")}
                 >
                     <CircleComponent
                         title="Непринятые заявки"
-                        value={analytic ? analytic.notAccepted : 0}
+                        value={analytic && analytic.notAccepted ? analytic.notAccepted : 0}
                         borderColor={analytic && prevAnalyticData
                         && prevAnalyticData.notAccepted < analytic.notAccepted ? "red" : "green"}
                     />
@@ -211,7 +212,8 @@ export const AnalyticComponent = () => {
                 <Col
                     xs={24} sm={24} md={12} lg={6} xl={6}
                     className="col-rating-1"
-                    onClick={() => goToLogDO("/rating/bounceRating")}
+                    onClick={() =>
+                        analytic && analytic.bounceRating ? goToLogDO("/rating/bounceRating") : message.warning("Записей нет")}
                 >
                     <RatingComponent
                         title="Рейтинг отказов за 12 месяцев (Топ-5)"
@@ -224,7 +226,8 @@ export const AnalyticComponent = () => {
                 <Col
                     xs={24} sm={24} md={12} lg={6} xl={6}
                     className="col-rating-2"
-                    onClick={() => goToLogDO("/rating/ratingOrders")}
+                    onClick={() =>
+                        analytic && analytic.ratingOrders ? goToLogDO("/rating/ratingOrders"): message.warning("Записей нет")}
                 >
                     <RatingComponent
                         title="Рейтинг незакрытых заявок (Топ-5)"

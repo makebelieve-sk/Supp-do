@@ -14,7 +14,7 @@ const ProfessionColumns = [
         dataIndex: "name",
         key: "name",
         width: 100,
-        sorter: (a, b) => a.name.length - b.name.length,
+        sorter: (a, b) => a.name.toLowerCase() < b.name.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
     },
     {
@@ -22,7 +22,7 @@ const ProfessionColumns = [
         dataIndex: "notes",
         key: "notes",
         width: 100,
-        sorter: (a, b) => a.notes.length - b.notes.length,
+        sorter: (a, b) => a.notes.toLowerCase() < b.notes.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
     }
 ];
@@ -34,7 +34,7 @@ const DepartmentColumns = [
         dataIndex: "name",
         key: "name",
         width: 100,
-        sorter: (a, b) => a.name.length - b.name.length,
+        sorter: (a, b) => a.name.toLowerCase() < b.name.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
     },
     {
@@ -42,7 +42,7 @@ const DepartmentColumns = [
         dataIndex: "notes",
         key: "notes",
         width: 100,
-        sorter: (a, b) => a.notes.length - b.notes.length,
+        sorter: (a, b) => a.notes.toLowerCase() < b.notes.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
     }
 ];
@@ -54,7 +54,7 @@ const PersonColumns = [
         dataIndex: "name",
         key: "name",
         width: 100,
-        sorter: (a, b) => a.name.length - b.name.length,
+        sorter: (a, b) => a.name.toLowerCase() < b.name.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
     },
     {
@@ -62,7 +62,7 @@ const PersonColumns = [
         dataIndex: "department",
         key: "department",
         width: 100,
-        sorter: (a, b) => a.department.length - b.department.length,
+        sorter: (a, b) => a.department.toLowerCase() < b.department.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
         render(text, record) {
             return {
@@ -75,7 +75,7 @@ const PersonColumns = [
         dataIndex: "profession",
         key: "profession",
         width: 100,
-        sorter: (a, b) => a.profession.length - b.profession.length,
+        sorter: (a, b) => a.profession.toLowerCase() < b.profession.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
     },
     {
@@ -83,7 +83,7 @@ const PersonColumns = [
         dataIndex: "notes",
         key: "notes",
         width: 100,
-        sorter: (a, b) => a.notes.length - b.notes.length,
+        sorter: (a, b) => a.notes.toLowerCase() < b.notes.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
     }
 ];
@@ -95,7 +95,7 @@ const TasksColumns = [
         dataIndex: "name",
         key: "name",
         width: 100,
-        sorter: (a, b) => a.name.length - b.name.length,
+        sorter: (a, b) => a.name.toLowerCase() < b.name.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
         render(text, record) {
             return {
@@ -111,7 +111,7 @@ const TasksColumns = [
         dataIndex: "notes",
         key: "notes",
         width: 100,
-        sorter: (a, b) => a.notes.length - b.notes.length,
+        sorter: (a, b) => a.notes.toLowerCase() < b.notes.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
         render(text, record) {
             return {
@@ -149,7 +149,7 @@ const EquipmentPropertyColumns = [
         dataIndex: "name",
         key: "name",
         width: 100,
-        sorter: (a, b) => a.name.length - b.name.length,
+        sorter: (a, b) => a.name.toLowerCase() < b.name.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
     },
     {
@@ -157,7 +157,7 @@ const EquipmentPropertyColumns = [
         dataIndex: "notes",
         key: "notes",
         width: 100,
-        sorter: (a, b) => a.notes.length - b.notes.length,
+        sorter: (a, b) => a.notes.toLowerCase() < b.notes.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
     }
 ];
@@ -169,7 +169,7 @@ const EquipmentColumns = [
         dataIndex: "name",
         key: "name",
         width: 100,
-        sorter: (a, b) => a.name.length - b.name.length,
+        sorter: (a, b) => a.name.toLowerCase() < b.name.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
     },
     {
@@ -177,7 +177,7 @@ const EquipmentColumns = [
         dataIndex: "notes",
         key: "notes",
         width: 100,
-        sorter: (a, b) => a.notes.length - b.notes.length,
+        sorter: (a, b) => a.notes.toLowerCase() < b.notes.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
     }
 ];
@@ -248,7 +248,7 @@ const LogDOColumns = [
         dataIndex: "equipment",
         key: "equipment",
         width: 120,
-        sorter: (a, b) => a.equipment.length - b.equipment.length,
+        sorter: (a, b) => a.equipment.toLowerCase() < b.equipment.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
         filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}) => (
             <div style={{padding: 8}}>
@@ -291,7 +291,7 @@ const LogDOColumns = [
         dataIndex: "notes",
         key: "notes",
         width: 250,
-        sorter: (a, b) => a.notes.length - b.notes.length,
+        sorter: (a, b) => a.notes.toLowerCase() < b.notes.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
         // ellipsis: {showTitle: false},
         filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}) => (
@@ -335,7 +335,7 @@ const LogDOColumns = [
         dataIndex: "applicant",
         key: "applicant",
         width: 100,
-        sorter: (a, b) => a.applicant.length - b.applicant.length,
+        sorter: (a, b) => a.applicant.toLowerCase() < b.applicant.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
         filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}) => (
             <div style={{padding: 8}}>
@@ -378,7 +378,7 @@ const LogDOColumns = [
         dataIndex: "responsible",
         key: "responsible",
         width: 115,
-        sorter: (a, b) => a.responsible.length - b.responsible.length,
+        sorter: (a, b) => a.responsible.toLowerCase() < b.responsible.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
         filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}) => (
             <div style={{padding: 8}}>
@@ -421,7 +421,7 @@ const LogDOColumns = [
         dataIndex: "department",
         key: "department",
         width: 130,
-        sorter: (a, b) => a.department.length - b.department.length,
+        sorter: (a, b) => a.department.toLowerCase() < b.department.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
         filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}) => (
             <div style={{padding: 8}}>
@@ -465,7 +465,7 @@ const LogDOColumns = [
         key: "task",
         width: 180,
         ellipsis: {showTitle: false},
-        sorter: (a, b) => a.task.length - b.task.length,
+        sorter: (a, b) => a.task.toLowerCase() < b.task.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
         filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}) => (
             <div style={{padding: 8}}>
@@ -508,7 +508,7 @@ const LogDOColumns = [
         dataIndex: "taskStatus",
         key: "taskStatus",
         width: 100,
-        sorter: (a, b) => a.taskStatus.length - b.taskStatus.length,
+        sorter: (a, b) => a.taskStatus.toLowerCase() < b.taskStatus.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
         filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}) => (
             <div style={{padding: 8}}>
@@ -552,6 +552,8 @@ const LogDOColumns = [
         key: "planDateDone",
         width: 120,
         sorter: (a, b) => {
+            if (!a.planDateDone || !b.planDateDone) return a.planDateDone > b.planDateDone ? 1 : -1;
+
             const start = moment(a.planDateDone, TabOptions.dateFormat);
             const end = moment(b.planDateDone, TabOptions.dateFormat);
 
@@ -603,7 +605,7 @@ const HelpColumns = [
         dataIndex: "name",
         key: "name",
         width: 100,
-        sorter: (a, b) => a.name.length - b.name.length,
+        sorter: (a, b) => a.name.toLowerCase() < b.name.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
     },
     {
@@ -636,7 +638,7 @@ const UserColumns = [
         dataIndex: "userName",
         key: "userName",
         width: 100,
-        sorter: (a, b) => a.userName.length - b.userName.length,
+        sorter: (a, b) => a.userName.toLowerCase() < b.userName.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
     },
     {
@@ -644,7 +646,7 @@ const UserColumns = [
         dataIndex: "firstName",
         key: "firstName",
         width: 100,
-        sorter: (a, b) => a.firstName.length - b.firstName.length,
+        sorter: (a, b) => a.firstName.toLowerCase() < b.firstName.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
     },
     {
@@ -652,7 +654,7 @@ const UserColumns = [
         dataIndex: "secondName",
         key: "secondName",
         width: 100,
-        sorter: (a, b) => a.secondName.length - b.secondName.length,
+        sorter: (a, b) => a.secondName.toLowerCase() < b.secondName.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
     },
     {
@@ -660,7 +662,7 @@ const UserColumns = [
         dataIndex: "roles",
         key: "roles",
         width: 100,
-        sorter: (a, b) => a.roles.length - b.roles.length,
+        sorter: (a, b) => a.roles.toLowerCase() < b.roles.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
     },
     {
@@ -668,7 +670,7 @@ const UserColumns = [
         dataIndex: "email",
         key: "email",
         width: 100,
-        sorter: (a, b) => a.email.length - b.email.length,
+        sorter: (a, b) => a.email.toLowerCase() - b.email.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
     },
     {
@@ -690,7 +692,7 @@ const RoleColumns = [
         dataIndex: "name",
         key: "name",
         width: 100,
-        sorter: (a, b) => a.name.length - b.name.length,
+        sorter: (a, b) => a.name.toLowerCase() < b.name.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
     },
     {
@@ -698,7 +700,7 @@ const RoleColumns = [
         dataIndex: "notes",
         key: "notes",
         width: 100,
-        sorter: (a, b) => a.notes.length - b.notes.length,
+        sorter: (a, b) => a.notes.toLowerCase() < b.notes.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
     }
 ];
@@ -710,7 +712,7 @@ const StatisticRatingColumns = [
         dataIndex: "equipment",
         key: "equipment",
         width: 100,
-        sorter: (a, b) => b.equipment.length - a.equipment.length,
+        sorter: (a, b) => b.equipment.toLowerCase() - a.equipment.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"]
     },
     {
@@ -718,7 +720,7 @@ const StatisticRatingColumns = [
         dataIndex: "notAssigned",
         key: "notAssigned",
         width: 100,
-        sorter: (a, b) => a.notAssigned > b.notAssigned ? 1 : -1,
+        sorter: (a, b) => a.notAssigned.toLowerCase() > b.notAssigned.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
         align: "center"
     },
@@ -727,7 +729,7 @@ const StatisticRatingColumns = [
         dataIndex: "inWork",
         key: "inWork",
         width: 100,
-        sorter: (a, b) => a.inWork > b.inWork ? 1 : -1,
+        sorter: (a, b) => a.inWork.toLowerCase() > b.inWork.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
         align: "center"
     },
@@ -736,7 +738,7 @@ const StatisticRatingColumns = [
         dataIndex: "done",
         key: "done",
         width: 100,
-        sorter: (a, b) => a.done > b.done ? 1 : -1,
+        sorter: (a, b) => a.done.toLowerCase() > b.done.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
         align: "center"
     },
@@ -745,7 +747,7 @@ const StatisticRatingColumns = [
         dataIndex: "accept",
         key: "accept",
         width: 100,
-        sorter: (a, b) => a.accept > b.accept ? 1 : -1,
+        sorter: (a, b) => a.accept.toLowerCase() > b.accept.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
         align: "center"
     },
@@ -763,7 +765,7 @@ const StatisticRatingColumns = [
         dataIndex: "during",
         key: "during",
         width: 100,
-        sorter: (a, b) => a.during.length - b.during.length,
+        sorter: (a, b) => a.during.toLowerCase() < b.during.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
         align: "center"
     },
@@ -776,7 +778,7 @@ const StatisticListColumns = [
         dataIndex: "equipment",
         key: "equipment",
         width: 100,
-        sorter: (a, b) => a.equipment.length - b.equipment.length,
+        sorter: (a, b) => a.equipment.toLowerCase() < b.equipment.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
         render: (text, record) => ({
             props: {style: {background: record.color}},
@@ -788,7 +790,7 @@ const StatisticListColumns = [
         dataIndex: "notes",
         key: "notes",
         width: 100,
-        sorter: (a, b) => a.notes.length - b.notes.length,
+        sorter: (a, b) => a.notes.toLowerCase() < b.notes.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
         render: (text, record) => ({
             props: {style: {background: record.color}},
@@ -800,7 +802,7 @@ const StatisticListColumns = [
         dataIndex: "applicant",
         key: "applicant",
         width: 100,
-        sorter: (a, b) => a.applicant.length - b.applicant.length,
+        sorter: (a, b) => a.applicant.toLowerCase() < b.applicant.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
         render: (text, record) => ({
             props: {style: {background: record.color}},
@@ -812,7 +814,7 @@ const StatisticListColumns = [
         dataIndex: "taskStatus",
         key: "taskStatus",
         width: 100,
-        sorter: (a, b) => a.taskStatus.length - b.taskStatus.length,
+        sorter: (a, b) => a.taskStatus.toLowerCase() < b.taskStatus.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
         render: (text, record) => ({
             props: {style: {background: record.color}},
@@ -824,7 +826,12 @@ const StatisticListColumns = [
         dataIndex: "during",
         key: "during",
         width: 100,
-        sorter: (a, b) => a.during.length - b.during.length,
+        sorter: (a, b) => {
+            let first = a.during.replace(".", "");
+            let second = b.during.replace(".", "");
+
+            return first < second ? 1 : -1
+        },
         sortDirections: ["descend", "ascend"],
         render: (text, record) => ({
             props: {style: {background: record.color ? record.color : "fff"}},
@@ -845,7 +852,7 @@ const LogColumns = [
             const start = moment(a.date, TabOptions.dateFormat);
             const end = moment(b.date, TabOptions.dateFormat);
 
-            return start.diff(end, "milliseconds") < 0;
+            return start.diff(end, "milliseconds") > 0;
         },
         sortDirections: ["descend", "ascend"],
     },
@@ -854,7 +861,7 @@ const LogColumns = [
         dataIndex: "action",
         key: "action",
         width: 50,
-        sorter: (a, b) => a.action.length - b.action.length,
+        sorter: (a, b) => a.action.toLowerCase() < b.action.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
     },
     {
@@ -862,7 +869,7 @@ const LogColumns = [
         dataIndex: "username",
         key: "username",
         width: 50,
-        sorter: (a, b) => a.username.length - b.username.length,
+        sorter: (a, b) => a.username.toLowerCase() < b.username.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
     },
     {
@@ -870,7 +877,7 @@ const LogColumns = [
         dataIndex: "content",
         key: "content",
         width: 100,
-        sorter: (a, b) => a.content.length - b.content.length,
+        sorter: (a, b) => a.content.toLowerCase() < b.content.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
     }
 ];

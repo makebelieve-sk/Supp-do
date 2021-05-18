@@ -4,6 +4,7 @@ const REMOVE_TAB = "REMOVE_TAB";
 const SET_ACTIVE_KEY = "SET_ACTIVE_KEY";
 const SET_TABS_IN_HISTORY = "SET_TABS_IN_HISTORY";
 const SET_TABS = "SET_TABS";
+const SET_PAGE_SIZE = "SET_PAGE_SIZE";
 
 export {
     ADD_TAB,
@@ -12,4 +13,5 @@ export {
     SET_ACTIVE_KEY,
     SET_TABS_IN_HISTORY,
     SET_TABS,
+    SET_PAGE_SIZE,
 }

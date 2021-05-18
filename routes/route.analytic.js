@@ -498,40 +498,42 @@ router.get("/logDO/unassignedTasks", async (req, res) => {
                 });
             }
 
-            // Получаем начальную и конечную даты записей
-            const startDate = moment(items[items.length - 1].date).format(dateFormat);
-            const endDate = moment(items[0].date).format(dateFormat);
+            let startDate = null, endDate = null, statusLegend = [], itemsDto = [];
 
-            // Получаем готовый массив записей ЖДО
-            const itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
+            if (items && items.length) {
+                // Получаем начальную и конечную даты записей
+                startDate = moment(items[items.length - 1].date).format(dateFormat);
+                endDate = moment(items[0].date).format(dateFormat);
 
-            let statusLegend = [];  // Инициализация массива легенд статусов
+                // Получаем готовый массив записей ЖДО
+                itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
 
-            if (statuses && statuses.length) {
-                statuses.forEach(task => {
-                    const countTasks = items.filter(logDO =>
-                        logDO.taskStatus && logDO.taskStatus._id.toString() === task._id.toString());
+                if (statuses && statuses.length) {
+                    statuses.forEach(task => {
+                        const countTasks = items.filter(logDO =>
+                            logDO.taskStatus && logDO.taskStatus._id.toString() === task._id.toString());
 
-                    if (countTasks.length)
-                        statusLegend.push({
-                            id: task._id,
-                            name: task.name,
-                            count: countTasks.length,
-                            color: task.color
-                        });
-                });
-
-                // Сколько записей без статуса
-                const countWithoutStatus = items.filter(logDOs => !logDOs.taskStatus).length;
-
-                if (countWithoutStatus)
-                    statusLegend.push({
-                        id: Date.now(),
-                        name: "Без статуса",
-                        count: countWithoutStatus,
-                        color: "#FFFFFF",
-                        borderColor: "black"
+                        if (countTasks.length)
+                            statusLegend.push({
+                                id: task._id,
+                                name: task.name,
+                                count: countTasks.length,
+                                color: task.color
+                            });
                     });
+
+                    // Сколько записей без статуса
+                    const countWithoutStatus = items.filter(logDOs => !logDOs.taskStatus).length;
+
+                    if (countWithoutStatus)
+                        statusLegend.push({
+                            id: Date.now(),
+                            name: "Без статуса",
+                            count: countWithoutStatus,
+                            color: "#FFFFFF",
+                            borderColor: "black"
+                        });
+                }
             }
 
             // Отправляем ответ
@@ -615,44 +617,52 @@ router.get("/logDO/inWorkTasks", async (req, res) => {
                     });
                 }
 
-                // Получаем начальную и конечную даты записей
-                const startDate = moment(items[items.length - 1].date).format(dateFormat);
-                const endDate = moment(items[0].date).format(dateFormat);
+                let startDate = null, endDate = null, itemsDto = [], statusLegend = [];
 
-                // Получаем готовый массив записей ЖДО
-                const itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
+                if (items && items.length) {
+                    // Получаем начальную и конечную даты записей
+                    startDate = moment(items[items.length - 1].date).format(dateFormat);
+                    endDate = moment(items[0].date).format(dateFormat);
 
-                let statusLegend = [];  // Инициализация массива легенд статусов
+                    // Получаем готовый массив записей ЖДО
+                    itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
 
-                if (statuses && statuses.length) {
-                    statuses.forEach(task => {
-                        const countTasks = items.filter(logDO =>
-                            logDO.taskStatus && logDO.taskStatus._id.toString() === task._id.toString());
+                    if (statuses && statuses.length) {
+                        statuses.forEach(task => {
+                            const countTasks = items.filter(logDO =>
+                                logDO.taskStatus && logDO.taskStatus._id.toString() === task._id.toString());
 
-                        if (countTasks.length)
-                            statusLegend.push({
-                                id: task._id,
-                                name: task.name,
-                                count: countTasks.length,
-                                color: task.color
-                            });
-                    });
-
-                    // Сколько записей без статуса
-                    const countWithoutStatus = items.filter(logDOs => !logDOs.taskStatus).length;
-
-                    if (countWithoutStatus)
-                        statusLegend.push({
-                            id: Date.now(),
-                            name: "Без статуса",
-                            count: countWithoutStatus,
-                            color: "#FFFFFF",
-                            borderColor: "black"
+                            if (countTasks.length)
+                                statusLegend.push({
+                                    id: task._id,
+                                    name: task.name,
+                                    count: countTasks.length,
+                                    color: task.color
+                                });
                         });
+
+                        // Сколько записей без статуса
+                        const countWithoutStatus = items.filter(logDOs => !logDOs.taskStatus).length;
+
+                        if (countWithoutStatus)
+                            statusLegend.push({
+                                id: Date.now(),
+                                name: "Без статуса",
+                                count: countWithoutStatus,
+                                color: "#FFFFFF",
+                                borderColor: "black"
+                            });
+                    }
                 }
 
                 // Отправляем ответ
-                res.status(200).json({itemsDto, startDate, endDate, alert: "Заявки в работе", statusLegend});
+                res.status(200).json({
+                    itemsDto,
+                    startDate,
+                    endDate,
+                    alert: "Заявки в работе",
+                    statusLegend
+                });
             })
                 .sort({date: -1})
                 .populate("applicant")
@@ -725,44 +735,52 @@ router.get("/logDO/notAccepted", async (req, res) => {
                         res.status(500).json({message: "Возникла ошибка при получении записей из базы данных ЖДО (notAccepted) " + err});
                     }
 
-                    // Получаем начальную и конечную даты записей
-                    const startDate = moment(items[items.length - 1].date).format(dateFormat);
-                    const endDate = moment(items[0].date).format(dateFormat);
+                    let startDate = null, endDate = null, itemsDto = [], statusLegend = [];
 
-                    // Получаем готовый массив записей ЖДО
-                    const itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
+                    if (items && items.length) {
+                        // Получаем начальную и конечную даты записей
+                        startDate = moment(items[items.length - 1].date).format(dateFormat);
+                        endDate = moment(items[0].date).format(dateFormat);
 
-                    let statusLegend = [];  // Инициализация массива легенд статусов
+                        // Получаем готовый массив записей ЖДО
+                        itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
 
-                    if (statuses && statuses.length) {
-                        statuses.forEach(task => {
-                            const countTasks = items.filter(logDO =>
-                                logDO.taskStatus && logDO.taskStatus._id.toString() === task._id.toString());
+                        if (statuses && statuses.length) {
+                            statuses.forEach(task => {
+                                const countTasks = items.filter(logDO =>
+                                    logDO.taskStatus && logDO.taskStatus._id.toString() === task._id.toString());
 
-                            if (countTasks.length)
-                                statusLegend.push({
-                                    id: task._id,
-                                    name: task.name,
-                                    count: countTasks.length,
-                                    color: task.color
-                                });
-                        });
-
-                        // Сколько записей без статуса
-                        const countWithoutStatus = items.filter(logDOs => !logDOs.taskStatus).length;
-
-                        if (countWithoutStatus)
-                            statusLegend.push({
-                                id: Date.now(),
-                                name: "Без статуса",
-                                count: countWithoutStatus,
-                                color: "#FFFFFF",
-                                borderColor: "black"
+                                if (countTasks.length)
+                                    statusLegend.push({
+                                        id: task._id,
+                                        name: task.name,
+                                        count: countTasks.length,
+                                        color: task.color
+                                    });
                             });
+
+                            // Сколько записей без статуса
+                            const countWithoutStatus = items.filter(logDOs => !logDOs.taskStatus).length;
+
+                            if (countWithoutStatus)
+                                statusLegend.push({
+                                    id: Date.now(),
+                                    name: "Без статуса",
+                                    count: countWithoutStatus,
+                                    color: "#FFFFFF",
+                                    borderColor: "black"
+                                });
+                        }
                     }
 
                     // Отправляем ответ
-                    res.status(200).json({itemsDto, startDate, endDate, alert: "Непринятые заявки", statusLegend});
+                    res.status(200).json({
+                        itemsDto,
+                        startDate,
+                        endDate,
+                        alert: "Непринятые заявки",
+                        statusLegend
+                    });
                 })
                 .sort({date: -1})
                 .populate("applicant")
@@ -848,40 +866,42 @@ router.post("/logDO/bar", async (req, res) => {
                             res.status(500).json({message: "Возникла ошибка при получении записей из базы данных ЖДО (bar) " + err});
                         }
 
-                        // Получаем начальную и конечную даты записей
-                        const startDate = moment(items[items.length - 1].date).format(dateFormat);
-                        const endDate = moment(items[0].date).format(dateFormat);
+                        let startDate = null, endDate = null, itemsDto = [], statusLegend = [];
 
-                        // Получаем готовый массив записей ЖДО
-                        const itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
+                        if (items && items.length) {
+                            // Получаем начальную и конечную даты записей
+                            startDate = moment(items[items.length - 1].date).format(dateFormat);
+                            endDate = moment(items[0].date).format(dateFormat);
 
-                        let statusLegend = [];  // Инициализация массива легенд статусов
+                            // Получаем готовый массив записей ЖДО
+                            itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
 
-                        if (statuses && statuses.length) {
-                            statuses.forEach(task => {
-                                const countTasks = items.filter(logDO =>
-                                    logDO.taskStatus && logDO.taskStatus._id.toString() === task._id.toString());
+                            if (statuses && statuses.length) {
+                                statuses.forEach(task => {
+                                    const countTasks = items.filter(logDO =>
+                                        logDO.taskStatus && logDO.taskStatus._id.toString() === task._id.toString());
 
-                                if (countTasks.length)
-                                    statusLegend.push({
-                                        id: task._id,
-                                        name: task.name,
-                                        count: countTasks.length,
-                                        color: task.color
-                                    });
-                            });
-
-                            // Сколько записей без статуса
-                            const countWithoutStatus = items.filter(logDOs => !logDOs.taskStatus).length;
-
-                            if (countWithoutStatus)
-                                statusLegend.push({
-                                    id: Date.now(),
-                                    name: "Без статуса",
-                                    count: countWithoutStatus,
-                                    color: "#FFFFFF",
-                                    borderColor: "black"
+                                    if (countTasks.length)
+                                        statusLegend.push({
+                                            id: task._id,
+                                            name: task.name,
+                                            count: countTasks.length,
+                                            color: task.color
+                                        });
                                 });
+
+                                // Сколько записей без статуса
+                                const countWithoutStatus = items.filter(logDOs => !logDOs.taskStatus).length;
+
+                                if (countWithoutStatus)
+                                    statusLegend.push({
+                                        id: Date.now(),
+                                        name: "Без статуса",
+                                        count: countWithoutStatus,
+                                        color: "#FFFFFF",
+                                        borderColor: "black"
+                                    });
+                            }
                         }
 
                         // Отправляем ответ
@@ -962,44 +982,52 @@ router.post("/logDO/line", async (req, res) => {
                     res.status(500).json({message: "Возникла ошибка при получении записей из базы данных ЖДО (line) " + err});
                 }
 
-                // Получаем начальную и конечную даты записей
-                const startDate = moment(items[items.length - 1].date).format(dateFormat);
-                const endDate = moment(items[0].date).format(dateFormat);
+                let startDate = null, endDate = null, itemsDto = [], statusLegend = [];
 
-                // Получаем готовый массив записей ЖДО
-                const itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
+                if (items && items.length) {
+                    // Получаем начальную и конечную даты записей
+                    startDate = moment(items[items.length - 1].date).format(dateFormat);
+                    endDate = moment(items[0].date).format(dateFormat);
 
-                let statusLegend = [];  // Инициализация массива легенд статусов
+                    // Получаем готовый массив записей ЖДО
+                    itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
 
-                if (statuses && statuses.length) {
-                    statuses.forEach(task => {
-                        const countTasks = items.filter(logDO =>
-                            logDO.taskStatus && logDO.taskStatus._id.toString() === task._id.toString());
+                    if (statuses && statuses.length) {
+                        statuses.forEach(task => {
+                            const countTasks = items.filter(logDO =>
+                                logDO.taskStatus && logDO.taskStatus._id.toString() === task._id.toString());
 
-                        if (countTasks.length)
-                            statusLegend.push({
-                                id: task._id,
-                                name: task.name,
-                                count: countTasks.length,
-                                color: task.color
-                            });
-                    });
-
-                    // Сколько записей без статуса
-                    const countWithoutStatus = items.filter(logDOs => !logDOs.taskStatus).length;
-
-                    if (countWithoutStatus)
-                        statusLegend.push({
-                            id: Date.now(),
-                            name: "Без статуса",
-                            count: countWithoutStatus,
-                            color: "#FFFFFF",
-                            borderColor: "black"
+                            if (countTasks.length)
+                                statusLegend.push({
+                                    id: task._id,
+                                    name: task.name,
+                                    count: countTasks.length,
+                                    color: task.color
+                                });
                         });
+
+                        // Сколько записей без статуса
+                        const countWithoutStatus = items.filter(logDOs => !logDOs.taskStatus).length;
+
+                        if (countWithoutStatus)
+                            statusLegend.push({
+                                id: Date.now(),
+                                name: "Без статуса",
+                                count: countWithoutStatus,
+                                color: "#FFFFFF",
+                                borderColor: "black"
+                            });
+                    }
                 }
 
                 // Отправляем ответ
-                res.status(200).json({itemsDto, startDate, endDate, alert: "Динамика отказов", statusLegend});
+                res.status(200).json({
+                    itemsDto,
+                    startDate,
+                    endDate,
+                    alert: "Динамика отказов",
+                    statusLegend
+                });
             }
         )
             .sort({date: -1})
@@ -1068,61 +1096,63 @@ router.get("/logDO/rating/bounceRating", async (req, res) => {
                     res.status(500).json({message: "Возникла ошибка при получении записей из базы данных ЖДО (bounceRating) " + err});
                 }
 
-                // Получаем начальную и конечную даты записей
-                const startDate = moment(items[items.length - 1].date).format(dateFormat);
-                const endDate = moment(items[0].date).format(dateFormat);
+                let startDate = null, endDate = null, itemsDto = [], statusLegend = [];
 
-                // Сортируем записи по полю "Оборудование.Наименование"
-                items = items.sort((a, b) => {
-                    if (a.equipment && b.equipment)
-                        return a.equipment.name < b.equipment.name ? 1 : -1;
-                });
+                if (items && items.length) {
+                    // Получаем начальную и конечную даты записей
+                    startDate = moment(items[items.length - 1].date).format(dateFormat);
+                    endDate = moment(items[0].date).format(dateFormat);
 
-                // Сортируем записи в порядке убывания по полю "Оборудование"
-                items = items.sort((a, b) => {
-                    const countA = items.filter(logDO => {
-                        if (logDO.equipment && a.equipment)
-                            return logDO.equipment._id.toString() === a.equipment._id.toString();
+                    // Сортируем записи по полю "Оборудование.Наименование"
+                    items = items.sort((a, b) => {
+                        if (a.equipment && b.equipment)
+                            return a.equipment.name < b.equipment.name ? 1 : -1;
                     });
 
-                    const countB = items.filter(logDO => {
-                        if (logDO.equipment && b.equipment)
-                            return logDO.equipment._id.toString() === b.equipment._id.toString();
-                    });
-
-                    return countA.length < countB.length ? 1 : -1;
-                });
-
-                // Получаем массив записей ЖДО
-                const itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
-
-                let statusLegend = [];  // Инициализация массива легенд статусов
-
-                if (statuses && statuses.length) {
-                    statuses.forEach(task => {
-                        const countTasks = items.filter(logDO =>
-                            logDO.taskStatus && logDO.taskStatus._id.toString() === task._id.toString());
-
-                        if (countTasks.length)
-                            statusLegend.push({
-                                id: task._id,
-                                name: task.name,
-                                count: countTasks.length,
-                                color: task.color
-                            });
-                    });
-
-                    // Сколько записей без статуса
-                    const countWithoutStatus = items.filter(logDOs => !logDOs.taskStatus).length;
-
-                    if (countWithoutStatus)
-                        statusLegend.push({
-                            id: Date.now(),
-                            name: "Без статуса",
-                            count: countWithoutStatus,
-                            color: "#FFFFFF",
-                            borderColor: "black"
+                    // Сортируем записи в порядке убывания по полю "Оборудование"
+                    items = items.sort((a, b) => {
+                        const countA = items.filter(logDO => {
+                            if (logDO.equipment && a.equipment)
+                                return logDO.equipment._id.toString() === a.equipment._id.toString();
                         });
+
+                        const countB = items.filter(logDO => {
+                            if (logDO.equipment && b.equipment)
+                                return logDO.equipment._id.toString() === b.equipment._id.toString();
+                        });
+
+                        return countA.length < countB.length ? 1 : -1;
+                    });
+
+                    // Получаем массив записей ЖДО
+                    itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
+
+                    if (statuses && statuses.length) {
+                        statuses.forEach(task => {
+                            const countTasks = items.filter(logDO =>
+                                logDO.taskStatus && logDO.taskStatus._id.toString() === task._id.toString());
+
+                            if (countTasks.length)
+                                statusLegend.push({
+                                    id: task._id,
+                                    name: task.name,
+                                    count: countTasks.length,
+                                    color: task.color
+                                });
+                        });
+
+                        // Сколько записей без статуса
+                        const countWithoutStatus = items.filter(logDOs => !logDOs.taskStatus).length;
+
+                        if (countWithoutStatus)
+                            statusLegend.push({
+                                id: Date.now(),
+                                name: "Без статуса",
+                                count: countWithoutStatus,
+                                color: "#FFFFFF",
+                                borderColor: "black"
+                            });
+                    }
                 }
 
                 // Отправляем ответ
@@ -1231,48 +1261,50 @@ router.get("/logDO/rating/ratingOrders", async (req, res) => {
             res.status(500).json({message: "Возникла ошибка при получении записей из базы данных ЖДО (ratingOrders) " + err});
         }
 
-        // Получаем начальную и конечную даты записей
-        const startDate = moment(items[items.length - 1].date).format(dateFormat);
-        const endDate = moment(items[0].date).format(dateFormat);
+        let startDate = null, endDate = null, itemsDto = [], statusLegend = [];
 
-        // Сортируем записи в порядке убывания по незавершенному статусу заявки
-        items = items.sort((a, b) => {
-            const firstDiff = moment().valueOf() - moment(a.date).valueOf();
-            const secondDiff = moment().valueOf() - moment(b.date).valueOf();
+        if (items && items.length) {
+            // Получаем начальную и конечную даты записей
+            startDate = moment(items[items.length - 1].date).format(dateFormat);
+            endDate = moment(items[0].date).format(dateFormat);
 
-            return firstDiff - secondDiff > 0 ? -1 : 1;
-        });
+            // Сортируем записи в порядке убывания по незавершенному статусу заявки
+            items = items.sort((a, b) => {
+                const firstDiff = moment().valueOf() - moment(a.date).valueOf();
+                const secondDiff = moment().valueOf() - moment(b.date).valueOf();
 
-        // Получаем готовый массив записей ЖДО
-        const itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
-
-        let statusLegend = [];  // Инициализация массива легенд статусов
-
-        if (allStatuses && allStatuses.length) {
-            allStatuses.forEach(task => {
-                const countTasks = items.filter(logDO =>
-                    logDO.taskStatus && logDO.taskStatus._id.toString() === task._id.toString());
-
-                if (countTasks.length)
-                    statusLegend.push({
-                        id: task._id,
-                        name: task.name,
-                        count: countTasks.length,
-                        color: task.color
-                    });
+                return firstDiff - secondDiff > 0 ? -1 : 1;
             });
 
-            // Сколько записей без статуса
-            const countWithoutStatus = items.filter(logDOs => !logDOs.taskStatus).length;
+            // Получаем готовый массив записей ЖДО
+            itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
 
-            if (countWithoutStatus)
-                statusLegend.push({
-                    id: Date.now(),
-                    name: "Без статуса",
-                    count: countWithoutStatus,
-                    color: "#FFFFFF",
-                    borderColor: "black"
+            if (allStatuses && allStatuses.length) {
+                allStatuses.forEach(task => {
+                    const countTasks = items.filter(logDO =>
+                        logDO.taskStatus && logDO.taskStatus._id.toString() === task._id.toString());
+
+                    if (countTasks.length)
+                        statusLegend.push({
+                            id: task._id,
+                            name: task.name,
+                            count: countTasks.length,
+                            color: task.color
+                        });
                 });
+
+                // Сколько записей без статуса
+                const countWithoutStatus = items.filter(logDOs => !logDOs.taskStatus).length;
+
+                if (countWithoutStatus)
+                    statusLegend.push({
+                        id: Date.now(),
+                        name: "Без статуса",
+                        count: countWithoutStatus,
+                        color: "#FFFFFF",
+                        borderColor: "black"
+                    });
+            }
         }
 
         // Отправляем ответ
