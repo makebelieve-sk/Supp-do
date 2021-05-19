@@ -2,7 +2,7 @@
 import {getShortNameRecord} from "../helpers/functions/general.functions/replaceField";
 
 export class User {
-    constructor({_id, userName, person, firstName, secondName, email, mailing, approved, roles}) {
+    constructor({_id, userName, person, firstName, secondName, email, phone, mailing, sms, approved, roles}) {
         if (person) person.name = getShortNameRecord(person.name);
 
         this._id = _id;
@@ -11,7 +11,9 @@ export class User {
         this.firstName = firstName ? firstName : "";
         this.secondName = secondName ? secondName : "";
         this.email = email ? email : "";
+        this.phone = phone ? phone : "";
         this.mailing = mailing;
+        this.sms = sms;
         this.approved = approved;
         this.roles = roles;
     }

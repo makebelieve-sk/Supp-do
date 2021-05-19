@@ -6,9 +6,11 @@ const schema = new Schema({
     person: {type: Types.ObjectId, ref: "Person"},                  // Сотрудник
     firstName: {type: String, required: true},                      // Имя
     secondName: {type: String, required: true},                     // Фамилия
-    email: {type: String},                                          // Почта
+    email: {type: String, required: true},                          // Почта
+    phone: {type: String, required: true},                          // Телефон
     password: {type: String},                                       // Пароль
-    mailing: {type: Boolean},                                   // Рассылка новых записей из журнала дефектов и отказов
+    mailing: {type: Boolean},                                   // Рассылка новых записей из журнала дефектов и отказов (email)
+    sms: {type: Boolean},                                   // Рассылка новых записей из журнала дефектов и отказов (sms)
     approved: {type: Boolean},                                      // Одобрен
     roles: [{type: Types.ObjectId, ref: "Role"}],                   // Роли
 });

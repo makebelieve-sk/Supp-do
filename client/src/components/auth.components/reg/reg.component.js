@@ -4,6 +4,7 @@ import { useHistory, Link } from "react-router-dom";
 import {Button, Card, Col, Form, Input, message, Row} from "antd";
 import {LockOutlined, ScheduleOutlined, SolutionOutlined, UserOutlined} from "@ant-design/icons";
 import {PasswordInput} from "antd-password-input-strength";
+import MaskedInput from "antd-mask-input";
 
 import store from "../../../redux/store";
 import {ActionCreator} from "../../../redux/combineActions";
@@ -20,6 +21,13 @@ export const RegistrationComponent = () => {
     const register = async (values) => {
         try {
             setLoadingReg(true);
+
+            values.phone = values.phone.replace("+", "")
+                .replaceAll("(", "")
+                .replaceAll(")", "")
+                .replaceAll("-", "")
+                .replaceAll(" ", "")
+                .replaceAll("_", "");
 
             const data = await request("/api/auth/register", "POST", values);
 
@@ -57,6 +65,26 @@ export const RegistrationComponent = () => {
                             max: 255
                         }]}>
                             <Input prefix={<ScheduleOutlined className="site-form-item-icon"/>} placeholder="Email"/>
+                        </Form.Item>
+
+                        <Form.Item label="Номер телефона" name="phone" rules={[{
+                            required: true,
+                            message: "Длина телефона должна быть 11 символов",
+                            transform: value => {
+                                value = value.replace("+", "")
+                                    .replaceAll("(", "")
+                                    .replaceAll(")", "")
+                                    .replaceAll("-", "")
+                                    .replaceAll(" ", "")
+                                    .replaceAll("_", "");
+
+                                return value;
+                            },
+                            min: 11,
+                            max: 11,
+                            type: "string",
+                        }]}>
+                            <MaskedInput mask="+7 (111) 111-11-11" name="phone" size="11"/>
                         </Form.Item>
 
                         <Form.Item label="Имя" name="firstName" rules={[{

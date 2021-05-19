@@ -29,6 +29,10 @@ const checkMiddlewareRegister = [
         .isString()
         .notEmpty()
         .isLength({min: 1, max: 255}),
+    check("phone", "Поле 'Телефон' должно содержать 11 цифр")
+        .isString()
+        .notEmpty()
+        .isLength({min: 11, max: 11}),
     check("password", "Поле 'Пароль' должно содержать от 6 до 255 символов")
         .isString()
         .notEmpty()
@@ -71,17 +75,22 @@ router.post("/register", checkMiddlewareRegister, async (req, res) => {
         if (!errors.isEmpty())
             return res.status(400).json({errors: errors.array(), message: "Некорректные данные при регистрации"});
 
-        const {email, firstName, secondName, userName, password} = req.body; // Получаем объект записи с фронтенда
+        const {email, firstName, secondName, userName, password, phone} = req.body; // Получаем объект записи с фронтенда
 
         const candidate = await User.findOne({userName});   // Ищем запись в базе данных по логину
 
         const candidateEmail  = await User.findOne({email});    // Ищем пользователя в базе данных по почте
+
+        const candidatePhone  = await User.findOne({phone});    // Ищем пользователя в базе данных по номеру телефона
 
         // Проверяем на существование записи с указанным именем пользователя
         if (candidate) return res.status(400).json({message: "Такое имя пользователя занято"});
 
         // Проверяем на существование записи с указанной почтой
         if (candidateEmail) return res.status(400).json({message: "Такая почта уже используется"});
+
+        // Проверяем на существование записи с указанным номером телефона
+        if (candidatePhone) return res.status(400).json({message: "Номер телефона уже зарегистрирован"});
 
         const hashedPassword = await bcrypt.hash(password, 12); // Хешируем пароль
 
@@ -102,11 +111,13 @@ router.post("/register", checkMiddlewareRegister, async (req, res) => {
 
             // Создаем новый экземпляр записи 1-ого пользователя
             newCandidate = new User({
-                email, firstName, secondName, userName, password: hashedPassword, approved: true, roles: [roleAdmin._id]
+                email, firstName, secondName, userName, password: hashedPassword, approved: true, roles: [roleAdmin._id],
+                mailing: false, phone, sms: false
             });
         } else {
             // Создаем новый экземпляр записи n-ого пользователя
-            newCandidate = new User({email, firstName, secondName, userName, password: hashedPassword});
+            newCandidate = new User({email, firstName, secondName, userName, password: hashedPassword, mailing: false,
+                approved: false, phone, sms: false});
         }
 
         await newCandidate.save();  // Сохраняем запись в базе данных

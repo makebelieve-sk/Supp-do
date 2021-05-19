@@ -11,8 +11,8 @@ export const TableBadgeComponent = ({legend, specKey}) => {
                         count={`${legend.name} ${legend.count}`}
                         style={{
                             backgroundColor: legend.color,
-                            borderColor: legend.borderColor ?  legend.borderColor : "#1f1f1f",
-                            color: legend.borderColor ?  legend.borderColor : "#1f1f1f",
+                            borderColor: legend.borderColor ?  legend.borderColor : null,
+                            color: "black",
                             height: "30px", lineHeight: "30px", paddingLeft: "15px", paddingRight: "15px"
                         }}
                     />

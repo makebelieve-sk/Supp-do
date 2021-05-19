@@ -295,7 +295,7 @@ router.post("/logDO/rating", async (req, res) => {
                                 name: "Без статуса",
                                 count: countWithoutStatus,
                                 color: "#FFFFFF",
-                                borderColor: "black"
+                                borderColor: "#d9d9d9"
                             });
                     }
                 }
@@ -415,7 +415,7 @@ router.post("/logDO/list", async (req, res) => {
                                 name: "Без статуса",
                                 count: countWithoutStatus,
                                 color: "#FFFFFF",
-                                borderColor: "black"
+                                borderColor: "#d9d9d9"
                             });
                     }
                 }

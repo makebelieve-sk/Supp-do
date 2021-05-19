@@ -531,7 +531,7 @@ router.get("/logDO/unassignedTasks", async (req, res) => {
                             name: "Без статуса",
                             count: countWithoutStatus,
                             color: "#FFFFFF",
-                            borderColor: "black"
+                            borderColor: "#d9d9d9"
                         });
                 }
             }
@@ -650,7 +650,7 @@ router.get("/logDO/inWorkTasks", async (req, res) => {
                                 name: "Без статуса",
                                 count: countWithoutStatus,
                                 color: "#FFFFFF",
-                                borderColor: "black"
+                                borderColor: "#d9d9d9"
                             });
                     }
                 }
@@ -768,7 +768,7 @@ router.get("/logDO/notAccepted", async (req, res) => {
                                     name: "Без статуса",
                                     count: countWithoutStatus,
                                     color: "#FFFFFF",
-                                    borderColor: "black"
+                                    borderColor: "#d9d9d9"
                                 });
                         }
                     }
@@ -899,7 +899,7 @@ router.post("/logDO/bar", async (req, res) => {
                                         name: "Без статуса",
                                         count: countWithoutStatus,
                                         color: "#FFFFFF",
-                                        borderColor: "black"
+                                        borderColor: "#d9d9d9"
                                     });
                             }
                         }
@@ -1015,7 +1015,7 @@ router.post("/logDO/line", async (req, res) => {
                                 name: "Без статуса",
                                 count: countWithoutStatus,
                                 color: "#FFFFFF",
-                                borderColor: "black"
+                                borderColor: "#d9d9d9"
                             });
                     }
                 }
@@ -1150,7 +1150,7 @@ router.get("/logDO/rating/bounceRating", async (req, res) => {
                                 name: "Без статуса",
                                 count: countWithoutStatus,
                                 color: "#FFFFFF",
-                                borderColor: "black"
+                                borderColor: "#d9d9d9"
                             });
                     }
                 }
@@ -1302,7 +1302,7 @@ router.get("/logDO/rating/ratingOrders", async (req, res) => {
                         name: "Без статуса",
                         count: countWithoutStatus,
                         color: "#FFFFFF",
-                        borderColor: "black"
+                        borderColor: "#d9d9d9"
                     });
             }
         }

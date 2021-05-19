@@ -2,6 +2,7 @@
 import React, {useEffect, useState} from "react";
 import {Button, Card, Checkbox, Col, Form, Input, Row, Select, Tooltip} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
+import MaskedInput from "antd-mask-input";
 
 import {getOptions, onFailed, TabButtons} from "../tab.functions";
 import {UserRoute} from "../../routes/route.User";
@@ -61,7 +62,9 @@ export const UserForm = ({item}) => {
             firstName: item.firstName.trim(),
             secondName: item.secondName.trim(),
             email: item.email.trim(),
+            phone: item.phone,
             mailing: item.mailing,
+            sms: item.sms,
             approved: item.approved,
             roles: defaultChecked
         });
@@ -269,14 +272,56 @@ export const UserForm = ({item}) => {
                         </Col>
                     </Row>
 
-                    <Form.Item label="Электронная почта" name="email">
-                        <Input type="email" maxLength={255}
-                               onChange={e => form.setFieldsValue({email: e.target.value})}/>
+                    <Form.Item label="Электронная почта" name="email" rules={[{
+                        required: true,
+                        transform: value => value.trim(),
+                        message: "Укажите email",
+                        max: 255,
+                        type: "string"
+                    }]}>
+                        <Input type="email" maxLength={255} onChange={e =>
+                            form.setFieldsValue({email: e.target.value})}/>
+                    </Form.Item>
+
+                    <Form.Item label="Номер телефона" name="phone" rules={[{
+                        required: true,
+                        message: "Длина телефона должна быть 11 символов",
+                        transform: value => {
+                            value = value.replace("+", "")
+                                .replaceAll("(", "")
+                                .replaceAll(")", "")
+                                .replaceAll("-", "")
+                                .replaceAll(" ", "")
+                                .replaceAll("_", "");
+
+                            return value;
+                        },
+                        min: 11,
+                        max: 11,
+                        type: "string",
+                    }]}>
+                        <MaskedInput mask="+7 (111) 111-11-11" name="phone" size="11" onChange={e => {
+                            const phone = e.target.value
+                                .replace("+", "")
+                                .replaceAll("(", "")
+                                .replaceAll(")", "")
+                                .replaceAll("-", "")
+                                .replaceAll(" ", "")
+                                .replaceAll("_", "");
+
+                            form.setFieldsValue({phone});
+                        }}/>
                     </Form.Item>
 
                     <Form.Item name="mailing" valuePropName="checked">
                         <Checkbox onChange={e => form.setFieldsValue({mailing: e.target.checked})}>
-                            Рассылка новых записей из журнала дефектов и отказов
+                            Email рассылка новых записей из журнала дефектов и отказов
+                        </Checkbox>
+                    </Form.Item>
+
+                    <Form.Item name="sms" valuePropName="checked">
+                        <Checkbox onChange={e => form.setFieldsValue({sms: e.target.checked})}>
+                            SMS уведомления о новых записях из журнала дефектов и отказов
                         </Checkbox>
                     </Form.Item>
 

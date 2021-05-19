@@ -2,10 +2,6 @@
 const moment = require("moment");
 const {Router} = require("express");
 const {check, validationResult} = require("express-validator");
-const sendmail = require('sendmail')({
-    smtpHost:'localhost',
-    smtpPort: 3000
-});
 
 const File = require("../schemes/File");
 const LogDO = require("../schemes/LogDO");
@@ -14,6 +10,8 @@ const Department = require("../schemes/Department");
 const Equipment = require("../schemes/Equipment");
 const LogDoDto = require("../dto/LogDoDto");
 const TaskStatus = require("../schemes/TaskStatus");
+const sendingEmail = require("../send/send.email");
+const sendingSms = require("../send/send.sms");
 const {getUser} = require("./helper");
 
 const router = Router();
@@ -266,7 +264,7 @@ router.get("/logDO/dto/:dateStart/:dateEnd", async (req, res) => {
                     name: "Без статуса",
                     count: countWithoutStatus,
                     color: "#FFFFFF",
-                    borderColor: "black"
+                    borderColor: "#d9d9d9"
                 });
         }
 
@@ -411,6 +409,12 @@ router.post("/logDO", checkMiddleware, async (req, res) => {
         // Изменяем запись для вывода в таблицу
         const savedItem = new LogDoDto(currentItem, departmentsItems, equipmentItems);
 
+        // Отправляем письма и СМС уведомления
+        if (sendEmail) {
+            await sendingEmail(req, res);
+            await sendingSms(req, res);
+        }
+
         res.status(201).json({message: "Запись сохранена", item: savedItem});
     } catch (err) {
         console.log(err);
@@ -454,18 +458,6 @@ router.put("/logDO", checkMiddleware, async (req, res) => {
         } = req.body;
 
         const item = await LogDO.findById({_id});   // Ищем запись в базе данных по уникальному идентификатору
-
-        if (sendEmail) {
-            sendmail({
-                from: 'skryabin.aleksey99@gmail.com',
-                to: 'skryabin.aleksey99@gmail.com',
-                subject: 'test sendmail',
-                html: 'Mail of test sendmail ',
-            }, function(err, reply) {
-                console.log(err && err.stack);
-                console.dir(reply);
-            });
-        }
 
         // Проверяем на существование записи с уникальным идентификатором
         if (!item) return res.status(404).json({message: `Запись с именем ${name} (${_id}) не найдена`});
@@ -567,6 +559,12 @@ router.put("/logDO", checkMiddleware, async (req, res) => {
         const savedItem = new LogDoDto(currentItem, departmentsItems, equipmentItems);
 
         await logUserActions(req, res, "Редактирование");   // Логируем действие пользвателя
+
+        // Отправляем письма и СМС уведомления
+        if (sendEmail) {
+            await sendingEmail(req, res);
+            await sendingSms(req, res);
+        }
 
         res.status(201).json({message: "Запись сохранена", item: savedItem});
     } catch (err) {

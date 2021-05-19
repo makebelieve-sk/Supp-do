@@ -24,6 +24,10 @@ const checkMiddleware = [
         .isString()
         .notEmpty()
         .isLength({min: 1, max: 255}),
+    check("phone", "Поле 'Телефон' должно содержать 11 цифр")
+        .isString()
+        .notEmpty()
+        .isLength({min: 11, max: 11}),
 ];
 
 /**
@@ -61,15 +65,15 @@ const logUserActions = async (req, res, action, body = null) => {
 
 // Возвращает запись по коду
 router.get("/users/:id", async (req, res) => {
-    const _id = req.params.id;  // Получение id записи
-
     try {
+        const _id = req.params.id;  // Получение id записи
+
         let item, isNewItem = true;
 
         if (_id === "-1") {
             // Создание новой записи
             item = new User({
-                userName: "", person: null, firstName: "", secondName: "", email: "", mailing: false,
+                userName: "", person: null, firstName: "", secondName: "", email: "", phone: "", mailing: false, sms: false,
                 approved: false, roles: []
             });
         } else {
@@ -114,7 +118,7 @@ router.post("/users", checkMiddleware, async (req, res) => {
         if (!errors.isEmpty()) return res.status(400).json({message: "Некоректные данные при создании записи"});
 
         // Получаем объект записи с фронтенда
-        const {userName, person, firstName, secondName, email, password, mailing, approved, roles} = req.body;
+        const {userName, person, firstName, secondName, email, sms, phone, password, mailing, approved, roles} = req.body;
 
         // Ищем запись в базе данных по наименованию
         let item = await User.findOne({userName}).populate("person").populate("roles").select("-password");
@@ -128,11 +132,11 @@ router.post("/users", checkMiddleware, async (req, res) => {
         // Создаем новый экземпляр записи
         item = hashedPassword
             ? new User({
-                userName, person, firstName, secondName, email, password: hashedPassword, mailing,
+                userName, person, firstName, secondName, email, sms, phone, password: hashedPassword, mailing,
                 approved, roles
             })
             : new User({
-                userName, person, firstName, secondName, email, mailing,
+                userName, person, firstName, secondName, email, sms, phone, mailing,
                 approved, roles
             })
 
@@ -164,7 +168,7 @@ router.put("/users", checkMiddleware, async (req, res) => {
         if (!errors.isEmpty()) return res.status(400).json({message: "Некоректные данные при изменении записи"});
 
         // Получаем объект записи с фронтенда
-        const {_id, userName, person, firstName, secondName, email, password, mailing, approved, roles} = req.body;
+        const {_id, userName, person, firstName, secondName, email, sms, phone, password, mailing, approved, roles} = req.body;
 
         // Ищем запись в базе данных по уникальному идентификатору, кроме поля "пароль"
         const item = await User.findById({_id}).populate("person").populate("roles").select("-password");
@@ -172,7 +176,7 @@ router.put("/users", checkMiddleware, async (req, res) => {
         // Проверяем на существование записи с уникальным идентификатором
         if (!item) return res.status(404).json({message: `Запись с именем ${userName} (${_id}) не найдена`});
 
-        // Ищем все подразделения
+        // Ищем всех пользователей
         const users = await User.find({});
 
         if (users && users.length) {
@@ -190,8 +194,10 @@ router.put("/users", checkMiddleware, async (req, res) => {
         item.firstName = firstName;
         item.secondName = secondName;
         item.email = email;
+        item.phone = phone;
         if (hashedPassword) item.password = hashedPassword;
         item.mailing = mailing;
+        item.sms = sms;
         item.approved = approved;
         item.roles = roles;
 
