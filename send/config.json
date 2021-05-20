@@ -3,6 +3,5 @@
   "port": 25,
   "mailLogin": "test@itprom.org",
   "mailPassword": "8QUEKtTb",
-  "smsDomen": "https://sms.ru/sms/send?",
   "smsId": "837909DE-B315-506F-C4B7-04506E6F2D1A"
 }

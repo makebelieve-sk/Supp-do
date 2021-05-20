@@ -34,13 +34,18 @@ const sendingEmail = async (req, res) => {
             mailAddresses.push(user.email);
         });
 
+        // Тема сообщения
+        const subject = "СУПП-ДО: Новая запись в Журнале дефектов и отказов от " + moment(date).format(dateFormat);
+        // Тело сообщения
+        const html = `<b>Оборудование:</b> ${equipment ? equipment.name : "не указано"}<br/><b>Описание заявки:</b> ${notes}<br/><b>Заявитель:</b> ${applicant ? applicant.name : "не указано"}`;
+
         // Отправляем письма на указанные почты
         // Создаем объект сообщения
         const mailOptions = {
             from: config.mailLogin,
             to: mailAddresses,
-            subject: "Запись журнала дефектов и отказов от " + moment(date).format(dateFormat),
-            text: `Оборудование: ${equipment ? equipment.name : "не указано"}\nОписание заявки: ${notes}\nЗаявитель: ${applicant ? applicant.name : "не указано"}`
+            subject,
+            html
         };
 
         // Отправляем письмо

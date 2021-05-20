@@ -560,12 +560,6 @@ router.put("/logDO", checkMiddleware, async (req, res) => {
 
         await logUserActions(req, res, "Редактирование");   // Логируем действие пользвателя
 
-        // Отправляем письма и СМС уведомления
-        if (sendEmail) {
-            await sendingEmail(req, res);
-            await sendingSms(req, res);
-        }
-
         res.status(201).json({message: "Запись сохранена", item: savedItem});
     } catch (err) {
         console.log(err);

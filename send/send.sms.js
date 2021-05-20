@@ -1,11 +1,13 @@
 // Файл отправки sms уведомлений
 const moment = require("moment");
-const request = require("request");
+const SMSru = require("sms_ru");
 
 const User = require("../schemes/User");
 const config = require("./config.json");
 
 const dateFormat = "DD.MM.YYYY HH:mm";  // Константа формата даты
+
+const sms = new SMSru(config.smsId);
 
 /**
  * Функция отправки SMS уведомления
@@ -13,7 +15,7 @@ const dateFormat = "DD.MM.YYYY HH:mm";  // Константа формата д�
  * res - объект ответа сервера
  */
 const sendingSms = async (req, res) => {
-    const {date, equipment} = req.body;
+    const {date, notes, equipment} = req.body;
 
     const sendUsers = await User.find({$and: [{sms: true}, {phone: {$ne: null}}]}).select("phone");
 
@@ -24,22 +26,14 @@ const sendingSms = async (req, res) => {
             phones.push(user.phone);
         });
 
-        const message = `Запись журнала дефектов и отказов от ${moment(date).format(dateFormat)}.\nОборудование: ${equipment ? equipment.name : "не указано"}`;
+        const message = `Новая запись ЖДО от ${moment(date).format(dateFormat)}.\n${equipment ? "Оборудование: " + equipment.name : ""}. ${notes}`;
 
-        const url = `${config.smsDomen}api_id=${config.smsId}&to=${phones.join(",")}&msg=Test&json=1`;
-        console.log(url);
-        console.log(message);
-        // request(
-        //     url,
-        //     (err) => {
-        //         if (err) {
-        //             console.log("Произошла ошибка при отправке СМС на номер: " + err);
-        //             res.status(500).json({message: `Произошла ошибка при отправке СМС на номера ${phones.join(", ")}: ${err}`});
-        //         }
-        //
-        //         console.log("СМС на номер успешно отправлен");
-        //     }
-        // )
+        sms.sms_send({
+            to: phones.join(","),
+            text: message
+        }, function(e){
+            console.log(e.description);
+        });
     }
 }
 
