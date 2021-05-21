@@ -127,7 +127,11 @@ const TasksColumns = [
         dataIndex: "isFinish",
         key: "isFinish",
         width: 100,
-        sorter: (a, b) => a.isFinish > b.isFinish,
+        sorter: (a, b) => {
+            let newA = a.isFinish ? 1 : 0, newB = b.isFinish ? 1 : 0;
+
+            return newA > newB ? 1 : -1;
+        },
         sortDirections: ["descend", "ascend"],
         render(text, record) {
             let formattedIsFinish = "";
@@ -203,7 +207,7 @@ const LogDOColumns = [
         sorter: (a, b) => {
             const start = moment(a.date, TabOptions.dateFormat);
             const end = moment(b.date, TabOptions.dateFormat);
-            
+
             return start.diff(end, "milliseconds") < 0;
         },
         sortDirections: ["descend", "ascend"],
@@ -236,7 +240,7 @@ const LogDOColumns = [
             props: {style: {background: record.color}},
             children: refDate.current && refDate.current.props.value && refDate.current.props.value.length ?
                 <Highlighter
-                    highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+                    highlightStyle={{backgroundColor: "#ffc069", padding: 0}}
                     searchWords={[refDate.current.props.value]}
                     autoEscape
                     textToHighlight={text ? text.toString() : ""}
@@ -279,7 +283,7 @@ const LogDOColumns = [
             props: {style: {background: record.color}},
             children: refEquipment.current && refEquipment.current.props.value && refEquipment.current.props.value.length ?
                 <Highlighter
-                    highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+                    highlightStyle={{backgroundColor: "#ffc069", padding: 0}}
                     searchWords={[refEquipment.current.props.value]}
                     autoEscape
                     textToHighlight={text ? text.toString() : ""}
@@ -323,7 +327,7 @@ const LogDOColumns = [
             props: {style: {background: record.color}},
             children: refNotes.current && refNotes.current.props.value && refNotes.current.props.value.length ?
                 <Highlighter
-                    highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+                    highlightStyle={{backgroundColor: "#ffc069", padding: 0}}
                     searchWords={[refNotes.current.props.value]}
                     autoEscape
                     textToHighlight={text ? text.toString() : ""}
@@ -366,7 +370,7 @@ const LogDOColumns = [
             props: {style: {background: record.color}},
             children: refApplicant.current && refApplicant.current.props.value && refApplicant.current.props.value.length ?
                 <Highlighter
-                    highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+                    highlightStyle={{backgroundColor: "#ffc069", padding: 0}}
                     searchWords={[refApplicant.current.props.value]}
                     autoEscape
                     textToHighlight={text ? text.toString() : ""}
@@ -409,7 +413,7 @@ const LogDOColumns = [
             props: {style: {background: record.color}},
             children: refResponsible.current && refResponsible.current.props.value && refResponsible.current.props.value.length ?
                 <Highlighter
-                    highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+                    highlightStyle={{backgroundColor: "#ffc069", padding: 0}}
                     searchWords={[refResponsible.current.props.value]}
                     autoEscape
                     textToHighlight={text ? text.toString() : ""}
@@ -452,7 +456,7 @@ const LogDOColumns = [
             props: {style: {background: record.color}},
             children: refDepartment.current && refDepartment.current.props.value && refDepartment.current.props.value.length ?
                 <Highlighter
-                    highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+                    highlightStyle={{backgroundColor: "#ffc069", padding: 0}}
                     searchWords={[refDepartment.current.props.value]}
                     autoEscape
                     textToHighlight={text ? text.toString() : ""}
@@ -496,7 +500,7 @@ const LogDOColumns = [
             props: {style: {background: record.color}},
             children: refTask.current && refTask.current.props.value && refTask.current.props.value.length ?
                 <Highlighter
-                    highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+                    highlightStyle={{backgroundColor: "#ffc069", padding: 0}}
                     searchWords={[refTask.current.props.value]}
                     autoEscape
                     textToHighlight={text ? text.toString() : ""}
@@ -539,7 +543,7 @@ const LogDOColumns = [
             props: {style: {background: record.color}},
             children: refState.current && refState.current.props.value && refState.current.props.value.length ?
                 <Highlighter
-                    highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+                    highlightStyle={{backgroundColor: "#ffc069", padding: 0}}
                     searchWords={[refState.current.props.value]}
                     autoEscape
                     textToHighlight={text ? text.toString() : ""}
@@ -552,12 +556,21 @@ const LogDOColumns = [
         key: "planDateDone",
         width: 120,
         sorter: (a, b) => {
-            if (!a.planDateDone || !b.planDateDone) return a.planDateDone > b.planDateDone ? 1 : -1;
+            let newA = a.planDateDone, newB = b.planDateDone;
 
-            const start = moment(a.planDateDone, TabOptions.dateFormat);
-            const end = moment(b.planDateDone, TabOptions.dateFormat);
+            if (!newA) {
+                newA = moment(new Date(null)).format(TabOptions.dateFormat);
+            }
 
-            return start.diff(end, "milliseconds") > 0;
+            if (!newB) {
+                newB = moment(new Date(null)).format(TabOptions.dateFormat);
+            }
+
+            const start = moment(newA, TabOptions.dateFormat);
+            const end = moment(newB, TabOptions.dateFormat);
+
+            return start.diff(end, "milliseconds") >= 0 ? 1 : -1;
+
         },
         sortDirections: ["descend", "ascend"],
         filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}) => (
@@ -589,7 +602,7 @@ const LogDOColumns = [
             props: {style: {background: record.color}},
             children: refPlanDateDone.current && refPlanDateDone.current.props.value && refPlanDateDone.current.props.value.length ?
                 <Highlighter
-                    highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+                    highlightStyle={{backgroundColor: "#ffc069", padding: 0}}
                     searchWords={[refPlanDateDone.current.props.value]}
                     autoEscape
                     textToHighlight={text ? text.toString() : ""}
@@ -826,12 +839,7 @@ const StatisticListColumns = [
         dataIndex: "during",
         key: "during",
         width: 100,
-        sorter: (a, b) => {
-            let first = a.during.replace(".", "");
-            let second = b.during.replace(".", "");
-
-            return first < second ? 1 : -1
-        },
+        sorter: (a, b) => a.during * 100 > b.during * 100 ? 1 : -1,
         sortDirections: ["descend", "ascend"],
         render: (text, record) => ({
             props: {style: {background: record.color ? record.color : "fff"}},
