@@ -78,7 +78,8 @@ const map = new Map([
         getTableHeader: headerProfession,
         getPrintName: "Профессии",
         getPrintData: () => store.getState().reducerProfession.professions,
-        getExportName: "Профессии",
+        exportName: "Профессии",
+        helpTitle: "Профессии",
         model: ProfessionRoute
     }],
     ["departments", {
@@ -94,7 +95,8 @@ const map = new Map([
         getTableHeader: headerDepartment,
         getPrintName: "Подразделения",
         getPrintData: () => store.getState().reducerDepartment.departments,
-        getExportName: "Подразделения",
+        exportName: "Подразделения",
+        helpTitle: "Подразделения",
         model: DepartmentRoute
     }],
     ["people", {
@@ -110,7 +112,8 @@ const map = new Map([
         getTableHeader: headerPerson,
         getPrintName: "Персонал",
         getPrintData: () => store.getState().reducerPerson.people,
-        getExportName: "Персонал",
+        exportName: "Персонал",
+        helpTitle: "Персонал",
         model: PersonRoute
     }],
     ["tasks", {
@@ -126,7 +129,8 @@ const map = new Map([
         getTableHeader: headerTasks,
         getPrintName: "Состояния заявок",
         getPrintData: () => store.getState().reducerTask.tasks,
-        getExportName: "Состояния заявок",
+        exportName: "Состояния заявок",
+        helpTitle: "Состояния заявок",
         model: TaskStatusRoute
     }],
     ["equipmentProperties", {
@@ -142,7 +146,8 @@ const map = new Map([
         getTableHeader: headerEquipmentProperty,
         getPrintName: "Характеристики оборудования",
         getPrintData: () => store.getState().reducerEquipmentProperty.equipmentProperties,
-        getExportName: "Характеристики оборудования",
+        exportName: "Характеристики оборудования",
+        helpTitle: "Характеристики оборудования",
         model: EquipmentPropertyRoute
     }],
     ["equipment", {
@@ -158,7 +163,8 @@ const map = new Map([
         getTableHeader: headerEquipment,
         getPrintName: "Перечень оборудования",
         getPrintData: () => store.getState().reducerEquipment.equipment,
-        getExportName: "Перечень оборудования",
+        exportName: "Перечень оборудования",
+        helpTitle: "Перечень оборудования",
         model: EquipmentRoute
     }],
     ["logDO", {
@@ -174,7 +180,8 @@ const map = new Map([
         getTableHeader: headerLogDO,
         getPrintName: "Журнал дефектов и отказов",
         getPrintData: () => store.getState().reducerLogDO.logDO,
-        getExportName: "Журнал дефектов и отказов",
+        helpTitle: "Журнал дефектов и отказов",
+        exportName: "Журнал дефектов и отказов",
     }],
     ["help", {
         openRecordTab: (_id) => openRecord(
@@ -189,7 +196,8 @@ const map = new Map([
         getTableHeader: headerHelp,
         getPrintName: "Помощь",
         getPrintData: () => store.getState().reducerHelp.help,
-        getExportName: "Помощь",
+        exportName: "Помощь",
+        helpTitle: "Помощь",
         model: UserRoute
     }],
     ["users", {
@@ -205,7 +213,8 @@ const map = new Map([
         getTableHeader: headerUser,
         getPrintName: "Пользователи",
         getPrintData: () => store.getState().reducerUser.users,
-        getExportName: "Пользователи",
+        exportName: "Пользователи",
+        helpTitle: "Пользователи",
         model: UserRoute
     }],
     ["roles", {
@@ -221,7 +230,8 @@ const map = new Map([
         getTableHeader: headerRole,
         getPrintName: "Роли",
         getPrintData: () => store.getState().reducerRole.roles,
-        getExportName: "Роли",
+        exportName: "Роли",
+        helpTitle: "Роли",
         model: RoleRoute
     }],
     ["analytic", {model: AnalyticRoute}],
@@ -230,7 +240,8 @@ const map = new Map([
         getTableHeader: headerStatisticRating,
         getPrintName: "Статистика/Рейтинг отказов",
         getPrintData: () => store.getState().reducerStatistic.statisticRating,
-        getExportName: "Рейтинг отказов",
+        exportName: "Рейтинг отказов",
+        helpTitle: "Статистика",
         model: StatisticRatingRoute
     }],
     ["statisticList", {
@@ -238,7 +249,8 @@ const map = new Map([
         getTableHeader: headerStatisticList,
         getPrintName: "Статистика/Перечень незакрытых заявок",
         getPrintData: () => store.getState().reducerStatistic.statisticList,
-        getExportName: "Перечень не закрытых заявок",
+        exportName: "Перечень не закрытых заявок",
+        helpTitle: "Статистика",
         model: StatisticListRoute,
     }],
     ["logs", {
@@ -254,8 +266,9 @@ const map = new Map([
         getTableHeader: headerLog,
         getPrintName: "Журнал действий пользователей",
         getPrintData: () => store.getState().reducerLog.logs,
-        getExportName: "Журнал действий пользователей",
-        model: LogRoute
+        exportName: "Журнал действий пользователей",
+        helpTitle: "Журнал действий пользователей",
+        model: LogRoute,
     }],
 ]);
 
@@ -347,12 +360,35 @@ const getModel = (key) => {
  */
 const getExportName = (key) => {
     if (map.has(key)) {
-        return map.get(key).getExportName;
+        return map.get(key).exportName;
     } else {
         console.log(key);
-        message.error(`Раздел с ключём ${key} не существует (печать таблицы)`).then(null);
-        return new Error(`Раздел с ключём ${key} не существует (печать таблицы)`);
+        message.error(`Раздел с ключём ${key} не существует (наименования файла для экспорта)`).then(null);
+        return new Error(`Раздел с ключём ${key} не существует (наименования файла для экспорта)`);
     }
 };
 
-export {openRecordTab, getColumns, getTableHeader, getPrintTable, getModel, getExportName}
+/**
+ * Функция возврата заголовка Помощи
+ * @param key - ключ таблицы
+ * @returns string - строка заголовка Помощи
+ */
+const getHelpTitle = (key) => {
+    const localMap = new Map([
+        ["professionItem", "Профессии"],
+        ["departmentItem", "Подразделения"],
+        ["personItem", "Персонал"],
+        ["equipmentItem", "Перечень оборудования"],
+        ["equipmentPropertyItem", "Характеристики оборудования"],
+        ["taskStatusItem", "Состояния заявок"],
+        ["logDOItem", "Журнал дефектов и отказов"],
+        ["helpItem", "Помощь"],
+        ["userItem", "Пользователи"],
+        ["roleItem", "Роли"],
+        ["logItem", "Журнал действий пользователей"],
+    ]);
+
+    return localMap.has(key) ? localMap.get(key) : map.get(key).helpTitle;
+};
+
+export {openRecordTab, getColumns, getTableHeader, getPrintTable, getModel, getExportName, getHelpTitle}

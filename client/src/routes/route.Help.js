@@ -50,6 +50,24 @@ export const HelpRoute = {
             NoticeError.getAll(e.message); // Вызываем функцию обработки ошибки
         }
     },
+    // Возврат ключа таблицы вместо ключа записи
+    getKey: function(key) {
+        const map = new Map([
+            ["professionItem", "professions"],
+            ["departmentItem", "departments"],
+            ["personItem", "people"],
+            ["equipmentItem", "equipment"],
+            ["equipmentPropertyItem", "equipmentProperties"],
+            ["taskStatusItem", "tasks"],
+            ["logDOItem", "logDO"],
+            ["helpItem", "help"],
+            ["userItem", "users"],
+            ["roleItem", "roles"],
+            ["logItem", "logs"],
+        ]);
+
+        return map.has(key) ? map.get(key) : key;
+    },
     // Получение редактируемой записи помощи
     get: async function (id) {
         try {
@@ -76,10 +94,12 @@ export const HelpRoute = {
         }
     },
     // Получение записи помощи при клике на кнопку "Помощь"
-    getHelpToModal: async function (id) {
+    getHelpToModal: async function (key) {
         try {
+            const keySection = this.getKey(key);
+
             // Получаем запись при клике на кнопку "Помощь"
-            return await request(this.base_url + "get/" + id);
+            return await request(this.base_url + "get/" + keySection);
         } catch (e) {
             console.log(e.message);
             message.error("Возникла ошибка при получении записи: ", e.message);

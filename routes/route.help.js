@@ -67,9 +67,9 @@ router.get("/help/:id", async (req, res) => {
 
 // Возвращает запись при клике на кнопку "Помощь"
 router.get("/help/get/:id", async (req, res) => {
-    const value = req.params.id;   // поле value объекта name
-
     try {
+        const value = req.params.id;   // поле value объекта name
+
         const item = await Help.findOne({"name.value": value}); // Находим нужную запись
 
         const response = item ? {title: item.name.label, text: item.text} : null;   // Составляем объект ответа

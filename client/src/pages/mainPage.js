@@ -11,6 +11,7 @@ import store from "../redux/store";
 import {HelpRoute} from "../routes/route.Help";
 import ErrorIndicator from "../components/content.components/errorIndicator/errorIndicator.component";
 import {useWindowWidth} from "../hooks/windowWidth.hook";
+import {getHelpTitle} from "../helpers/mappers/tabs.mappers/table.helper";
 
 const {Header, Content, Footer} = Layout;
 
@@ -34,13 +35,17 @@ export const MainPage = () => {
     const getHelp = async () => {
         try {
             // Получаем объект помощи раздела
-            const item = await HelpRoute.getHelpToModal(store.getState().reducerTab.activeKey);
+            const currentKey = store.getState().reducerTab.activeKey;
+
+            const item = await HelpRoute.getHelpToModal(currentKey);
             setIsModalVisible(true);    // Открываем модальное окно
+
+            const title = getHelpTitle(currentKey);
 
             // Устанавливаем объект помощи в состояние
             item
-                ? setHelp({title: item.title, text: <div>{ReactHtmlParser(item.text)}</div>})
-                : setHelp({title: "", text: "В данном разделе текст помощи отсутствует"});
+                ? setHelp({title, text: <div>{ReactHtmlParser(item.text)}</div>})
+                : setHelp({title, text: "В данном разделе текст помощи отсутствует"});
         } catch (e) {
             setHelp({title: "", text: <ErrorIndicator error={e}/>});
         }
