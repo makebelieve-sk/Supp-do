@@ -34,7 +34,8 @@ export default function RichTextComponent({value, onChange}) {
                     ],
                     toolbar: 'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | code',
                     image_title: true,
-                    content_style: "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }"
+                    content_style: "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
+                    language: "ru"
                 }}
             />
         </>
