@@ -51,9 +51,9 @@ const logUserActions = async (req, res, action, body = null) => {
 
 // Возвращает запись по коду
 router.get("/professions/:id", async (req, res) => {
-    const _id = req.params.id;  // Получение id записи
-
     try {
+        const _id = req.params.id;  // Получение id записи
+
         let item, isNewItem = true;
 
         if (_id === "-1") {
@@ -63,7 +63,7 @@ router.get("/professions/:id", async (req, res) => {
             isNewItem = false;
         }
 
-        if (!item) return res.status(404).json({message: `Профессия с именем ${name} (${_id}) не существует`});
+        if (!item) return res.status(404).json({message: `Профессия с кодом ${_id} не существует`});
 
         res.status(200).json({isNewItem, profession: item});
     } catch (err) {

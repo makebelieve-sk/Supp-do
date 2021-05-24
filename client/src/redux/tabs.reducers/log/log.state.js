@@ -1,6 +1,6 @@
 // Инициализация состояния для раздела "Журнал действий пользователя"
 import moment from "moment";
-import TabOptions from "../../../options/tab.options/record.options/record.options";
+import TabOptions from "../../../options/tab.options/record.options";
 
 const initialState = {
     logs: [],               // Записи раздела

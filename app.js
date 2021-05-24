@@ -41,6 +41,7 @@ app.use("/api/admin", AuthMiddleware.checkAuth, require("./routes/route.help"));
 app.use("/api/admin", AuthMiddleware.checkAuth, require("./routes/route.user"));
 app.use("/api/admin", AuthMiddleware.checkAuth, require("./routes/route.role"));
 app.use("/api/admin", AuthMiddleware.checkAuth, require("./routes/route.log"));
+app.use("/api/profile", AuthMiddleware.checkAuth, require("./routes/route.profile"));
 
 // Работа с файлами
 app.use(fileUpload({createParentPath: true}));

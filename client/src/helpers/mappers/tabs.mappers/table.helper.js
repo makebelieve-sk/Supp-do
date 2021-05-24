@@ -48,17 +48,17 @@ import {StatisticRatingRoute} from "../../../routes/route.StatisticRating";
 import {StatisticListRoute} from "../../../routes/route.StatisticList";
 import {LogRoute} from "../../../routes/route.Log";
 
-import {ProfessionTab} from "../../../tabs/profession/profession.edit";
-import {DepartmentTab} from "../../../tabs/department/department.edit";
-import {PersonTab} from "../../../tabs/person/person.edit";
-import {TaskTab} from "../../../tabs/taskStatus/taskStatus.edit";
-import {EquipmentPropertyTab} from "../../../tabs/equipmentProperty/equipmentProperty.edit";
-import {EquipmentTab} from "../../../tabs/equipment/equipment.edit";
-import {LogDOTab} from "../../../tabs/logDo/logDO.edit";
-import {HelpTab} from "../../../tabs/help/help";
-import {UserTab} from "../../../tabs/user/user";
-import {RoleTab} from "../../../tabs/role/role";
-import {LogTab} from "../../../tabs/log/log";
+import {ProfessionTab} from "../../../tabs/profession";
+import {DepartmentTab} from "../../../tabs/department";
+import {PersonTab} from "../../../tabs/person";
+import {TaskTab} from "../../../tabs/taskStatus";
+import {EquipmentPropertyTab} from "../../../tabs/equipmentProperty";
+import {EquipmentTab} from "../../../tabs/equipment";
+import {LogDOTab} from "../../../tabs/logDo";
+import {HelpTab} from "../../../tabs/help";
+import {UserTab} from "../../../tabs/user";
+import {RoleTab} from "../../../tabs/role";
+import {LogTab} from "../../../tabs/log";
 
 import store from "../../../redux/store";
 import openRecord from "../../functions/tabs.functions/openRecordTab";

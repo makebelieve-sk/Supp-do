@@ -170,7 +170,7 @@ router.post("/login", checkMiddlewareAuth, async (req, res) => {
     }
 });
 
-// Вход пользователя
+// Изменение пароля пользователя
 router.put("/changePassword", checkMiddleware, async (req, res) => {
     try {
         // Проверка валидации полей раздела "Характеристики оборудования"

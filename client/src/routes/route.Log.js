@@ -6,10 +6,10 @@ import {ActionCreator} from "../redux/combineActions";
 import {request} from "../helpers/functions/general.functions/request.helper";
 import {compareArrays, compareObjects} from "../helpers/functions/general.functions/compare";
 import {NoticeError} from "./helper";
-import {onRemove} from "../components/content.components/content/content.component";
+import onRemove from "../helpers/functions/general.functions/removeTab";
 import {Log} from "../model/Log";
 import moment from "moment";
-import TabOptions from "../options/tab.options/record.options/record.options";
+import TabOptions from "../options/tab.options/record.options";
 
 export const LogRoute = {
     // Адрес для работы с разделом "Журнал действий пользователя"

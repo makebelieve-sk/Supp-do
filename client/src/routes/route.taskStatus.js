@@ -8,7 +8,7 @@ import {request} from "../helpers/functions/general.functions/request.helper";
 import {compareObjects} from "../helpers/functions/general.functions/compare";
 import setFieldRecord from "../helpers/mappers/general.mappers/setFieldRecord";
 import {NoticeError, storeTask} from "./helper";
-import {onRemove} from "../components/content.components/content/content.component";
+import onRemove from "../helpers/functions/general.functions/removeTab";
 
 export const TaskStatusRoute = {
     // Адрес для работы с разделом "Состояние заявок"

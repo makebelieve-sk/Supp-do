@@ -10,7 +10,7 @@ import {getParents} from "../helpers/functions/general.functions/replaceField";
 import {compareObjects} from "../helpers/functions/general.functions/compare";
 import setFieldRecord from "../helpers/mappers/general.mappers/setFieldRecord";
 import {NoticeError, storeEquipment, storeEquipmentProperties} from "./helper";
-import {onRemove} from "../components/content.components/content/content.component";
+import onRemove from "../helpers/functions/general.functions/removeTab";
 
 export const EquipmentRoute = {
     // Адрес для работы с разделом "Оборудование"

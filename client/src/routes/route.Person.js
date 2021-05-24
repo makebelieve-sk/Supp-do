@@ -8,7 +8,7 @@ import {request} from "../helpers/functions/general.functions/request.helper";
 import setFieldRecord from "../helpers/mappers/general.mappers/setFieldRecord";
 import {compareObjects} from "../helpers/functions/general.functions/compare";
 import {NoticeError, storeDepartments, storePeople, storeProfessions} from "./helper";
-import {onRemove} from "../components/content.components/content/content.component";
+import onRemove from "../helpers/functions/general.functions/removeTab";
 
 export const PersonRoute = {
     // Адрес для работы с разделом "Персонал"

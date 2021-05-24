@@ -103,6 +103,7 @@ function checkRoleUser(key, user) {
         ["analytic", canEdit("analytic")],
         ["statistic", canEdit("statistic")],
         ["changePassword", canEdit("changePassword")],
+        ["profile", canEdit("profile")],
         ["professionItem", canEdit("professions")],
         ["departmentItem", canEdit("departments")],
         ["personItem", canEdit("people")],
@@ -114,6 +115,8 @@ function checkRoleUser(key, user) {
         ["userItem", canEdit("users")],
         ["roleItem", canEdit("roles")],
     ]);
+
+    key = key === "edit-profile" ? "profile" : key;
 
     if (map.has(key)) {
         return map.get(key);

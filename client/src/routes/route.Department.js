@@ -10,7 +10,7 @@ import {getParents} from "../helpers/functions/general.functions/replaceField";
 import setFieldRecord from "../helpers/mappers/general.mappers/setFieldRecord";
 import {compareObjects} from "../helpers/functions/general.functions/compare";
 import {NoticeError, storeDepartments} from "./helper";
-import {onRemove} from "../components/content.components/content/content.component";
+import onRemove from "../helpers/functions/general.functions/removeTab";
 
 export const DepartmentRoute = {
     // Адрес для работы с разделом "Подразделения"

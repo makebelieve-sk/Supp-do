@@ -19,38 +19,13 @@
     color: #1890ff;
 }
 
-#components-layout-demo-custom-trigger .logo {
-    height: 32px;
-    background: rgba(255, 255, 255, 0.3);
-    margin: 16px;
-}
-
 /* установка стилей для header*/
 .header-component {
     padding: 0;
     height: 64px;
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
-}
-.logo {
-    height: 48px;
-    margin: 8px;
-    color: #fff;
-    font-size: 22px;
-    text-align: center;
-    line-height: 48px;
-}
-.logo-image {
-    height: 48px;
-    margin-right: 8px;
-    color: #fff;
-    font-size: 22px;
-    text-align: center;
-    line-height: 48px;
-}
-.logo:hover {
-    cursor: pointer;
+    justify-content: flex-start;
 }
 
 /* установка стилей для body*/
@@ -182,47 +157,4 @@
 /* отключении кнопки "ОК" в модальном окне "Помощи"*/
 .ant-modal-footer .ant-btn-primary {
     display: none;
-}
-
-/* стили текста в подвале сайта*/
-.footer_text {
-    -webkit-tap-highlight-color: transparent;
-    --blue: #007bff;
-    --indigo: #6610f2;
-    --purple: #6f42c1;
-    --pink: #e83e8c;
-    --red: #dc3545;
-    --orange: #fd7e14;
-    --yellow: #ffc107;
-    --green: #28a745;
-    --teal: #20c997;
-    --cyan: #17a2b8;
-    --white: #fff;
-    --gray: #6c757d;
-    --gray-dark: #343a40;
-    --primary: #007bff;
-    --secondary: #6c757d;
-    --success: #28a745;
-    --info: #17a2b8;
-    --warning: #ffc107;
-    --danger: #dc3545;
-    --light: #f8f9fa;
-    --dark: #343a40;
-    --breakpoint-xs: 0;
-    --breakpoint-sm: 576px;
-    --breakpoint-md: 768px;
-    --breakpoint-lg: 992px;
-    --breakpoint-xl: 1200px;
-    --font-family-sans-serif: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
-    --font-family-monospace: SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
-    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
-    font-size: 1rem;
-    font-weight: 400;
-    line-height: 1.5;
-    box-sizing: border-box;
-    color: #6c757d!important;
-    text-align: center;
-}
-.cursor:hover {
-    cursor: pointer;
 }

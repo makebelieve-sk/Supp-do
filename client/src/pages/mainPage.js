@@ -1,100 +1,45 @@
 // Главная страница
 import React, {useState, useEffect} from "react";
-import {Layout, Button, Row, Col, Modal} from "antd";
-import {MenuUnfoldOutlined, MenuFoldOutlined, QuestionCircleOutlined} from "@ant-design/icons";
-import ReactHtmlParser from "react-html-parser";
+import {useSelector} from "react-redux";
+import {Layout} from "antd";
 
 import {LogDORoute} from "../routes/route.LogDO";
 import {ContentComponent} from "../components/content.components/content/content.component";
-import {SiderComponent} from "../components/content.components/sider/sider.component";
-import store from "../redux/store";
-import {HelpRoute} from "../routes/route.Help";
-import ErrorIndicator from "../components/content.components/errorIndicator/errorIndicator.component";
-import {useWindowWidth} from "../hooks/windowWidth.hook";
-import {getHelpTitle} from "../helpers/mappers/tabs.mappers/table.helper";
-
-const {Header, Content, Footer} = Layout;
+import {FooterComponent} from "../components/content.components/footer";
+import {LeftMenu} from "../components/content.components/menu/leftMenu";
+import {TopMenu} from "../components/content.components/menu/topMenu";
 
 export const MainPage = () => {
-    // Создание состояний для скрытия/раскрытия боковой панели, активной вкладки, показа модального окна и содержимого помощи
+    // Получение объекта пользователя
+    const user = useSelector(state => state.reducerAuth.user);
+
+    // Создание состояний для скрытия/раскрытия боковой панели
     const [collapsed, setCollapsed] = useState(true);
-    const [isModalVisible, setIsModalVisible] = useState(false);
-    const [help, setHelp] = useState({title: "", text: ""});
 
-    // Загрузка главного раздела "Журнал дефектов и отказов"
+    // Загрузка записей раздела "Журнал дефектов и отказов"
     useEffect(() => {
-        const getItems = async () => await LogDORoute.getAll();
-
-        getItems().then(null);
+        (async () => await LogDORoute.getAll())();
     }, []);
-
-    /**
-     * Функция получения объекта помощи раздела
-     * @returns {Promise<void>} - устанавливает объект помощи в состояние для отображения
-     */
-    const getHelp = async () => {
-        try {
-            // Получаем объект помощи раздела
-            const currentKey = store.getState().reducerTab.activeKey;
-
-            const item = await HelpRoute.getHelpToModal(currentKey);
-            setIsModalVisible(true);    // Открываем модальное окно
-
-            const title = getHelpTitle(currentKey);
-
-            // Устанавливаем объект помощи в состояние
-            item
-                ? setHelp({title, text: <div>{ReactHtmlParser(item.text)}</div>})
-                : setHelp({title, text: "В данном разделе текст помощи отсутствует"});
-        } catch (e) {
-            setHelp({title: "", text: <ErrorIndicator error={e}/>});
-        }
-    }
-
-    const screen = useWindowWidth();    // Получаем текущее значение ширины окна браузера
-
-    // Получение контента кнопки в зависимости от ширины экрана
-    const getContent = (content) => screen !== "xs" && screen !== "sm" && screen !== "md" ? content : null;
 
     return (
         <Layout>
-            <SiderComponent collapsed={collapsed}/>
+            {/*Компонент, отрисовывающий боковое меню*/}
+            <LeftMenu left={user && user.typeMenu[0].value === "left"} collapsed={collapsed} />
 
             <Layout style={{backgroundColor: "#fff"}}>
-                <Header className="site-layout-background header-component">
-                    <div>
-                        <Button type="primary" onClick={() => setCollapsed(!collapsed)} style={{marginLeft: 15}}>
-                            {collapsed ? <MenuUnfoldOutlined/> : <MenuFoldOutlined/>}
-                        </Button>
-                    </div>
-                </Header>
+                {/*Компонент, отрисовывающий верхнее меню или кнопку раскрытия бокового меню*/}
+                <TopMenu
+                    left={user && user.typeMenu[0].value === "left"}
+                    collapsed={collapsed}
+                    setCollapsed={setCollapsed}
+                />
 
-                <Content className="content-component">
-                    <ContentComponent/>
-                </Content>
+                {/*Компонент, отрисовывающий вкладки и их содержимое*/}
+                <ContentComponent/>
 
-                <Footer style={{backgroundColor: "#F5F5F5"}}>
-                    <Row align="middle">
-                        <Col span={18} className="footer_text">
-                            Система управления производственным процессом. Дефекты и отказы. 2021. Версия 1.0.0
-                        </Col>
-
-                        <Col span={6} onClick={getHelp} className="footer_text cursor">
-                            <QuestionCircleOutlined/> {getContent("Помощь")}
-                        </Col>
-
-                        <Modal
-                            title={"Помощь раздела " + help.title}
-                            visible={isModalVisible}
-                            onCancel={() => setIsModalVisible(false)}
-                            cancelText="Закрыть"
-                            width="60%"
-                        >
-                            {help.text}
-                        </Modal>
-                    </Row>
-                </Footer>
+                {/*Компонент, отрисовывающий подвал приложения*/}
+                <FooterComponent />
             </Layout>
         </Layout>
     );
-}
+};

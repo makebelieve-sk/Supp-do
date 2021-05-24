@@ -2,10 +2,10 @@
 import React from "react";
 import {message} from "antd";
 
-import {TableComponent} from "../../../tabs/table/table";
-import {AnalyticComponent} from "../../../components/content.components/analytic/analytic.component";
-import {StatisticComponent} from "../../../components/content.components/statistic/statistic.component";
-import {ChangePasswordComponent} from "../../../tabs/changePassword/changePassword.component";
+import {TableComponent} from "../../../tabs/table";
+import {AnalyticComponent} from "../../../tabs/analytic";
+import {StatisticComponent} from "../../../tabs/statistic";
+import {ChangePasswordComponent} from "../../../tabs/changePassword";
 
 /**
  * Функция определения типа контента вкладки

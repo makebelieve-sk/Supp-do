@@ -1,4 +1,4 @@
-// Компонент ошибки раздела (таблицы/записи)
+// Компонент, отрисовывающий ошибку вкладки
 import React from "react";
 import {Button, Collapse} from "antd";
 import {FrownOutlined} from "@ant-design/icons";
@@ -6,8 +6,6 @@ import {FrownOutlined} from "@ant-design/icons";
 import store from "../../../redux/store";
 
 import "./errorIndicator.css";
-
-const {Panel} = Collapse;
 
 const ErrorIndicator = ({error}) => (
     <div className="error-indicator">
@@ -24,9 +22,9 @@ const ErrorIndicator = ({error}) => (
         }
 
         <Collapse>
-            <Panel header="Подробнее об ошибке">
+            <Collapse.Panel header="Подробнее об ошибке">
                 <span className="error-text">{typeof error === "string" ? error : error.errorText}</span>
-            </Panel>
+            </Collapse.Panel>
         </Collapse>
     </div>
 );

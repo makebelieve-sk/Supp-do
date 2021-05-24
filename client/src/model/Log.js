@@ -1,6 +1,6 @@
 // Модель для справочника "Журнал действий пользователя"
 import moment from "moment";
-import TabOptions from "../options/tab.options/record.options/record.options";
+import TabOptions from "../options/tab.options/record.options";
 
 export class Log {
     constructor({_id, date, action, username, content}) {

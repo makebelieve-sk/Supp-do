@@ -1,6 +1,6 @@
 // Инициализация состояния для раздела "Статистика"
 import moment from "moment";
-import TabOptions from "../../../options/tab.options/record.options/record.options";
+import TabOptions from "../../../options/tab.options/record.options";
 
 const initialState = {
     statisticRating: [],             // Записи вкладки Рейтинг

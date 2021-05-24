@@ -7,7 +7,7 @@ import {User} from "../model/User";
 import {request} from "../helpers/functions/general.functions/request.helper";
 import {compareArrays, compareObjects} from "../helpers/functions/general.functions/compare";
 import {NoticeError, storePeople, storeRole} from "./helper";
-import {onRemove} from "../components/content.components/content/content.component";
+import onRemove from "../helpers/functions/general.functions/removeTab";
 
 export const UserRoute = {
     // Адрес для работы с разделом "Пользователи"
@@ -153,7 +153,7 @@ export const UserRoute = {
             const currentUser = store.getState().reducerAuth.user;
 
             if (currentUser._id === _id) {
-                message.error("Чтобы удалить себя, обратитесь к администратору");
+                message.error("Невозможно удалить себя, чтобы сделать это, обратитесь к администратору");
                 // Останавливаем спиннер, и скрываем всплывающее окно
                 setLoadingDelete(false);
                 setVisiblePopConfirm(false);

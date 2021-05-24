@@ -45,6 +45,7 @@ export const checkRoleUser = (key, user) => {
         ["analytic", canEdit("analytic")],
         ["statistic", canEdit("statistic")],
         ["changePassword", canEdit("changePassword")],
+        ["profile", canEdit("profile")],
         ["professionItem", canEdit("professions")],
         ["departmentItem", canEdit("departments")],
         ["personItem", canEdit("people")],
@@ -59,8 +60,7 @@ export const checkRoleUser = (key, user) => {
     ]);
 
     if (key === "userManagement" || key === "analytic-section" || key === "personManagement" ||
-        key === "equipmentKey" || key === "directory" || key === "analytic-section" || key === "admin" ||
-        key === "personal-area") return null;
+        key === "equipmentKey" || key === "directory" || key === "analytic-section" || key === "admin") return null;
 
     key = key === "statisticRating" || key === "statisticList" ? "statistic" : key;
 

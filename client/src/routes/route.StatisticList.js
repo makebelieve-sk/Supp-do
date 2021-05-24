@@ -6,7 +6,7 @@ import {ActionCreator} from "../redux/combineActions";
 import {request} from "../helpers/functions/general.functions/request.helper";
 import {compareArrays} from "../helpers/functions/general.functions/compare";
 import {NoticeError} from "./helper";
-import TabOptions from "../options/tab.options/record.options/record.options";
+import TabOptions from "../options/tab.options/record.options";
 
 export const StatisticListRoute = {
     // Адрес для работы с разделом "Статистика"

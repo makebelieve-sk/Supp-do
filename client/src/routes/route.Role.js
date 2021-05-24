@@ -7,7 +7,7 @@ import {Role} from "../model/Role";
 import {request} from "../helpers/functions/general.functions/request.helper";
 import {compareObjects} from "../helpers/functions/general.functions/compare";
 import {NoticeError, storeRole} from "./helper";
-import {onRemove} from "../components/content.components/content/content.component";
+import onRemove from "../helpers/functions/general.functions/removeTab";
 
 export const RoleRoute = {
     // Адрес для работы с разделом "Роли"

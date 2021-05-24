@@ -13,6 +13,10 @@ const schema = new Schema({
     sms: {type: Boolean},                                   // Рассылка новых записей из журнала дефектов и отказов (sms)
     approved: {type: Boolean},                                      // Одобрен
     roles: [{type: Types.ObjectId, ref: "Role"}],                   // Роли
+    typeMenu: [{
+        label: {type: String},
+        value: {type: String}
+    }],                   // Размещение меню
 });
 
 module.exports = model("User", schema);

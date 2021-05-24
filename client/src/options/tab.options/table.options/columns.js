@@ -5,7 +5,7 @@ import {CheckOutlined, SearchOutlined} from "@ant-design/icons";
 import Highlighter from "react-highlight-words";
 import moment from "moment";
 
-import TabOptions from "../record.options/record.options";
+import TabOptions from "../record.options";
 
 // Создание колонок для раздела "Профессии"
 const ProfessionColumns = [

@@ -1,6 +1,6 @@
 // Модель записи раздела "Журнал дефектов и отказов"
 import moment from "moment";
-import TabOptions from "../options/tab.options/record.options/record.options";
+import TabOptions from "../options/tab.options/record.options";
 import {getShortNameRecord} from "../helpers/functions/general.functions/replaceField";
 
 export class LogDoRecord {

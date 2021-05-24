@@ -2,7 +2,7 @@
 import Cookies from "js-cookie";
 
 import {getExportName, getTableHeader} from "../../../helpers/mappers/tabs.mappers/table.helper";
-import {getFilteredData} from "../../global.options/global.options";
+import {getFilteredData} from "../../global.options";
 import store from "../../../redux/store";
 import {ActionCreator} from "../../../redux/combineActions";
 

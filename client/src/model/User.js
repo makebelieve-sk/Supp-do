@@ -2,7 +2,7 @@
 import {getShortNameRecord} from "../helpers/functions/general.functions/replaceField";
 
 export class User {
-    constructor({_id, userName, person, firstName, secondName, email, phone, mailing, sms, approved, roles}) {
+    constructor({_id, userName, person, firstName, secondName, email, phone, mailing, sms, approved, roles, typeMenu}) {
         if (person) person.name = getShortNameRecord(person.name);
 
         this._id = _id;
@@ -16,5 +16,6 @@ export class User {
         this.sms = sms;
         this.approved = approved;
         this.roles = roles;
+        this.typeMenu = typeMenu ? typeMenu : [{label: "Слева", value: "left"}, {label: "Сверху", value: "top"}];
     }
 }

@@ -1,0 +1,25 @@
+#components-layout-demo-custom-trigger .logo {
+    height: 32px;
+    background: rgba(255, 255, 255, 0.3);
+    margin: 16px;
+}
+
+.logo {
+    height: 48px;
+    margin: 8px;
+    color: #fff;
+    font-size: 22px;
+    text-align: center;
+    line-height: 48px;
+}
+.logo-image {
+    height: 48px;
+    margin-right: 8px;
+    color: #fff;
+    font-size: 22px;
+    text-align: center;
+    line-height: 48px;
+}
+.logo:hover {
+    cursor: pointer;
+}

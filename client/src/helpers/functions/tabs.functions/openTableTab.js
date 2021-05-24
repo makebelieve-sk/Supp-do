@@ -5,7 +5,7 @@ import store from "../../../redux/store";
 import {ActionCreator} from "../../../redux/combineActions";
 import {BodyManager} from "../../../components/content.components/body/body.component";
 import emptyTab from "./emptyTab";
-import TabOptions from "../../../options/tab.options/record.options/record.options";
+import TabOptions from "../../../options/tab.options/record.options";
 
 /**
  * Создание вкладки раздела

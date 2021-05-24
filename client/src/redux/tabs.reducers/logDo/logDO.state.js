@@ -1,6 +1,6 @@
 // Инициализация состояния для раздела "Журнал дефектов и отказов"
 import moment from "moment";
-import TabOptions from "../../../options/tab.options/record.options/record.options";
+import TabOptions from "../../../options/tab.options/record.options";
 
 const initialState = {
     logDO: [],              // Записи журнала

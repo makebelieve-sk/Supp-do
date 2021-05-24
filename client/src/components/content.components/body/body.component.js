@@ -1,4 +1,4 @@
-// Управление содержимым вкладки с таблицей
+// Компонент, отрисовывающий содержимое вкладки таблицы или компонент ошибки
 import React, {useMemo} from "react";
 import {useSelector} from "react-redux";
 import {Card, Skeleton} from "antd";

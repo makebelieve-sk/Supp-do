@@ -74,7 +74,7 @@ router.get("/users/:id", async (req, res) => {
             // Создание новой записи
             item = new User({
                 userName: "", person: null, firstName: "", secondName: "", email: "", phone: "", mailing: false, sms: false,
-                approved: false, roles: []
+                approved: false, roles: [], typeMenu: [{label: "Слева", value: "left"}, {label: "Сверху", value: "top"}]
             });
         } else {
             // Получение существующей записи

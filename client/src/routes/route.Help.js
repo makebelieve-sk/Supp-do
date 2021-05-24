@@ -8,7 +8,7 @@ import {request} from "../helpers/functions/general.functions/request.helper";
 import {compareArrays, compareObjects} from "../helpers/functions/general.functions/compare";
 import {Help} from "../model/Help";
 import {NoticeError} from "./helper";
-import {onRemove} from "../components/content.components/content/content.component";
+import onRemove from "../helpers/functions/general.functions/removeTab";
 
 export const HelpRoute = {
     // Адрес для работы с разделом "Помощь"

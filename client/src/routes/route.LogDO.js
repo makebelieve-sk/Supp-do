@@ -7,9 +7,9 @@ import store from "../redux/store";
 import {ActionCreator} from "../redux/combineActions";
 import {compareObjects} from "../helpers/functions/general.functions/compare";
 import {request} from "../helpers/functions/general.functions/request.helper";
-import TabOptions from "../options/tab.options/record.options/record.options";
+import TabOptions from "../options/tab.options/record.options";
 import {NoticeError, storeDepartments, storeEquipment, storeLogDO, storePeople, storeTask} from "./helper";
-import {onRemove} from "../components/content.components/content/content.component";
+import onRemove from "../helpers/functions/general.functions/removeTab";
 import {AnalyticRoute} from "./route.Analytic";
 
 export const LogDORoute = {

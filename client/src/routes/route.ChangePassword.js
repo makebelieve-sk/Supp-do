@@ -5,7 +5,7 @@ import store from "../redux/store";
 import {ActionCreator} from "../redux/combineActions";
 import {request} from "../helpers/functions/general.functions/request.helper";
 import {NoticeError} from "./helper";
-import {onRemove} from "../components/content.components/content/content.component";
+import onRemove from "../helpers/functions/general.functions/removeTab";
 
 export const ChangePasswordRoute = {
     // Адрес для работы с разделом "Смена пароля"
@@ -25,9 +25,6 @@ export const ChangePasswordRoute = {
             if (typeof data === "string") {
                 // Останавливаем спиннер загрузки
                 setLoading(false);
-
-                // Удаление текущей вкладки
-                onRemove("changePassword", "remove");
 
                 return null;
             }

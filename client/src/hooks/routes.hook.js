@@ -4,8 +4,8 @@ import {Switch, Route, Redirect} from "react-router-dom";
 
 import {MainPage} from "../pages/mainPage";
 import {AuthPage} from "../pages/authPage";
-import {RegistrationComponent} from "../components/auth.components/reg/reg.component";
-import {ChangePasswordComponent} from "../tabs/changePassword/changePassword.component";
+import {RegistrationComponent} from "../components/auth.components/reg";
+import {ChangePasswordComponent} from "../tabs/changePassword";
 
 export const useRoutes = (isAuthenticated) => {
     if (isAuthenticated) {
