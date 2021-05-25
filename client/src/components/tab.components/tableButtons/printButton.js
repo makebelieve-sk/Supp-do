@@ -101,6 +101,7 @@ export default class PrintButton extends React.Component {
                 <div style={{position: "absolute", display: this.state.display, opacity: 0}}>
                     <PrintTable
                         ref={el => this.tableRef = el}
+                        specKey={this.props.specKey}
                         headers={this.props.headers}
                         data={this.state.data}
                         name={this.state.name}

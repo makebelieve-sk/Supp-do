@@ -1,0 +1,31 @@
+.print-wrapper {
+    padding: 10px;
+}
+
+.print-table {
+    font-size: 10px;
+    width: 100%;
+}
+
+.print-title {
+    text-align: center;
+}
+.print-table-header {
+    border: 1px solid black;
+    text-align: center;
+}
+
+.print-table-cell {
+    border: 1px solid black;
+    text-align: center;
+    padding: 5px;
+    margin: 0;
+}
+
+.left {
+    text-align: left;
+}
+
+.no-data {
+    text-align: center;
+}

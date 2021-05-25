@@ -2,7 +2,6 @@
 const {Router} = require("express");
 const {check, validationResult} = require("express-validator");
 
-const User = require("../schemes/User");
 const Log = require("../schemes/Log");
 const Role = require("../schemes/Role");
 const {getUser} = require("./helper");
@@ -95,24 +94,6 @@ router.get("/roles/:id", async (req, res) => {
                             item.permissions.splice(indexPerm, 1);
                         }
                     }
-                });
-            }
-
-            // Обновляем данную роль у пользователей
-            const usersWithThisRole = await User
-                .find()
-                .all("roles", [item])
-                .populate("roles")
-                .populate("person")
-                .select("-password");
-
-            if (usersWithThisRole && usersWithThisRole.length) {
-                usersWithThisRole.forEach(user => {
-                    user.roles.forEach((role, index) => {
-                        if (role._id === item._id) {
-                            user.roles[index] = item;
-                        }
-                    });
                 });
             }
         }

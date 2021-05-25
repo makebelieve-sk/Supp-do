@@ -1,25 +1,33 @@
 // Печать таблицы раздела
 import React from "react";
+import {CheckOutlined} from "@ant-design/icons";
 
 import {getPrintFilteredData} from "../../global.options";
-import {CheckOutlined} from "@ant-design/icons";
+
+import "./printTable.css";
 
 export default class PrintTable extends React.Component {
     render() {
-        const {headers, data, name} = this.props;
+        const {headers, data, name, specKey} = this.props;
+
+        // Выровнивание текста по левому краю в печатных формах разделов:
+        const style = specKey === "professions" || specKey === "departments" || specKey === "person"
+            || specKey === "equipmentProperties" || specKey === "equipment"
+            ? "left"
+            : "";
 
         // Шапка таблицы
         const headersTable = headers ? headers.split(", ") : null;
 
         return (
-            <div style={{padding: 10}}>
-                <h3 style={{textAlign: "center"}}>{name}</h3>
+            <div className="print-wrapper">
+                <h3 className="print-title">{name}</h3>
 
-                <table style={{fontSize: 10, width: "100%"}}>
+                <table className="print-table">
                     <thead>
                         <tr>
                             {headersTable.map((header, index) =>
-                                <th key={`${header}-${index}`} style={{border: "1px solid black", textAlign: "center"}}>
+                                <th key={`${header}-${index}`} className="print-table-header">
                                     {header}
                                 </th>
                             )}
@@ -41,13 +49,13 @@ export default class PrintTable extends React.Component {
                                                 record[key] = record[key] ? <CheckOutlined/> : "";
                                             }
 
-                                            return <td key={`${key}`} style={{border: "1px solid black", textAlign: "center", padding: 0, margin: 0}}>
+                                            return <td key={`${key}`} className={`print-table-cell ${style}`}>
                                                 {record[key]}
                                             </td>
                                         })}
                                     </tr>
                                 })
-                                : <tr><td style={{textAlign: "center"}}>{"Нет данных"}</td></tr>
+                                : <tr><td className="no-data">{"Нет данных"}</td></tr>
                         }
                     </tbody>
                 </table>

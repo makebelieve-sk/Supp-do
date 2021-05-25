@@ -102,7 +102,7 @@ router.post("/register", checkMiddlewareRegister, async (req, res) => {
         } else {
             // Создаем новый экземпляр записи n-ого пользователя
             newCandidate = new User({email, firstName, secondName, userName, password: hashedPassword, mailing: false,
-                approved: false, phone, sms: false, typeMenu: [{label: "Слева", value: "left"}]});
+                approved: false, roles: [], phone, sms: false, typeMenu: [{label: "Слева", value: "left"}]});
         }
 
         await newCandidate.save();  // Сохраняем запись в базе данных

@@ -2,7 +2,7 @@
 const {Schema, model, Types} = require("mongoose");
 
 const schema = new Schema({
-    date: {type: Date, required: true},                // Дата создания
+    date: {type: Date, required: true},                // Дата заявки
     applicant: {type: Types.ObjectId, ref: "Person", required: true},       // Заявитель
     equipment: {type: Types.ObjectId, ref: "Equipment", required: true},    // Оборудование
     notes: {type: String, required: true},              // Описание
@@ -13,7 +13,7 @@ const schema = new Schema({
     task: {type: String},                               // Задание
     taskStatus: {type: Types.ObjectId, ref: "TaskStatus"},   // Состояние
     dateDone: {type: Date},                              // Дата выполнения
-    planDateDone: {type: Date},                          // Планируемая дата выполнения
+    planDateDone: {type: Date},                          // Плаовая дата выполнения
     content: {type: String},                             // Содержание работ
     downtime: {type: String},                            // Время простоя, мин
     acceptTask: {type: Boolean},                         // Работа принята
