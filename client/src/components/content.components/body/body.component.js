@@ -22,7 +22,6 @@ export const BodyManager = ({specKey}) => {
         errorAnalytic: state.reducerAnalytic.errorAnalytic,
         errorRating: state.reducerStatistic.errorRating,
         errorList: state.reducerStatistic.errorList,
-        errorChangePassword: state.reducerChangePassword.errorChangePassword,
         errorHelp: state.reducerHelp.errorTableHelp,
         errorUser: state.reducerUser.errorTableUser,
         errorRole: state.reducerRole.errorTableRole,
@@ -31,13 +30,7 @@ export const BodyManager = ({specKey}) => {
 
     return <div className="container-dto">
         <Skeleton loading={stateObject.loadingSkeleton} active>
-            <Card className={
-                specKey === "logDO"
-                    ? "card-dto-logDo"
-                    : specKey === "changePassword"
-                        ? "change-password"
-                        : "card-dto"
-            }>
+            <Card className={specKey === "logDO" ? "card-dto-logDo" : "card-dto"}>
                 {useMemo(() => {
                     const error = getErrorTable(specKey, stateObject);  // Получаем ошибку раздела
 

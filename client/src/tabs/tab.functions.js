@@ -41,7 +41,7 @@ const TabButtons = ({loadingSave, item, deleteHandler, cancelHandler, loadingCan
 
     return <Row justify="end" style={{marginTop: 20}} xs={{gutter: [8, 8]}}>
         {
-            (checkRoleUser(activeKey, user).edit || activeKey === "changePassword") && activeKey !== "logItem"
+            checkRoleUser(activeKey, user).edit && activeKey !== "logItem"
                 ? <Button className={`button-style ${short}`} type="primary" htmlType="submit" loading={loadingSave} icon={<CheckOutlined/>}>
                     {getContent("Сохранить")}
                 </Button>

@@ -5,7 +5,6 @@ import {Switch, Route, Redirect} from "react-router-dom";
 import {MainPage} from "../pages/mainPage";
 import {AuthPage} from "../pages/authPage";
 import {RegistrationComponent} from "../components/auth.components/reg";
-import {ChangePasswordComponent} from "../tabs/changePassword";
 
 export const useRoutes = (isAuthenticated) => {
     if (isAuthenticated) {
@@ -27,7 +26,6 @@ export const useRoutes = (isAuthenticated) => {
         <Switch>
             <Route path="/login" component={AuthPage}/>
             <Route path="/register" component={RegistrationComponent}/>
-            <Route path="/change-password" component={ChangePasswordComponent}/>
             {
                 window.location.pathname === "/" ?
                     <Redirect to="/login"/> :

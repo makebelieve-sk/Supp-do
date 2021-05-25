@@ -102,7 +102,6 @@ function checkRoleUser(key, user) {
         ["logs", canEdit("logs")],
         ["analytic", canEdit("analytic")],
         ["statistic", canEdit("statistic")],
-        ["changePassword", canEdit("changePassword")],
         ["profile", canEdit("profile")],
         ["professionItem", canEdit("professions")],
         ["departmentItem", canEdit("departments")],

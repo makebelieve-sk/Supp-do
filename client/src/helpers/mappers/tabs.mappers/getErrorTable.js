@@ -46,10 +46,6 @@ export default function getErrorTable(key, stateObject) {
             ? {errorText: stateObject.errorRating, action: ActionCreator.ActionCreatorStatistic.setErrorRating(null)}
             : {errorText: stateObject.errorList, action: ActionCreator.ActionCreatorStatistic.setErrorList(null)}
         ],
-        ["changePassword", {
-            errorText: stateObject.errorChangePassword,
-            action: ActionCreator.ActionCreatorChangePassword.setErrorChangePassword(null)
-        }],
         ["help", {
             errorText: stateObject.errorHelp,
             action: ActionCreator.ActionCreatorHelp.setErrorTableHelp(null)

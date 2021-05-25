@@ -12,7 +12,7 @@ import {request} from "../../../helpers/functions/general.functions/request.help
 
 import "./auth.css";
 
-export const AuthComponent = ({setRegForm, setChangePass}) => {
+export const AuthComponent = ({setRegForm}) => {
     const alert = useSelector(state => state.reducerAuth.regAlert);   // Получаем из флаг показао алерта  из хранилища
 
     const [loadingLogin, setLoadingLogin] = useState(false);
@@ -90,10 +90,7 @@ export const AuthComponent = ({setRegForm, setChangePass}) => {
                             <Button loading={loadingLogin} type="primary" htmlType="submit" className="login-form-button">
                                 Войти
                             </Button>
-                            Или <Link to="/register" onClick={() => {
-                            setRegForm(true);
-                            setChangePass(false);
-                        }}>зарегистрируйтесь сейчас</Link>
+                            Или <Link to="/register" onClick={() => setRegForm(true)}>зарегистрируйтесь сейчас</Link>
                         </Form.Item>
                     </Form>
                 </Card>

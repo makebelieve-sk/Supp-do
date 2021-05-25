@@ -19,7 +19,6 @@ const permissions = [
     {title: "Журнал действий пользователей", read: false, edit: false, key: "logs"},
     {title: "Аналитика", read: false, edit: false, key: "analytic"},
     {title: "Статистика", read: false, edit: false, key: "statistic"},
-    {title: "Смена пароля", read: true, edit: true, key: "changePassword"},
     {title: "Редактирование профиля", read: true, edit: true, key: "profile"},
     {title: "Принятие работы", read: false, edit: false, key: "acceptTask"},
 ];
@@ -39,7 +38,6 @@ const permissionsAdmin = [
     {title: "Журнал действий пользователей", read: true, edit: true, key: "logs"},
     {title: "Аналитика", read: true, edit: false, key: "analytic"},
     {title: "Статистика", read: true, edit: false, key: "statistic"},
-    {title: "Смена пароля", read: true, edit: true, key: "changePassword"},
     {title: "Редактирование профиля", read: true, edit: true, key: "profile"},
     {title: "Принятие работы", read: false, edit: true, key: "acceptTask"},
 ];

@@ -29,7 +29,7 @@ export default async function OpenTableTab(title, key, model) {
         // Создаем пустую вкладку
         emptyTab(title, BodyManager, key);
 
-        if (key !== "changePassword") await model.getAll();
+        await model.getAll();
 
         // Останавливаем показ спиннера загрузки при открытии вкладки раздела
         store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(false));

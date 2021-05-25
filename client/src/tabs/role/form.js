@@ -91,8 +91,7 @@ export const RoleForm = ({item}) => {
                                         ? permissions.map((perm, index) => (
                                             <tr key={perm.key}>
                                                 <td className="link" onClick={() => {
-                                                    if (perm.key === "acceptTask" || perm.key === "changePassword"
-                                                        || perm.key === "profile") return null;
+                                                    if (perm.key === "acceptTask" || perm.key === "profile") return null;
 
                                                     OpenTableTab(
                                                         perm.title,
@@ -107,7 +106,7 @@ export const RoleForm = ({item}) => {
                                                 <td className="center">
                                                     <Checkbox
                                                         disabled={perm.key === "logDO" || perm.key === "acceptTask" ||
-                                                            perm.key === "changePassword" || perm.key === "profile"}
+                                                            perm.key === "profile"}
                                                         checked={perm.read}
                                                         onChange={e => {
                                                             setPermissions([
@@ -122,7 +121,7 @@ export const RoleForm = ({item}) => {
                                                     <Checkbox
                                                         disabled={perm.key === "logDO" ||
                                                             perm.key === "analytic" || perm.key === "statistic" ||
-                                                            perm.key === "changePassword" || perm.key === "profile"}
+                                                            perm.key === "profile"}
                                                         checked={perm.edit}
                                                         onChange={e => {
                                                             setPermissions([

@@ -15,7 +15,6 @@ import ActionCreatorHelp from "./tabs.reducers/help/help.actions";
 import ActionCreatorUser from "./tabs.reducers/user/user.actions";
 import ActionCreatorRole from "./tabs.reducers/role/role.actions";
 import ActionCreatorAuth from "./general.reducers/auth/auth.actions";
-import ActionCreatorChangePassword from "./tabs.reducers/changePassword/changePassword.actions";
 import ActionCreatorLog from "./tabs.reducers/log/log.actions";
 import ActionCreatorProfile from "./tabs.reducers/profile/profile.actions";
 
@@ -36,7 +35,6 @@ export const ActionCreator = {
     ActionCreatorUser,
     ActionCreatorRole,
     ActionCreatorAuth,
-    ActionCreatorChangePassword,
     ActionCreatorLog,
     ActionCreatorProfile,
 }

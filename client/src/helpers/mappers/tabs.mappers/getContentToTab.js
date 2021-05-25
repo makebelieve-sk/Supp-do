@@ -5,7 +5,6 @@ import {message} from "antd";
 import {TableComponent} from "../../../tabs/table";
 import {AnalyticComponent} from "../../../tabs/analytic";
 import {StatisticComponent} from "../../../tabs/statistic";
-import {ChangePasswordComponent} from "../../../tabs/changePassword";
 
 /**
  * Функция определения типа контента вкладки
@@ -23,7 +22,6 @@ export default function getContentToTab(key) {
         ["logDO", <TableComponent specKey={key}/>],
         ["analytic", <AnalyticComponent />],
         ["statistic", <StatisticComponent />],
-        ["changePassword", <ChangePasswordComponent />],
         ["help", <TableComponent specKey={key}/>],
         ["users", <TableComponent specKey={key}/>],
         ["roles", <TableComponent specKey={key}/>],

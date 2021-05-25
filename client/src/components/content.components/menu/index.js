@@ -9,7 +9,6 @@ import moment from "moment";
 import {ProfileTab} from "../../../tabs/profile";
 import {LogDORoute} from "../../../routes/route.LogDO";
 import {ProfileRoute} from "../../../routes/route.Profile";
-import {ChangePasswordRoute} from "../../../routes/route.ChangePassword";
 import {AuthContext} from "../../../context/auth.context";
 import OpenTableTab from "../../../helpers/functions/tabs.functions/openTableTab";
 import openRecord from "../../../helpers/functions/tabs.functions/openRecordTab";
@@ -154,31 +153,23 @@ export const MenuComponent = ({collapsed, mode}) => {
                 }
 
                 <Menu.SubMenu title="Личный кабинет" key="personal-area" icon={<UserOutlined/>}>
-                    <Menu.SubMenu title="Настройки пользователя" key="user-settings">
-                        <Menu.Item
-                            key="profile"
-                            onClick={() => {
-                                const user = store.getState().reducerAuth.user;
+                    <Menu.Item
+                        key="profile"
+                        onClick={() => {
+                            const user = store.getState().reducerAuth.user;
 
-                                openRecord(
-                                    user._id,
-                                    "Профиль",
-                                    "Профиль",
-                                    ProfileTab,
-                                    "profile",
-                                    ProfileRoute
-                                )
-                            }}
-                        >
-                            Профиль
-                        </Menu.Item>
-                        <Menu.Item
-                            key="changePassword"
-                            onClick={() => OpenTableTab("Сменить пароль", "changePassword", ChangePasswordRoute)}
-                        >
-                            Сменить пароль
-                        </Menu.Item>
-                    </Menu.SubMenu>
+                            openRecord(
+                                user._id,
+                                "Профиль",
+                                "Профиль",
+                                ProfileTab,
+                                "profile",
+                                ProfileRoute
+                            )
+                        }}
+                    >
+                        Настройки профиля
+                    </Menu.Item>
                     <Menu.Item
                         key="logout"
                         onClick={() => auth.logout()}
