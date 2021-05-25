@@ -16,6 +16,7 @@ const ProfessionColumns = [
         width: 100,
         sorter: (a, b) => a.name.toLowerCase() < b.name.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
+        showSorterTooltip: false
     },
     {
         title: "Примечание",
@@ -24,6 +25,7 @@ const ProfessionColumns = [
         width: 100,
         sorter: (a, b) => a.notes.toLowerCase() < b.notes.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
+        showSorterTooltip: false
     }
 ];
 
@@ -36,6 +38,7 @@ const DepartmentColumns = [
         width: 100,
         sorter: (a, b) => a.name.toLowerCase() < b.name.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
+        showSorterTooltip: false
     },
     {
         title: "Примечание",
@@ -44,6 +47,7 @@ const DepartmentColumns = [
         width: 100,
         sorter: (a, b) => a.notes.toLowerCase() < b.notes.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
+        showSorterTooltip: false
     }
 ];
 
@@ -56,6 +60,7 @@ const PersonColumns = [
         width: 100,
         sorter: (a, b) => a.name.toLowerCase() < b.name.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
+        showSorterTooltip: false
     },
     {
         title: "Подразделение",
@@ -64,6 +69,7 @@ const PersonColumns = [
         width: 100,
         sorter: (a, b) => a.department.toLowerCase() < b.department.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
+        showSorterTooltip: false,
         render(text, record) {
             return {
                 children: <Tooltip placement="topLeft" title={record.departmentTooltip}>{text}</Tooltip>,
@@ -77,6 +83,7 @@ const PersonColumns = [
         width: 100,
         sorter: (a, b) => a.profession.toLowerCase() < b.profession.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
+        showSorterTooltip: false
     },
     {
         title: "Примечание",
@@ -85,6 +92,7 @@ const PersonColumns = [
         width: 100,
         sorter: (a, b) => a.notes.toLowerCase() < b.notes.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
+        showSorterTooltip: false
     }
 ];
 
@@ -105,6 +113,7 @@ const TasksColumns = [
                 children: text,
             };
         },
+        showSorterTooltip: false
     },
     {
         title: "Примечание",
@@ -121,6 +130,7 @@ const TasksColumns = [
                 children: text,
             };
         },
+        showSorterTooltip: false
     },
     {
         title: "Завершено",
@@ -143,6 +153,7 @@ const TasksColumns = [
                 children: <div style={{textAlign: "center"}}>{formattedIsFinish}</div>,
             };
         },
+        showSorterTooltip: false
     },
 ];
 
@@ -155,6 +166,7 @@ const EquipmentPropertyColumns = [
         width: 100,
         sorter: (a, b) => a.name.toLowerCase() < b.name.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
+        showSorterTooltip: false
     },
     {
         title: "Примечание",
@@ -163,6 +175,7 @@ const EquipmentPropertyColumns = [
         width: 100,
         sorter: (a, b) => a.notes.toLowerCase() < b.notes.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
+        showSorterTooltip: false
     }
 ];
 
@@ -175,6 +188,7 @@ const EquipmentColumns = [
         width: 100,
         sorter: (a, b) => a.name.toLowerCase() < b.name.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
+        showSorterTooltip: false
     },
     {
         title: "Примечание",
@@ -183,6 +197,7 @@ const EquipmentColumns = [
         width: 100,
         sorter: (a, b) => a.notes.toLowerCase() < b.notes.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
+        showSorterTooltip: false
     }
 ];
 
@@ -245,7 +260,8 @@ const LogDOColumns = [
                     autoEscape
                     textToHighlight={text ? text.toString() : ""}
                 /> : text,
-        })
+        }),
+        showSorterTooltip: false
     },
     {
         title: "Оборудование",
@@ -288,7 +304,8 @@ const LogDOColumns = [
                     autoEscape
                     textToHighlight={text ? text.toString() : ""}
                 /> : <Tooltip placement="topLeft" title={record.equipmentTooltip}>{text}</Tooltip>,
-        })
+        }),
+        showSorterTooltip: false
     },
     {
         title: "Описание",
@@ -332,7 +349,8 @@ const LogDOColumns = [
                     autoEscape
                     textToHighlight={text ? text.toString() : ""}
                 /> : text//<Tooltip placement="topLeft" title={text}>{text}</Tooltip>,
-        })
+        }),
+        showSorterTooltip: false
     },
     {
         title: "Заявитель",
@@ -375,7 +393,8 @@ const LogDOColumns = [
                     autoEscape
                     textToHighlight={text ? text.toString() : ""}
                 /> : text,
-        })
+        }),
+        showSorterTooltip: false
     },
     {
         title: "Исполнитель",
@@ -418,7 +437,8 @@ const LogDOColumns = [
                     autoEscape
                     textToHighlight={text ? text.toString() : ""}
                 /> : text,
-        })
+        }),
+        showSorterTooltip: false
     },
     {
         title: "Подразделение",
@@ -461,7 +481,8 @@ const LogDOColumns = [
                     autoEscape
                     textToHighlight={text ? text.toString() : ""}
                 /> : <Tooltip placement="topLeft" title={record.departmentTooltip}>{text}</Tooltip>,
-        })
+        }),
+        showSorterTooltip: false
     },
     {
         title: "Задание",
@@ -505,7 +526,8 @@ const LogDOColumns = [
                     autoEscape
                     textToHighlight={text ? text.toString() : ""}
                 /> : <Tooltip placement="topLeft" title={text}>{text}</Tooltip>,
-        })
+        }),
+        showSorterTooltip: false
     },
     {
         title: "Состояние",
@@ -548,7 +570,8 @@ const LogDOColumns = [
                     autoEscape
                     textToHighlight={text ? text.toString() : ""}
                 /> : text,
-        })
+        }),
+        showSorterTooltip: false
     },
     {
         title: "Плановая дата выполнения",
@@ -607,7 +630,8 @@ const LogDOColumns = [
                     autoEscape
                     textToHighlight={text ? text.toString() : ""}
                 /> : text,
-        })
+        }),
+        showSorterTooltip: false
     }
 ];
 
@@ -620,6 +644,7 @@ const HelpColumns = [
         width: 100,
         sorter: (a, b) => a.name.toLowerCase() < b.name.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
+        showSorterTooltip: false
     },
     {
         title: "Текст",
@@ -628,6 +653,7 @@ const HelpColumns = [
         width: 100,
         sorter: (a, b) => a.textParser.length - b.textParser.length,
         sortDirections: ["descend", "ascend"],
+        showSorterTooltip: false
     },
     {
         title: "Дата изменения",
@@ -640,7 +666,8 @@ const HelpColumns = [
 
             return start.diff(end, "milliseconds") > 0;
         },
-        sortDirections: ["descend", "ascend"]
+        sortDirections: ["descend", "ascend"],
+        showSorterTooltip: false
     }
 ];
 
@@ -653,6 +680,7 @@ const UserColumns = [
         width: 100,
         sorter: (a, b) => a.userName.toLowerCase() < b.userName.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
+        showSorterTooltip: false
     },
     {
         title: "Имя",
@@ -661,6 +689,7 @@ const UserColumns = [
         width: 100,
         sorter: (a, b) => a.firstName.toLowerCase() < b.firstName.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
+        showSorterTooltip: false
     },
     {
         title: "Фамилия",
@@ -669,6 +698,7 @@ const UserColumns = [
         width: 100,
         sorter: (a, b) => a.secondName.toLowerCase() < b.secondName.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
+        showSorterTooltip: false
     },
     {
         title: "Роли",
@@ -677,6 +707,7 @@ const UserColumns = [
         width: 100,
         sorter: (a, b) => a.roles.toLowerCase() < b.roles.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
+        showSorterTooltip: false
     },
     {
         title: "Электронная почта",
@@ -685,6 +716,7 @@ const UserColumns = [
         width: 100,
         sorter: (a, b) => a.email.toLowerCase() - b.email.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
+        showSorterTooltip: false
     },
     {
         title: "Одобрен",
@@ -694,7 +726,8 @@ const UserColumns = [
         render: (text, record) => ({
             props: {style: {textAlign: "center"}},
             children: record.approved ? <CheckOutlined/> : ""
-        })
+        }),
+        showSorterTooltip: false
     },
 ];
 
@@ -707,6 +740,7 @@ const RoleColumns = [
         width: 100,
         sorter: (a, b) => a.name.toLowerCase() < b.name.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
+        showSorterTooltip: false
     },
     {
         title: "Описание",
@@ -715,6 +749,7 @@ const RoleColumns = [
         width: 100,
         sorter: (a, b) => a.notes.toLowerCase() < b.notes.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
+        showSorterTooltip: false
     }
 ];
 
@@ -726,7 +761,8 @@ const StatisticRatingColumns = [
         key: "equipment",
         width: 100,
         sorter: (a, b) => b.equipment.toLowerCase() - a.equipment.toLowerCase() ? 1 : -1,
-        sortDirections: ["descend", "ascend"]
+        sortDirections: ["descend", "ascend"],
+        showSorterTooltip: false
     },
     {
         title: "Не назначенные заявки",
@@ -735,6 +771,7 @@ const StatisticRatingColumns = [
         width: 100,
         sorter: (a, b) => a.notAssigned.toLowerCase() > b.notAssigned.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
+        showSorterTooltip: false,
         align: "center"
     },
     {
@@ -744,7 +781,8 @@ const StatisticRatingColumns = [
         width: 100,
         sorter: (a, b) => a.inWork.toLowerCase() > b.inWork.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
-        align: "center"
+        align: "center",
+        showSorterTooltip: false
     },
     {
         title: "Выполненные заявки",
@@ -753,7 +791,8 @@ const StatisticRatingColumns = [
         width: 100,
         sorter: (a, b) => a.done.toLowerCase() > b.done.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
-        align: "center"
+        align: "center",
+        showSorterTooltip: false
     },
     {
         title: "Принятые заявки",
@@ -762,7 +801,8 @@ const StatisticRatingColumns = [
         width: 100,
         sorter: (a, b) => a.accept.toLowerCase() > b.accept.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
-        align: "center"
+        align: "center",
+        showSorterTooltip: false
     },
     {
         title: "Кол-во отказов, шт",
@@ -771,7 +811,8 @@ const StatisticRatingColumns = [
         width: 100,
         sorter: (a, b) => a.failure > b.failure ? 1 : -1,
         sortDirections: ["descend", "ascend"],
-        align: "center"
+        align: "center",
+        showSorterTooltip: false
     },
     {
         title: "Общая продолжительность простоев, ч",
@@ -780,7 +821,8 @@ const StatisticRatingColumns = [
         width: 100,
         sorter: (a, b) => a.during.toLowerCase() < b.during.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
-        align: "center"
+        align: "center",
+        showSorterTooltip: false
     },
 ];
 
@@ -796,7 +838,8 @@ const StatisticListColumns = [
         render: (text, record) => ({
             props: {style: {background: record.color}},
             children: <Tooltip placement="topLeft" title={record.equipmentTooltip}>{text}</Tooltip>,
-        })
+        }),
+        showSorterTooltip: false
     },
     {
         title: "Описание",
@@ -808,7 +851,8 @@ const StatisticListColumns = [
         render: (text, record) => ({
             props: {style: {background: record.color}},
             children: text,
-        })
+        }),
+        showSorterTooltip: false
     },
     {
         title: "Исполнитель",
@@ -820,7 +864,8 @@ const StatisticListColumns = [
         render: (text, record) => ({
             props: {style: {background: record.color}},
             children: text,
-        })
+        }),
+        showSorterTooltip: false
     },
     {
         title: "Состояние",
@@ -832,7 +877,8 @@ const StatisticListColumns = [
         render: (text, record) => ({
             props: {style: {background: record.color}},
             children: record.taskStatus ? record.taskStatus : "",
-        })
+        }),
+        showSorterTooltip: false
     },
     {
         title: "Продолжительность, ч",
@@ -845,7 +891,8 @@ const StatisticListColumns = [
             props: {style: {background: record.color ? record.color : "fff"}},
             children: text,
         }),
-        align: "center"
+        align: "center",
+        showSorterTooltip: false
     },
 ];
 
@@ -863,6 +910,7 @@ const LogColumns = [
             return start.diff(end, "milliseconds") > 0;
         },
         sortDirections: ["descend", "ascend"],
+        showSorterTooltip: false
     },
     {
         title: "Действие",
@@ -871,6 +919,7 @@ const LogColumns = [
         width: 50,
         sorter: (a, b) => a.action.toLowerCase() < b.action.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
+        showSorterTooltip: false
     },
     {
         title: "Имя пользователя",
@@ -879,14 +928,16 @@ const LogColumns = [
         width: 50,
         sorter: (a, b) => a.username.toLowerCase() < b.username.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
+        showSorterTooltip: false
     },
     {
         title: "Содержание записи",
         dataIndex: "content",
         key: "content",
-        width: 100,
+        width: "200%",
         sorter: (a, b) => a.content.toLowerCase() < b.content.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
+        showSorterTooltip: false
     }
 ];
 
