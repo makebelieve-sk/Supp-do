@@ -21,7 +21,6 @@ export const ProfileComponent = ({item}) => {
 
     // При обновлении item устанавливаем форме начальные значения
     useEffect(() => {
-        console.log("Компонент Профиль", item.typeMenu);
         form.setFieldsValue({
             _id: item._id,
             password: "",

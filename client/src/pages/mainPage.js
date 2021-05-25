@@ -21,8 +21,6 @@ export const MainPage = () => {
         (async () => await LogDORoute.getAll())();
     }, []);
 
-    console.log("Компонент Главная страница: ", user.typeMenu);
-
     return (
         <Layout>
             {/*Компонент, отрисовывающий боковое меню*/}

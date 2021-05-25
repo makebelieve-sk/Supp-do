@@ -97,12 +97,12 @@ router.post("/register", checkMiddlewareRegister, async (req, res) => {
             // Создаем новый экземпляр записи 1-ого пользователя
             newCandidate = new User({
                 email, firstName, secondName, userName, password: hashedPassword, approved: true, roles: [roleAdmin._id],
-                mailing: false, phone, sms: false
+                mailing: false, phone, sms: false, typeMenu: [{label: "Слева", value: "left"}]
             });
         } else {
             // Создаем новый экземпляр записи n-ого пользователя
             newCandidate = new User({email, firstName, secondName, userName, password: hashedPassword, mailing: false,
-                approved: false, phone, sms: false});
+                approved: false, phone, sms: false, typeMenu: [{label: "Слева", value: "left"}]});
         }
 
         await newCandidate.save();  // Сохраняем запись в базе данных
@@ -138,8 +138,12 @@ router.post("/login", checkMiddlewareAuth, async (req, res) => {
 
         if (!user.approved) return res.status(400).json({message: "Данный пользователь не одобрен администратором"});
 
-        // Ищем запись в базе данных по имени пользователя, популизируя все вложенные поля и не работаю с полем 'Пароль'
+        // Ищем запись в базе данных по имени пользователя, популизируя все вложенные поля и не работаем с полем 'Пароль'
         const currentUser = await User.findOne({userName}).populate("roles").populate("person").select("-password");
+
+        if (!currentUser.typeMenu) currentUser.typeMenu = [{label: "Слева", value: "left"}];
+
+        //TODO проверить роли пользователя и исходный массив ролей
 
         // Создаем объект "токена"
         const token = jwt.sign(

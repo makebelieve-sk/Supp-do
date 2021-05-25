@@ -85,6 +85,8 @@ router.get("/users/:id", async (req, res) => {
             if (!item.typeMenu) {
                 item.typeMenu = [{label: "Слева", value: "left"}];
             }
+
+            //TODO проверить роли пользователя и исходный массив ролей
         }
 
         if (!item) return res.status(400).json({message: `Запись с кодом ${_id} не найдена`});
