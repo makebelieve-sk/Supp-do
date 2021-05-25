@@ -74,12 +74,17 @@ router.get("/users/:id", async (req, res) => {
             // Создание новой записи
             item = new User({
                 userName: "", person: null, firstName: "", secondName: "", email: "", phone: "", mailing: false, sms: false,
-                approved: false, roles: [], typeMenu: [{label: "Слева", value: "left"}, {label: "Сверху", value: "top"}]
+                approved: false, roles: [], typeMenu: [{label: "Слева", value: "left"}]
             });
         } else {
             // Получение существующей записи
             item = await User.findById({_id}).populate("person").populate("roles").select("-password");
             isNewItem = false;
+
+            // Если поля typeMenu у пользователя нет, добавляем ему это поле
+            if (!item.typeMenu) {
+                item.typeMenu = [{label: "Слева", value: "left"}];
+            }
         }
 
         if (!item) return res.status(400).json({message: `Запись с кодом ${_id} не найдена`});

@@ -24,12 +24,12 @@ export const MainPage = () => {
     return (
         <Layout>
             {/*Компонент, отрисовывающий боковое меню*/}
-            <LeftMenu left={user && user.typeMenu[0].value === "left"} collapsed={collapsed} />
+            <LeftMenu left={user && user?.typeMenu[0].value === "left"} collapsed={collapsed} />
 
             <Layout style={{backgroundColor: "#fff"}}>
                 {/*Компонент, отрисовывающий верхнее меню или кнопку раскрытия бокового меню*/}
                 <TopMenu
-                    left={user && user.typeMenu[0].value === "left"}
+                    left={user && user?.typeMenu[0].value === "left"}
                     collapsed={collapsed}
                     setCollapsed={setCollapsed}
                 />
