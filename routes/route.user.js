@@ -80,13 +80,6 @@ router.get("/users/:id", async (req, res) => {
             // Получение существующей записи
             item = await User.findById({_id}).populate("person").populate("roles").select("-password");
             isNewItem = false;
-
-            // Если поля typeMenu у пользователя нет, добавляем ему это поле
-            if (!item.typeMenu) {
-                item.typeMenu = [{label: "Слева", value: "left"}];
-            }
-
-            //TODO проверить роли пользователя и исходный массив ролей
         }
 
         if (!item) return res.status(400).json({message: `Запись с кодом ${_id} не найдена`});
