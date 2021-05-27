@@ -196,14 +196,18 @@ export const EquipmentRoute = {
                     if (foundEquipment && indexEquipment >= 0) {
                         store.dispatch(ActionCreator.ActionCreatorEquipment.deleteEquipment(indexEquipment));
                     }
+
+                    // Останавливаем спиннер, и скрываем всплывающее окно
+                    setLoadingDelete(false);
+                    setVisiblePopConfirm(false);
+
+                    // Удаление текущей вкладки
+                    onRemove("equipmentItem", "remove");
+                } else {
+                    // Останавливаем спиннер, и скрываем всплывающее окно
+                    setLoadingDelete(false);
+                    setVisiblePopConfirm(false);
                 }
-
-                // Останавливаем спиннер, и скрываем всплывающее окно
-                setLoadingDelete(false);
-                setVisiblePopConfirm(false);
-
-                // Удаление текущей вкладки
-                onRemove("equipmentItem", "remove");
             } else {
                 // Останавливаем спиннер, и скрываем всплывающее окно
                 setLoadingDelete(false);
@@ -225,6 +229,8 @@ export const EquipmentRoute = {
             if (fileInfo) {
                 setLoadingCancel(false);
                 onRemove("equipmentItem", "remove");
+            } else {
+                setLoadingCancel(false);
             }
         } catch (e) {
             setLoadingCancel(false);

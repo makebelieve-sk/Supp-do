@@ -8,20 +8,16 @@ export const createTreeData = (dataStore) => {
     dataStore.sort((a, b) => a.parent && b.parent && a.parent.name > b.parent.name ? 1 : -1);
 
     // Находим записи, у которых указано, какому подразделению они принадлежат
-    let notNullParentData = dataStore.filter(obj => {
-        return obj.parent;
-    })
+    const notNullParentData = dataStore.filter(obj => obj.parent);
 
     // Находим записи, у которых нет указанного подразделения (такие записи будут на самом верху)
-    let nullParentData = dataStore.filter(obj => {
-        return !obj.parent;
-    })
+    const nullParentData = dataStore.filter(obj => !obj.parent);
 
     // Создаем массив
     let treeData = [];
 
     // Пушим в массив самые верхние записи
-    if (nullParentData && nullParentData.length > 0) {
+    if (nullParentData && nullParentData.length) {
         nullParentData.forEach(nullParent => {
             treeData.push({
                 _id: nullParent._id,
@@ -30,8 +26,8 @@ export const createTreeData = (dataStore) => {
                 parent: "",
                 name: nullParent.name,
                 notes: nullParent.notes
-            })
-        })
+            });
+        });
     }
 
     // Инициализация функции рекурсии, если флаг есть, значит это первый заход в функцию, проходим внутрь 1 раз
@@ -41,7 +37,7 @@ export const createTreeData = (dataStore) => {
         if (firstRun) {
             childrenArr.forEach(nullParent => {
                 notNullParentData.forEach(notNullParent => {
-                    if (notNullParent.parent._id === nullParent.key) {
+                    if (notNullParent.parent._id === nullParent._id) {
                         if (nullParent.children.includes({
                             _id: notNullParent._id,
                             key: notNullParent._id,
@@ -77,7 +73,7 @@ export const createTreeData = (dataStore) => {
 
             childrenArr.children.forEach(childObj => {
                 notNullParentData.forEach(notNullParent => {
-                    if (notNullParent.parent._id === childObj.key) {
+                    if (notNullParent.parent._id === childObj._id) {
                         if (childObj.children.includes({
                             _id: notNullParent._id,
                             key: notNullParent._id,
@@ -110,7 +106,7 @@ export const createTreeData = (dataStore) => {
     }
 
     // Вызов функции рекурсии с начальными параметрами
-    if (treeData && treeData.length > 0) {
+    if (treeData && treeData.length) {
         createTree(treeData, true);
     }
 

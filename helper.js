@@ -10,7 +10,7 @@ function getNameWithParent(item, items) {
 
     if (item.parent) {
         if (item.parent.name) {
-            //Случай, когда родитель - это объект
+            // Случай, когда родитель - это объект
             retVal = concat(item.parent.name, retVal);
             retVal = concat(getNameWithParent(item.parent, items), retVal);
         } else {
@@ -26,6 +26,7 @@ function getNameWithParent(item, items) {
 
     return retVal;
 }
+
 
 /**
  * Соединяет наименование родителя с наименованием элемента

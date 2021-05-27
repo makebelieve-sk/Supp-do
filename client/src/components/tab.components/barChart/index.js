@@ -1,11 +1,11 @@
 // Компонент гистограммы
 import React from "react";
 import {Col, Row} from "antd";
-import {Bar} from '@ant-design/charts';
+import {Bar} from "@ant-design/charts";
 
 import "./barChart.css";
 
-export const BarChartComponent = ({data, goToLogDO}) => {
+export const BarChartComponent = ({data, goToLogDO, print}) => {
     // Объект настроек графика
     const config = {
         data: data,
@@ -24,7 +24,8 @@ export const BarChartComponent = ({data, goToLogDO}) => {
         barStyle: {
             cursor: "pointer"
         },
-        height: 150
+        height: 150,
+        width: print ? 750 : 400,
     };
 
     /**
@@ -45,9 +46,9 @@ export const BarChartComponent = ({data, goToLogDO}) => {
                 </Col>
             </Row>
 
-            <Row align="middle" className="content">
+            <Row align="middle" justify="center">
                 <Col span={24} className="bar-chart">
-                    <Bar {...config} onEvent={(chart, event) => onClick(event)} />
+                    <Bar {...config} onEvent={(chart, event) => onClick(event)}/>
                 </Col>
             </Row>
         </>

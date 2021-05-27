@@ -44,6 +44,23 @@ export const useAuth = () => {
         // Заполняем боковое меню приложения
         store.dispatch(ActionCreator.ActionCreatorAuth.setMenu([
             {
+                title: "Аналитика",
+                key: "analytic-section",
+                icon: <StockOutlined/>,
+                children: [
+                    {
+                        title: "Аналитика",
+                        key: "analytic",
+                        route: AnalyticRoute
+                    },
+                    {
+                        title: "Статистика",
+                        key: "statistic",
+                        route: StatisticRatingRoute
+                    }
+                ]
+            },
+            {
                 title: "Справочники",
                 key: "directory",
                 icon: <MenuUnfoldOutlined/>,
@@ -90,23 +107,6 @@ export const useAuth = () => {
                             }
                         ]
                     },
-                ]
-            },
-            {
-                title: "Аналитика",
-                key: "analytic-section",
-                icon: <StockOutlined/>,
-                children: [
-                    {
-                        title: "Аналитика",
-                        key: "analytic",
-                        route: AnalyticRoute
-                    },
-                    {
-                        title: "Статистика",
-                        key: "statistic",
-                        route: StatisticRatingRoute
-                    }
                 ]
             },
             {

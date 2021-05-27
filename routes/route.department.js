@@ -99,13 +99,27 @@ router.post("/departments", checkMiddleware, async (req, res) => {
                 message: "Некоректные данные при создании записи"
             });
 
-        const {name, notes, parent} = req.body; // Получаем объект записи с фронтенда
+        // Получаем объект записи с фронтенда
+        const {name, notes, parent} = req.body;
 
-        const item = await Department.findOne({name});  // Ищем запись в базе данных по наименованию
+        // Ищем все записи с таким же именем
+        const sameDepartments = await Department.find({name}).populate("parent");
 
-        // Проверяем на существование характеристики с указанным именем
-        if (item)
-            return res.status(400).json({message: `Подразделение с именем ${name} уже существует`});
+        // Если запись с таким родителем и наименованием уже существует, возвращаем ошибку
+        if (sameDepartments && sameDepartments.length) {
+            try {
+                sameDepartments.forEach(sameDepartment => {
+                    if (sameDepartment.name === name) {
+                        if (parent && sameDepartment.parent && sameDepartment.parent._id.toString() === parent._id.toString()
+                            || !parent && !sameDepartment.parent) {
+                            throw new Error("Такое подразделение уже существует");
+                        }
+                    }
+                });
+            } catch (e) {
+                return res.status(400).json({message: e.message});
+            }
+        }
 
         // Проверяем на принадлежность отдела
         if (parent && name === parent.name)
@@ -142,17 +156,28 @@ router.put("/departments", checkMiddleware, async (req, res) => {
 
         const {_id, name, notes, parent} = req.body;    // Получаем объект записи с фронтенда
 
+        // Находим все записи подразделений
+        const departments = await Department.find();
+
         // Ищем запись в базе данных по уникальному идентификатору
         const item = await Department.findById({_id}).populate("parent");
 
-        // Ищем все подразделения
-        const departments = await Department.find({});
+        // Ищем записи с таким же именем
+        const sameDepartments = await Department.find({name}).populate("parent");
 
-        if (departments && departments.length) {
-            for (let i = 0; i < departments.length; i++) {
-                if (departments[i].name === name && departments[i]._id.toString() !== _id.toString()) {
-                    return res.status(400).json({message: "Подразделение с таким именем уже существует"});
-                }
+        // Если запись с таким родителем и наименованием уже существует, возвращаем ошибку
+        if (sameDepartments && sameDepartments.length) {
+            try {
+                sameDepartments.forEach(sameDepartment => {
+                    if (name === sameDepartment.name && sameDepartment._id.toString() !== _id.toString()) {
+                        if (parent && sameDepartment.parent && parent._id.toString() === sameDepartment.parent._id.toString()
+                            || !parent && !sameDepartment.parent) {
+                            throw new Error("Такое подразделение уже существует");
+                        }
+                    }
+                });
+            } catch (e) {
+                return res.status(400).json({message: e.message});
             }
         }
 

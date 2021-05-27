@@ -152,7 +152,7 @@ export const MenuComponent = ({collapsed, mode}) => {
                         : null
                 }
 
-                <Menu.SubMenu title="Личный кабинет" key="personal-area" icon={<UserOutlined/>}>
+                <Menu.SubMenu title={user && user.userName ? user.userName : ""} key="personal-area" icon={<UserOutlined/>}>
                     <Menu.Item
                         key="profile"
                         onClick={() => {

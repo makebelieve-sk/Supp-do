@@ -20,3 +20,7 @@
 .button-skeleton {
     margin-right: .5em;
 }
+
+.not-right-margin {
+    margin-right: 0;
+}

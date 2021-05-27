@@ -2,7 +2,7 @@
 import Cookies from "js-cookie";
 
 import {getExportName, getTableHeader} from "../../../helpers/mappers/tabs.mappers/table.helper";
-import {getFilteredData} from "../../global.options";
+import filterTableKeys from "../../tab.options/table.options/filterTableKeys";
 import store from "../../../redux/store";
 import {ActionCreator} from "../../../redux/combineActions";
 
@@ -32,7 +32,7 @@ const convertArrayOfObjectsToCSV = (array, key) => {
     const keys = Object.keys(array[0]);
 
     // Фильтруем нужные для экспорта поля
-    const filteredKeys = getFilteredData(keys);
+    const filteredKeys = filterTableKeys(keys);
 
     result = "";
     result += headerDataTable;

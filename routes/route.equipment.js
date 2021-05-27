@@ -132,6 +132,25 @@ router.post("/equipment", checkMiddleware, async (req, res) => {
 
         const {name, notes, parent, properties, files} = req.body;  // Получаем объект записи с фронтенда
 
+        // Ищем все записи с таким же именем
+        const sameEquipments = await Equipment.find({name}).populate("parent");
+
+        // Если запись с таким родителем и наименованием уже существует, возвращаем ошибку
+        if (sameEquipments && sameEquipments.length) {
+            try {
+                sameEquipments.forEach(sameEquipment => {
+                    if (sameEquipment.name === name) {
+                        if (parent && sameEquipment.parent && sameEquipment.parent._id.toString() === parent._id.toString()
+                            || !parent && !sameEquipment.parent) {
+                            throw new Error("Такое оборудование уже существует");
+                        }
+                    }
+                });
+            } catch (e) {
+                return res.status(400).json({message: e.message});
+            }
+        }
+
         // Проверяем на принадлежность самому себе
         if (parent && name === parent.name)
             return res.status(400).json({message: "Объект не может принадлежать сам себе"});
@@ -192,6 +211,25 @@ router.put("/equipment", checkMiddleware, async (req, res) => {
 
         const {_id, name, notes, parent, properties, files} = req.body; // Получаем объект записи с фронтенда
 
+        // Ищем записи с таким же именем
+        const sameEquipments = await Equipment.find({name}).populate("parent");
+
+        // Если запись с таким родителем и наименованием уже существует, возвращаем ошибку
+        if (sameEquipments && sameEquipments.length) {
+            try {
+                sameEquipments.forEach(sameEquipment => {
+                    if (name === sameEquipment.name && sameEquipment._id.toString() !== _id.toString()) {
+                        if (parent && sameEquipment.parent && parent._id.toString() === sameEquipment.parent._id.toString()
+                            || !parent && !sameEquipment.parent) {
+                            throw new Error("Такое оборудование уже существует");
+                        }
+                    }
+                });
+            } catch (e) {
+                return res.status(400).json({message: e.message});
+            }
+        }
+
         // Ищем запись в базе данных по уникальному идентификатору
         const item = await Equipment.findById({_id});
 
@@ -203,17 +241,6 @@ router.put("/equipment", checkMiddleware, async (req, res) => {
         // Проверяем на существование записи с уникальным идентификатором
         if (!item)
             return res.status(404).json({message: `Запись с именем ${name} (${_id}) не найдена`});
-
-        // Ищем все подразделения
-        const equipments = await Equipment.find({});
-
-        if (equipments && equipments.length) {
-            for (let i = 0; i < equipments.length; i++) {
-                if (equipments[i].name === name && equipments[i]._id.toString() !== _id.toString()) {
-                    return res.status(400).json({message: "Оборудование с таким именем уже существует"});
-                }
-            }
-        }
 
         // Проверяем на принадлежность самому себе
         if (parent && name === parent.name)
@@ -310,7 +337,7 @@ router.delete("/equipment/:id", async (req, res) => {
             for (let i = 0; i < equipment.length; i++) {
                 if (equipment[i].parent && equipment[i].parent._id.toString() === _id.toString()) {
                     return res
-                        .status(500)
+                        .status(400)
                         .json({message: "Невозможно удалить оборудование, т.к. у него есть дочернее оборудование"});
                 }
             }

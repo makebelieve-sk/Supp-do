@@ -16,3 +16,15 @@
 .bar-chart {
     padding: 10px;
 }
+
+@media print {
+    .col-circle-3 {
+        border-inline: 1px solid grey;
+    }
+    .col-circle-4 {
+        border-block: 1px solid grey;
+    }
+    .col-circle-5 {
+        border-bottom: 1px solid grey;
+    }
+}

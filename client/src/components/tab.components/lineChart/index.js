@@ -5,14 +5,14 @@ import {Column} from "@ant-design/charts";
 
 import "./lineChart.css";
 
-export const LineChartComponent = ({data, goToLogDO}) => {
+export const LineChartComponent = ({data, goToLogDO, print}) => {
     // Объект настроек графика
     const config = {
         data: data,
         xField: "date",
         yField: "value",
         xAxis: {label: {autoRotate: false}},
-        scrollbar: {type: "horizontal"},
+        // scrollbar: {type: "horizontal"},
         point: {
             size: 5,
             shape: "diamond",
@@ -65,6 +65,7 @@ export const LineChartComponent = ({data, goToLogDO}) => {
         columnStyle: {
             cursor: "pointer"
         },
+        width: print ? 750 : 400
     };
 
     /**

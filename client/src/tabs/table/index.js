@@ -5,9 +5,8 @@ import {Row, Table, Col} from "antd";
 
 import store from "../../redux/store";
 import getTableData from "../../helpers/mappers/tabs.mappers/getTableData";
-import {getColumns, openRecordTab} from "../../helpers/mappers/tabs.mappers/table.helper";
+import {getColumns, getFilterFunction, openRecordTab} from "../../helpers/mappers/tabs.mappers/table.helper";
 import tableSettings from "../../options/tab.options/table.options/settings";
-import {getFilteredData} from "../../options/global.options";
 import {goToLogDO} from "../analytic";
 import {TableHeaderComponent} from "../../components/tab.components/tableHeader";
 import {TableAlertComponent} from "../../components/tab.components/tableAlert";
@@ -16,7 +15,7 @@ import {TableBadgeComponent} from "../../components/tab.components/tableBadge";
 import "./table.css";
 
 export const TableComponent = ({specKey}) => {
-    // Получение индикатора загрузки таблицы и записей всех разделов
+    // Получение данных таблиц
     const stateObject = useSelector(state => ({
         loadingTable: state.reducerLoading.loadingTable,
         professions: state.reducerProfession.professions,
@@ -38,68 +37,19 @@ export const TableComponent = ({specKey}) => {
         pageSizeOptions: state.reducerTab.pageSizeOptions,
     }));
 
-    // Получение колонок для таблицы и состояния для редактирования записи
+    // Получение колонок таблицы
     const columns = useMemo(() => getColumns(specKey), [specKey]);
 
-    // Создание стейта для текстового поля, отфильтрованных колонок, выбранных колонок и начальных колонок
+    // Создание состояний для текстового поля, колонок таблицы и скрытия/раскрытия строк
     const [filterText, setFilterText] = useState("");
     const [columnsTable, setColumnsTable] = useState(columns);
+    // const [expandRows, setExpandRows] = useState([]);
 
-    // Получение данных для таблицы
+    // Получение данных таблицы
     const data = getTableData(specKey, stateObject[specKey]);
 
-    let dataKeys = [];
-    let filteredItems = new Set();
-
-    // Реализация поиска
-    if (data && data.length > 0) {
-        // Находим поля объектов записи
-        dataKeys = Object.keys(data[0]);
-
-        // Фильтруем нужные для поиска поля
-        const filteredDataKeys = getFilteredData(dataKeys);
-
-        data.forEach(item => {
-            if (filteredDataKeys && filteredDataKeys.length) {
-                filteredDataKeys.forEach(key => {
-                    if (item[key]) {
-                        // поле - массив объектов (древовидная структура данных)
-                        if (Array.isArray(item[key])) {
-                            const rek = (value, item) => {
-                                const itemArray = value;
-
-                                if (itemArray && itemArray.length) {
-                                    itemArray.forEach(object => {
-                                        if (typeof object === "object") {
-                                            if (filterText.length && !item.name.toLowerCase().includes(filterText.toLowerCase())) {
-                                                if ((object.name && object.name.toLowerCase().includes(filterText.toLowerCase())) ||
-                                                    (object.notes && object.notes.toLowerCase().includes(filterText.toLowerCase()))) {
-                                                    filteredItems.add(object);
-                                                }
-                                            }
-                                        }
-
-                                        if (Array.isArray(object.children)) {
-                                            rek(object.children, object);
-                                        }
-                                    })
-                                }
-                            }
-
-                            rek(item[key], item);
-                        }
-
-                        // поле - строка
-                        if (typeof item[key] === "string") {
-                            if (item[key].toLowerCase().includes(filterText.toLowerCase())) {
-                                filteredItems.add(item);
-                            }
-                        }
-                    }
-                })
-            }
-        });
-    }
+    // Получение отфильтрованных данных таблицы
+    const filterData = getFilterFunction(specKey, data.slice(0), filterText.toLowerCase());
 
     return (
         <>
@@ -127,7 +77,20 @@ export const TableComponent = ({specKey}) => {
                                 ? stateObject.pageSizeOptions[specKey]
                                 : 10
                         }}
-                        dataSource={columnsTable && columnsTable.length === 0 ? null : Array.from(filteredItems)}
+                        expandable={{
+                            defaultExpandAllRows: true,
+                            // expandedRowKeys: expandRows
+                        }}
+                        // onExpand={(expanded, record) => {
+                        //     if (expanded) {
+                        //         setExpandRows([...expandRows, record._id]);
+                        //     } else {
+                        //         const updateExpandRows = expandRows.filter(rowId => rowId !== record._id);
+                        //
+                        //         setExpandRows(updateExpandRows);
+                        //     }
+                        // }}
+                        dataSource={columnsTable && columnsTable.length ? filterData : null}
                         columns={columnsTable}
                         rowKey={record => record._id.toString()}
                         onRow={row => ({
