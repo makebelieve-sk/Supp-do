@@ -103,7 +103,7 @@ router.get("/roles/:id", async (req, res) => {
         res.status(200).json({isNewItem, role: item});
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: `Ошибка при открытии записи с кодом ${_id}: ${err}`});
+        res.status(500).json({message: `Ошибка при открытии записи: ${err}`});
     }
 });
 
@@ -167,10 +167,14 @@ router.put("/roles", checkMiddleware, async (req, res) => {
         const roles = await Role.find({});
 
         if (roles && roles.length) {
-            for (let i = 0; i < roles.length; i++) {
-                if (roles[i].name === name && roles[i]._id.toString() !== _id.toString()) {
-                    return res.status(400).json({message: "Роль с таким именем уже существует"});
-                }
+            try {
+                roles.forEach(role => {
+                    if (role.name === name && role._id.toString() !== _id.toString()) {
+                        throw new Error("Запись с таким именем уже существует");
+                    }
+                })
+            } catch (e) {
+                return res.status(400).json({message: e.message});
             }
         }
 
@@ -191,22 +195,21 @@ router.put("/roles", checkMiddleware, async (req, res) => {
 
 // Удаляет запись
 router.delete("/roles/:id", async (req, res) => {
-    const _id = req.params.id;  // Получаем _id записи
-
     try {
-        const item = await Role.findById({_id});  // Ищем текущую запись
+        const _id = req.params.id;  // Получаем _id записи
 
-        await logUserActions(req, res, "Удаление", item);   // Логируем действие пользвателя
+        const item = await Role.findById({_id});  // Ищем текущую запись
 
         if (item) {
             await Role.deleteOne({_id});    // Удаление записи из базы данных по id записи
+            await logUserActions(req, res, "Удаление", item);   // Логируем действие пользвателя
             return res.status(200).json({message: "Запись успешно удалена"});
         } else {
             return res.status(404).json({message: "Данная запись уже была удалена"});
         }
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: `Ошибка при удалении записи с кодом ${_id}: ${err}`});
+        res.status(500).json({message: `Ошибка при удалении записи: ${err}`});
     }
 });
 

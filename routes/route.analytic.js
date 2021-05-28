@@ -98,7 +98,8 @@ const getWorkloadDepartments = async (tasks, departments) => {
                 tasks.forEach(task => {
                     // Фильтруем подходящие записи
                     const currentRecords = logDOs.filter(logDO =>
-                        logDO.department.name === department.name && logDO.taskStatus.name === task.name);
+                        logDO.department && logDO.taskStatus && logDO.department.name === department.name &&
+                        logDO.taskStatus.name === task.name);
 
                     if (currentRecords && currentRecords.length) {
                         // Пушим объект

@@ -109,8 +109,6 @@ export const HelpRoute = {
     // Сохранение записи помощи
     save: async function (item, setLoading) {
         try {
-            await this.getAll();    // Обновляем все записи раздела
-
             // Устанавливаем спиннер загрузки
             setLoading(true);
 
@@ -120,7 +118,13 @@ export const HelpRoute = {
             // Получаем сохраненную запись
             const data = await request(this.base_url, method, item);
 
+            // Если вернулась ошибка 404 (запись не найдена)
             if (typeof data === "string") {
+                await this.getAll();    // Обновляем все записи раздела
+
+                // Обнуляем редактируемую запись
+                store.dispatch(ActionCreator.ActionCreatorHelp.setRowDataHelp(null));
+
                 // Останавливаем спиннер загрузки
                 setLoading(false);
 
@@ -177,15 +181,19 @@ export const HelpRoute = {
     // Удаление записи помощи
     delete: async function (_id, setLoadingDelete, setVisiblePopConfirm) {
         try {
-            await this.getAll();    // Обновляем все записи раздела
-
             // Устанавливаем спиннер загрузки
             setLoadingDelete(true);
 
             // Удаляем запись
             const data = await request(this.base_url + _id, "DELETE");
 
+            // Если вернулась ошибка 404 (запись не найдена)
             if (typeof data === "string") {
+                await this.getAll();    // Обновляем все записи раздела
+
+                // Обнуляем редактируемую запись
+                store.dispatch(ActionCreator.ActionCreatorHelp.setRowDataHelp(null));
+
                 // Останавливаем спиннер, и скрываем всплывающее окно
                 setLoadingDelete(false);
                 setVisiblePopConfirm(false);
@@ -210,6 +218,9 @@ export const HelpRoute = {
                 if (foundHelp && indexHelp >= 0) {
                     store.dispatch(ActionCreator.ActionCreatorHelp.deleteHelp(indexHelp));
                 }
+
+                // Обнуляем редактируемую запись
+                store.dispatch(ActionCreator.ActionCreatorHelp.setRowDataHelp(null));
 
                 // Останавливаем спиннер, и скрываем всплывающее окно
                 setLoadingDelete(false);

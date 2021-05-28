@@ -107,7 +107,7 @@ export const TaskStatusForm = ({item}) => {
                         <Input onChange={(e) => form.setFieldsValue({notes: e.target.value})} maxLength={255} type="text"/>
                     </Form.Item>
 
-                    <Form.Item name="isFinish" valuePropName="checked" wrapperCol={{offset: 6}}>
+                    <Form.Item name="isFinish" valuePropName="checked" label="">
                         <Checkbox onChange={e => form.setFieldsValue({isFinish: e.target.checked})}>
                             Завершено
                         </Checkbox>

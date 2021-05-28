@@ -38,6 +38,7 @@ export const RoleRoute = {
             // Получаем редактируемую запись
             const item = await request(this.base_url + id);
 
+            // Если вернулась ошибка 404 (запись не найдена)
             if (typeof item === "string") {
                 // Обнуляем редактируемую запись
                 store.dispatch(ActionCreator.ActionCreatorRole.setRowDataRole(null));
@@ -60,8 +61,6 @@ export const RoleRoute = {
     // Сохранение роли
     save: async function (item, setLoading) {
         try {
-            await this.getAll();    // Обновляем все записи раздела
-
             // Устанавливаем спиннер загрузки
             setLoading(true);
 
@@ -71,7 +70,13 @@ export const RoleRoute = {
             // Получаем сохраненную запись
             const data = await request(this.base_url, method, item);
 
+            // Если вернулась ошибка 404 (запись не найдена)
             if (typeof data === "string") {
+                await this.getAll();    // Обновляем все записи раздела
+
+                // Обнуляем редактируемую запись
+                store.dispatch(ActionCreator.ActionCreatorRole.setRowDataRole(null));
+
                 // Останавливаем спиннер загрузки
                 setLoading(false);
 
@@ -132,8 +137,6 @@ export const RoleRoute = {
     // Удаление роли
     delete: async function (_id, setLoadingDelete, setVisiblePopConfirm, onRemove) {
         try {
-            await this.getAll();    // Обновляем все записи раздела
-
             // Устанавливаем спиннер загрузки
             setLoadingDelete(true);
 
@@ -161,7 +164,13 @@ export const RoleRoute = {
             // Удаляем запись
             const data = await request(this.base_url + _id, "DELETE");
 
+            // Если вернулась ошибка 404 (запись не найдена)
             if (typeof data === "string") {
+                await this.getAll();    // Обновляем все записи раздела
+
+                // Обнуляем редактируемую запись
+                store.dispatch(ActionCreator.ActionCreatorRole.setRowDataRole(null));
+
                 // Останавливаем спиннер, и скрываем всплывающее окно
                 setLoadingDelete(false);
                 setVisiblePopConfirm(false);
@@ -186,6 +195,9 @@ export const RoleRoute = {
                 if (foundRole && indexRole >= 0) {
                     store.dispatch(ActionCreator.ActionCreatorRole.deleteRole(indexRole));
                 }
+
+                // Обнуляем редактируемую запись
+                store.dispatch(ActionCreator.ActionCreatorRole.setRowDataRole(null));
 
                 // Останавливаем спиннер, и скрываем всплывающее окно
                 setLoadingDelete(false);

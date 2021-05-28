@@ -47,6 +47,7 @@ export const UserRoute = {
             // Получаем редактируемую запись о пользователе
             const item = await request(this.base_url + id);
 
+            // Если вернулась ошибка 404 (запись не найдена)
             if (typeof item === "string") {
                 // Обнуляем редактируемую запись
                 store.dispatch(ActionCreator.ActionCreatorUser.setRowDataUser(null));
@@ -78,8 +79,6 @@ export const UserRoute = {
     // Сохранение записи о пользователе
     save: async function (item, setLoading) {
         try {
-            await this.getAll();    // Обновляем все записи раздела
-
             // Устанавливаем спиннер загрузки
             setLoading(true);
 
@@ -89,7 +88,13 @@ export const UserRoute = {
             // Получаем сохраненную запись
             const data = await request(this.base_url, method, item);
 
+            // Если вернулась ошибка 404 (запись не найдена)
             if (typeof data === "string") {
+                await this.getAll();    // Обновляем все записи раздела
+
+                // Обнуляем редактируемую запись
+                store.dispatch(ActionCreator.ActionCreatorUser.setRowDataUser(null));
+
                 // Останавливаем спиннер загрузки
                 setLoading(false);
 
@@ -144,8 +149,6 @@ export const UserRoute = {
     // Удаление записи о пользователе
     delete: async function (_id, setLoadingDelete, setVisiblePopConfirm) {
         try {
-            await this.getAll();    // Обновляем все записи раздела
-
             // Устанавливаем спиннер загрузки
             setLoadingDelete(true);
 
@@ -163,7 +166,13 @@ export const UserRoute = {
             // Удаляем запись
             const data = await request(this.base_url + _id, "DELETE");
 
+            // Если вернулась ошибка 404 (запись не найдена)
             if (typeof data === "string") {
+                await this.getAll();    // Обновляем все записи раздела
+
+                // Обнуляем редактируемую запись
+                store.dispatch(ActionCreator.ActionCreatorUser.setRowDataUser(null));
+
                 // Останавливаем спиннер, и скрываем всплывающее окно
                 setLoadingDelete(false);
                 setVisiblePopConfirm(false);
@@ -188,6 +197,9 @@ export const UserRoute = {
                 if (foundUser && indexUser >= 0) {
                     store.dispatch(ActionCreator.ActionCreatorUser.deleteUser(indexUser));
                 }
+
+                // Обнуляем редактируемую запись
+                store.dispatch(ActionCreator.ActionCreatorUser.setRowDataUser(null));
 
                 // Останавливаем спиннер, и скрываем всплывающее окно
                 setLoadingDelete(false);

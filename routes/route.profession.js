@@ -63,12 +63,12 @@ router.get("/professions/:id", async (req, res) => {
             isNewItem = false;
         }
 
-        if (!item) return res.status(404).json({message: `Профессия с кодом ${_id} не существует`});
+        if (!item) return res.status(404).json({message: `Запись с кодом ${_id} не существует`});
 
-        res.status(200).json({isNewItem, profession: item});
+        return res.status(200).json({isNewItem, profession: item});
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: `Ошибка при открытии записи с кодом ${_id}: ${err}`});
+        return res.status(500).json({message: `Ошибка при открытии записи: ${err}`});
     }
 });
 
@@ -77,10 +77,10 @@ router.get("/professions", async (req, res) => {
     try {
         const items = await Profession.find({});    // Получаем все записи раздела "Характеристики оборудования"
 
-        res.status(200).json(items);
+        return res.status(200).json(items);
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: "Ошибка при получении записей: " + err});
+        return res.status(500).json({message: "Ошибка при получении записей: " + err});
     }
 });
 
@@ -109,10 +109,10 @@ router.post("/professions", checkMiddleware, async (req, res) => {
 
         await logUserActions(req, res, "Сохранение");   // Логируем действие пользвателя
 
-        res.status(201).json({message: "Профессия сохранена", item});
+        return res.status(201).json({message: "Запись сохранена", item});
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: "Ошибка при создании записи: " + err});
+        return res.status(500).json({message: "Ошибка при создании записи: " + err});
     }
 });
 
@@ -139,10 +139,14 @@ router.put("/professions", checkMiddleware, async (req, res) => {
         const items = await Profession.find({});    // Ищем все записи профессий
 
         if (items && items.length) {
-            for (let i = 0; i < items.length; i++) {
-                if (items[i].name === name && items[i]._id.toString() !== _id.toString()) {
-                    return res.status(400).json({message: "Профессия с таким именем уже существует"});
-                }
+            try {
+                items.forEach(item => {
+                    if (item.name === name && item._id.toString() !== _id.toString()) {
+                        throw new Error("Запись с таким именем уже существует");
+                    }
+                })
+            } catch (e) {
+                return res.status(400).json({message: e.message});
             }
         }
 
@@ -153,31 +157,30 @@ router.put("/professions", checkMiddleware, async (req, res) => {
 
         await logUserActions(req, res, "Редактирование");   // Логируем действие пользвателя
 
-        res.status(201).json({message: "Профессия сохранена", item});
+        return res.status(201).json({message: "Запись сохранена", item});
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: "Ошибка при обновлении записи: " + err});
+        return res.status(500).json({message: "Ошибка при обновлении записи: " + err});
     }
 });
 
 // Удаляет запись
 router.delete("/professions/:id", async (req, res) => {
-    const _id = req.params.id;  // Получение id записи
-
     try {
-        const item = await Profession.findById({_id});  // Ищем текущую запись
+        const _id = req.params.id;  // Получение id записи
 
-        await logUserActions(req, res, "Удаление", item);   // Логируем действие пользвателя
+        const item = await Profession.findById({_id});  // Ищем текущую запись
 
         if (item) {
             await Profession.deleteOne({_id});  // Удаление записи из базы данных по id записи
-            return res.status(200).json({message: "Профессия успешно удалена"});
+            await logUserActions(req, res, "Удаление", item);   // Логируем действие пользвателя
+            return res.status(200).json({message: "Запись успешно удалена"});
         } else {
             return res.status(404).json({message: "Данная запись уже была удалена"});
         }
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: `Ошибка при удалении профессии с кодом ${_id}: ${err}`});
+        return res.status(500).json({message: `Ошибка при удалении записи: ${err}`});
     }
 });
 

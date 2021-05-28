@@ -39,6 +39,7 @@ export const PersonRoute = {
             // Получаем редактируемую запись
             const item = await request(this.base_url + id);
 
+            // Если вернулась ошибка 404 (запись не найдена)
             if (typeof item === "string") {
                 // Обнуляем редактируемую запись
                 store.dispatch(ActionCreator.ActionCreatorPerson.setRowDataPerson(null));
@@ -70,8 +71,6 @@ export const PersonRoute = {
     // Сохранение записи
     save: async function (item, setLoading) {
         try {
-            await this.getAll();    // Обновляем все записи раздела
-
             // Устанавливаем спиннер загрузки
             setLoading(true);
 
@@ -81,15 +80,15 @@ export const PersonRoute = {
             // Получаем сохраненную запись
             const data = await request(this.base_url, method, item);
 
+            // Если вернулась ошибка 404 (запись не найдена)
             if (typeof data === "string") {
+                await this.getAll();    // Обновляем все записи раздела
+
                 // Останавливаем спиннер загрузки
                 setLoading(false);
 
-                // Обнуляем объект поля "Персонал" (при нажатии на "+")
-                store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldPerson({
-                    key: null,
-                    formValues: null
-                }));
+                // Обнуляем редактируемую запись
+                store.dispatch(ActionCreator.ActionCreatorPerson.setRowDataPerson(null));
 
                 // Удаление текущей вкладки
                 onRemove("personItem", "remove")  // Удаляем открытую вкладку
@@ -154,15 +153,19 @@ export const PersonRoute = {
     // Удаление записи
     delete: async function (_id, setLoadingDelete, setVisiblePopConfirm) {
         try {
-            await this.getAll();    // Обновляем все записи раздела
-
             // Устанавливаем спиннер загрузки
             setLoadingDelete(true);
 
             // Удаляем запись
             const data = await request(this.base_url + _id, "DELETE");
 
+            // Если вернулась ошибка 404 (запись не найдена)
             if (typeof data === "string") {
+                await this.getAll();    // Обновляем все записи раздела
+
+                // Обнуляем редактируемую запись
+                store.dispatch(ActionCreator.ActionCreatorPerson.setRowDataPerson(null));
+
                 // Останавливаем спиннер, и скрываем всплывающее окно
                 setLoadingDelete(false);
                 setVisiblePopConfirm(false);
@@ -186,6 +189,9 @@ export const PersonRoute = {
                 if (foundPerson && indexPerson >= 0) {
                     store.dispatch(ActionCreator.ActionCreatorPerson.deletePerson(indexPerson));
                 }
+
+                // Обнуляем редактируемую запись
+                store.dispatch(ActionCreator.ActionCreatorPerson.setRowDataPerson(null));
 
                 // Останавливаем спиннер, и скрываем всплывающее окно
                 setLoadingDelete(false);

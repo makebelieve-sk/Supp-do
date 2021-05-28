@@ -52,25 +52,25 @@ const logUserActions = async (req, res, action, body = null) => {
 
 // Возвращает запись по коду
 router.get("/departments/:id", async (req, res) => {
-    const _id = req.params.id;  // Получение id записи
-
     try {
-        let item, isNewItem = true;
+        const _id = req.params.id;  // Получение id записи
+
+        let department, isNewItem = true;
 
         if (_id === "-1") {
-            item = new Department({name: "", notes: "", parent: null});     // Создание нового экземпляра записи
+            department = new Department({name: "", notes: "", parent: null});     // Создание нового экземпляра записи
         } else {
-            item = await Department.findById({_id}).populate("parent"); // Получение существующей записи
+            department = await Department.findById({_id}).populate("parent"); // Получение существующей записи
             isNewItem = false;
         }
 
-        if (!item)
+        if (!department)
             return res.status(404).json({message: `Подразделение с кодом ${_id} не существует`});
 
-        res.status(200).json({isNewItem, department: item});
+        res.status(200).json({isNewItem, department});
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: `Ошибка при открытии записи с кодом ${req.params.id}: ${err}`})
+        res.status(500).json({message: `Ошибка при открытии записи: ${err}`})
     }
 });
 
@@ -83,7 +83,7 @@ router.get("/departments", async (req, res) => {
         res.status(200).json(items);
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: "Ошибка при получении записей о подразделениях: " + err});
+        res.status(500).json({message: "Ошибка при получении записей: " + err});
     }
 });
 
@@ -127,15 +127,13 @@ router.post("/departments", checkMiddleware, async (req, res) => {
 
         const newItem = new Department({name, notes, parent});  // Создаем новый экземпляр записи
 
-        await newItem.save();   // Сохраняем запись в базе данных
+        let currentDepartment = await newItem.save();   // Сохраняем запись в базе данных
+
+        const item = await Department.findById({_id: currentDepartment._id}).populate("parent");
 
         await logUserActions(req, res, "Сохранение");   // Логируем действие пользвателя
 
-        const currentDepartment = !parent
-            ? await Department.findOne({name})
-            : await Department.findOne({name}).populate("parent");
-
-        res.status(201).json({message: "Подразделение сохранено", item: currentDepartment});
+        res.status(201).json({message: "Подразделение сохранено", item});
     } catch (err) {
         console.log(err);
         res.status(500).json({message: "Ошибка при создании записи: " + err});
@@ -189,6 +187,8 @@ router.put("/departments", checkMiddleware, async (req, res) => {
         if (parent && name === parent.name)
             return res.status(400).json({message: "Отдел не может принадлежать сам себе"});
 
+        item.name = name;
+        item.notes = notes;
         item.parent = parent;
 
         // Проверка на при надлежность отдела (циклические ссылки)
@@ -214,19 +214,16 @@ router.put("/departments", checkMiddleware, async (req, res) => {
             checkCycl(departmentWithParent);
         }
 
-        item.name = name;
-        item.notes = notes;
-
         await item.save();  // Сохраняем запись в базу данных
 
-        await logUserActions(req, res, "Редактирование");   // Логируем действие пользвателя
-
         const savedItem = await Department.findById({_id}).populate("parent");
+
+        await logUserActions(req, res, "Редактирование");   // Логируем действие пользвателя
 
         res.status(201).json({message: "Подразделение сохранено", item: savedItem});
     } catch (err) {
         console.log(err)
-        res.status(500).json({message: "Ошибка при обновлении подразделения: " + err});
+        res.status(500).json({message: "Ошибка при обновлении записи: " + err});
     }
 });
 
@@ -249,17 +246,16 @@ router.delete("/departments/:id", async (req, res) => {
 
         const item = await Department.findById({_id}).populate("parent");  // Ищем текущую запись
 
-        await logUserActions(req, res, "Удаление", item);   // Логируем действие пользвателя
-
         if (item) {
-            await Department.deleteOne({_id});  // Удаление записи из базы данных по id записи
-            return res.status(200).json({message: "Подразделение успешно удалено"});
+            await Department.deleteOne({_id});      // Удаление записи из базы данных по id записи
+            await logUserActions(req, res, "Удаление", item);   // Логируем действие пользвателя
+            return res.status(200).json({message: "Запись успешно удалена"});
         } else {
             return res.status(404).json({message: "Данная запись уже была удалена"});
         }
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: `Ошибка при удалении подразделения с кодом ${_id}: ${err}`});
+        res.status(500).json({message: `Ошибка при удалении записи: ${err}`});
     }
 });
 

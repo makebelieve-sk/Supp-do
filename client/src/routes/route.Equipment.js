@@ -1,4 +1,4 @@
-// Методы модели Оборудование
+// Методы модели "Оборудование"
 import {message} from "antd";
 
 import {Equipment} from "../model/Equipment";
@@ -47,6 +47,7 @@ export const EquipmentRoute = {
             // Получаем редактируемую запись
             const item = await request(this.base_url + id);
 
+            // Если вернулась ошибка 404 (запись не найдена)
             if (typeof item === "string") {
                 // Обнуляем редактируемую запись
                 store.dispatch(ActionCreator.ActionCreatorEquipment.setRowDataEquipment(null));
@@ -69,8 +70,6 @@ export const EquipmentRoute = {
     // Сохранение записи
     save: async function (item, setLoading, equipment) {
         try {
-            await this.getAll();    // Обновляем все записи раздела
-
             // Устанавливаем спиннер загрузки
             setLoading(true);
 
@@ -80,15 +79,15 @@ export const EquipmentRoute = {
             // Получаем сохраненную запись
             const data = await request(this.base_url, method, item);
 
+            // Если вернулась ошибка 404 (запись не найдена)
             if (typeof data === "string") {
+                // Обнуляем редактируемую запись
+                store.dispatch(ActionCreator.ActionCreatorEquipment.setRowDataEquipment(null));
+
+                await this.getAll();    // Обновляем все записи раздела
+
                 // Останавливаем спиннер загрузки
                 setLoading(false);
-
-                // Обнуляем объект поля "Подразделения" (при нажатии на "+")
-                store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldEquipment({
-                    key: null,
-                    formValues: null
-                }));
 
                 // Удаление текущей вкладки
                 onRemove("equipmentItem", "remove");
@@ -105,8 +104,7 @@ export const EquipmentRoute = {
                     data.item.nameWithParent = getParents(data.item, equipment) + data.item.name;
                 }
 
-                // Редактирование записи - изменение записи в хранилище redux,
-                // Сохранение записи - создание записи в хранилище redux
+                // Сохранение записи - обновляем redux
                 if (method === "POST") {
                     store.dispatch(ActionCreator.ActionCreatorEquipment.createEquipment(data.item));
                 } else {
@@ -123,31 +121,29 @@ export const EquipmentRoute = {
                 // Получаем объект поля "Оборудование", он есть, если мы нажали на "+"
                 const replaceField = store.getState().reducerReplaceField.replaceFieldEquipment;
 
-                if (replaceField.key) {
-                    // Обновляем поле
-                    setFieldRecord(replaceField, data.item);
-                }
-
-                // Останавливаем спиннер загрузки
-                setLoading(false);
+                // Обновляем поле записи
+                if (replaceField.key) setFieldRecord(replaceField, data.item);
 
                 // Обнуляем объект поля "Оборудование" (при нажатии на "+")
                 store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldEquipment({
                     key: null,
                     formValues: null
                 }));
+
+                // Останавливаем спиннер загрузки
+                setLoading(false);
 
                 // Удаление текущей вкладки
                 onRemove("equipmentItem", "remove");
             } else {
-                // Останавливаем спиннер загрузки
-                setLoading(false);
-
                 // Обнуляем объект поля "Оборудование" (при нажатии на "+")
                 store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldEquipment({
                     key: null,
                     formValues: null
                 }));
+
+                // Останавливаем спиннер загрузки
+                setLoading(false);
             }
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
@@ -158,28 +154,32 @@ export const EquipmentRoute = {
     // Удаление записи
     delete: async function (_id, setLoadingDelete, setVisiblePopConfirm) {
         try {
-            await this.getAll();    // Обновляем все записи раздела
-
             // Устанавливаем спиннер загрузки
             setLoadingDelete(true);
 
             // Удаляем файлы
             const fileInfo = await request(this.file_url + "delete/" + _id, "DELETE", {model: "equipment"});
 
-            if (typeof fileInfo === "string") {
-                // Останавливаем спиннер, и скрываем всплывающее окно
-                setLoadingDelete(false);
-                setVisiblePopConfirm(false);
-
-                // Удаление текущей вкладки
-                onRemove("equipmentItem", "remove");
-
-                return null;
-            }
-
             if (fileInfo) {
                 // Удаляем запись
                 const data = await request(this.base_url + _id, "DELETE");
+
+                // Если вернулась ошибка 404 (запись не найдена)
+                if (typeof data === "string") {
+                    await this.getAll();    // Обновляем все записи раздела
+
+                    // Обнуляем редактируемую запись
+                    store.dispatch(ActionCreator.ActionCreatorEquipment.setRowDataEquipment(null));
+
+                    // Останавливаем спиннер, и скрываем всплывающее окно
+                    setLoadingDelete(false);
+                    setVisiblePopConfirm(false);
+
+                    // Удаление текущей вкладки
+                    onRemove("equipmentItem", "remove");
+
+                    return null;
+                }
 
                 if (data) {
                     // Вывод сообщения
@@ -188,14 +188,15 @@ export const EquipmentRoute = {
                     const equipment = store.getState().reducerEquipment.equipment;
 
                     // Удаляем запись из хранилища redux
-                    let foundEquipment = equipment.find(eq => {
-                        return eq._id === _id;
-                    });
-                    let indexEquipment = equipment.indexOf(foundEquipment);
+                    const foundEquipment = equipment.find(eq => eq._id === _id);
+                    const indexEquipment = equipment.indexOf(foundEquipment);
 
                     if (foundEquipment && indexEquipment >= 0) {
                         store.dispatch(ActionCreator.ActionCreatorEquipment.deleteEquipment(indexEquipment));
                     }
+
+                    // Обнуляем редактируемую запись
+                    store.dispatch(ActionCreator.ActionCreatorEquipment.setRowDataEquipment(null));
 
                     // Останавливаем спиннер, и скрываем всплывающее окно
                     setLoadingDelete(false);

@@ -23,7 +23,7 @@ router.get("/logs/:id", async (req, res) => {
         res.status(200).json(item);
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: `Ошибка при открытии записи с кодом ${_id}: ${err}`});
+        res.status(500).json({message: `Ошибка при открытии записи: ${err}`});
     }
 });
 
@@ -74,14 +74,14 @@ router.delete("/logs/:dateStart/:dateEnd", async (req, res) => {
             if (item) {
                 await Log.deleteOne({_id: items[i]._id});    // Удаление записи из базы данных по id записи
             } else {
-                res.status(404).json({message: `Запись c id: ${items[i]._id} уже была удалена`});
+                res.status(404).json({message: `Удаление может быть завершено некорректно, т.к. запись c id: ${items[i]._id} уже была удалена`});
             }
         }
 
         res.status(200).json({message: "Записи успешно удалены", logsId});
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: "Ошибка при получении записей: " + err});
+        res.status(500).json({message: "Ошибка при удалении записей за выбранный период: " + err});
     }
 });
 
@@ -100,7 +100,7 @@ router.delete("/logs/:id", async (req, res) => {
         }
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: `Ошибка при удалении записи с кодом ${_id}: ${err}`});
+        res.status(500).json({message: `Ошибка при удалении записи: ${err}`});
     }
 });
 

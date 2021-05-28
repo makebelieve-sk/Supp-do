@@ -109,9 +109,9 @@ const logUserActions = async (req, res, action, body = null) => {
 
 // Возвращает запись по коду
 router.get("/logDO/:id", async (req, res) => {
-    const _id = req.params.id;  // Получение id записи
-
     try {
+        const _id = req.params.id;  // Получение id записи
+
         let item, isNewItem = true;
 
         if (_id === "-1") {
@@ -163,21 +163,21 @@ router.get("/logDO/:id", async (req, res) => {
         if (!item) return res.status(400).json({message: `Запись с кодом ${_id} не существует`});
 
         res.status(200).json({logDo: item, isNewItem});
-    } catch (e) {
-        res.status(500).json({message: `Ошибка при открытии записи с кодом ${_id}`})
+    } catch (err) {
+        res.status(500).json({message: `Ошибка при открытии записи: ${err}`})
     }
 });
 
 // Возвращает все записи
 router.get("/logDO/dto/:dateStart/:dateEnd", async (req, res) => {
-    const dateStart = req.params.dateStart;     // Получаем дату "с"
-    const dateEnd = req.params.dateEnd;         // Получаем дату "по"
-
-    // Рассчитываем количество миллисекунд для дат "с" и "по"
-    const millisecondsStart = moment(dateStart, dateFormat).valueOf();
-    const millisecondsEnd = moment(dateEnd, dateFormat).valueOf();
-
     try {
+        const dateStart = req.params.dateStart;     // Получаем дату "с"
+        const dateEnd = req.params.dateEnd;         // Получаем дату "по"
+
+        // Рассчитываем количество миллисекунд для дат "с" и "по"
+        const millisecondsStart = moment(dateStart, dateFormat).valueOf();
+        const millisecondsEnd = moment(dateEnd, dateFormat).valueOf();
+
         // Получаем все записи подразделений
         let departments = [];
 
@@ -274,9 +274,9 @@ router.get("/logDO/dto/:dateStart/:dateEnd", async (req, res) => {
         if (items && items.length) itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
 
         res.status(200).json({itemsDto, statusLegend});
-    } catch (e) {
-        console.log(e);
-        res.status(500).json({message: "Ошибка при получении данных"});
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: `Ошибка при получении записей: ${err}`});
     }
 });
 
@@ -418,7 +418,7 @@ router.post("/logDO", checkMiddleware, async (req, res) => {
         res.status(201).json({message: "Запись сохранена", item: savedItem});
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: "Ошибка при создании записи"});
+        res.status(500).json({message: "Ошибка при создании записи: " + err});
     }
 });
 
@@ -563,15 +563,15 @@ router.put("/logDO", checkMiddleware, async (req, res) => {
         res.status(201).json({message: "Запись сохранена", item: savedItem});
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: "Ошибка при обновлении записи"});
+        res.status(500).json({message: "Ошибка при обновлении записи: " + err});
     }
 });
 
 // Удаляет запись
 router.delete("/logDO/:id", async (req, res) => {
-    const _id = req.params.id;  // Получение id записи
-
     try {
+        const _id = req.params.id;  // Получение id записи
+
         // Ищем текущую запись
         const item = await LogDO
             .findById({_id})
@@ -594,16 +594,15 @@ router.delete("/logDO/:id", async (req, res) => {
             .populate("responsible")
             .populate("taskStatus");
 
-        await logUserActions(req, res, "Удаление", item);   // Логируем действие пользвателя
-
         if (item) {
             await LogDO.deleteOne({_id});   // Удаление записи из базы данных по id записи
+            await logUserActions(req, res, "Удаление", item);   // Логируем действие пользвателя
             return res.status(200).json({message: "Запись успешно удалена"});
         } else {
             return res.status(404).json({message: "Данная запись уже была удалена"});
         }
-    } catch (e) {
-        res.status(500).json({message: `Ошибка при удалении записи с кодом ${_id}`});
+    } catch (err) {
+        res.status(500).json({message: `Ошибка при удалении записи: ${err}`});
     }
 });
 

@@ -51,9 +51,9 @@ const logUserActions = async (req, res, action, body = null) => {
 
 // Возвращает запись по коду
 router.get("/equipmentProperties/:id", async (req, res) => {
-    const _id = req.params.id;  // Получение id записи
-
     try {
+        const _id = req.params.id;  // Получение id записи
+
         let item, isNewItem = true;
 
         if (_id === "-1") {
@@ -68,7 +68,7 @@ router.get("/equipmentProperties/:id", async (req, res) => {
         res.status(200).json({isNewItem, equipmentProperty: item});
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: `Ошибка при открытии записи с кодом ${_id}: ${err}`});
+        res.status(500).json({message: `Ошибка при открытии записи: ${err}`});
     }
 });
 
@@ -101,8 +101,7 @@ router.post("/equipmentProperties", checkMiddleware, async (req, res) => {
         const item = await EquipmentProperty.findOne({name});   // Ищем запись в базе данных по наименованию
 
         // Проверяем на существование записи с указанным именем
-        if (item)
-            return res.status(400).json({message: `Характеристика с именем ${name} уже существует`});
+        if (item) return res.status(400).json({message: `Характеристика с именем ${name} уже существует`});
 
         const newItem = new EquipmentProperty({name, notes});   // Создаем новый экземпляр записи
 
@@ -141,21 +140,25 @@ router.put("/equipmentProperties", checkMiddleware, async (req, res) => {
         const equipmentProperties = await EquipmentProperty.find({});
 
         if (equipmentProperties && equipmentProperties.length) {
-            for (let i = 0; i < equipmentProperties.length; i++) {
-                if (equipmentProperties[i].name === name && equipmentProperties[i]._id.toString() !== _id.toString()) {
-                    return res.status(400).json({message: "Характеристика с таким именем уже существует"});
-                }
+            try {
+                equipmentProperties.forEach(equipmentProperty => {
+                    if (equipmentProperty.name === name && equipmentProperty._id.toString() !== _id.toString()) {
+                        throw new Error("Характеристика с таким именем уже существует");
+                    }
+                })
+            } catch (err) {
+                return res.status(400).json({message: err.message});
             }
         }
 
         item.name = name;
         item.notes = notes;
 
-        await item.save();  // Сохраняем запись в базу данных
+        const savedItem = await item.save();  // Сохраняем запись в базу данных
 
         await logUserActions(req, res, "Редактирование");   // Логируем действие пользвателя
 
-        res.status(201).json({message: "Характеристика сохранена", item: item});
+        res.status(201).json({message: "Запись сохранена", item: savedItem});
     } catch (err) {
         console.log(err);
         res.status(500).json({message: "Ошибка при обновлении записи: " + err});
@@ -164,22 +167,21 @@ router.put("/equipmentProperties", checkMiddleware, async (req, res) => {
 
 // Удаляет запись
 router.delete("/equipmentProperties/:id", async (req, res) => {
-    const _id = req.params.id;  // Получение id записи
-
     try {
-        const item = await EquipmentProperty.findById({_id});  // Ищем текущую запись
+        const _id = req.params.id;  // Получение id записи
 
-        await logUserActions(req, res, "Удаление", item);   // Логируем действие пользвателя
+        const item = await EquipmentProperty.findById({_id});  // Ищем текущую запись
 
         if (item) {
             await EquipmentProperty.deleteOne({_id});   // Удаление записи из базы данных по id записи
-            return res.status(200).json({message: "Характеристика успешно удалена"});
+            await logUserActions(req, res, "Удаление", item);   // Логируем действие пользвателя
+            return res.status(200).json({message: "Запись успешно удалена"});
         } else {
             return res.status(404).json({message: "Данная запись уже была удалена"});
         }
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: `Ошибка при удалении характеристики с кодом ${_id}: ${err}`});
+        res.status(500).json({message: `Ошибка при удалении записи: ${err}`});
     }
 });
 

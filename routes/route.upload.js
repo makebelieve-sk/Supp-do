@@ -50,20 +50,20 @@ router.post("/upload", async (req, res) => {
 
         await req.files.file.mv(file.url);  // Сохраняем файл на диске
 
-        res.end(req.files.file.name);
+        return res.end(req.files.file.name);
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: `Ошибка при загрузке файла ${originalFileName}: ${err}`});
+        return res.status(500).json({message: `Ошибка при загрузке файла ${originalFileName}: ${err}`});
     }
 });
 
 // Удаляет файлы записи при клике на кнопку "Удалить"
 router.delete("/delete/:id", async (req, res) => {
-    const id = req.params.id;   // Получение id файла
-
-    let item = null;
-
     try {
+        const id = req.params.id;   // Получение id файла
+
+        let item = null;
+
         const {model} = req.body;   // Получаем объект с фронтенда
 
         const Model = checkModel(model);  // Определяем модель
@@ -94,20 +94,20 @@ router.delete("/delete/:id", async (req, res) => {
             }
         }
 
-        res.status(200).json({message: "Файлы успешно удалены"});
+        return res.status(200).json({message: "Файлы успешно удалены"});
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: `Ошибка при удалении записи с кодом ${id}: ${err}`});
+        return res.status(500).json({message: `Ошибка при удалении файлов записи: ${err}`});
     }
 });
 
 // Удаляет файл при клике на него
 router.delete("/delete-file/:id", async (req, res) => {
-    const id = req.params.id;   // Получение id файла
-
-    let item = null;
-
     try {
+        const id = req.params.id;   // Получение id файла
+
+        let item = null;
+
         const {_id, uid, url, model} = req.body;    // Получаем объект с фронтенда
 
         const Model = checkModel(model);    // Определяем модель
@@ -148,10 +148,10 @@ router.delete("/delete-file/:id", async (req, res) => {
             }
         }
 
-        res.status(200).json({message: "Файл успешно удалён"});
+        return res.status(200).json({message: "Файл успешно удалён"});
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: `Ошибка при удалении файла с кодом ${id}: ${err}`});
+        return res.status(500).json({message: `Ошибка при удалении файла: ${err}`});
     }
 });
 
@@ -171,10 +171,10 @@ router.delete("/cancel", async (req, res) => {
             }
         }
 
-        res.status(200).json({message: "Файл успешно удалён"});
+        return res.status(200).json({message: "Файл успешно удалён"});
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: "Ошибка при закрытии записи, пожалуйста, удалите добавленные, но не сохраненные записи" + err});
+        return res.status(500).json({message: "Ошибка при закрытии записи, пожалуйста, удалите добавленные, но не сохраненные файлы" + err});
     }
 });
 

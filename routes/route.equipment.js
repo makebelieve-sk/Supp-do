@@ -4,7 +4,6 @@ const {check, validationResult} = require("express-validator");
 
 const Equipment = require("../schemes/Equipment");
 const Log = require("../schemes/Log");
-const EquipmentProperty = require("../schemes/EquipmentProperty");
 const File = require("../schemes/File");
 const {getUser} = require("./helper");
 
@@ -54,49 +53,35 @@ const logUserActions = async (req, res, action, body = null) => {
 
 // Возвращает запись по коду
 router.get("/equipment/:id", async (req, res) => {
-    const _id = req.params.id;  // Получение id записи
-
     try {
-        let item, isNewItem = true;
+        const _id = req.params.id;  // Получение id записи
+
+        let equipment, isNewItem = true;
 
         if (_id === "-1") {
             // Создание новой записи
-            item = new Equipment({
+            equipment = new Equipment({
                 name: "",
                 notes: "",
                 parent: null,
-                properties: [{
-                    equipmentProperty: "Не выбрано",
-                    value: "",
-                    id: Date.now(),
-                    name: 0,
-                    _id: null
-                }],
+                properties: null,
                 files: []
             });
         } else {
             // Получение существующей записи
-            item = await Equipment.findById({_id})
+            equipment = await Equipment.findById({_id})
                 .populate("parent")
                 .populate("properties.equipmentProperty")
                 .populate("files");
             isNewItem = false;
-
-            item.properties.push({
-                equipmentProperty: "Не выбрано",
-                value: "",
-                id: Date.now(),
-                name: 0,
-                _id: null
-            })
         }
 
-        if (!item) return res.status(404).json({message: `Запись с кодом ${_id} не существует`});
+        if (!equipment) return res.status(404).json({message: `Запись с кодом ${_id} не существует`});
 
-        res.status(200).json({isNewItem, equipment: item});
+        res.status(200).json({isNewItem, equipment});
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: `Ошибка при открытии записи с кодом ${_id}: ${err}`});
+        res.status(500).json({message: `Ошибка при получении записи: ${err}`});
     }
 });
 
@@ -168,29 +153,19 @@ router.post("/equipment", checkMiddleware, async (req, res) => {
             }
         }
 
-        // Получение всех записей Характеристик оборудования
-        const equipmentProperties = await EquipmentProperty.find({});
-
-        properties.forEach(select => {
-            const foundEquipmentProperty = equipmentProperties.find(property =>
-                property._id === select.equipmentProperty || property.name === select.equipmentProperty);
-
-            if (foundEquipmentProperty) select.equipmentProperty = foundEquipmentProperty;
-        });
-
         // Создаем новый экземпляр записи
         const newItem = new Equipment({parent, name, notes, properties, files: resFileArr});
 
-        await newItem.save();   // Сохраняем запись в базе данных
+        let item = await newItem.save();   // Сохраняем запись в базе данных
 
-        await logUserActions(req, res, "Сохранение");   // Логируем действие пользвателя
-
-        const currentEquipment = await Equipment.findOne({name})
+        item = await Equipment.findById({_id: item._id})
             .populate("parent")
             .populate("properties.equipmentProperty")
             .populate("files");
 
-        res.status(201).json({message: "Оборудование сохранено", item: currentEquipment});
+        await logUserActions(req, res, "Сохранение");   // Логируем действие пользвателя
+
+        res.status(201).json({message: "Оборудование сохранено", item});
     } catch (err) {
         console.log(err);
         res.status(500).json({message: "Ошибка при создании записи: " + err});
@@ -236,17 +211,37 @@ router.put("/equipment", checkMiddleware, async (req, res) => {
         // Получаем все записи Перечня оборудования
         const equipment = await Equipment.find({}).populate("parent");
 
-        let resFileArr = [];    // Результирующий массив файлов
-
         // Проверяем на существование записи с уникальным идентификатором
-        if (!item)
-            return res.status(404).json({message: `Запись с именем ${name} (${_id}) не найдена`});
+        if (!item) return res.status(404).json({message: `Запись с именем ${name} (${_id}) не найдена`});
 
         // Проверяем на принадлежность самому себе
         if (parent && name === parent.name)
             return res.status(400).json({message: "Отдел не может принадлежать сам себе"});
 
+        let resFileArr = [];    // Результирующий массив файлов
+
+        // Заполняем массив файлов
+        if (files && files.length >= 0) {
+            for (const file of files) {
+                if (file.uid.slice(0, 3) === "-1-") {
+                    const findFile = await File.findOne({originUid: file.originUid});
+
+                    findFile.uid = `${findFile._id}-${file.name}`
+
+                    await findFile.save();
+
+                    resFileArr.push(findFile);
+                } else {
+                    resFileArr.push(file);
+                }
+            }
+        }
+
+        item.name = name;
+        item.notes = notes;
         item.parent = parent;
+        item.properties = properties;
+        item.files = resFileArr;
 
         // Проверяем на принадлежность отдела (циклические ссылки)
         if (parent) {
@@ -274,47 +269,14 @@ router.put("/equipment", checkMiddleware, async (req, res) => {
             checkCycl(equipmentWithParent);
         }
 
-        // Заполняем массив файлов
-        if (files && files.length >= 0) {
-            for (const file of files) {
-                if (file.uid.slice(0, 3) === "-1-") {
-                    const findFile = await File.findOne({originUid: file.originUid});
-
-                    findFile.uid = `${findFile._id}-${file.name}`
-
-                    await findFile.save();
-
-                    resFileArr.push(findFile);
-                } else {
-                    resFileArr.push(file);
-                }
-            }
-        }
-
-        // Получам все записи Характеристик оборудования
-        const equipmentProperties = await EquipmentProperty.find({});
-
-        properties.forEach(select => {
-            const foundEquipmentProperty = equipmentProperties.find(property =>
-                property._id === select.equipmentProperty || property.name === select.equipmentProperty
-            );
-
-            if (foundEquipmentProperty) select.equipmentProperty = foundEquipmentProperty;
-        });
-
-        item.name = name;
-        item.notes = notes;
-        item.properties = properties;
-        item.files = resFileArr;
-
         await item.save();  // Сохраняем запись в базу данных
-
-        await logUserActions(req, res, "Редактирование");   // Логируем действие пользвателя
 
         const savedItem = await Equipment.findById({_id})
             .populate("parent")
             .populate("properties.equipmentProperty")
             .populate("files");
+
+        await logUserActions(req, res, "Редактирование");   // Логируем действие пользвателя
 
         res.status(201).json({message: "Запись сохранена", item: savedItem});
     } catch (err) {
@@ -325,12 +287,10 @@ router.put("/equipment", checkMiddleware, async (req, res) => {
 
 // Удаляет запись
 router.delete("/equipment/:id", async (req, res) => {
-    const _id = req.params.id;  // Получение id записи
-
     try {
-        const equipment = await Equipment.find({}).populate("parent");
+        const _id = req.params.id;  // Получение id записи
 
-        await logUserActions(req, res, "Удаление", equipment);   // Логируем действие пользвателя
+        const equipment = await Equipment.find({}).populate("parent");
 
         // Проверяем запись на дочернее оборудование
         if (equipment && equipment.length) {
@@ -347,13 +307,16 @@ router.delete("/equipment/:id", async (req, res) => {
 
         if (item) {
             await Equipment.deleteOne({_id});   // Удаление записи из базы данных по id записи
+
+            await logUserActions(req, res, "Удаление", equipment);   // Логируем действие пользвателя
+
             return res.status(200).json({message: "Запись успешно удалена"});
         } else {
             return res.status(404).json({message: "Данная запись уже была удалена"});
         }
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: `Ошибка при удалении записи с кодом ${_id}: ${err}`});
+        res.status(500).json({message: `Ошибка при удалении записи: ${err}`});
     }
 });
 

@@ -46,6 +46,7 @@ export const LogDORoute = {
             // Получаем запись
             const item = await request(this.base_url + id);
 
+            // Если вернулась ошибка 404 (запись не найдена)
             if (typeof item === "string") {
                 // Обнуляем редактируемую запись
                 store.dispatch(ActionCreator.ActionCreatorLogDO.setRowDataLogDO(null));
@@ -91,7 +92,13 @@ export const LogDORoute = {
             // Получаем сохраненную запись
             const data = await request(this.base_url, method, item);
 
+            // Если вернулась ошибка 404 (запись не найдена)
             if (typeof data === "string") {
+                await this.getAll();    // Обновляем все записи раздела
+
+                // Обнуляем редактируемую запись
+                store.dispatch(ActionCreator.ActionCreatorLogDO.setRowDataLogDO(null));
+
                 // Останавливаем спиннер загрузки
                 setLoading(false);
 
@@ -161,6 +168,22 @@ export const LogDORoute = {
                 // Удаляем запись
                 const data = await request(this.base_url + _id, "DELETE");
 
+                // Если вернулась ошибка 404 (запись не найдена)
+                if (typeof data === "string") {
+                    await this.getAll();    // Обновляем все записи раздела
+
+                    // Обнуляем редактируемую запись
+                    store.dispatch(ActionCreator.ActionCreatorLogDO.setRowDataLogDO(null));
+
+                    // Останавливаем спиннер загрузки
+                    setLoadingDelete(false);
+
+                    // Удаление текущей вкладки
+                    onRemove("logDOItem", "remove");
+
+                    return null;
+                }
+
                 if (data) {
                     // Вывод сообщения
                     message.success(data.message);
@@ -186,6 +209,9 @@ export const LogDORoute = {
                         const currentDate = store.getState().reducerLogDO.date;
                         await this.getAll(currentDate);
                     }
+
+                    // Обнуляем редактируемую запись
+                    store.dispatch(ActionCreator.ActionCreatorLogDO.setRowDataLogDO(null));
 
                     // Останавливаем спиннер, и скрываем всплывающее окно
                     setLoadingDelete(false);

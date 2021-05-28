@@ -58,9 +58,9 @@ const logUserActions = async (req, res, action, body = null) => {
 
 // Возвращает запись по коду
 router.get("/tasks/:id", async (req, res) => {
-    const _id = req.params.id;  // Получение id записи
-
     try {
+        const _id = req.params.id;  // Получение id записи
+
         let item, isNewItem = true;
 
         if (_id === "-1") {
@@ -72,10 +72,10 @@ router.get("/tasks/:id", async (req, res) => {
 
         if (!item) return res.status(404).json({message: `Запись с кодом ${_id} не существует`});
 
-        res.status(200).json({isNewItem, task: item});
+        return res.status(200).json({isNewItem, task: item});
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: `Ошибка при открытии записи с кодом ${_id}: ${err}`});
+        res.status(500).json({message: `Ошибка при открытии записи: ${err}`});
     }
 });
 
@@ -84,10 +84,10 @@ router.get("/tasks", async (req, res) => {
     try {
         const items = await TaskStatus.find({});    // Получаем все записи раздела "Состояния заявок"
 
-        res.status(200).json(items);
+        return res.status(200).json(items);
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: "Ошибка при получении записей: " + err});
+        return res.status(500).json({message: "Ошибка при получении записей: " + err});
     }
 });
 
@@ -117,10 +117,10 @@ router.post("/tasks", checkMiddleware, async (req, res) => {
 
         await logUserActions(req, res, "Сохранение");   // Логируем действие пользвателя
 
-        res.status(201).json({message: "Запись о состоянии заявки сохранена", item});
+        return res.status(201).json({message: "Запись о состоянии заявки сохранена", item});
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: "Ошибка при создании записи: " + err});
+        return res.status(500).json({message: "Ошибка при создании записи: " + err});
     }
 });
 
@@ -148,10 +148,14 @@ router.put("/tasks", checkMiddleware, async (req, res) => {
         const tasks = await TaskStatus.find({});
 
         if (tasks && tasks.length) {
-            for (let i = 0; i < tasks.length; i++) {
-                if (tasks[i].name === name && tasks[i]._id.toString() !== _id.toString()) {
-                    return res.status(400).json({message: "Состояние заявки с таким именем уже существует"});
-                }
+            try {
+                tasks.forEach(task => {
+                    if (task.name === name && task._id.toString() !== _id.toString()) {
+                        throw new Error("Запись с таким именем уже существует");
+                    }
+                })
+            } catch (e) {
+                return res.status(400).json({message: e.message});
             }
         }
 
@@ -164,31 +168,30 @@ router.put("/tasks", checkMiddleware, async (req, res) => {
 
         await logUserActions(req, res, "Редактирование");   // Логируем действие пользвателя
 
-        res.status(201).json({message: "Запись о состоянии заявки сохранена", item});
+        return res.status(201).json({message: "Запись о состоянии заявки сохранена", item});
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: "Ошибка при обновлении записи: " + err});
+        return res.status(500).json({message: "Ошибка при обновлении записи: " + err});
     }
 });
 
 // Удаляет запись
 router.delete("/tasks/:id", async (req, res) => {
-    const _id = req.params.id;  // Получение id записи
-
     try {
+        const _id = req.params.id;  // Получение id записи
+
         const item = await TaskStatus.findById({_id});  // Ищем текущую запись
-
-        await logUserActions(req, res, "Удаление", item);   // Логируем действие пользвателя
-
         if (item) {
             await TaskStatus.deleteOne({_id});  // Удаление записи из базы данных по id записи
+            await logUserActions(req, res, "Удаление", item);   // Логируем действие пользвателя
+
             return res.status(200).json({message: "Запись о состоянии заявки успешно удалена"});
         } else {
             return res.status(404).json({message: "Данная запись уже была удалена"});
         }
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: `Ошибка при удалении записи с кодом ${_id}: ${err}`});
+        return res.status(500).json({message: `Ошибка при удалении записи с кодом ${_id}: ${err}`});
     }
 });
 

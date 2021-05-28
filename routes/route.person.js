@@ -55,9 +55,9 @@ const logUserActions = async (req, res, action, body = null) => {
 
 // Возвращает запись по коду
 router.get("/people/:id", async (req, res) => {
-    const _id = req.params.id;  // Получение id записи
-
     try {
+        const _id = req.params.id;  // Получение id записи
+
         let item, isNewItem = true;
 
         if (_id === "-1") {
@@ -82,7 +82,7 @@ router.get("/people/:id", async (req, res) => {
         res.status(200).json({isNewItem, person: item});
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: `Ошибка при открытии записи с кодом ${_id}: ${err}`});
+        res.status(500).json({message: `Ошибка при открытии записи: ${err}`});
     }
 });
 
@@ -137,15 +137,15 @@ router.post("/people", checkMiddleware, async (req, res) => {
 
         const newItem = new Person({name, department, profession, notes});  // Создаем новый экземпляр записи
 
-        await newItem.save();   // Сохраняем запись в базе данных
+        const savedPerson = await newItem.save();   // Сохраняем запись в базе данных
 
         await logUserActions(req, res, "Сохранение");   // Логируем действие пользвателя
 
         // Получаем все записи подразделений
         const departments = await Department.find({}).populate("parent");
 
-        // Ищем запись в базе данных по наименованию
-        const currentPerson = await Person.findOne({name})
+        // Ищем только что сохраненную запись в базе данных
+        const currentPerson = await Person.findById({_id: savedPerson._id})
             .populate({
                 path: "department",
                 populate: {
@@ -190,10 +190,14 @@ router.put("/people", checkMiddleware, async (req, res) => {
         const people = await Person.find({});
 
         if (people && people.length) {
-            for (let i = 0; i < people.length; i++) {
-                if (people[i].name === name && people[i]._id.toString() !== _id.toString()) {
-                    return res.status(400).json({message: "Подразделение с таким именем уже существует"});
-                }
+            try {
+                people.forEach(person => {
+                    if (person.name === name && person._id.toString() !== _id.toString()) {
+                        throw new Error("Запись с таким именем уже существует");
+                    }
+                })
+            } catch (e) {
+                return res.status(400).json({message: e.message});
             }
         }
 
@@ -232,22 +236,21 @@ router.put("/people", checkMiddleware, async (req, res) => {
 
 // Удаляет запись
 router.delete("/people/:id", async (req, res) => {
-    const _id = req.params.id;  // Получение id записи
-
     try {
-        const item = await Person.findById({_id}).populate("department").populate("profession")  // Ищем текущую запись
+        const _id = req.params.id;  // Получение id записи
 
-        await logUserActions(req, res, "Удаление", item);   // Логируем действие пользвателя
+        const item = await Person.findById({_id}).populate("department").populate("profession")  // Ищем текущую запись
 
         if (item) {
             await Person.deleteOne({_id});  // Удаление записи из базы данных по id записи
+            await logUserActions(req, res, "Удаление", item);   // Логируем действие пользвателя
             return res.status(200).json({message: "Запись успешно удалена"});
         } else {
             return res.status(404).json({message: "Данная запись уже была удалена"});
         }
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: `Ошибка при удалении записи с кодом ${_id}: ${err}`});
+        res.status(500).json({message: `Ошибка при удалении записи: ${err}`});
     }
 });
 

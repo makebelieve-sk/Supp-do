@@ -24,7 +24,9 @@ export const request = async (url, method = "GET", body = null, headers = {}) =>
 
             message.error(data.message);
 
-            return window.location.replace("/login");  // Перенаправляем пользоавтеля на страницу входа
+            window.location.replace("/login");  // Перенаправляем пользователя на страницу входа
+
+            return null;
         }
 
         if (response.status === 404) {

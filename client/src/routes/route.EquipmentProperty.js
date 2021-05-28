@@ -1,4 +1,4 @@
-// Методы модели Журнала дефектов и отказов
+// Методы модели "Характеристики оборудования"
 import {message} from "antd";
 import {EquipmentProperty} from "../model/EquipmentProperty";
 
@@ -39,6 +39,7 @@ export const EquipmentPropertyRoute = {
             // Получаем редактируемую запись
             const item = await request(this.base_url + id);
 
+            // Если вернулась ошибка 404 (запись не найдена)
             if (typeof item === "string") {
                 // Обнуляем редактируемую запись
                 store.dispatch(ActionCreator.ActionCreatorEquipmentProperty.setRowDataEquipmentProperty(null));
@@ -61,8 +62,6 @@ export const EquipmentPropertyRoute = {
     // Сохранение записи
     save: async function (item, setLoading) {
         try {
-            await this.getAll();    // Обновляем все записи раздела
-
             // Устанавливаем спиннер загрузки
             setLoading(true);
 
@@ -72,15 +71,15 @@ export const EquipmentPropertyRoute = {
             // Получаем сохраненную запись
             const data = await request(this.base_url, method, item);
 
+            // Если вернулась ошибка 404 (запись не найдена)
             if (typeof data === "string") {
+                await this.getAll();    // Обновляем все записи раздела
+
+                // Обнуляем редактируемую запись
+                store.dispatch(ActionCreator.ActionCreatorEquipmentProperty.setRowDataEquipmentProperty(null));
+
                 // Останавливаем спиннер загрузки
                 setLoading(false);
-
-                // Обнуляем объект поля "Подразделения" (при нажатии на "+")
-                store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldEquipmentProperty({
-                    key: null,
-                    formValues: null
-                }));
 
                 // Удаление текущей вкладки
                 onRemove("equipmentPropertyItem", "remove");
@@ -92,15 +91,14 @@ export const EquipmentPropertyRoute = {
                 // Выводим сообщение от сервера
                 message.success(data.message);
 
-                // Редактирование записи - изменение записи в хранилище redux,
-                // Сохранение записи - создание записи в хранилище redux
+                // Сохранение записи - обновляем redux
                 if (method === "POST") {
                     store.dispatch(ActionCreator.ActionCreatorEquipmentProperty.createEquipmentProperty(data.item));
                 } else {
                     const equipmentProperties = store.getState().reducerEquipmentProperty.equipmentProperties;
-                    const foundEquipmentProperty = equipmentProperties.find(equipmentProperty => {
-                        return equipmentProperty._id === item._id;
-                    });
+
+                    const foundEquipmentProperty = equipmentProperties.find(equipmentProperty =>
+                        equipmentProperty._id === item._id);
                     const indexEquipmentProperty = equipmentProperties.indexOf(foundEquipmentProperty);
 
                     if (indexEquipmentProperty >= 0 && foundEquipmentProperty) {
@@ -111,10 +109,8 @@ export const EquipmentPropertyRoute = {
                 // Получаем объект поля "Характеристика оборудования", он есть, если мы нажали на "+"
                 const replaceField = store.getState().reducerReplaceField.replaceFieldEquipmentProperty;
 
-                if (replaceField.key) {
-                    // Обновляем поле
-                    setFieldRecord(replaceField, data.item);
-                }
+                // Обновляем поле
+                if (replaceField.key) setFieldRecord(replaceField, data.item);
 
                 // Останавливаем спиннер загрузки
                 setLoading(false);
@@ -148,13 +144,28 @@ export const EquipmentPropertyRoute = {
     // Удаление записи
     delete: async function (_id, setLoadingDelete, setVisiblePopConfirm) {
         try {
-            await this.getAll();    // Обновляем все записи раздела
-
             // Устанавливаем спиннер загрузки
             setLoadingDelete(true);
 
             // Удаляем запись
             const data = await request(this.base_url + _id, "DELETE");
+
+            // Если вернулась ошибка 404 (запись не найдена)
+            if (typeof data === "string") {
+                await this.getAll();    // Обновляем все записи раздела
+
+                // Обнуляем редактируемую запись
+                store.dispatch(ActionCreator.ActionCreatorEquipmentProperty.setRowDataEquipmentProperty(null));
+
+                // Останавливаем спиннер, и скрываем всплывающее окно
+                setLoadingDelete(false);
+                setVisiblePopConfirm(false);
+
+                // Удаление текущей вкладки
+                onRemove("equipmentPropertyItem", "remove");
+
+                return null;
+            }
 
             if (data) {
                 // Вывод сообщения
@@ -163,14 +174,15 @@ export const EquipmentPropertyRoute = {
                 const equipmentProperties = store.getState().reducerEquipmentProperty.equipmentProperties;
 
                 // Удаляем запись из хранилища redux
-                let foundEquipmentProperty = equipmentProperties.find(equipmentProperty => {
-                    return equipmentProperty._id === _id;
-                });
-                let indexEquipmentProperty = equipmentProperties.indexOf(foundEquipmentProperty);
+                const foundEquipmentProperty = equipmentProperties.find(equipmentProperty => equipmentProperty._id === _id);
+                const indexEquipmentProperty = equipmentProperties.indexOf(foundEquipmentProperty);
 
                 if (foundEquipmentProperty && indexEquipmentProperty >= 0) {
                     store.dispatch(ActionCreator.ActionCreatorEquipmentProperty.deleteEquipmentProperty(indexEquipmentProperty));
                 }
+
+                // Обнуляем редактируемую запись
+                store.dispatch(ActionCreator.ActionCreatorEquipmentProperty.setRowDataEquipmentProperty(null));
 
                 // Останавливаем спиннер, и скрываем всплывающее окно
                 setLoadingDelete(false);

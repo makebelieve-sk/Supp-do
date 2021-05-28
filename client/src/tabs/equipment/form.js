@@ -23,21 +23,22 @@ export const EquipmentForm = ({item}) => {
     // Создание заголовка раздела и имени формы
     const title = item.isNewItem ? "Создание оборудования" : "Редактирование оборудования";
 
-    // Изменение значений формы
+    // Установка значений формы
     useEffect(() => {
-        let characteristicArr = [];
+        let properties = [];
 
         // Начальное значение выбранного элемента в выпадающих списках на вкладке Характеристики
         if (item.properties && item.properties.length) {
             item.properties.forEach(property => {
-                const obj = {
+                properties.push({
                     equipmentProperty: property && property.equipmentProperty ? property.equipmentProperty._id : null,
-                    value: property ? property.value.trim() : ""
-                };
-
-                characteristicArr.push(obj);
+                    value: property && property.value ? property.value.trim() : ""
+                });
             });
         }
+
+        // Добавляем строку характеристик с пустыми значениями
+        properties.push({equipmentProperty: null, value: ""});
 
         // Установка значений формы
         form.setFieldsValue({
@@ -46,7 +47,7 @@ export const EquipmentForm = ({item}) => {
             name: item.name.trim(),
             notes: item.notes.trim(),
             parent: item.parent ? item.parent._id : null,
-            properties: item.properties && item.properties.length ? characteristicArr : [{equipmentProperty: null, value: ""}]
+            properties
         });
     }, [form, item]);
 
@@ -55,18 +56,35 @@ export const EquipmentForm = ({item}) => {
         // Устанавливаем спиннер загрузки
         setLoadingSave(true);
 
+        // Получаем массив записей оборудования, массив записей характеристик оборудования и массив файлов
         const equipment = store.getState().reducerEquipment.equipment;
+        const equipmentProperties = store.getState().reducerEquipmentProperty.equipmentProperties;
         const files = store.getState().reducerEquipment.files;
 
+        // Устанавливаем в поле parent объект оборудования
         values.parent = equipment.find(eq => eq._id === values.parent);
 
-        // Проверяем, выбраны ли значения в выпадающих списках на вкладке Характеристики
+        // Установка поля "Характеристики"
         if (values.properties && values.properties.length) {
-            values.properties = values.properties.filter(select => select.equipmentProperty);
+            // Отсеиваем пустые выпадающие списки из вкладки "Характеристики"
+            const filterProperties = values.properties.filter(select => select.equipmentProperty);
+
+            // Для каждой записи в поле equipmentProperty устанавливаем объект характеристики оборудования
+            if (filterProperties && filterProperties.length) {
+                filterProperties.forEach(filterProperty => {
+                    filterProperty.equipmentProperty = equipmentProperties.find(equipmentProperty =>
+                        equipmentProperty._id === filterProperty.equipmentProperty);
+                });
+
+                values.properties = filterProperties;
+            } else {
+                values.properties = null;
+            }
         } else if (!values.properties && item.properties && item.properties.length) {
+            // Если пользователь сохранил запись не переходя во вкладку "Характеристики"
             values.properties = item.properties;
         } else {
-            values.properties = [];
+            values.properties = null;
         }
 
         values.files = files;

@@ -52,6 +52,7 @@ export const LogRoute = {
             // Получаем редактируемую запись
             const item = await request(this.base_url + id);
 
+            // Если вернулась ошибка 404 (запись не найдена)
             if (typeof item === "string") {
                 // Обнуляем редактируемую запись
                 store.dispatch(ActionCreator.ActionCreatorLog.setRowDataLog(null));
@@ -71,26 +72,20 @@ export const LogRoute = {
             NoticeError.get(e.message); // Вызываем функцию обработки ошибки
         }
     },
-    // Удаление записи журнала за выбранный период
+    // Удаление записей журнала за выбранный период
     deleteByPeriod: async function (setLoadingDelete, setVisiblePopConfirm) {
         try {
-            await this.getAll();    // Обновляем все записи раздела
-
             // Устанавливаем спиннер загрузки
             setLoadingDelete(true);
 
             const date = store.getState().reducerLog.dateLog;   // Получаем период
 
-            // Удаляем запись
+            // Удаляем записи
             const data = await request(this.base_url + date, "DELETE");
 
+            // Если вернулась ошибка 404 (запись не найдена)
             if (typeof data === "string") {
-                // Останавливаем спиннер, и скрываем всплывающее окно
-                setLoadingDelete(false);
-                setVisiblePopConfirm(false);
-
-                // Удаление текущей вкладки
-                onRemove("logItem", "remove");
+                await this.getAll();    // Обновляем все записи раздела
 
                 return null;
             }
@@ -101,7 +96,7 @@ export const LogRoute = {
 
                 if (data.logsId && data.logsId.length) {
                     data.logsId.forEach(deleteId => {
-                        // Получаем список записей помощи из хранилища
+                        // Получаем список записей действий пользователей из хранилища
                         const logs = store.getState().reducerLog.logs;
 
                         // Удаляем запись из хранилища redux
@@ -127,15 +122,19 @@ export const LogRoute = {
     // Удаление записи журнала
     delete: async function (_id, setLoadingDelete, setVisiblePopConfirm) {
         try {
-            await this.getAll();    // Обновляем все записи раздела
-
             // Устанавливаем спиннер загрузки
             setLoadingDelete(true);
 
             // Удаляем запись
             const data = await request(this.base_url + _id, "DELETE");
 
+            // Если вернулась ошибка 404 (запись не найдена)
             if (typeof data === "string") {
+                await this.getAll();    // Обновляем все записи раздела
+
+                // Обнуляем редактируемую запись
+                store.dispatch(ActionCreator.ActionCreatorLog.setRowDataLog(null));
+
                 // Останавливаем спиннер, и скрываем всплывающее окно
                 setLoadingDelete(false);
                 setVisiblePopConfirm(false);
@@ -160,6 +159,9 @@ export const LogRoute = {
                 if (foundLog && indexLog >= 0) {
                     store.dispatch(ActionCreator.ActionCreatorLog.deleteLog(indexLog));
                 }
+
+                // Обнуляем редактируемую запись
+                store.dispatch(ActionCreator.ActionCreatorLog.setRowDataLog(null));
 
                 // Останавливаем спиннер, и скрываем всплывающее окно
                 setLoadingDelete(false);

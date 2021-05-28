@@ -44,9 +44,9 @@ const logUserActions = async (req, res, action, body = null) => {
 
 // Возвращает запись по коду
 router.get("/help/:id", async (req, res) => {
-    const _id = req.params.id;  // Получение id записи
-
     try {
+        const _id = req.params.id;  // Получение id записи
+
         let item, isNewItem = true;
 
         if (_id === "-1") {
@@ -61,7 +61,7 @@ router.get("/help/:id", async (req, res) => {
         res.status(200).json({isNewItem, help: item});
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: `Ошибка при открытии записи с кодом ${_id}: ${err}`});
+        res.status(500).json({message: `Ошибка при открытии записи: ${err}`});
     }
 });
 
@@ -77,14 +77,14 @@ router.get("/help/get/:id", async (req, res) => {
         res.status(200).json(response); // Отправляем ответ
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: "Ошибка при получении записи помощи при клике на кнопку 'Помощь': " + err});
+        res.status(500).json({message: "Ошибка при получении записи: " + err});
     }
 });
 
 // Возвращает все записи
 router.get("/help", async (req, res) => {
     try {
-        const items = await Help.find({});  // Получаем все записи раздела "Характеристики оборудования"
+        const items = await Help.find({});  // Получаем все записи раздела "Помощь"
 
         let itemsDto = [];
 
@@ -101,7 +101,7 @@ router.get("/help", async (req, res) => {
 // Сохраняет новую запись
 router.post("/help", checkMiddleware, async (req, res) => {
     try {
-        // Проверка валидации полей раздела "Характеристики оборудования"
+        // Проверка валидации полей раздела "Помощь"
         const errors = validationResult(req);
 
         if (!errors.isEmpty())
@@ -120,14 +120,12 @@ router.post("/help", checkMiddleware, async (req, res) => {
 
         item = new Help({name, text, date: Date.now()});    // Создаем новый экземпляр записи
 
-        await item.save();  // Сохраняем запись в базе данных
-
-        await logUserActions(req, res, "Сохранение");   // Логируем действие пользвателя
-
-        const currentHelp = await Help.findOne({name});
+        const currentHelp = await item.save();  // Сохраняем запись в базе данных
 
         // Изменяем запись для вывода в таблицу
         const savedItem = new HelpDto(currentHelp);
+
+        await logUserActions(req, res, "Сохранение");   // Логируем действие пользвателя
 
         res.status(201).json({message: "Запись сохранена", item: savedItem});
     } catch (err) {
@@ -156,14 +154,18 @@ router.put("/help", checkMiddleware, async (req, res) => {
         // Проверяем на существование записи с уникальным идентификатором
         if (!item) return res.status(404).json({message: `Запись с именем ${name} (${_id}) не найдена`});
 
-        // Ищем все подразделения
+        // Ищем все записи помощи
         const helps = await Help.find({});
 
         if (helps && helps.length) {
-            for (let i = 0; i < helps.length; i++) {
-                if (helps[i].name === name && helps[i]._id.toString() !== _id.toString()) {
-                    return res.status(400).json({message: "Подразделение с таким именем уже существует"});
-                }
+            try {
+                helps.forEach(help => {
+                    if (help.name === name && help._id.toString() !== _id.toString()) {
+                        throw new Error("Запись с таким именем уже существует");
+                    }
+                });
+            } catch (err) {
+                return res.status(400).json({message: err.message});
             }
         }
 
@@ -171,14 +173,12 @@ router.put("/help", checkMiddleware, async (req, res) => {
         item.text = text;
         item.date = Date.now();
 
-        await item.save();  // Сохраняем запись в базу данных
-
-        await logUserActions(req, res, "Редактирование");   // Логируем действие пользвателя
-
-        const currentHelp = await Help.findById({_id});
+        const currentHelp = await item.save();  // Сохраняем запись в базу данных
 
         // Изменяем запись для вывода в таблицу
         const savedItem = new HelpDto(currentHelp);
+
+        await logUserActions(req, res, "Редактирование");   // Логируем действие пользвателя
 
         res.status(201).json({message: "Запись сохранена", item: savedItem});
     } catch (err) {
@@ -194,17 +194,16 @@ router.delete("/help/:id", async (req, res) => {
 
         const item = await Help.findById({_id});  // Ищем текущую запись
 
-        await logUserActions(req, res, "Удаление", item);   // Логируем действие пользвателя
-
         if (item) {
             await Help.deleteOne({_id});    // Удаление записи из базы данных по id записи
+            await logUserActions(req, res, "Удаление", item);   // Логируем действие пользвателя
             return res.status(200).json({message: "Запись успешно удалена"});
         } else {
             return res.status(404).json({message: "Данная запись уже была удалена"});
         }
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: `Ошибка при удалении записи с кодом ${_id}: ${err}`});
+        res.status(500).json({message: `Ошибка при удалении записи: ${err}`});
     }
 });
 

@@ -4,8 +4,8 @@ import {useSelector} from "react-redux";
 import {Row, Table, Col} from "antd";
 
 import store from "../../redux/store";
-import getTableData from "../../helpers/mappers/tabs.mappers/getTableData";
 import {getColumns, getFilterFunction, openRecordTab} from "../../helpers/mappers/tabs.mappers/table.helper";
+import {createTreeData} from "../../helpers/functions/general.functions/createTreeData.helper";
 import tableSettings from "../../options/tab.options/table.options/settings";
 import {goToLogDO} from "../analytic";
 import {TableHeaderComponent} from "../../components/tab.components/tableHeader";
@@ -46,7 +46,9 @@ export const TableComponent = ({specKey}) => {
     // const [expandRows, setExpandRows] = useState([]);
 
     // Получение данных таблицы
-    const data = getTableData(specKey, stateObject[specKey]);
+    const data = specKey === "equipment" || specKey === "departments"
+        ? createTreeData(stateObject[specKey])
+        : stateObject[specKey];
 
     // Получение отфильтрованных данных таблицы
     const filterData = getFilterFunction(specKey, data.slice(0), filterText.toLowerCase());

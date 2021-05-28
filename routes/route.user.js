@@ -74,7 +74,7 @@ router.get("/users/:id", async (req, res) => {
             // Создание новой записи
             item = new User({
                 userName: "", person: null, firstName: "", secondName: "", email: "", phone: "", mailing: false, sms: false,
-                approved: false, roles: [], typeMenu: [{label: "Слева", value: "left"}]
+                approved: false, roles: [], typeMenu: [{label: "Сверху", value: "top"}]
             });
         } else {
             // Получение существующей записи
@@ -84,10 +84,10 @@ router.get("/users/:id", async (req, res) => {
 
         if (!item) return res.status(400).json({message: `Запись с кодом ${_id} не найдена`});
 
-        res.status(200).json({isNewItem, user: item});
+        return res.status(200).json({isNewItem, user: item});
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: `Ошибка при открытии записи с кодом ${_id}: ${err}`});
+        return res.status(500).json({message: `Ошибка при открытии записи: ${err}`});
     }
 });
 
@@ -102,10 +102,10 @@ router.get("/users", async (req, res) => {
         // Изменяем запись для вывода в таблицу
         if (items && items.length) itemsDto = items.map(item => new UserDto(item));
 
-        res.status(200).json(itemsDto);
+        return res.status(200).json(itemsDto);
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: "Ошибка при получении записей: " + err});
+        return res.status(500).json({message: "Ошибка при получении записей: " + err});
     }
 });
 
@@ -133,18 +133,18 @@ router.post("/users", checkMiddleware, async (req, res) => {
         item = hashedPassword
             ? new User({
                 userName, person, firstName, secondName, email, sms, phone, password: hashedPassword, mailing,
-                approved, roles
+                approved, roles, typeMenu: [{label: "Сверху", value: "top"}]
             })
             : new User({
                 userName, person, firstName, secondName, email, sms, phone, mailing,
-                approved, roles
+                approved, roles, typeMenu: [{label: "Сверху", value: "top"}]
             })
 
-        await item.save();  // Сохраняем запись в базе данных
+        let currentItem = await item.save();  // Сохраняем запись в базе данных
 
         await logUserActions(req, res, "Сохранение");   // Логируем действие пользвателя
 
-        const currentItem = await User.findOne({_id: item._id})
+        currentItem = await User.findById({_id: currentItem._id})
             .populate("person")
             .populate("roles")
             .select("-password");
@@ -152,10 +152,10 @@ router.post("/users", checkMiddleware, async (req, res) => {
         // Изменяем запись для вывода в таблицу
         const savedItem = new UserDto(currentItem);
 
-        res.status(201).json({message: "Запись сохранена", item: savedItem});
+        return res.status(201).json({message: "Запись сохранена", item: savedItem});
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: "Ошибка при создании записи: " + err});
+        return res.status(500).json({message: "Ошибка при создании записи: " + err});
     }
 });
 
@@ -180,10 +180,14 @@ router.put("/users", checkMiddleware, async (req, res) => {
         const users = await User.find({});
 
         if (users && users.length) {
-            for (let i = 0; i < users.length; i++) {
-                if (users[i].userName === userName && users[i]._id.toString() !== _id.toString()) {
-                    return res.status(400).json({message: "Пользователь с таким именем уже существует"});
-                }
+            try {
+                users.forEach(user => {
+                    if (user.userName === userName && user._id.toString() !== _id.toString()) {
+                        throw new Error("Запись с таким именем уже существует");
+                    }
+                })
+            } catch (e) {
+                return res.status(400).json({message: e.message});
             }
         }
 
@@ -206,7 +210,7 @@ router.put("/users", checkMiddleware, async (req, res) => {
         await logUserActions(req, res, "Редактирование");   // Логируем действие пользвателя
 
         const currentItem = await User
-            .findOne({_id})
+            .findById({_id})
             .populate("person")
             .populate("roles")
             .select("-password");
@@ -228,17 +232,16 @@ router.delete("/users/:id", async (req, res) => {
 
         const item = await User.findById({_id}).populate("person");  // Ищем текущую запись
 
-        await logUserActions(req, res, "Удаление", item);   // Логируем действие пользвателя
-
         if (item) {
             await User.deleteOne({_id});    // Удаление записи из базы данных по id записи
+            await logUserActions(req, res, "Удаление", item);   // Логируем действие пользвателя
             return res.status(200).json({message: "Запись успешно удалена"});
         } else {
             return res.status(404).json({message: "Данная запись уже была удалена"});
         }
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: `Ошибка при удалении записи с кодом ${_id}: ${err}`});
+        res.status(500).json({message: `Ошибка при удалении записи: ${err}`});
     }
 });
 

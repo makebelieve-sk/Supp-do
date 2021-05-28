@@ -16,6 +16,7 @@ export const ProfileRoute = {
             // Получаем редактируемую запись о пользователе
             const item = await request(this.base_url + id);
 
+            // Если вернулась ошибка 404 (запись не найдена)
             if (typeof item === "string") {
                 // Обнуляем редактируемую запись
                 store.dispatch(ActionCreator.ActionCreatorProfile.editProfile(null));
@@ -44,7 +45,11 @@ export const ProfileRoute = {
             // Получаем обновленную запись
             const data = await request(this.base_url, "PUT", item);
 
+            // Если вернулась ошибка 404 (запись не найдена)
             if (typeof data === "string") {
+                // Обнуляем редактируемую запись
+                store.dispatch(ActionCreator.ActionCreatorProfile.editProfile(null));
+
                 // Останавливаем спиннер загрузки
                 setLoading(false);
 

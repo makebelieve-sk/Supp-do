@@ -67,7 +67,7 @@ router.get("/statistic-rating/:dateStart/:dateEnd", async (req, res) => {
         if (equipment && equipment.length && logDOs && logDOs.length) {
             equipment.forEach(eq => {
                 // Получаем массив подходящих записей из ЖДО
-                const findLogDOs = logDOs.filter(logDO => logDO.equipment._id.toString() === eq._id.toString());
+                const findLogDOs = logDOs.filter(logDO => logDO.equipment && logDO.equipment._id.toString() === eq._id.toString());
 
                 let during = 0, notAssigned = 0, inWork = 0, done = 0, accept = 0, satisfies = [];
 

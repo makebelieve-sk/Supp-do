@@ -4,9 +4,6 @@ export const createTreeData = (dataStore) => {
         return [];
     }
 
-    // Сортируем массив по полю "parent"
-    dataStore.sort((a, b) => a.parent && b.parent && a.parent.name > b.parent.name ? 1 : -1);
-
     // Находим записи, у которых указано, какому подразделению они принадлежат
     const notNullParentData = dataStore.filter(obj => obj.parent);
 
@@ -30,10 +27,8 @@ export const createTreeData = (dataStore) => {
         });
     }
 
-    // Инициализация функции рекурсии, если флаг есть, значит это первый заход в функцию, проходим внутрь 1 раз
-    // Если флага нет, значит заходим в рекурсию изнутри массива результатов, значит надо добавлять вложенности,
-    // значит создаем цикл
-    const createTree = (childrenArr, firstRun) => {
+    // Функция рекурсии для построения древовидной структуры данных
+    const createTree = (childrenArr, firstRun = false) => {
         if (firstRun) {
             childrenArr.forEach(nullParent => {
                 notNullParentData.forEach(notNullParent => {
@@ -58,14 +53,16 @@ export const createTreeData = (dataStore) => {
                             });
                         }
                     }
-                })
-
-                if (nullParent.children && nullParent.children.length === 0) {
-                    nullParent.children = null;
-                }
+                });
             });
 
-            childrenArr.forEach(obj => createTree(obj));
+            childrenArr.forEach(obj => {
+                if (obj.children && obj.children.length === 0) {
+                    obj.children = null;
+                }
+
+                createTree(obj);
+            });
         } else {
             if (!childrenArr.children) {
                 return null;
@@ -93,15 +90,17 @@ export const createTreeData = (dataStore) => {
                                 notes: notNullParent.notes
                             })
                         }
-
-                        createTree(childObj);
                     }
                 })
+            });
 
-                if (childObj.children && childObj.children.length === 0) {
-                    childObj.children = null;
+            childrenArr.children.forEach(obj => {
+                if (obj.children && obj.children.length === 0) {
+                    obj.children = null;
                 }
-            })
+
+                createTree(obj);
+            });
         }
     }
 

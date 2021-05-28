@@ -41,6 +41,7 @@ export const DepartmentRoute = {
             // Получаем редактируемую запись
             const item = await request(this.base_url + id);
 
+            // Если вернулась ошибка 404 (запись не найдена)
             if (typeof item === "string") {
                 // Обнуляем редактируемую запись
                 store.dispatch(ActionCreator.ActionCreatorDepartment.setRowDataDepartment(null));
@@ -63,8 +64,6 @@ export const DepartmentRoute = {
     // Сохранение записи
     save: async function (item, setLoading, departments) {
         try {
-            await this.getAll();    // Обновляем все записи раздела
-
             // Устанавливаем спиннер загрузки
             setLoading(true);
 
@@ -74,15 +73,15 @@ export const DepartmentRoute = {
             // Получаем сохраненную запись
             const data = await request(this.base_url, method, item);
 
+            // Если вернулась ошибка 404 (запись не найдена)
             if (typeof data === "string") {
+                // Обнуляем редактируемую запись
+                store.dispatch(ActionCreator.ActionCreatorDepartment.setRowDataDepartment(null));
+
+                await this.getAll();    // Обновляем все записи раздела
+
                 // Останавливаем спиннер загрузки
                 setLoading(false);
-
-                // Обнуляем объект поля "Подразделения" (при нажатии на "+")
-                store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldDepartment({
-                    key: null,
-                    formValues: null
-                }));
 
                 // Удаление текущей вкладки
                 onRemove("departmentItem", "remove");
@@ -117,10 +116,8 @@ export const DepartmentRoute = {
                 // Получаем объект поля "Подразделения", он есть, если мы нажали на "+"
                 const replaceField = store.getState().reducerReplaceField.replaceFieldDepartment;
 
-                if (replaceField.key) {
-                    // Обновляем поле
-                    setFieldRecord(replaceField, data.item);
-                }
+                // Обновляем поле
+                if (replaceField.key) setFieldRecord(replaceField, data.item);
 
                 // Останавливаем спиннер загрузки
                 setLoading(false);
@@ -134,14 +131,14 @@ export const DepartmentRoute = {
                 // Удаление текущей вкладки
                 onRemove("departmentItem", "remove");
             } else {
-                // Останавливаем спиннер загрузки
-                setLoading(false);
-
                 // Обнуляем объект поля "Подразделения" (при нажатии на "+")
                 store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldDepartment({
                     key: null,
                     formValues: null
                 }));
+
+                // Останавливаем спиннер загрузки
+                setLoading(false);
             }
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
@@ -152,15 +149,19 @@ export const DepartmentRoute = {
     // Удаление записи
     delete: async function (_id, setLoadingDelete, setVisiblePopConfirm) {
         try {
-            await this.getAll();    // Обновляем все записи раздела
-
             // Устанавливаем спиннер загрузки
             setLoadingDelete(true);
 
             // Удаляем запись
             const data = await request(this.base_url + _id, "DELETE");
 
+            // Если вернулась ошибка 404 (запись не найдена)
             if (typeof data === "string") {
+                await this.getAll();    // Обновляем все записи раздела
+
+                // Обнуляем редактируемую запись
+                store.dispatch(ActionCreator.ActionCreatorDepartment.setRowDataDepartment(null));
+
                 // Останавливаем спиннер, и скрываем всплывающее окно
                 setLoadingDelete(false);
                 setVisiblePopConfirm(false);
@@ -184,6 +185,9 @@ export const DepartmentRoute = {
                 if (foundDepartment && indexDepartment >= 0) {
                     store.dispatch(ActionCreator.ActionCreatorDepartment.deleteDepartment(indexDepartment));
                 }
+
+                // Обнуляем редактируемую запись
+                store.dispatch(ActionCreator.ActionCreatorDepartment.setRowDataDepartment(null));
 
                 // Останавливаем спиннер, и скрываем всплывающее окно
                 setLoadingDelete(false);

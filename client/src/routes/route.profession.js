@@ -39,6 +39,7 @@ export const ProfessionRoute = {
             // Получаем редактируемую запись
             const item = await request(this.base_url + id);
 
+            // Если вернулась ошибка 404 (запись не найдена)
             if (typeof item === "string") {
                 // Обнуляем редактируемую запись
                 store.dispatch(ActionCreator.ActionCreatorProfession.setRowDataProfession(null));
@@ -61,8 +62,6 @@ export const ProfessionRoute = {
     // Сохранение профессии
     save: async function (item, setLoading) {
         try {
-            await this.getAll();    // Обновляем все записи раздела
-
             // Устанавливаем спиннер загрузки
             setLoading(true);
 
@@ -72,15 +71,15 @@ export const ProfessionRoute = {
             // Получаем сохраненную запись
             const data = await request(this.base_url, method, item);
 
+            // Если вернулась ошибка 404 (запись не найдена)
             if (typeof data === "string") {
+                await this.getAll();    // Обновляем все записи раздела
+
+                // Обнуляем редактируемую запись
+                store.dispatch(ActionCreator.ActionCreatorProfession.setRowDataProfession(null));
+
                 // Останавливаем спиннер загрузки
                 setLoading(false);
-
-                // Обнуляем объект поля "Профессии" (при нажатии на "+")
-                store.dispatch(ActionCreator.ActionCreatorReplaceField.setReplaceFieldProfession({
-                    key: null,
-                    formValues: null
-                }));
 
                 // Удаление текущей вкладки
                 onRemove("professionItem", "remove");
@@ -146,15 +145,19 @@ export const ProfessionRoute = {
     // Удаление профессии
     delete: async function (_id, setLoadingDelete, setVisiblePopConfirm) {
         try {
-            await this.getAll();    // Обновляем все записи раздела
-
             // Устанавливаем спиннер загрузки
             setLoadingDelete(true);
 
             // Удаляем запись
             const data = await request(this.base_url + _id, "DELETE");
 
+            // Если вернулась ошибка 404 (запись не найдена)
             if (typeof data === "string") {
+                await this.getAll();    // Обновляем все записи раздела
+
+                // Обнуляем редактируемую запись
+                store.dispatch(ActionCreator.ActionCreatorProfession.setRowDataProfession(null));
+
                 // Останавливаем спиннер, и скрываем всплывающее окно
                 setLoadingDelete(false);
                 setVisiblePopConfirm(false);
@@ -179,6 +182,9 @@ export const ProfessionRoute = {
                 if (foundProfession && indexProfession >= 0) {
                     store.dispatch(ActionCreator.ActionCreatorProfession.deleteProfession(indexProfession));
                 }
+
+                // Обнуляем редактируемую запись
+                store.dispatch(ActionCreator.ActionCreatorProfession.setRowDataProfession(null));
 
                 // Останавливаем спиннер, и скрываем всплывающее окно
                 setLoadingDelete(false);

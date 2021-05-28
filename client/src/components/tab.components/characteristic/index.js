@@ -13,11 +13,7 @@ import "./characteristic.css";
 
 export const CharacteristicComponent = ({form, user}) => {
     // Добавление строки во вкладке "Характеристики"
-    const addRowProperty = (index, add, fields) => {
-        if (index === fields.length - 1) {
-            add();
-        }
-    };
+    const addRowProperty = (index, add, fields) => index === fields.length - 1 ? add() : null;
 
     return useMemo(() => (
         <Form.List name="properties">
@@ -103,7 +99,13 @@ export const CharacteristicComponent = ({form, user}) => {
 
                             <Col span={2}>
                                 <Form.Item label=" ">
-                                    <Button className="characteristic_button" onClick={() => remove(field.name)} icon={<DeleteOutlined/>} type="danger"/>
+                                    <Button
+                                        className="characteristic_button"
+                                        disabled={fields && fields.length === 1}
+                                        onClick={() => remove(field.name)}
+                                        icon={<DeleteOutlined/>}
+                                        type="danger"
+                                    />
                                 </Form.Item>
                             </Col>
                         </Row>
