@@ -4,6 +4,7 @@ import {Button, Layout} from "antd";
 import {MenuFoldOutlined, MenuUnfoldOutlined} from "@ant-design/icons";
 
 import {MenuComponent} from "../index";
+import {LogoComponent} from "../../logo";
 
 import "./topMenu.css";
 
@@ -14,10 +15,16 @@ export const TopMenu = ({left, collapsed, setCollapsed}) => {
                 {collapsed ? <MenuUnfoldOutlined/> : <MenuFoldOutlined/>}
             </Button>
         </div>
-        : <MenuComponent collapsed={collapsed} mode="horizontal" />
+        : <>
+            <LogoComponent collapsed={collapsed} />
+
+            <div className="header-component">
+                <MenuComponent mode="horizontal" />
+            </div>
+        </>
 
     return (
-        <Layout.Header className="site-layout-background header-component">
+        <Layout.Header className="site-layout-background flex">
             {component}
         </Layout.Header>
     );

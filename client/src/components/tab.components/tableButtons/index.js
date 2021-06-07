@@ -4,13 +4,15 @@ import {useSelector} from "react-redux";
 import {Button, Checkbox, Dropdown, Menu, Popconfirm} from "antd";
 import {DeleteOutlined, EditOutlined, FileExcelOutlined, PlusOutlined, QuestionCircleOutlined} from "@ant-design/icons";
 
+import store from "../../../redux/store";
+import {ActionCreator} from "../../../redux/combineActions";
+import {LogRoute} from "../../../routes/route.Log";
 import {checkRoleUser} from "../../../helpers/mappers/general.mappers/checkRoleUser";
 import {getColumns, getTableHeader, openRecordTab} from "../../../helpers/mappers/tabs.mappers/table.helper";
 import PrintButton from "./printButton";
 import {useWindowWidth} from "../../../hooks/windowWidth.hook";
 
 import "./tableButtons.css";
-import {LogRoute} from "../../../routes/route.Log";
 
 export const ButtonsComponent = ({specKey, onExport, setColumnsTable}) => {
     const user = useSelector(state => state.reducerAuth.user);  // Получение объекта пользователя
@@ -63,15 +65,32 @@ export const ButtonsComponent = ({specKey, onExport, setColumnsTable}) => {
 
             setColumnsTable(filtered);
             setCheckedColumns(checkedColumnsTable);
+
+            // Получаем текущий активный ключ вкладки
+            const activeKey = store.getState().reducerTab.activeKey;
+
+            // Обновляем колонки раздела в редаксе
+            const columnsOptions = store.getState().reducerMain.columnsOptions;
+            columnsOptions[activeKey] = filtered;
+            store.dispatch(ActionCreator.ActionCreatorMain.setColumns(columnsOptions));
         }
 
         // Создание переменной для отображения выпадающего списка для колонок
         const dropdownMenu = <Menu>
             <Menu.ItemGroup title="Колонки">
                 {columns.map(column => {
+                    // Получаем текущий активный ключ вкладки и объект колонок таблиц
+                    const activeKey = store.getState().reducerTab.activeKey;
+                    const reduxColumns = store.getState().reducerMain.columnsOptions;
+
+                    // Определяем значение чекбокса
+                    const checked = reduxColumns && reduxColumns[activeKey]
+                        ? !!reduxColumns[activeKey].find(item => item.key === column.key)
+                        : true;
+
                     return (
                         <Menu.Item key={column.key + "-checkbox"}>
-                            <Checkbox id={column.key} onChange={onChange} defaultChecked>
+                            <Checkbox id={column.key} onChange={onChange} checked={checked}>
                                 {column.title}
                             </Checkbox>
                         </Menu.Item>

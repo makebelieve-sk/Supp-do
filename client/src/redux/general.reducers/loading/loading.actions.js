@@ -1,8 +1,5 @@
-// Инициализация ActionCreator`а для состояний загрузок
-import {
-    SET_LOADING_SKELETON,
-    SET_LOADING_TABLE
-} from "./loading.constants";
+// Инициализация экшенов загрузок
+import {SET_LOADING_SKELETON, SET_LOADING_TABLE} from "./loading.constants";
 
 const ActionCreatorLoading = {
     setLoadingSkeleton: (loading) => {

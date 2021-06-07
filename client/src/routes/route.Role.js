@@ -116,6 +116,10 @@ export const RoleRoute = {
                     });
 
                     store.dispatch(ActionCreator.ActionCreatorAuth.setUser(currentUser));
+
+                    // Обновляем пользователя в хранилище браузера
+                    const token = JSON.parse(localStorage.getItem("user")).token;
+                    localStorage.setItem("user", JSON.stringify({token, user: currentUser}));
                 }
 
                 // Останавливаем спиннер загрузки

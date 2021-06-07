@@ -1,4 +1,4 @@
-// Экшены для изменения полей при нажатии на "+"
+// Инициализация экшенов замены поля
 import {
     SET_REPLACE_FIELD_PROFESSION,
     SET_REPLACE_FIELD_DEPARTMENT,

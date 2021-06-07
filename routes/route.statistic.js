@@ -85,8 +85,8 @@ router.get("/statistic-rating/:dateStart/:dateEnd", async (req, res) => {
                         // Считаем количество принятых заявок
                         if (findLogDOs.acceptTask) accept += 1;
 
-                        // Считаем общую продолжительность простоев, ч
-                        during += findLogDOs.downtime / 60;
+                        // Считаем общую продолжительность простоев, переводим из минут в секунды
+                        during += findLogDOs.downtime * 60;
                     });
 
                     satisfies = findLogDOs.map(logDO => logDO.equipment._id);
@@ -94,12 +94,14 @@ router.get("/statistic-rating/:dateStart/:dateEnd", async (req, res) => {
                     statisticRating.push({
                         _id: eq._id,
                         equipment: eq.name,
+                        equipmentTooltip: equipment && equipment.length ? eq && eq.parent ?
+                            getNameWithParent(eq, equipment) + eq.name : "" : "",
                         notAssigned: notAssigned.toString(),
                         inWork: inWork.toString(),
                         done: done.toString(),
                         accept: accept.toString(),
                         failure: findLogDOs.length,
-                        during: during.toFixed(2),
+                        during: during,
                         satisfies
                     });
                 }
@@ -183,9 +185,9 @@ router.get("/statistic-list/:dateStart/:dateEnd", async (req, res) => {
         if (logDOs && logDOs.length) {
             logDOs.forEach(logDo => {
                 // Продолжительность
-                let diff = moment().valueOf() - moment(logDo.date, dateFormat).valueOf();
+                const diff = moment().valueOf() - moment(logDo.date, dateFormat).valueOf();
 
-                const during = (diff / 1000 / 60 / 60).toFixed(2);     // Находим часы
+                const during = (diff / 1000);     // Возвращаем секунды (продолжительность)
 
                 statisticList.push({
                     _id: logDo._id,

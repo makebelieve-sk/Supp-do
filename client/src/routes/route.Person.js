@@ -120,7 +120,7 @@ export const PersonRoute = {
 
                 if (replaceField.key) {
                     // Обновляем поле
-                    setFieldRecord(replaceField, data.item);
+                    setFieldRecord(replaceField, data.currentItem);
                 }
 
                 // Останавливаем спиннер загрузки

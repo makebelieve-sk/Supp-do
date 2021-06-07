@@ -6,17 +6,15 @@ import TabOptions from "../../../options/tab.options/record.options";
 
 import "./rangePicker.css";
 
-const {RangePicker} = DatePicker;
-
 export const RangePickerComponent = ({ isVisible, onChange, date }) => {
     return isVisible
-        ? <RangePicker
+        ? <DatePicker.RangePicker
             allowClear={false}
             showTime={{format: "HH:mm"}}
             format={TabOptions.dateFormat}
             onChange={onChange}
             value={date}
-            style={{width: "100%"}}
+            style={{width: "70%"}}
         />
         : null
 }

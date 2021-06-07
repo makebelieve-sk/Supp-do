@@ -1,13 +1,15 @@
+// Компонент, отрисовывающий блок фильтров таблицы
 import React, {useState} from "react";
-
-import "./tableAlert.css";
 import {Alert, Col, Row} from "antd";
 import {FilterOutlined} from "@ant-design/icons";
+import moment from "moment";
+
 import store from "../../../redux/store";
 import {ActionCreator} from "../../../redux/combineActions";
-import moment from "moment";
 import TabOptions from "../../../options/tab.options/record.options";
 import {LogDORoute} from "../../../routes/route.LogDO";
+
+import "./tableAlert.css";
 
 export const TableAlertComponent = ({alert, specKey}) => {
     // Инициализация состояний для отступа снизу алерта

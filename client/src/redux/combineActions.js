@@ -17,6 +17,7 @@ import ActionCreatorRole from "./tabs.reducers/role/role.actions";
 import ActionCreatorAuth from "./general.reducers/auth/auth.actions";
 import ActionCreatorLog from "./tabs.reducers/log/log.actions";
 import ActionCreatorProfile from "./tabs.reducers/profile/profile.actions";
+import ActionCreatorMain from "./general.reducers/main/main.actions";
 
 export const ActionCreator = {
     ActionCreatorProfession,
@@ -37,4 +38,5 @@ export const ActionCreator = {
     ActionCreatorAuth,
     ActionCreatorLog,
     ActionCreatorProfile,
-}
+    ActionCreatorMain,
+};

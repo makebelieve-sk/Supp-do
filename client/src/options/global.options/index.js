@@ -1,4 +1,4 @@
-// Инициализация массива существующих разделов проекта
+// Инициализация разделов проекта
 const sections = [
     {label: "Не выбрано", value: null},
     {label: "Профессии", value: "professions"},
@@ -15,6 +15,6 @@ const sections = [
     {label: "Роли", value: "roles"},
     {label: "Журнал действий пользователя", value: "logs"},
     {label: "Информация о предприятии", value: "companiesInfo"},
-]
+];
 
 export {sections};

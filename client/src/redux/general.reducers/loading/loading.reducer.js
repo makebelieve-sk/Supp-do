@@ -1,9 +1,6 @@
-// Создание reducer`а для состояний загрузок
+// Инициализация редьюсера загрузок
 import initialState from "./loading.state";
-import {
-    SET_LOADING_SKELETON,
-    SET_LOADING_TABLE
-} from "./loading.constants";
+import {SET_LOADING_SKELETON, SET_LOADING_TABLE} from "./loading.constants";
 
 export default function reducerLoading(state = initialState, action) {
     switch (action.type) {

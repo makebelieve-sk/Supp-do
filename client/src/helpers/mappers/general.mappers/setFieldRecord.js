@@ -84,8 +84,8 @@ export default function setFieldRecord(replaceField, item) {
                 ...formValues,
                 responsible: item,
                 responsibleId: item._id,
-                department: item.departmentId ? departments.find(department => department._id === item.departmentId) : null,
-                departmentId: item.departmentId ? item.departmentId : null
+                department: item.department ? departments.find(department => department._id === item.department._id) : null,
+                departmentId: item.department ? item.department._id : null
             }));
         }],
         ["logDOEquipment", () => {

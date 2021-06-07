@@ -762,6 +762,9 @@ const StatisticRatingColumns = [
         width: 100,
         sorter: (a, b) => b.equipment.toLowerCase() - a.equipment.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
+        render: (text, record) => ({
+            children: <Tooltip placement="topLeft" title={record.equipmentTooltip}>{text}</Tooltip>,
+        }),
         showSorterTooltip: false
     },
     {
@@ -815,14 +818,27 @@ const StatisticRatingColumns = [
         showSorterTooltip: false
     },
     {
-        title: "Общая продолжительность простоев, ч",
+        title: "Общая продолжительность простоев, чч:мм",
         dataIndex: "during",
         key: "during",
         width: 100,
         sorter: (a, b) => a.during.toLowerCase() < b.during.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
         align: "center",
-        showSorterTooltip: false
+        render: (text, record) => {
+            const during = record.during;
+
+            let hours = Math.floor(during / 3600);
+            let minutes = Math.floor((during - (hours * 3600)) / 60);
+
+            if (hours < 10) hours = "0" + hours;
+            if (minutes < 10) minutes = "0" + minutes;
+
+            return {
+                children: hours + ":" + minutes,
+            }
+        },
+        showSorterTooltip: false,
     },
 ];
 
@@ -881,16 +897,28 @@ const StatisticListColumns = [
         showSorterTooltip: false
     },
     {
-        title: "Продолжительность, ч",
+        title: "Продолжительность, дд:чч:мм",
         dataIndex: "during",
         key: "during",
         width: 100,
         sorter: (a, b) => a.during * 100 > b.during * 100 ? 1 : -1,
         sortDirections: ["descend", "ascend"],
-        render: (text, record) => ({
-            props: {style: {background: record.color ? record.color : "fff"}},
-            children: text,
-        }),
+        render: (text, record) => {
+            const during = record.during;
+
+            let days = Math.floor(during / 86400);
+            let hours = Math.floor(during / 3600);
+            let minutes = Math.floor((during - (hours * 3600)) / 60);
+
+            if (days < 10) days = "0" + days;
+            if (hours < 10) hours = "0" + hours;
+            if (minutes < 10) minutes = "0" + minutes;
+
+            return {
+                props: {style: {background: record.color ? record.color : "fff"}},
+                children: days + ":" + hours + ":" + minutes,
+            }
+        },
         align: "center",
         showSorterTooltip: false
     },

@@ -1,4 +1,4 @@
-// Компонент легенды
+// Компонент легенды статусов
 import React from "react";
 import {Badge, Col, Row} from "antd";
 

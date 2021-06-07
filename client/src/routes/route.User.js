@@ -128,6 +128,10 @@ export const UserRoute = {
 
                 if (currentUser && data && data.toUpdateUser && currentUser._id === data.toUpdateUser._id) {
                     store.dispatch(ActionCreator.ActionCreatorAuth.setUser(data.toUpdateUser));
+
+                    // Обновляем пользователя в хранилище браузера
+                    const token = JSON.parse(localStorage.getItem("user")).token;
+                    localStorage.setItem("user", JSON.stringify({token, user: data.toUpdateUser}));
                 }
 
                 // Останавливаем спиннер загрузки

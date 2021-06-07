@@ -80,13 +80,6 @@ export const LogDoForm = ({item}) => {
         // Переприсваиваем файлы
         record.files = store.getState().reducerLogDO.files;
 
-        // Удаляем лишние поля
-        delete record.applicantId;
-        delete record.departmentId;
-        delete record.equipmentId;
-        delete record.taskStatusId;
-        delete record.responsibleId;
-
         // Для сохранения записи обращаемся к модели
         await LogDORoute.save(record, setLoadingSave);
     };

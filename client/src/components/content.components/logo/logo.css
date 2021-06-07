@@ -1,0 +1,30 @@
+.flex .logo {
+    height: 50px;
+    margin-inline: 6px;
+    margin-block: -2px;
+    color: #fff;
+    font-size: 22px;
+    text-align: center;
+}
+
+.ant-layout-has-sider .logo {
+    height: 50px;
+    margin-inline: 6px;
+    margin-block: 7px;
+    color: #fff;
+    font-size: 22px;
+    text-align: center;
+    line-height: 50px;
+}
+
+.logo-image {
+    height: 50px;
+    margin-right: 8px;
+    color: #fff;
+    text-align: center;
+    line-height: 50px;
+}
+
+.logo:hover {
+    cursor: pointer;
+}

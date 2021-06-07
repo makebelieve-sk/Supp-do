@@ -1,3 +1,4 @@
+// Инициализация редьюсера замены поля
 import initialState from "./replaceField.state";
 import {
     SET_REPLACE_FIELD_PROFESSION,

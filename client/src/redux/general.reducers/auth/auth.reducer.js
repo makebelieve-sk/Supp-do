@@ -1,10 +1,6 @@
-// Создание reducer`а для состояний авторизации
+// Инициализация редьюсера авторизации
 import initialState from "./auth.state";
-import {
-    SET_ALERT,
-    SET_USER,
-    SET_MENU,
-} from "./auth.constants";
+import {SET_ALERT, SET_USER,} from "./auth.constants";
 
 export default function reducerAuth(state = initialState, action) {
     switch (action.type) {
@@ -17,11 +13,6 @@ export default function reducerAuth(state = initialState, action) {
             return {
                 ...state,
                 user: action.payload
-            };
-        case SET_MENU:
-            return {
-                ...state,
-                menuItems: action.payload
             };
         default:
             return state;

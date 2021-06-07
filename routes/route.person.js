@@ -158,7 +158,7 @@ router.post("/people", checkMiddleware, async (req, res) => {
         // Изменяем запись для вывода в таблицу
         const savedItem = new PersonDto(currentPerson, departments);
 
-        res.status(201).json({message: "Запись сохранена", item: savedItem});
+        res.status(201).json({message: "Запись сохранена", item: savedItem, currentItem: currentPerson});
     } catch (err) {
         console.log(err);
         res.status(500).json({message: "Ошибка при создании записи: " + err});

@@ -25,6 +25,10 @@ const checkMiddleware = [
         .isString()
         .notEmpty()
         .isLength({min: 11, max: 11}),
+    check("email", "Поле 'Почта' должно содержать адрес электронной почты")
+        .isString()
+        .notEmpty()
+        .isEmail()
 ];
 
 // Получение профиля пользователя
@@ -67,6 +71,35 @@ router.put("/edit-profile", checkMiddleware, async (req, res) => {
 
         // Проверяем на существование записи
         if (!user) return res.status(400).json({message: "Такого пользователя не существует"});
+
+        const usersWithSameEmail = await User.find({email});
+        const usersWithSamePhone = await User.find({phone});
+
+        // Если запись с таким же номером телефона уже существует, возвращаем ошибку
+        if (usersWithSamePhone && usersWithSamePhone.length) {
+            try {
+                usersWithSamePhone.forEach(samePhone => {
+                    if (phone === samePhone.phone && samePhone._id.toString() !== _id.toString()) {
+                        throw new Error("Такой номер телефона уже используется");
+                    }
+                });
+            } catch (e) {
+                return res.status(400).json({message: e.message});
+            }
+        }
+
+        // Если запись с такой почтой уже существует, возвращаем ошибку
+        if (usersWithSameEmail && usersWithSameEmail.length) {
+            try {
+                usersWithSameEmail.forEach(sameEmail => {
+                    if (email === sameEmail.email && sameEmail._id.toString() !== _id.toString()) {
+                        throw new Error("Такая почта уже используется");
+                    }
+                });
+            } catch (e) {
+                return res.status(400).json({message: e.message});
+            }
+        }
 
         // Хешируем пароль
         if (password) {

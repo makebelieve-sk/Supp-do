@@ -1,3 +1,4 @@
+// Инициализация экшенов вкладок
 import {
     ADD_TAB,
     EDIT_TAB,
@@ -5,7 +6,6 @@ import {
     SET_ACTIVE_KEY,
     SET_TABS_IN_HISTORY,
     SET_TABS,
-    SET_PAGE_SIZE,
 } from "./tab.constants";
 
 const ActionCreatorTab = {
@@ -52,13 +52,6 @@ const ActionCreatorTab = {
             payload: tab
         }
     },
-    // Установка количества записей на странице таблицы
-    setPageSize: (pageSize) => {
-        return {
-            type: SET_PAGE_SIZE,
-            payload: pageSize
-        }
-    }
 }
 
 export default ActionCreatorTab;

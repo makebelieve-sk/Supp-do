@@ -1,4 +1,4 @@
-// Компонент таблицы
+// Компонент, отрисовывающий таблицу
 import React, {useState, useMemo} from "react";
 import {useSelector} from "react-redux";
 import {Row, Table, Col} from "antd";
@@ -34,7 +34,8 @@ export const TableComponent = ({specKey}) => {
         legend: state.reducerLogDO.legend,
         alert: state.reducerLogDO.alert,
         activeKey: state.reducerTab.activeKey,
-        pageSizeOptions: state.reducerTab.pageSizeOptions,
+        pageSizeOptions: state.reducerMain.pageSizeOptions,
+        columnsOptions: state.reducerMain.columnsOptions,
     }));
 
     // Получение колонок таблицы
@@ -43,7 +44,6 @@ export const TableComponent = ({specKey}) => {
     // Создание состояний для текстового поля, колонок таблицы и скрытия/раскрытия строк
     const [filterText, setFilterText] = useState("");
     const [columnsTable, setColumnsTable] = useState(columns);
-    // const [expandRows, setExpandRows] = useState([]);
 
     // Получение данных таблицы
     const data = specKey === "equipment" || specKey === "departments"
@@ -55,6 +55,7 @@ export const TableComponent = ({specKey}) => {
 
     return (
         <>
+            {/*Поиск, Дата с ... по ..., Кнопки таблицы*/}
             <TableHeaderComponent
                 data={data}
                 specKey={specKey}
@@ -63,10 +64,13 @@ export const TableComponent = ({specKey}) => {
                 setColumnsTable={setColumnsTable}
             />
 
+            {/*Легенда статусов*/}
             <TableBadgeComponent legend={stateObject.legend} specKey={specKey}/>
 
+            {/*Блок фильтров таблицы*/}
             <TableAlertComponent alert={stateObject.alert} specKey={specKey}/>
 
+            {/*Таблица*/}
             <Row>
                 <Col span={24}>
                     <Table
@@ -79,21 +83,11 @@ export const TableComponent = ({specKey}) => {
                                 ? stateObject.pageSizeOptions[specKey]
                                 : 10
                         }}
-                        expandable={{
-                            defaultExpandAllRows: true,
-                            // expandedRowKeys: expandRows
-                        }}
-                        // onExpand={(expanded, record) => {
-                        //     if (expanded) {
-                        //         setExpandRows([...expandRows, record._id]);
-                        //     } else {
-                        //         const updateExpandRows = expandRows.filter(rowId => rowId !== record._id);
-                        //
-                        //         setExpandRows(updateExpandRows);
-                        //     }
-                        // }}
+                        expandable={{defaultExpandAllRows: true}}
                         dataSource={columnsTable && columnsTable.length ? filterData : null}
-                        columns={columnsTable}
+                        columns={stateObject.columnsOptions && stateObject.columnsOptions[specKey]
+                            ? stateObject.columnsOptions[specKey]
+                            : columnsTable}
                         rowKey={record => record._id.toString()}
                         onRow={row => ({
                             onClick: async () => {

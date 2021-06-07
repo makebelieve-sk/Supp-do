@@ -136,7 +136,7 @@ router.post("/login", checkMiddlewareAuth, async (req, res) => {
         // Проверяем введенный пароль
         if (!isMatch) return res.status(400).json({message: "Неверный пользователь или пароль"});
 
-        if (!user.approved) return res.status(400).json({message: "Данный пользователь не одобрен администратором"});
+        if (!user.approved) return res.status(400).json({message: "Неверный пользователь или пароль"});
 
         // Ищем запись в базе данных по имени пользователя, популизируя все вложенные поля и не работаем с полем 'Пароль'
         const currentUser = await User.findOne({userName}).populate("roles").populate("person").select("-password");

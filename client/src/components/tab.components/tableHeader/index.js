@@ -90,7 +90,7 @@ export const TableHeaderComponent = ({data, specKey, filterText, setFilterText, 
                 <SearchField filterText={filterText} setFilterText={setFilterText}/>
             </Col>
 
-            {/*Датапикер*/}
+            {/*Дата с ... по ...*/}
             <Col flex="1 1 auto" className="item">
                 <RangePickerComponent
                     isVisible={specKey === "logDO" || specKey === "statisticRating" || specKey === "statisticList" ||
