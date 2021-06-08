@@ -7,7 +7,7 @@ const {check, validationResult} = require("express-validator");
 const config = require("../config/default.json");
 const User = require("../schemes/User");
 const Role = require("../schemes/Role");
-const {permissions, permissionsAdmin} = require("./helper");
+const {permissions, permissionsAdmin, permissionsDemo} = require("./helper");
 
 const router = Router();
 
@@ -107,10 +107,10 @@ router.post("/register", checkMiddlewareRegister, async (req, res) => {
 
         await newCandidate.save();  // Сохраняем запись в базе данных
 
-        res.status(201).json({message: "Пользователь создан"});
+        return res.status(201).json({message: "Пользователь создан"});
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: "Ошибка при регистрации, пожалуйста, попробуйте снова: " + err});
+        return res.status(500).json({message: "Ошибка при регистрации, пожалуйста, попробуйте снова: " + err});
     }
 });
 
@@ -124,6 +124,79 @@ router.post("/login", checkMiddlewareAuth, async (req, res) => {
             return res.status(400).json({errors: errors.array(), message: "Некоректные данные при авторизации"});
 
         const {userName, password} = req.body; // Получаем объект записи с фронтенда
+
+        if (config.mode && config.mode === "demo") {
+            const candidate = await User.findOne({userName: "demo"});
+
+            if (candidate) {
+                const isMatch = await bcrypt.compare(password, candidate.password);  // Сравниваем пароли
+
+                // Проверяем введенный пароль
+                if (!isMatch) return res.status(400).json({message: "Неверный пользователь или пароль"});
+
+                // Ищем запись в базе данных по имени пользователя, популизируя все вложенные поля и не работаем с полем 'Пароль'
+                const user = await User
+                    .findById(candidate._id)
+                    .populate("roles")
+                    .populate("person")
+                    .select("-password");
+
+                // Создаем объект "токена"
+                const token = jwt.sign(
+                    {userId: user._id},
+                    config.jwtSecret,
+                    {expiresIn: "30min"}
+                );
+
+                return res.status(200).json({token, userId: user._id, user});
+            }
+
+            // Если нет кандидата, то создаем его вместе с ролью "Зарегистрированный пользователь (демоверсия)"
+            if (!candidate) {
+                // Создаем роль "Зарегистрированный пользователь (демоверсия)"
+                const roleDemo = new Role({
+                    name: "Демо-пользователь",
+                    notes: "",
+                    permissions: permissionsDemo
+                });
+
+                await roleDemo.save();   // Сохраняем роль "Зарегистрированный пользователь (демоверсия)"
+
+                const hashedPassword = await bcrypt.hash(password, 12); // Хешируем пароль
+
+                // Создаем нового пользователя
+                const user = new User({
+                    email: "demo@mail.ru",
+                    firstName: "demo",
+                    secondName: "demo",
+                    userName: "demo",
+                    password: hashedPassword,
+                    approved: true,
+                    roles: [roleDemo._id],
+                    mailing: false,
+                    phone: "70000000000",
+                    sms: false,
+                    typeMenu: [{label: "Сверху", value: "top"}]
+                });
+
+                let newUser = await user.save();  // Сохраняем нового пользователя в бд
+
+                newUser = await User
+                    .findById(newUser._id)
+                    .populate("roles")
+                    .populate("person")
+                    .select("-password");
+
+                // Создаем объект "токена"
+                const token = jwt.sign(
+                    {userId: newUser._id},
+                    config.jwtSecret,
+                    {expiresIn: "30min"}
+                );
+
+                return res.status(200).json({token, userId: user._id, user: newUser});
+            }
+        }
 
         // Ищем запись в базе данных по имени пользователя
         const user = await User.findOne({userName}).select("password approved");
@@ -139,7 +212,11 @@ router.post("/login", checkMiddlewareAuth, async (req, res) => {
         if (!user.approved) return res.status(400).json({message: "Неверный пользователь или пароль"});
 
         // Ищем запись в базе данных по имени пользователя, популизируя все вложенные поля и не работаем с полем 'Пароль'
-        const currentUser = await User.findOne({userName}).populate("roles").populate("person").select("-password");
+        const currentUser = await User
+            .findOne({userName})
+            .populate("roles")
+            .populate("person")
+            .select("-password");
 
         // Создаем объект "токена"
         const token = jwt.sign(
@@ -148,10 +225,10 @@ router.post("/login", checkMiddlewareAuth, async (req, res) => {
             {expiresIn: "30min"}
         );
 
-        res.status(200).json({token, userId: currentUser._id, user: currentUser});
+        return res.status(200).json({token, userId: currentUser._id, user: currentUser});
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: "Ошибка при входе, пожалуйста, попробуйте снова: " + err});
+        return res.status(500).json({message: "Ошибка при входе, пожалуйста, попробуйте снова: " + err});
     }
 });
 

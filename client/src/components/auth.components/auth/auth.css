@@ -8,4 +8,8 @@
 
 .alert {
     margin-bottom: 20px;
- }
+}
+.card_auth .ant-card-head-title {
+    text-align: center;
+    white-space: pre-line;
+}

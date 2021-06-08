@@ -84,13 +84,23 @@ export const LogDORoute = {
         }
     },
     // Сохранение записи
-    save: async function (item, setLoading) {
+    save: async function (item, setLoading, setValidate) {
         try {
             // Устанавливаем метод запроса
             const method = item.isNewItem ? "POST" : "PUT";
 
             // Получаем сохраненную запись
             const data = await request(this.base_url, method, item);
+
+            // Если в ответе есть массив errors
+            if (data.errors && data.errors.length) {
+                message.error(data.errors[0].msg);
+
+                // Останавливаем спиннер загрузки
+                setLoading(false);
+
+                return null;
+            }
 
             // Если вернулась ошибка 404 (запись не найдена)
             if (typeof data === "string") {
@@ -266,6 +276,22 @@ export const LogDORoute = {
         if (shouldUpdate) {
             store.dispatch(ActionCreator.ActionCreatorLogDO.setRowDataLogDO(logDoRecord));
             store.dispatch(ActionCreator.ActionCreatorLogDO.getAllFiles(logDoRecord.files));
+        }
+    },
+    // Обновление дат записей в режиме "demo"
+    update: async function(date) {
+        try {
+            // Обновляем даты записей
+            const data = await request(this.base_url + "update/" + date);
+
+            if (data) {
+                message.success(data);
+
+                await this.getAll();
+            }
+        } catch (e) {
+            // Устанавливаем ошибку в хранилище раздела
+            store.dispatch(ActionCreator.ActionCreatorLogDO.setErrorTableLogDO("Возникла ошибка при обновлении дат записей: " + e.message));
         }
     }
 }

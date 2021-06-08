@@ -17,7 +17,7 @@ import TabOptions from "../../../options/tab.options/record.options";
 import "./tableHeader.css";
 import {LogRoute} from "../../../routes/route.Log";
 
-export const TableHeaderComponent = ({data, specKey, filterText, setFilterText, setColumnsTable}) => {
+export const TableHeaderComponent = ({data, specKey, filterText, setFilterText, setColumnsTable, expand, setExpand}) => {
     // Получение даты ЖДО и статистики в датапикер
     const {dateLogDO, dateRating, dateList, dateLog} = useSelector(state => ({
         dateLogDO: state.reducerLogDO.date,
@@ -102,7 +102,13 @@ export const TableHeaderComponent = ({data, specKey, filterText, setFilterText, 
 
             {/*Блок кнопок таблицы*/}
             <Col flex="0 1 auto">
-                <ButtonsComponent specKey={specKey} onExport={onExport} setColumnsTable={setColumnsTable}/>
+                <ButtonsComponent
+                    specKey={specKey}
+                    onExport={onExport}
+                    setColumnsTable={setColumnsTable}
+                    expand={expand}
+                    setExpand={setExpand}
+                />
             </Col>
         </Row>
     )

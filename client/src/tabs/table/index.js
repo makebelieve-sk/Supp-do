@@ -44,6 +44,7 @@ export const TableComponent = ({specKey}) => {
     // Создание состояний для текстового поля, колонок таблицы и скрытия/раскрытия строк
     const [filterText, setFilterText] = useState("");
     const [columnsTable, setColumnsTable] = useState(columns);
+    const [expand, setExpand] = useState(true);
 
     // Получение данных таблицы
     const data = specKey === "equipment" || specKey === "departments"
@@ -62,6 +63,8 @@ export const TableComponent = ({specKey}) => {
                 filterText={filterText}
                 setFilterText={setFilterText}
                 setColumnsTable={setColumnsTable}
+                expand={expand}
+                setExpand={setExpand}
             />
 
             {/*Легенда статусов*/}
@@ -83,7 +86,14 @@ export const TableComponent = ({specKey}) => {
                                 ? stateObject.pageSizeOptions[specKey]
                                 : 10
                         }}
-                        expandable={{defaultExpandAllRows: true}}
+                        expandable={{
+                            defaultExpandAllRows: true,
+                            expandedRowKeys: expand
+                                ? specKey === "departments"
+                                    ? stateObject.departments.map(object => object._id)
+                                    : stateObject.equipment.map(object => object._id)
+                                : []
+                        }}
                         dataSource={columnsTable && columnsTable.length ? filterData : null}
                         columns={stateObject.columnsOptions && stateObject.columnsOptions[specKey]
                             ? stateObject.columnsOptions[specKey]

@@ -33,7 +33,11 @@ class AuthMiddleware {
 
                 if (decoded) {
                     // Обновляем существующий токен
-                    const updateToken = jwt.sign({userId: decoded.userId, a: 1}, config.jwtSecret, {expiresIn: "30min"});
+                    const updateToken = jwt.sign(
+                        {userId: decoded.userId, a: 1},
+                        config.jwtSecret,
+                        {expiresIn: "30min"}
+                    );
 
                     res.cookie("token", updateToken);   // Обновляем токен пользователя, перезаписывая куки
                 }

@@ -12,6 +12,7 @@ import "./profile.css";
 export const ProfileComponent = ({item}) => {
     // Инициализация состояния для показа спиннера загрузки при сохранении и удалении записи
     const [loadingSave, setLoadingSave] = useState(false);
+    const [disabled, setDisabled] = useState(false);
 
     // Инициализируем хук состояния формы от AntDesign
     const [form] = Form.useForm();
@@ -34,6 +35,10 @@ export const ProfileComponent = ({item}) => {
             sms: item.sms,
             typeMenu: item.typeMenu && item.typeMenu[0].value ? item.typeMenu[0].value : "left",
         });
+
+        const mode = JSON.parse(localStorage.getItem("mode"));
+
+        if (mode && mode === "demo") setDisabled(true);
     }, [form, item]);
 
     // Нажатие на кнопку "Сохранить"
@@ -73,7 +78,11 @@ export const ProfileComponent = ({item}) => {
                             type: "string"
                         }]}
                     >
-                        <Input type="text" onChange={e => form.setFieldsValue({userName: e.target.value})}/>
+                        <Input
+                            disabled={disabled}
+                            type="text"
+                            onChange={e => form.setFieldsValue({userName: e.target.value})}
+                        />
                     </Form.Item>
 
                     <Row justify="space-between" gutter={8}>
@@ -109,8 +118,11 @@ export const ProfileComponent = ({item}) => {
                     <Row justify="space-between" gutter={8}>
                         <Col span={12}>
                             <Form.Item label="Пароль" name="password">
-                                <Input.Password maxLength={255}
-                                                onChange={e => form.setFieldsValue({password: e.target.value})}/>
+                                <Input.Password
+                                    disabled={disabled}
+                                    maxLength={255}
+                                    onChange={e => form.setFieldsValue({password: e.target.value})}
+                                />
                             </Form.Item>
                         </Col>
 
@@ -132,8 +144,11 @@ export const ProfileComponent = ({item}) => {
                                     }),
                                 ]}
                             >
-                                <Input.Password maxLength={255}
-                                                onChange={e => form.setFieldsValue({checkPassword: e.target.value})}/>
+                                <Input.Password
+                                    disabled={disabled}
+                                    maxLength={255}
+                                    onChange={e => form.setFieldsValue({checkPassword: e.target.value})}
+                                />
                             </Form.Item>
                         </Col>
                     </Row>
@@ -180,13 +195,13 @@ export const ProfileComponent = ({item}) => {
                     </Form.Item>
 
                     <Form.Item name="mailing" valuePropName="checked">
-                        <Checkbox onChange={e => form.setFieldsValue({mailing: e.target.checked})}>
+                        <Checkbox disabled={disabled} onChange={e => form.setFieldsValue({mailing: e.target.checked})}>
                             Email рассылка новых записей из журнала дефектов и отказов
                         </Checkbox>
                     </Form.Item>
 
                     <Form.Item name="sms" valuePropName="checked">
-                        <Checkbox onChange={e => form.setFieldsValue({sms: e.target.checked})}>
+                        <Checkbox disabled={disabled} onChange={e => form.setFieldsValue({sms: e.target.checked})}>
                             SMS уведомления о новых записях из журнала дефектов и отказов
                         </Checkbox>
                     </Form.Item>

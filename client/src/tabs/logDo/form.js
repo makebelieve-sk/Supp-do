@@ -21,12 +21,18 @@ export const LogDoForm = ({item}) => {
     // Получаем объект пользователя
     const user = store.getState().reducerAuth.user;
 
-    // Для каждой роли, проверяем возможность редактирования галочки "Работа принята"
+    // Для каждой роли, проверяем возможность принять работу (галочка "Работа принята")
     let flag = false;
 
     if (user && user.roles && user.roles.length) {
         user.roles.forEach(role => {
-            flag = role.permissions[13].edit;
+            if (role.permissions && role.permissions.length) {
+                role.permissions.forEach(perm => {
+                    if (perm.key === "acceptTask") {
+                        flag = perm.edit;
+                    }
+                })
+            }
         });
     }
 
@@ -215,7 +221,7 @@ export const LogDoForm = ({item}) => {
                             <Form.Item
                                 label="Оборудование"
                                 name="equipmentId"
-                                rules={[{required: true, message: "Выберите оборудование!"}]}
+                                rules={[{required: true, message: "Выберите оборудование"}]}
                             >
                                 <Row>
                                     <Col xs={{span: 21}} sm={{span: 21}} md={{span: 22}} lg={{span: 22}} xl={{span: 22}}>
@@ -226,7 +232,7 @@ export const LogDoForm = ({item}) => {
                                                     option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
                                                 }
                                                 options={getOptions(store.getState().reducerEquipment.equipment)}
-                                                onChange={(value) => {
+                                                onChange={value => {
                                                     const equipment = store.getState().reducerEquipment.equipment;
 
                                                     const foundEquipment = equipment.find(eq => eq._id === value);

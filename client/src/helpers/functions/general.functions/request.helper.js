@@ -15,7 +15,7 @@ export const request = async (url, method = "GET", body = null, headers = {}) =>
         if (response.status === 400) {
             console.log(data.message);
             message.error(data.message);
-            return null;
+            return data.errors && data.errors.length ? data : null;
         }
 
         if (response.status === 401) {
@@ -37,6 +37,7 @@ export const request = async (url, method = "GET", body = null, headers = {}) =>
 
         if (!response.ok) {
             if (data.errors) {
+                console.log("1: ", data.errors)
                 throw new Error(data.errors[0].msg || "Что-то пошло не так");
             } else {
                 throw new Error(data.message || "Что-то пошло не так");

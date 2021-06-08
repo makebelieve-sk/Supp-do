@@ -2,7 +2,14 @@
 import React, {useMemo, useState} from "react";
 import {useSelector} from "react-redux";
 import {Button, Checkbox, Dropdown, Menu, Popconfirm} from "antd";
-import {DeleteOutlined, EditOutlined, FileExcelOutlined, PlusOutlined, QuestionCircleOutlined} from "@ant-design/icons";
+import {
+    DeleteOutlined,
+    EditOutlined,
+    ExpandAltOutlined,
+    FileExcelOutlined,
+    PlusOutlined,
+    QuestionCircleOutlined
+} from "@ant-design/icons";
 
 import store from "../../../redux/store";
 import {ActionCreator} from "../../../redux/combineActions";
@@ -14,7 +21,7 @@ import {useWindowWidth} from "../../../hooks/windowWidth.hook";
 
 import "./tableButtons.css";
 
-export const ButtonsComponent = ({specKey, onExport, setColumnsTable}) => {
+export const ButtonsComponent = ({specKey, onExport, setColumnsTable, expand, setExpand}) => {
     const user = useSelector(state => state.reducerAuth.user);  // Получение объекта пользователя
 
     const screen = useWindowWidth();    // Получаем текущее значение ширины окна браузера
@@ -106,6 +113,20 @@ export const ButtonsComponent = ({specKey, onExport, setColumnsTable}) => {
         return (
             <div className="wrapper_buttons">
                 {
+                    specKey === "departments" || specKey === "equipment"
+                        ? <Button
+                            className={`button ${short}`}
+                            icon={<ExpandAltOutlined />}
+                            type="secondary"
+                            onClick={() => {
+                                setExpand(!expand);
+                            }}
+                        >
+                            {getContent(expand ? "Свернуть" : "Развернуть")}
+                        </Button>
+                        : null
+                }
+                {
                     user && checkRoleUser(specKey, user).edit && specKey !== "logs"
                         ? <Button
                             className={`button ${short}`}
@@ -155,5 +176,5 @@ export const ButtonsComponent = ({specKey, onExport, setColumnsTable}) => {
             </div>
         );
     }, [specKey, onExport, visible, columns, checkedColumns, setCheckedColumns, setColumnsTable, headers, user,
-        screen, visiblePopConfirm, setVisiblePopConfirm, loadingDelete, setLoadingDelete]);
+        screen, visiblePopConfirm, setVisiblePopConfirm, loadingDelete, setLoadingDelete, expand, setExpand]);
 };

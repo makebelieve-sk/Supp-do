@@ -21,8 +21,8 @@ const dateFormat = "DD.MM.YYYY HH:mm";  // Константа формата д�
 // Валидация полей раздела "Журнал дефектов и отказов"
 const checkMiddleware = [
     check("date", "Поле 'Дата заявки' должно быть заполнено").notEmpty().toDate(),
-    check("applicant", "Поле 'Заявитель' должно быть заполнено").notEmpty().isObject(),
-    check("equipment", "Поле 'Оборудование' должно быть заполнено").notEmpty().isObject(),
+    check("applicant", "Поле 'Заявитель' должно быть заполнено из списка").notEmpty().isObject(),
+    check("equipment", "Поле 'Оборудование' должно быть заполнено из списка").notEmpty().isObject(),
     check("notes", "Поле 'Описание' должно содержать от 1 до 1000 символов")
         .notEmpty()
         .isString()
@@ -286,11 +286,12 @@ router.post("/logDO", checkMiddleware, async (req, res) => {
         // Проверка валидации полей раздела "Журнал дефектов и отказов"
         const errors = validationResult(req);
 
-        if (!errors.isEmpty())
+        if (!errors.isEmpty()) {
             return res.status(400).json({
                 errors: errors.array(),
                 message: "Некоректные данные при создании записи"
             });
+        }
 
         let resFileArr = [];    // Создаем результирующий массив файлов
 
@@ -603,6 +604,32 @@ router.delete("/logDO/:id", async (req, res) => {
         }
     } catch (err) {
         res.status(500).json({message: `Ошибка при удалении записи: ${err}`});
+    }
+});
+
+// Обновляем даты у записей в режиме "demo"
+router.get("/logDO/update/:date", async (req, res) => {
+    try {
+        const currentDate = req.params.date;     // Получаем дату "с"
+
+        // Получаем все записи ЖДО с фильтром по дате
+        const items = await LogDO.find({}).sort({date: -1});
+
+        if (items && items.length) {
+            // Получаем разницу между текущей датой и датой создания последней записи
+            const diff = moment(currentDate, dateFormat).diff(moment(items[0].date, dateFormat));
+
+            items.forEach(logDO => {
+                logDO.date = moment(logDO.date, dateFormat).valueOf() + diff;
+
+                logDO.save();
+            });
+        }
+
+        return res.status(200).json("Даты записей успешно обновлены");
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({message: `Ошибка при обновлении дат записей: ${err}`});
     }
 });
 

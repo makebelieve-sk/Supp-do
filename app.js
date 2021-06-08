@@ -23,6 +23,9 @@ app.use(express.json({extended: true}));
 app.use(cookieParser(config.jwtSecret));
 
 // Регистрируем маршруты
+// Чтение файла настроек (получение режима работы приложения)
+app.use("/main", require("./routes/route.main"));
+
 // Авторизация
 app.use("/api/auth", require("./routes/route.auth"));
 

@@ -1,5 +1,5 @@
 // Компонент, отрисовывающий форму входа
-import React, {useState, useContext} from "react";
+import React, {useState, useEffect, useContext} from "react";
 import {Link} from "react-router-dom";
 import {useSelector} from "react-redux";
 import {Button, Card, Checkbox, Col, Form, Input, Row, Alert, message} from "antd";
@@ -13,11 +13,30 @@ import {request} from "../../../helpers/functions/general.functions/request.help
 import "./auth.css";
 
 export const AuthComponent = ({setRegForm}) => {
-    const alert = useSelector(state => state.reducerAuth.regAlert);   // Получаем из флаг показао алерта  из хранилища
+    // Получаем флаг показа блока предупреждения и режим работы приложения из редакса
+    const alert = useSelector(state => state.reducerAuth.regAlert);
 
+    // Инициализация состояний для загрузки кнопки "Войти" и редима работы приложения
     const [loadingLogin, setLoadingLogin] = useState(false);
+    const [isDemo, setIsDemo] = useState(false);
 
     const auth = useContext(AuthContext);
+
+    // Инициализируем хук состояния формы от AntDesign
+    const [form] = Form.useForm();
+
+    // Получаем значение режима работы приложения
+    useEffect(() => {
+        const mode = JSON.parse(localStorage.getItem("mode"));
+
+        if (mode && mode === "demo") setIsDemo(true);
+
+        form.setFieldsValue({
+            userName: isDemo ? "demo" : "",
+            password: isDemo ? "demo" : "",
+            remember: true
+        });
+    }, [form, isDemo]);
 
     // Нажатие на кнопку "Войти"
     const login = async (values) => {
@@ -42,20 +61,27 @@ export const AuthComponent = ({setRegForm}) => {
         }
     };
 
+    // Устанавливаем заголовок
+    const cardTitle = `Вход в программу СУПП-ДО ${isDemo ? "\n(демоверсия)" : null}`;
+
     return (
         <Row align="middle" justify="center" className="row_auth">
             <Col>
-                <Card title="Авторизация" className="card_auth">
+                <Card title={cardTitle} className="card_auth">
                     {
                         alert
-                            ? <Alert className="alert" type="success" message="Вы успешно зарегистрированы. Можно начинать работать после одобрения администратором" />
+                            ? <Alert
+                                className="alert"
+                                type="success"
+                                message="Вы успешно зарегистрированы. Можно начинать работать после одобрения администратором"
+                            />
                             : null
                     }
 
                     <Form
+                        form={form}
                         name="normal_login"
                         className="login-form"
-                        initialValues={{userName: "", password: "", remember: true}}
                         onFinish={login}
                     >
                         <Form.Item name="userName" rules={[{

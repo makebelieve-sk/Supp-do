@@ -1,5 +1,5 @@
 // Компонент отрисовывающий подвал приложения
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import {Col, Layout, Modal, Row} from "antd";
 import {QuestionCircleOutlined} from "@ant-design/icons";
 import ReactHtmlParser from "react-html-parser";
@@ -13,9 +13,16 @@ import {useWindowWidth} from "../../../hooks/windowWidth.hook";
 import "./footer.css";
 
 export const FooterComponent = () => {
-    // Состояние для показа модального окна и содержимого помощи
+    // Состояние для показа модального окна, содержимого помощи и режима работы приложения
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [help, setHelp] = useState({title: "", text: ""});
+    const [isDemo, setIsDemo] = useState(false);
+
+    useEffect(() => {
+        const mode = JSON.parse(localStorage.getItem("mode"));
+
+        if (mode && mode === "demo") setIsDemo(true);
+    }, []);
 
     // Функция получения объекта помощи раздела
     const getHelp = async () => {
@@ -46,7 +53,7 @@ export const FooterComponent = () => {
         <Layout.Footer className="layout-footer">
             <Row align="middle">
                 <Col span={18} className="footer-text">
-                    Система управления производственным процессом. Дефекты и отказы. 2021. Версия 1.0.0
+                    Система управления производственным процессом. Дефекты и отказы. 2021. Версия 1.0.0 {isDemo ? "(Демоверсия)" : null}
                 </Col>
 
                 <Col span={6} onClick={getHelp} className="footer-text cursor">
