@@ -9,6 +9,7 @@ import {AnalyticRoute} from "../../../routes/route.Analytic";
 import onRemove from "../../../helpers/functions/general.functions/removeTab";
 
 import "./content.css";
+import setTabsHistory from "../../../helpers/functions/general.functions/setTabsHistory";
 
 export const ContentComponent = () => {
     // Получаем активную вкладку, текущие вкладки и историю вкладок
@@ -20,19 +21,7 @@ export const ContentComponent = () => {
         if (activeKey === "analytic") await AnalyticRoute.getAll();
 
         // Установка истории вкладок
-        const findHistoryTab = historyTabs.find(tab => tab === activeKey);
-        const indexOfHistoryTab = historyTabs.indexOf(findHistoryTab);
-
-        // Устанавливаем историю вкладок при изменении активной вкладки
-        if (findHistoryTab && indexOfHistoryTab >= 0) {
-            historyTabs.splice(indexOfHistoryTab, 1);
-            historyTabs.push(activeKey);
-        } else {
-            historyTabs.push(activeKey);
-        }
-
-        // Установка вкладки в историю вкладок
-        store.dispatch(ActionCreator.ActionCreatorTab.setHistoryTab(historyTabs));
+        setTabsHistory(historyTabs, activeKey);
 
         // Установка активного ключа вкладки
         store.dispatch(ActionCreator.ActionCreatorTab.setActiveKey(activeKey));

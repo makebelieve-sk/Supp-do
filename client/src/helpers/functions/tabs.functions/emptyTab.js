@@ -1,6 +1,7 @@
 // Создание новой вкладки
 import store from "../../../redux/store";
 import {ActionCreator} from "../../../redux/combineActions";
+import setTabsHistory from "../general.functions/setTabsHistory";
 
 /**
  * Создание новой вкладки
@@ -25,18 +26,8 @@ export default function emptyTab(title, content, key) {
         store.dispatch(ActionCreator.ActionCreatorTab.addTab(tabObject));
 
     // Установка истории вкладок
-    const findHistoryTab = historyTabs.find(tab => tab === key);
-    const indexOfHistoryTab = historyTabs.indexOf(findHistoryTab);
-
-    if (findHistoryTab && indexOfHistoryTab >= 0) {
-        historyTabs.splice(indexOfHistoryTab, 1);
-        historyTabs.push(key);
-    } else {
-        historyTabs.push(key);
-    }
-
-    store.dispatch(ActionCreator.ActionCreatorTab.setHistoryTab(historyTabs));
+    const updateHistoryTabs = setTabsHistory(historyTabs, key);
 
     // Устанавливаем ключ активной вкладки в хранилище (последний элемент в массиве истории вкладок)
-    store.dispatch(ActionCreator.ActionCreatorTab.setActiveKey(historyTabs[historyTabs.length - 1]));
+    store.dispatch(ActionCreator.ActionCreatorTab.setActiveKey(updateHistoryTabs[updateHistoryTabs.length - 1]));
 }

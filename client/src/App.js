@@ -22,26 +22,32 @@ export default function App() {
     // Определяем контексту начальные значения, полученные из хука useAuth
     const {login, logout, token, user} = useAuth();
 
-    // Каждый день в 00:10 обновляем даты у записей ЖДО
-    useEffect(() => {
-        setInterval(async () => {
-            if (moment().hours() === 0 && moment().minutes() === 10 && moment().seconds() === 0) {
-                await LogDORoute.update(moment().format(TabOptions.dateFormat).valueOf());
-            }
-        }, 1000);
-    }, []);
-
-    // Запрашиваем файл настроек приложения
+    // Получаем файл настроек приложения
     useEffect(() => {
         const getConfig = async () => {
             const config = await request("/main/config");
 
             // Устанавливаем в хранилище браузера режим работы приложения
-            if (config.mode) localStorage.setItem("mode", JSON.stringify(config.mode));
+            if (config.mode) {
+                localStorage.setItem("mode", JSON.stringify(config.mode));
+            }
         }
 
         getConfig().then(null);
     }, [logout]);
+
+    // Каждый день в 00:10 обновляем даты у записей ЖДО
+    useEffect(() => {
+        const mode = localStorage.getItem("mode");
+
+        if (mode && JSON.parse(mode) === "demo") {
+            setInterval(async () => {
+                if (moment().hours() === 9 && moment().minutes() === 54 && moment().seconds() === 0) {
+                    await LogDORoute.update(moment().format(TabOptions.dateFormat).valueOf());
+                }
+            }, 1000);
+        }
+    }, []);
 
     // Инициализируем флаг авторизации
     const isAuthenticated = !!token;

@@ -11,6 +11,7 @@ import {AuthContext} from "../../../context/auth.context";
 import {request} from "../../../helpers/functions/general.functions/request.helper";
 
 import "./auth.css";
+import {emailAddressCompany} from "../../../options/global.options";
 
 export const AuthComponent = ({setRegForm}) => {
     // Получаем флаг показа блока предупреждения и режим работы приложения из редакса
@@ -62,7 +63,7 @@ export const AuthComponent = ({setRegForm}) => {
     };
 
     // Устанавливаем заголовок
-    const cardTitle = `Вход в программу СУПП-ДО ${isDemo ? "\n(демоверсия)" : null}`;
+    const cardTitle = `Вход в программу СУПП-ДО ${isDemo ? "\n(демоверсия)" : ""}`;
 
     return (
         <Row align="middle" justify="center" className="row_auth">
@@ -117,6 +118,10 @@ export const AuthComponent = ({setRegForm}) => {
                                 Войти
                             </Button>
                             Или <Link to="/register" onClick={() => setRegForm(true)}>зарегистрируйтесь сейчас</Link>
+                        </Form.Item>
+
+                        <Form.Item noStyle>
+                            <a href={`mailto:${emailAddressCompany}`}>Свяжитесь с нами</a>
                         </Form.Item>
                     </Form>
                 </Card>

@@ -73,6 +73,16 @@ export const DepartmentRoute = {
             // Получаем сохраненную запись
             const data = await request(this.base_url, method, item);
 
+            // Если в ответе есть массив errors
+            if (data.errors && data.errors.length) {
+                message.error(data.errors[0].msg);
+
+                // Останавливаем спиннер загрузки
+                setLoading(false);
+
+                return null;
+            }
+
             // Если вернулась ошибка 404 (запись не найдена)
             if (typeof data === "string") {
                 // Обнуляем редактируемую запись

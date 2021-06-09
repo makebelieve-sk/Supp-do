@@ -1,4 +1,4 @@
-// Компонент "Характеристики оборудования"
+// Компонент, отрисовывающий вкладку "Характеристики оборудования" в разделе "Перечень оборуования"
 import React, {useMemo} from "react";
 import {Button, Col, Form, Input, Row, Select, Tooltip} from "antd";
 import {DeleteOutlined, PlusOutlined} from "@ant-design/icons";

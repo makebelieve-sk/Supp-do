@@ -1,4 +1,4 @@
-// Компонент линейной диаграммы
+// Компонент, отрисовывающий столбчатую месячную диаграмму
 import React from "react";
 import {Col, Row} from "antd";
 import {Column} from "@ant-design/charts";

@@ -1,5 +1,5 @@
 // Компонент, отрисовывающий таблицу
-import React, {useState, useMemo} from "react";
+import React, {useState, useEffect, useMemo} from "react";
 import {useSelector} from "react-redux";
 import {Row, Table, Col} from "antd";
 
@@ -45,6 +45,7 @@ export const TableComponent = ({specKey}) => {
     const [filterText, setFilterText] = useState("");
     const [columnsTable, setColumnsTable] = useState(columns);
     const [expand, setExpand] = useState(true);
+    const [expandState, setExpandState] = useState([]);
 
     // Получение данных таблицы
     const data = specKey === "equipment" || specKey === "departments"
@@ -53,6 +54,69 @@ export const TableComponent = ({specKey}) => {
 
     // Получение отфильтрованных данных таблицы
     const filterData = getFilterFunction(specKey, data.slice(0), filterText.toLowerCase());
+
+    // Сворачивание/разворачивание строк
+    useEffect(() => {
+        if (expand) {
+            if (specKey === "departments") {
+                setExpandState(stateObject.departments.map(object => object._id));
+            }
+
+            if (specKey === "equipment") {
+                setExpandState(stateObject.equipment.map(object => object._id));
+            }
+        } else {
+            setExpandState([]);
+        }
+    }, [expand, specKey, stateObject.departments, stateObject.equipment]);
+
+    /**
+     * Функция обработки события строки таблицы (в данном случае только событие клика)
+     * @param row- строка таблицы
+     * @returns {{onClick: ((function(): Promise<void>)|*)}}
+     */
+    const onRowEventHandler = (row) => {
+        return ({
+            onClick: async () => {
+                if (specKey === "statisticRating" || specKey === "statisticList") {
+                    specKey === "statisticRating"
+                        ? await goToLogDO("/rating", {
+                            satisfies: row.satisfies,
+                            equipment: row.equipment,
+                            date: store.getState().reducerStatistic.dateRating
+                        })
+                        : await goToLogDO("/list", {
+                            date: store.getState().reducerStatistic.dateList
+                        });
+                } else {
+                    openRecordTab(specKey, row._id);
+                }
+            }
+        })
+    };
+
+    /**
+     * Функция сворачивания/разворачивания строк
+     * @param expanded - свёрнута/развёрнута строка таблицы (boolean)
+     * @param record - строка таблицы
+     */
+    const onRowExpandHandler = (expanded, record) => {
+        if (expanded) {
+            setExpandState([...expandState, record._id])
+        } else {
+            const indexOf = expandState.indexOf(record._id);
+
+            if (indexOf >= 0) {
+                setExpandState([
+                    ...expandState.slice(0, indexOf),
+                    ...expandState.slice(indexOf + 1)
+                ]);
+            }
+        }
+    };
+
+    // Название класса таблицы
+    const classNameTable = useMemo(() => specKey === "logDO" ? "table-logDo" : "table-usual", [specKey]);
 
     return (
         <>
@@ -88,37 +152,17 @@ export const TableComponent = ({specKey}) => {
                         }}
                         expandable={{
                             defaultExpandAllRows: true,
-                            expandedRowKeys: expand
-                                ? specKey === "departments"
-                                    ? stateObject.departments.map(object => object._id)
-                                    : stateObject.equipment.map(object => object._id)
-                                : []
+                            expandedRowKeys: expandState,
+                            onExpand: onRowExpandHandler
                         }}
                         dataSource={columnsTable && columnsTable.length ? filterData : null}
                         columns={stateObject.columnsOptions && stateObject.columnsOptions[specKey]
                             ? stateObject.columnsOptions[specKey]
                             : columnsTable}
                         rowKey={record => record._id.toString()}
-                        onRow={row => ({
-                            onClick: async () => {
-                                if (specKey === "statisticRating" || specKey === "statisticList") {
-                                    specKey === "statisticRating"
-                                        ? await goToLogDO("/rating", {
-                                            satisfies: row.satisfies,
-                                            equipment: row.equipment,
-                                            date: store.getState().reducerStatistic.dateRating
-                                        })
-
-                                        : await goToLogDO("/list", {
-                                            date: store.getState().reducerStatistic.dateList
-                                        });
-                                } else {
-                                    openRecordTab(specKey, row._id);
-                                }
-                            }
-                        })}
+                        onRow={onRowEventHandler}
                         loading={stateObject.loadingTable}
-                        className={specKey === "logDO" ? "table-logDo" : "table-usual"}
+                        className={classNameTable}
                     />
                 </Col>
             </Row>

@@ -1,4 +1,4 @@
-// Компонент richText
+// Компонент, отрисовывающий текстовый редактор
 import React, { useState, useRef } from "react";
 import { Editor } from "@tinymce/tinymce-react";
 import {Spin} from "antd";

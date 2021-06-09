@@ -19,6 +19,9 @@ export const UserForm = ({item}) => {
     // Инициализация состояния для показа спиннера загрузки при сохранении и удалении записи
     const [loadingSave, setLoadingSave] = useState(false);
 
+    // Инициализация состояния для валидации выпадающих списков
+    const [validateStatus, setValidateStatus] = useState(null);
+
     // Создание состояний для списка ролей
     const [checkboxOptions, setCheckboxOptions] = useState([]);
 
@@ -134,7 +137,39 @@ export const UserForm = ({item}) => {
                             <Form.Item
                                 label="Сотрудник"
                                 name="person"
-                                rules={[{required: true, message: "Выберите сотрудника"}]}
+                                className="person-item"
+                                rules={[
+                                    {required: true, message: ""},
+                                    () => ({
+                                        validator(_, value) {
+                                            // Получение персонала из редакса для валидации выпадающих списков
+                                            const people = store.getState().reducerPerson.people;
+
+                                            if (people && people.length && people.find(person => person._id === value)) {
+                                                setValidateStatus(null);
+                                                return Promise.resolve();
+                                            } else {
+                                                // Показываем сообщение валидации
+                                                const validateDiv = window.document
+                                                    .querySelector(".person-item .ant-form-item-explain-error");
+
+                                                if (validateDiv) {
+                                                    validateDiv.style.display = "block";
+                                                }
+
+                                                // Убираем отступ блока
+                                                window.document
+                                                    .querySelector(".person-item")
+                                                    .style
+                                                    .marginBottom = "0";
+
+                                                setValidateStatus("error");
+                                                return Promise.reject("Выберите сотрудника из списка");
+                                            }
+                                        },
+                                    }),
+                                ]}
+                                validateStatus={validateStatus}
                             >
                                 <Row>
                                     <Col xs={{span: 18}} sm={{span: 18}} md={{span: 20}} lg={{span: 20}}
@@ -152,6 +187,25 @@ export const UserForm = ({item}) => {
                                                     const foundPeople = people.find(person => person._id === _id);
 
                                                     form.setFieldsValue({person: foundPeople ? foundPeople._id : null});
+
+                                                    if (foundPeople) {
+                                                        // Скрываем сообщение валидации
+                                                        const validateDiv = window.document
+                                                            .querySelector(".person-item .ant-form-item-explain-error");
+
+                                                        if (validateDiv) {
+                                                            validateDiv.style.display = "none";
+                                                        }
+
+                                                        // Добавляем нормальный отступ блоку
+                                                        window.document
+                                                            .querySelector(".person-item")
+                                                            .style
+                                                            .marginBottom = "24px";
+
+                                                        // Обновляем статус валидации
+                                                        setValidateStatus(null);
+                                                    }
                                                 }}
                                             />
                                         </Form.Item>

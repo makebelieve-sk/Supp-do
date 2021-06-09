@@ -100,6 +100,6 @@ const CheckTypeTab = (item, deleteHandler, specKey = null, activeKey, user, getC
 }
 
 // Вывод сообщения валидации формы
-const onFailed = () => message.error("Заполните обязательные поля").then(null);
+const onFailed = () => message.error("Заполните поля формы").then(null);
 
 export {getOptions, TabButtons, onFailed}

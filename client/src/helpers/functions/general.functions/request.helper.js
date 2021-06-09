@@ -1,5 +1,6 @@
 // Создание запроса
 import {message} from "antd";
+import {StorageVars} from "../../../options/global.options";
 
 export const request = async (url, method = "GET", body = null, headers = {}) => {
     try {
@@ -20,7 +21,7 @@ export const request = async (url, method = "GET", body = null, headers = {}) =>
 
         if (response.status === 401) {
             // Удаляем все данные пользователя из хранилища браузера
-            await localStorage.removeItem("user");
+            await localStorage.removeItem(StorageVars.user);
 
             message.error(data.message);
 

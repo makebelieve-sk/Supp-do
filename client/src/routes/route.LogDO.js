@@ -84,7 +84,7 @@ export const LogDORoute = {
         }
     },
     // Сохранение записи
-    save: async function (item, setLoading, setValidate) {
+    save: async function (item, setLoading) {
         try {
             // Устанавливаем метод запроса
             const method = item.isNewItem ? "POST" : "PUT";

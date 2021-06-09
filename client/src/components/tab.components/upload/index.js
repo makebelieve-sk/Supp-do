@@ -1,4 +1,4 @@
-// Компонент работы с файлами
+// Компонент, отрисовывающий Dragger (работа с файлами)
 import React, {useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {message, Popconfirm, Upload} from "antd";

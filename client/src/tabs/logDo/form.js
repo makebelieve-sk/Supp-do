@@ -18,6 +18,13 @@ export const LogDoForm = ({item}) => {
     const [loadingSave, setLoadingSave] = useState(false);
     const [loadingCancel, setLoadingCancel] = useState(false);
 
+    // Инициализация состояний для валидации выпадающих списков
+    const [validateStatusApplicant, setValidateStatusApplicant] = useState(null);
+    const [validateStatusEquipment, setValidateStatusEquipment] = useState(null);
+    const [validateStatusResponsible, setValidateStatusResponsible] = useState(null);
+    const [validateStatusDepartment, setValidateStatusDepartment] = useState(null);
+    const [validateStatusTaskStatus, setValidateStatusTaskStatus] = useState(null);
+
     // Получаем объект пользователя
     const user = store.getState().reducerAuth.user;
 
@@ -120,8 +127,8 @@ export const LogDoForm = ({item}) => {
                 >
                     <Tabs defaultActiveKey="request">
                         <Tabs.TabPane tab="Заявка" key="request" className="tabPane-styles">
-                            <Form.Item name="_id" hidden={true}><Input/></Form.Item>
-                            <Form.Item name="isNewItem" hidden={true}><Input/></Form.Item>
+                            <Form.Item name="_id" hidden={true}><></></Form.Item>
+                            <Form.Item name="isNewItem" hidden={true}><></></Form.Item>
                             <Form.Item name="applicant" hidden={true}><></></Form.Item>
                             <Form.Item name="responsible" hidden={true}><></></Form.Item>
                             <Form.Item name="equipment" hidden={true}><></></Form.Item>
@@ -147,7 +154,25 @@ export const LogDoForm = ({item}) => {
                                     <Form.Item
                                         label="Заявитель"
                                         name="applicantId"
-                                        rules={[{required: true, message: "Выберите заявителя!"}]}
+                                        className="applicant-item"
+                                        rules={[
+                                            {required: true, message: ""},
+                                            () => ({
+                                                validator() {
+                                                    const applicant = form.getFieldValue("applicant");
+                                                    const applicantId = form.getFieldValue("applicantId");
+
+                                                    if (applicant && applicantId && applicant._id === applicantId) {
+                                                        setValidateStatusApplicant(null);
+                                                        return Promise.resolve();
+                                                    } else {
+                                                        setValidateStatusApplicant("error");
+                                                        return Promise.reject("Выберите заявителя из списка");
+                                                    }
+                                                },
+                                            }),
+                                        ]}
+                                        validateStatus={validateStatusApplicant}
                                     >
                                         <Row>
                                             <Col xs={{span: 18}} sm={{span: 18}} md={{span: 20}} lg={{span: 20}} xl={{span: 20}}>
@@ -163,10 +188,29 @@ export const LogDoForm = ({item}) => {
 
                                                             const foundApplicant = people.find(person => person._id === value);
 
-                                                            form.setFieldsValue({
-                                                                applicant: foundApplicant,
-                                                                applicantId: value
-                                                            });
+                                                            if (foundApplicant) {
+                                                                form.setFieldsValue({
+                                                                    applicant: foundApplicant,
+                                                                    applicantId: value
+                                                                });
+
+                                                                // Скрываем сообщение валидации
+                                                                const validateDiv = window.document
+                                                                    .querySelector(".applicant-item .ant-form-item-explain-error");
+
+                                                                if (validateDiv) {
+                                                                    validateDiv.style.display = "none";
+                                                                }
+
+                                                                // Добавляем нормальный отступ блоку
+                                                                window.document
+                                                                    .querySelector(".applicant-item")
+                                                                    .style
+                                                                    .marginBottom = "24px";
+
+                                                                // Обновляем статус валидации
+                                                                setValidateStatusApplicant(null);
+                                                            }
 
                                                             if (user.person) {
                                                                 // Обновляем отображение галочки "Работа принята"
@@ -221,7 +265,25 @@ export const LogDoForm = ({item}) => {
                             <Form.Item
                                 label="Оборудование"
                                 name="equipmentId"
-                                rules={[{required: true, message: "Выберите оборудование"}]}
+                                className="equipment-item"
+                                rules={[
+                                    {required: true, message: ""},
+                                    () => ({
+                                        validator() {
+                                            const equipment = form.getFieldValue("equipment");
+                                            const equipmentId = form.getFieldValue("equipmentId");
+
+                                            if (equipment && equipmentId && equipment._id === equipmentId) {
+                                                setValidateStatusEquipment(null);
+                                                return Promise.resolve();
+                                            } else {
+                                                setValidateStatusEquipment("error");
+                                                return Promise.reject("Выберите оборудование из списка");
+                                            }
+                                        },
+                                    }),
+                                ]}
+                                validateStatus={validateStatusEquipment}
                             >
                                 <Row>
                                     <Col xs={{span: 21}} sm={{span: 21}} md={{span: 22}} lg={{span: 22}} xl={{span: 22}}>
@@ -237,10 +299,29 @@ export const LogDoForm = ({item}) => {
 
                                                     const foundEquipment = equipment.find(eq => eq._id === value);
 
-                                                    form.setFieldsValue({
-                                                        equipment: foundEquipment,
-                                                        equipmentId: value
-                                                    });
+                                                    if (foundEquipment) {
+                                                        form.setFieldsValue({
+                                                            equipment: foundEquipment,
+                                                            equipmentId: value
+                                                        });
+
+                                                        // Скрываем сообщение валидации
+                                                        const validateDiv = window.document
+                                                            .querySelector(".equipment-item .ant-form-item-explain-error");
+
+                                                        if (validateDiv) {
+                                                            validateDiv.style.display = "none";
+                                                        }
+
+                                                        // Добавляем нормальный отступ блоку
+                                                        window.document
+                                                            .querySelector(".equipment-item")
+                                                            .style
+                                                            .marginBottom = "24px";
+
+                                                        // Обновляем статус валидации
+                                                        setValidateStatusEquipment(null);
+                                                    }
                                                 }}
                                             />
                                         </Form.Item>
@@ -312,7 +393,42 @@ export const LogDoForm = ({item}) => {
                         <Tabs.TabPane tab="Выполнение" key="done" className="tabPane-styles">
                             <Row justify="space-between" gutter={8}>
                                 <Col span={12}>
-                                    <Form.Item label="Исполнитель">
+                                    <Form.Item
+                                        label="Исполнитель"
+                                        name="responsibleId"
+                                        className="responsible-item"
+                                        rules={[
+                                            () => ({
+                                                validator(_, value) {
+                                                    const responsible = form.getFieldValue("responsible");
+                                                    const responsibleId = form.getFieldValue("responsibleId");
+
+                                                    if (!value || (responsible && responsibleId && responsible._id === responsibleId)) {
+                                                        setValidateStatusResponsible(null);
+                                                        return Promise.resolve();
+                                                    } else {
+                                                        // Показываем сообщение валидации
+                                                        const validateDiv = window.document
+                                                            .querySelector(".responsible-item .ant-form-item-explain-error");
+
+                                                        if (validateDiv) {
+                                                            validateDiv.style.display = "block";
+                                                        }
+
+                                                        // Убираем отступ блока
+                                                        window.document
+                                                            .querySelector(".responsible-item")
+                                                            .style
+                                                            .marginBottom = "0";
+
+                                                        setValidateStatusResponsible("error");
+                                                        return Promise.reject("Выберите исполнителя из списка");
+                                                    }
+                                                },
+                                            }),
+                                        ]}
+                                        validateStatus={validateStatusResponsible}
+                                    >
                                         <Row>
                                             <Col xs={{span: 18}} sm={{span: 18}} md={{span: 20}} lg={{span: 20}} xl={{span: 20}}>
                                                 <Form.Item noStyle name="responsibleId">
@@ -342,6 +458,28 @@ export const LogDoForm = ({item}) => {
                                                                 department: foundDepartment ? foundDepartment : null,
                                                                 departmentId: foundDepartment ? foundDepartment._id : null
                                                             });
+
+                                                            if (foundDepartment) {
+                                                                // Обновляем статус валидации подразделения
+                                                                setValidateStatusDepartment(null);
+                                                            }
+
+                                                            // Скрываем сообщение валидации
+                                                            const validateDiv = window.document
+                                                                .querySelector(".responsible-item .ant-form-item-explain-error");
+
+                                                            if (validateDiv) {
+                                                                validateDiv.style.display = "none";
+                                                            }
+
+                                                            // Добавляем нормальный отступ блоку
+                                                            window.document
+                                                                .querySelector(".responsible-item")
+                                                                .style
+                                                                .marginBottom = "24px";
+
+                                                            // Обновляем статус валидации
+                                                            setValidateStatusResponsible(null);
                                                         }}
                                                     />
                                                 </Form.Item>
@@ -385,7 +523,42 @@ export const LogDoForm = ({item}) => {
                                     </Form.Item>
                                 </Col>
                                 <Col span={12}>
-                                    <Form.Item label="Подразделение">
+                                    <Form.Item
+                                        label="Подразделение"
+                                        name="departmentId"
+                                        className="department-item"
+                                        rules={[
+                                            () => ({
+                                                validator(_, value) {
+                                                    const department = form.getFieldValue("department");
+                                                    const departmentId = form.getFieldValue("departmentId");
+
+                                                    if (!value || (department && departmentId && department._id === departmentId)) {
+                                                        setValidateStatusDepartment(null);
+                                                        return Promise.resolve();
+                                                    } else {
+                                                        // Показываем сообщение валидации
+                                                        const validateDiv = window.document
+                                                            .querySelector(".department-item .ant-form-item-explain-error");
+
+                                                        if (validateDiv) {
+                                                            validateDiv.style.display = "block";
+                                                        }
+
+                                                        // Убираем отступ блока
+                                                        window.document
+                                                            .querySelector(".department-item")
+                                                            .style
+                                                            .marginBottom = "0";
+
+                                                        setValidateStatusDepartment("error");
+                                                        return Promise.reject("Выберите подразделение из списка");
+                                                    }
+                                                },
+                                            }),
+                                        ]}
+                                        validateStatus={validateStatusDepartment}
+                                    >
                                         <Row>
                                             <Col xs={{span: 18}} sm={{span: 18}} md={{span: 20}} lg={{span: 20}} xl={{span: 20}}>
                                                 <Form.Item noStyle name="departmentId">
@@ -404,6 +577,23 @@ export const LogDoForm = ({item}) => {
                                                                 department: foundDepartment,
                                                                 departmentId: value
                                                             });
+
+                                                            // Скрываем сообщение валидации
+                                                            const validateDiv = window.document
+                                                                .querySelector(".department-item .ant-form-item-explain-error");
+
+                                                            if (validateDiv) {
+                                                                validateDiv.style.display = "none";
+                                                            }
+
+                                                            // Добавляем нормальный отступ блоку
+                                                            window.document
+                                                                .querySelector(".department-item")
+                                                                .style
+                                                                .marginBottom = "24px";
+
+                                                            // Обновляем статус валидации
+                                                            setValidateStatusDepartment(null);
                                                         }}
                                                     />
                                                 </Form.Item>
@@ -455,7 +645,42 @@ export const LogDoForm = ({item}) => {
                                 />
                             </Form.Item>
 
-                            <Form.Item label="Состояние">
+                            <Form.Item
+                                label="Состояние"
+                                name="taskStatusId"
+                                className="taskStatus-item"
+                                rules={[
+                                    () => ({
+                                        validator(_, value) {
+                                            const taskStatus = form.getFieldValue("taskStatus");
+                                            const taskStatusId = form.getFieldValue("taskStatusId");
+
+                                            if (!value || (taskStatus && taskStatusId && taskStatus._id === taskStatusId)) {
+                                                setValidateStatusTaskStatus(null);
+                                                return Promise.resolve();
+                                            } else {
+                                                // Показываем сообщение валидации
+                                                const validateDiv = window.document
+                                                    .querySelector(".taskStatus-item .ant-form-item-explain-error");
+
+                                                if (validateDiv) {
+                                                    validateDiv.style.display = "block";
+                                                }
+
+                                                // Убираем отступ блока
+                                                window.document
+                                                    .querySelector(".taskStatus-item")
+                                                    .style
+                                                    .marginBottom = "0";
+
+                                                setValidateStatusTaskStatus("error");
+                                                return Promise.reject("Выберите состояние заявки из списка");
+                                            }
+                                        },
+                                    }),
+                                ]}
+                                validateStatus={validateStatusTaskStatus}
+                            >
                                 <Row>
                                     <Col xs={{span: 21}} sm={{span: 21}} md={{span: 22}} lg={{span: 22}} xl={{span: 22}}>
                                         <Form.Item noStyle name="taskStatusId">
@@ -474,6 +699,23 @@ export const LogDoForm = ({item}) => {
                                                         taskStatus: foundTask,
                                                         taskStatusId: value
                                                     });
+
+                                                    // Скрываем сообщение валидации
+                                                    const validateDiv = window.document
+                                                        .querySelector(".taskStatus-item .ant-form-item-explain-error");
+
+                                                    if (validateDiv) {
+                                                        validateDiv.style.display = "none";
+                                                    }
+
+                                                    // Добавляем нормальный отступ блоку
+                                                    window.document
+                                                        .querySelector(".taskStatus-item")
+                                                        .style
+                                                        .marginBottom = "24px";
+
+                                                    // Обновляем статус валидации
+                                                    setValidateStatusTaskStatus(null);
                                                 }}
                                             />
                                         </Form.Item>

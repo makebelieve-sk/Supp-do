@@ -1,4 +1,4 @@
-// Компонент гистограммы
+// Компонент, отрисовывающий гистограмму
 import React from "react";
 import {Col, Row} from "antd";
 import {Bar} from "@ant-design/charts";

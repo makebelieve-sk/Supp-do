@@ -110,13 +110,13 @@ export const RegistrationComponent = () => {
                         </Form.Item>
 
                         <Form.Item label="Имя пользователя" name="userName" className="user-name" rules={[{
-                                required: true,
-                                transform: value => value ? value.trim() : "",
-                                message: "Введите имя пользователя",
-                                type: "string",
-                                min: 1,
-                                max: 255
-                            }]}>
+                            required: true,
+                            transform: value => value ? value.trim() : "",
+                            message: "Введите имя пользователя",
+                            type: "string",
+                            min: 1,
+                            max: 255
+                        }]}>
                             <Input prefix={<SolutionOutlined className="site-form-item-icon"/>} placeholder="Имя пользователя"/>
                         </Form.Item>
 
@@ -133,23 +133,29 @@ export const RegistrationComponent = () => {
                             <PasswordInput prefix={<LockOutlined className="site-form-item-icon"/>} placeholder="Введите пароль"/>
                         </Form.Item>
 
-                        <Form.Item label="Подтверждение пароля" name="confirm" dependencies={["password"]} hasFeedback rules={[
-                            {
-                                required: true,
-                                transform: value => value ? value.trim() : "",
-                                message: "Подтвердите пароль",
-                                type: "string",
-                                min: 1,
-                                max: 255
-                            },
-                            ({getFieldValue}) => ({
-                                validator(_, value) {
-                                    return !value || getFieldValue("password") === value
-                                        ? Promise.resolve()
-                                        : Promise.reject("Введенные пароли не совпадают!");
+                        <Form.Item
+                            label="Подтверждение пароля"
+                            name="confirm"
+                            dependencies={["password"]}
+                            hasFeedback
+                            rules={[
+                                {
+                                    required: true,
+                                    transform: value => value ? value.trim() : "",
+                                    message: "Подтвердите пароль",
+                                    type: "string",
+                                    min: 1,
+                                    max: 255
                                 },
-                            }),
-                        ]}>
+                                ({getFieldValue}) => ({
+                                    validator(_, value) {
+                                        return !value || getFieldValue("password") === value
+                                            ? Promise.resolve()
+                                            : Promise.reject("Введенные пароли не совпадают!");
+                                    },
+                                }),
+                            ]}
+                        >
                             <Input.Password prefix={<LockOutlined className="site-form-item-icon"/>} placeholder="Подтвердите пароль"/>
                         </Form.Item>
 

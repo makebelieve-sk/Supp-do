@@ -6,6 +6,7 @@ import {ActionCreator} from "../redux/combineActions";
 import {request} from "../helpers/functions/general.functions/request.helper";
 import {NoticeError} from "./helper";
 import onRemove from "../helpers/functions/general.functions/removeTab";
+import {StorageVars} from "../options/global.options";
 
 export const ProfileRoute = {
     // Адрес для работы с разделом "Профиль"
@@ -45,6 +46,16 @@ export const ProfileRoute = {
             // Получаем обновленную запись
             const data = await request(this.base_url, "PUT", item);
 
+            // Если в ответе есть массив errors
+            if (data.errors && data.errors.length) {
+                message.error(data.errors[0].msg);
+
+                // Останавливаем спиннер загрузки
+                setLoading(false);
+
+                return null;
+            }
+
             // Если вернулась ошибка 404 (запись не найдена)
             if (typeof data === "string") {
                 // Обнуляем редактируемую запись
@@ -69,8 +80,8 @@ export const ProfileRoute = {
                 if (currentUser && data.toUpdateUser && currentUser._id === data.toUpdateUser._id) {
                     store.dispatch(ActionCreator.ActionCreatorAuth.setUser(data.toUpdateUser));
 
-                    const storageData = JSON.parse(localStorage.getItem("user"));
-                    localStorage.setItem("user", JSON.stringify({
+                    const storageData = JSON.parse(localStorage.getItem(StorageVars.user));
+                    localStorage.setItem(StorageVars.user, JSON.stringify({
                         ...storageData,
                         user: data.toUpdateUser
                     }));

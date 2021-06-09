@@ -8,7 +8,7 @@ import {
     ExpandAltOutlined,
     FileExcelOutlined,
     PlusOutlined,
-    QuestionCircleOutlined
+    QuestionCircleOutlined, ShrinkOutlined
 } from "@ant-design/icons";
 
 import store from "../../../redux/store";
@@ -116,11 +116,9 @@ export const ButtonsComponent = ({specKey, onExport, setColumnsTable, expand, se
                     specKey === "departments" || specKey === "equipment"
                         ? <Button
                             className={`button ${short}`}
-                            icon={<ExpandAltOutlined />}
+                            icon={expand ? <ExpandAltOutlined /> : <ShrinkOutlined />}
                             type="secondary"
-                            onClick={() => {
-                                setExpand(!expand);
-                            }}
+                            onClick={() => setExpand(!expand)}
                         >
                             {getContent(expand ? "Свернуть" : "Развернуть")}
                         </Button>

@@ -907,8 +907,8 @@ const StatisticListColumns = [
             const during = record.during;
 
             let days = Math.floor(during / 86400);
-            let hours = Math.floor(during / 3600);
-            let minutes = Math.floor((during - (hours * 3600)) / 60);
+            let hours = Math.floor((during - (days * 86400)) / 3600);
+            let minutes = Math.floor((during - (days * 86400) - (hours * 3600)) / 60);
 
             if (days < 10) days = "0" + days;
             if (hours < 10) hours = "0" + hours;

@@ -58,7 +58,7 @@ function getShortName(name = null) {
  * Настройка приложения в зависимости от ролей пользователя
  * @param key - ключ раздела
  * @param user - объект пользователя
- * @returns {{read: boolean, edit: boolean}|Error} - возвращаемое значение (объект{ read, edit} или null)
+ * @returns {{read: boolean, edit: boolean}|Error} - возвращаемое значение (объект {read, edit} или null)
  */
 function checkRoleUser(key, user) {
     const canEdit = (key) => {

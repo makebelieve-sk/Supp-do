@@ -61,6 +61,12 @@ const permissionsDemo = [
     {title: "Принятие работы", read: false, edit: false, key: "acceptTask"},
 ];
 
+/**
+ * Функция получения имени пользователя
+ * @param cookies - куки пользователя
+ * @param res - объект ответа сервера
+ * @returns {Promise<*>} - имя пользователя/ошибка авторизации
+ */
 const getUser = async (cookies, res) => {
     try {
         const token = cookies;    // Получение токена пользователя

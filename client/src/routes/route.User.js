@@ -8,6 +8,7 @@ import {request} from "../helpers/functions/general.functions/request.helper";
 import {compareArrays, compareObjects} from "../helpers/functions/general.functions/compare";
 import {NoticeError, storePeople, storeRole} from "./helper";
 import onRemove from "../helpers/functions/general.functions/removeTab";
+import {StorageVars} from "../options/global.options";
 
 export const UserRoute = {
     // Адрес для работы с разделом "Пользователи"
@@ -88,6 +89,16 @@ export const UserRoute = {
             // Получаем сохраненную запись
             const data = await request(this.base_url, method, item);
 
+            // Если в ответе есть массив errors
+            if (data.errors && data.errors.length) {
+                message.error(data.errors[0].msg);
+
+                // Останавливаем спиннер загрузки
+                setLoading(false);
+
+                return null;
+            }
+
             // Если вернулась ошибка 404 (запись не найдена)
             if (typeof data === "string") {
                 await this.getAll();    // Обновляем все записи раздела
@@ -130,8 +141,8 @@ export const UserRoute = {
                     store.dispatch(ActionCreator.ActionCreatorAuth.setUser(data.toUpdateUser));
 
                     // Обновляем пользователя в хранилище браузера
-                    const token = JSON.parse(localStorage.getItem("user")).token;
-                    localStorage.setItem("user", JSON.stringify({token, user: data.toUpdateUser}));
+                    const token = JSON.parse(localStorage.getItem(StorageVars.user)).token;
+                    localStorage.setItem(StorageVars.user, JSON.stringify({token, user: data.toUpdateUser}));
                 }
 
                 // Останавливаем спиннер загрузки

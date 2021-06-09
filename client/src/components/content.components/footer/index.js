@@ -11,6 +11,7 @@ import ErrorIndicator from "../errorIndicator/errorIndicator.component";
 import {useWindowWidth} from "../../../hooks/windowWidth.hook";
 
 import "./footer.css";
+import {emailAddressCompany} from "../../../options/global.options";
 
 export const FooterComponent = () => {
     // Состояние для показа модального окна, содержимого помощи и режима работы приложения
@@ -52,11 +53,15 @@ export const FooterComponent = () => {
     return (
         <Layout.Footer className="layout-footer">
             <Row align="middle">
-                <Col span={18} className="footer-text">
+                <Col span={16} className="footer-text">
                     Система управления производственным процессом. Дефекты и отказы. 2021. Версия 1.0.0 {isDemo ? "(Демоверсия)" : null}
                 </Col>
 
-                <Col span={6} onClick={getHelp} className="footer-text cursor">
+                <Col span={4} className="footer-text">
+                    <a href={`mailto:${emailAddressCompany}`}>Свяжитесь с нами</a>
+                </Col>
+
+                <Col span={4} onClick={getHelp} className="footer-text cursor">
                     <QuestionCircleOutlined/> {getContent("Помощь")}
                 </Col>
 

@@ -18,6 +18,10 @@ export const PersonForm = ({item}) => {
     // Инициализация состояний для показа спиннера загрузки при сохранении записи и в выпадающих меню
     const [loadingSave, setLoadingSave] = useState(false);
 
+    // Инициализация состояния для валидации выпадающих списков
+    const [validateStatusProfession, setValidateStatusProfession] = useState(null);
+    const [validateStatusDepartment, setValidateStatusDepartment] = useState(null);
+
     // Создание хука form
     const [form] = Form.useForm();
 
@@ -78,8 +82,42 @@ export const PersonForm = ({item}) => {
                         <Input maxLength={255} type="text" onChange={e => form.setFieldsValue({name: e.target.value})}/>
                     </Form.Item>
 
-                    <Form.Item label="Подразделение" name="department"
-                               rules={[{required: true, message: "Выберите подразделение!"}]}>
+                    <Form.Item
+                        label="Подразделение"
+                        name="department"
+                        className="department-item"
+                        rules={[
+                            {required: true, message: ""},
+                            () => ({
+                                validator(_, value) {
+                                    const departments = store.getState().reducerDepartment.departments;
+
+                                    if (departments && departments.length && departments.find(department => department._id === value)) {
+                                        setValidateStatusDepartment(null);
+                                        return Promise.resolve();
+                                    } else {
+                                        // Показываем сообщение валидации
+                                        const validateDiv = window.document
+                                            .querySelector(".department-item .ant-form-item-explain-error");
+
+                                        if (validateDiv) {
+                                            validateDiv.style.display = "block";
+                                        }
+
+                                        // Убираем отступ блока
+                                        window.document
+                                            .querySelector(".department-item")
+                                            .style
+                                            .marginBottom = "0";
+
+                                        setValidateStatusDepartment("error");
+                                        return Promise.reject("Выберите подразделение из списка");
+                                    }
+                                },
+                            }),
+                        ]}
+                        validateStatus={validateStatusDepartment}
+                    >
                         <Row>
                             <Col xs={{span: 21}} sm={{span: 21}} md={{span: 22}} lg={{span: 22}} xl={{span: 22}}>
                                 <Form.Item name="department" noStyle>
@@ -95,6 +133,25 @@ export const PersonForm = ({item}) => {
                                             const foundDepartment = departments.find(department => department._id === _id);
 
                                             form.setFieldsValue({department: foundDepartment ? foundDepartment._id : null});
+
+                                            if (foundDepartment) {
+                                                // Скрываем сообщение валидации
+                                                const validateDiv = window.document
+                                                    .querySelector(".department-item .ant-form-item-explain-error");
+
+                                                if (validateDiv) {
+                                                    validateDiv.style.display = "none";
+                                                }
+
+                                                // Добавляем нормальный отступ блоку
+                                                window.document
+                                                    .querySelector(".department-item")
+                                                    .style
+                                                    .marginBottom = "24px";
+
+                                                // Обновляем статус валидации
+                                                setValidateStatusDepartment(null);
+                                            }
                                         }}
                                     />
                                 </Form.Item>
@@ -137,8 +194,42 @@ export const PersonForm = ({item}) => {
                         </Row>
                     </Form.Item>
 
-                    <Form.Item label="Профессия" name="profession"
-                               rules={[{required: true, message: "Выберите профессию!"}]}>
+                    <Form.Item
+                        label="Профессия"
+                        name="profession"
+                        className="profession-item"
+                        rules={[
+                            {required: true, message: ""},
+                            () => ({
+                                validator(_, value) {
+                                    const professions = store.getState().reducerProfession.professions;
+
+                                    if (professions && professions.length && professions.find(profession => profession._id === value)) {
+                                        setValidateStatusProfession(null);
+                                        return Promise.resolve();
+                                    } else {
+                                        // Показываем сообщение валидации
+                                        const validateDiv = window.document
+                                            .querySelector(".profession-item .ant-form-item-explain-error");
+
+                                        if (validateDiv) {
+                                            validateDiv.style.display = "block";
+                                        }
+
+                                        // Убираем отступ блока
+                                        window.document
+                                            .querySelector(".profession-item")
+                                            .style
+                                            .marginBottom = "0";
+
+                                        setValidateStatusProfession("error");
+                                        return Promise.reject("Выберите профессию из списка");
+                                    }
+                                },
+                            }),
+                        ]}
+                        validateStatus={validateStatusProfession}
+                    >
                         <Row>
                             <Col xs={{span: 21}} sm={{span: 21}} md={{span: 22}} lg={{span: 22}} xl={{span: 22}}>
                                 <Form.Item name="profession" noStyle>
@@ -154,6 +245,25 @@ export const PersonForm = ({item}) => {
                                             const foundProfession = professions.find(profession => profession._id === _id);
 
                                             form.setFieldsValue({profession: foundProfession ? foundProfession._id : null});
+
+                                            if (foundProfession) {
+                                                // Скрываем сообщение валидации
+                                                const validateDiv = window.document
+                                                    .querySelector(".profession-item .ant-form-item-explain-error");
+
+                                                if (validateDiv) {
+                                                    validateDiv.style.display = "none";
+                                                }
+
+                                                // Добавляем нормальный отступ блоку
+                                                window.document
+                                                    .querySelector(".profession-item")
+                                                    .style
+                                                    .marginBottom = "24px";
+
+                                                // Обновляем статус валидации
+                                                setValidateStatusProfession(null);
+                                            }
                                         }}
                                     />
                                 </Form.Item>

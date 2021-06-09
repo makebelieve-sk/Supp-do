@@ -1,0 +1,8 @@
+.badge sup {
+    color: black;
+    height: 30px;
+    line-height: 30px;
+    padding-left: 15px;
+    padding-right: 15px;
+    width: 10em;
+}

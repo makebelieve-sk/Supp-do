@@ -1,4 +1,4 @@
-// Компонент датапикера
+// Компонент, отрисовывающий датапикер
 import React from "react";
 import {DatePicker} from "antd";
 

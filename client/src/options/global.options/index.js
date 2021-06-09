@@ -1,3 +1,4 @@
+// Глобальные переменные приложения
 // Инициализация разделов проекта
 const sections = [
     {label: "Не выбрано", value: null},
@@ -17,4 +18,14 @@ const sections = [
     {label: "Информация о предприятии", value: "companiesInfo"},
 ];
 
-export {sections};
+// Переменные для хранения данных в куки
+const StorageVars = {
+    user: "user",
+    jwt: "token",
+    pageSize: "pageSize",
+}
+
+// Почтовый адрес нашей компании
+const emailAddressCompany = "info@itprom.org";
+
+export {sections, StorageVars, emailAddressCompany};

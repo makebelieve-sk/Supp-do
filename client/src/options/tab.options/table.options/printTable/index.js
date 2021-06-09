@@ -35,6 +35,7 @@ export default class PrintTable extends React.Component {
                             }
                         </tr>
                     </thead>
+
                     <tbody>
                         {
                             data && data.length

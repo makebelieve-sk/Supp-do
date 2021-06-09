@@ -212,10 +212,6 @@ export const ProfileComponent = ({item}) => {
                         rules={[{required: true, message: "Выберите расположение меню"}]}
                     >
                         <Select
-                            showSearch
-                            filterOption={(input, option) =>
-                                option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                            }
                             options={typeMenu}
                             onChange={value => {
                                 const foundType = typeMenu.find(type => type.value === value);

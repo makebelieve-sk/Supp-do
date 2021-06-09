@@ -3,6 +3,7 @@ import {getExportName, getTableHeader} from "../../../helpers/mappers/tabs.mappe
 import filterTableKeys from "../../tab.options/table.options/filterTableKeys";
 import {updateValueInCookies} from "../../../helpers/functions/general.functions/workWithCookies";
 import {ActionCreator} from "../../../redux/combineActions";
+import {StorageVars} from "../../global.options";
 
 // Экспорт в эксель
 const downloadCSV = (array, key) => {
@@ -67,7 +68,7 @@ const tableSettings = {
         pageSizeOptions: [10, 20, 50, 100],
         onShowSizeChange: (_, size) => {
             // Обновляем куки
-            updateValueInCookies("pageSize", size, ActionCreator.ActionCreatorMain.setPageSize);
+            updateValueInCookies(StorageVars.pageSize, size, ActionCreator.ActionCreatorMain.setPageSize);
         }
     },
     export: downloadCSV,
