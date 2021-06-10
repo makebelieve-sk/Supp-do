@@ -83,6 +83,36 @@ export const LogDORoute = {
             NoticeError.get(e.message); // Вызываем функцию обработки ошибки
         }
     },
+    // Получение записей в определенном диапазоне даты и с определенным статусом
+    getRecordsWithStatus: async function (date, statusId) {
+        try {
+            // Устанавливаем спиннер загрузки данных в таблицу
+            store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(true));
+
+            // Получаем все записи раздела "Журнал дефектов и отказов"
+            const items = await request(this.base_url + "status/" + date, "POST", {statusId});
+
+            // Записываем все записи в хранилище
+            storeLogDO(items);
+
+            // Устанавливаем подсказку (какой фильтр сейчас есть у таблицы)
+            if (items.alert) {
+                const alert = store.getState().reducerLogDO.alert;
+
+                store.dispatch(ActionCreator.ActionCreatorLogDO.setAlert({
+                    ...alert,
+                    alert: items.alert
+                }));
+            }
+
+            // Останавливаем спиннер загрузки данных в таблицу
+            store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
+        } catch (e) {
+            // Устанавливаем ошибку в хранилище раздела
+            store.dispatch(ActionCreator.ActionCreatorLogDO.setErrorTableLogDO("Возникла ошибка при получении записей: " + e.message));
+            NoticeError.getAll(e.message); // Вызываем функцию обработки ошибки
+        }
+    },
     // Сохранение записи
     save: async function (item, setLoading) {
         try {

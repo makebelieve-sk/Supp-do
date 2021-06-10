@@ -5,6 +5,7 @@ import {
     DELETE_EQUIPMENT,
     GET_ALL_EQUIPMENT,
     SET_ROW_DATA_EQUIPMENT,
+    SET_EXPAND_ROWS_EQUIPMENT,
     ADD_SELECT_ROW,
     EDIT_SELECT_ROW,
     DELETE_SELECT_ROW,
@@ -15,6 +16,7 @@ import {
     SET_ERROR_RECORD_EQUIPMENT,
     SET_ERROR_TABLE_EQUIPMENT,
 } from "./equipment.constants";
+import {SET_EXPAND_ROWS_DEPARTMENT} from "../department/department.constants";
 
 const ActionCreatorEquipment = {
     // Добавление перечня оборудования
@@ -51,6 +53,13 @@ const ActionCreatorEquipment = {
         return {
             type: SET_ROW_DATA_EQUIPMENT,
             payload: rowData
+        }
+    },
+    // Установка свернутых/развернутых строк раздела "Подразделения"
+    setExpandRowsEquipment: (expandRows) => {
+        return {
+            type: SET_EXPAND_ROWS_EQUIPMENT,
+            payload: expandRows
         }
     },
     // Добавление строки во вкладку "Характеристики"

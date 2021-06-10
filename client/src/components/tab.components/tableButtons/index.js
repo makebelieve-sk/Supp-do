@@ -21,7 +21,7 @@ import {useWindowWidth} from "../../../hooks/windowWidth.hook";
 
 import "./tableButtons.css";
 
-export const ButtonsComponent = ({specKey, onExport, setColumnsTable, expand, setExpand}) => {
+export const ButtonsComponent = ({specKey, onExport, setColumnsTable}) => {
     const user = useSelector(state => state.reducerAuth.user);  // Получение объекта пользователя
 
     const screen = useWindowWidth();    // Получаем текущее значение ширины окна браузера
@@ -31,6 +31,7 @@ export const ButtonsComponent = ({specKey, onExport, setColumnsTable, expand, se
     const [visible, setVisible] = useState(false);
     const [visiblePopConfirm, setVisiblePopConfirm] = useState(false);
     const [loadingDelete, setLoadingDelete] = useState(false);
+    const [expand, setExpand] = useState(false);
 
     // Получение колонок и шапки таблицы, проверка роли пользователя
     const columns = useMemo(() => getColumns(specKey), [specKey]);
@@ -118,7 +119,29 @@ export const ButtonsComponent = ({specKey, onExport, setColumnsTable, expand, se
                             className={`button ${short}`}
                             icon={expand ? <ExpandAltOutlined /> : <ShrinkOutlined />}
                             type="secondary"
-                            onClick={() => setExpand(!expand)}
+                            onClick={() => {
+                                if (specKey === "departments") {
+                                    const departments = store.getState().reducerDepartment.departments;
+
+                                    const expandResult = !expand && departments && departments.length
+                                        ? departments.map(object => object._id)
+                                        : [];
+
+                                    store.dispatch(ActionCreator.ActionCreatorDepartment.setExpandRowsDepartment(expandResult));
+                                }
+
+                                if (specKey === "equipment") {
+                                    const equipment = store.getState().reducerEquipment.equipment
+
+                                    const expandResult = !expand && equipment && equipment.length
+                                        ? equipment.map(object => object._id)
+                                        : [];
+
+                                    store.dispatch(ActionCreator.ActionCreatorEquipment.setExpandRowsEquipment(expandResult));
+                                }
+
+                                setExpand(!expand);
+                            }}
                         >
                             {getContent(expand ? "Свернуть" : "Развернуть")}
                         </Button>

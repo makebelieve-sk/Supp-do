@@ -1,5 +1,5 @@
 // Компонент, отрисовывающий блок фильтров таблицы
-import React, {useState} from "react";
+import React from "react";
 import {Alert, Col, Row} from "antd";
 import {FilterOutlined} from "@ant-design/icons";
 import moment from "moment";
@@ -12,16 +12,11 @@ import {LogDORoute} from "../../../routes/route.LogDO";
 import "./tableAlert.css";
 
 export const TableAlertComponent = ({alert, specKey}) => {
-    // Инициализация состояний для отступа снизу алерта
-    const [marginBottomAlert, setMarginBottomAlert] = useState("20px");
-
     /**
      * Функция закрытия алерта
      * @returns {Promise<void>}
      */
     const closeAlert = async () => {
-        setMarginBottomAlert("0px");      // Убираем отступ после алерта
-
         // Обновляем фильтр таблицы
         store.dispatch(ActionCreator.ActionCreatorLogDO.setAlert({
             alert: null,
@@ -37,7 +32,7 @@ export const TableAlertComponent = ({alert, specKey}) => {
     }
 
     return alert && alert.alert && specKey === "logDO"
-        ? <Row style={{marginBottom: marginBottomAlert}}>
+        ? <Row className="row-alert">
             <Col>
                 <Alert
                     message={alert.alert}

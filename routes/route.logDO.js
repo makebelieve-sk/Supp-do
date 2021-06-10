@@ -633,4 +633,92 @@ router.get("/logDO/update/:date", async (req, res) => {
     }
 });
 
+// Возвращает записи с определенным статусом
+router.post("/logDO/status/:dateStart/:dateEnd", async (req, res) => {
+    try {
+        const {statusId} = req.body;
+
+        const dateStart = req.params.dateStart;     // Получаем дату "с"
+        const dateEnd = req.params.dateEnd;         // Получаем дату "по"
+
+        // Рассчитываем количество миллисекунд для дат "с" и "по"
+        const millisecondsStart = moment(dateStart, dateFormat).valueOf();
+        const millisecondsEnd = moment(dateEnd, dateFormat).valueOf();
+
+        let departments = [], equipment = [];
+        try {
+            equipment = await Equipment.find({}).populate("parent");      // Получаем всё оборудование
+            departments = await Department.find({}).populate("parent");   // Получаем все подразделения
+        } catch (err) {
+            console.log(err);
+            res.status(500).json({
+                message: "Возникла ошибка при получении записей из баз данных 'Подразделения' и 'Оборудование' (unassignedTasks): " + err
+            });
+        }
+
+        const status = statusId ? await TaskStatus.findById(statusId) : null;
+
+        // Даем запрос в бд, передавая фильтр и нужные даты
+        await LogDO.find(
+            {date: {$gte: millisecondsStart, $lte: millisecondsEnd}, taskStatus: statusId},
+            function (err, items) {
+            // Обработка ошибки
+            if (err) {
+                console.log(err);
+                return res.status(500).json({
+                    message: "Возникла ошибка при получении записей из базы данных ЖДО (unassignedTasks): " + err
+                });
+            }
+
+            let statusLegend = [], itemsDto = [];
+
+            if (items && items.length) {
+                // Получаем готовый массив записей ЖДО
+                itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
+
+                statusLegend.push({
+                    id: status ? status._id : Date.now(),
+                    name: status ? status.name : "Без статуса",
+                    count: items.length,
+                    color: status ? status.color : "#FFFFFF",
+                    borderColor: status ? null : "#d9d9d9"
+                });
+            }
+
+            const statusName = status ? ` со статусом ${status.name}` : "без статуса";
+
+            // Отправляем ответ
+            return res.status(200).json({
+                itemsDto,
+                alert: `Записи ${statusName}`,
+                statusLegend
+            });
+        })
+            .sort({date: -1})
+            .populate("applicant")
+            .populate({
+                path: "equipment",
+                populate: {
+                    path: "parent",
+                    model: "Equipment"
+                }
+            })
+            .populate({
+                    path: "department",
+                    populate: {
+                        path: "parent",
+                        model: "Department"
+                    }
+                }
+            )
+            .populate("responsible")
+            .populate("taskStatus")
+            .populate("files");
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: `Ошибка при получении записей со статусом: ${err}`});
+    }
+});
+
+
 module.exports = router;

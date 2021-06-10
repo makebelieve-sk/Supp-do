@@ -40,12 +40,14 @@ export default class Dashboard extends React.Component {
                 : "сут";
         }
 
+        const classNameColTwo = print ? "print-col-2" : "";
+
         return (
             <>
                 <Row>
                     {/*Неназначенные заявки*/}
                     <Col
-                        xs={24} sm={12} md={8} lg={8} xl={4}
+                        xs={24} sm={print ? 8 : 12} md={8} lg={8} xl={4}
                         className="col-circle-1"
                         onClick={() =>
                             analytic && analytic.unassignedTasks ? goToLogDO("/unassignedTasks") : message.warning("Записей нет")}
@@ -60,8 +62,8 @@ export default class Dashboard extends React.Component {
 
                     {/*Заявки в работе*/}
                     <Col
-                        xs={24} sm={12} md={8} lg={8} xl={4}
-                        className="col-circle-2"
+                        xs={24} sm={print ? 8 : 12} md={8} lg={8} xl={4}
+                        className={`col-circle-2 ${classNameColTwo}`}
                         onClick={() => analytic && analytic.inWorkTasks ? goToLogDO("/inWorkTasks") : message.warning("Записей нет")}
                     >
                         <CircleComponent
@@ -74,7 +76,7 @@ export default class Dashboard extends React.Component {
 
                     {/*Непринятые заявки*/}
                     <Col
-                        xs={24} sm={24} md={8} lg={8} xl={4}
+                        xs={24} sm={print ? 8 : 24} md={8} lg={8} xl={4}
                         className="col-circle-3"
                         onClick={() => analytic && analytic.notAccepted ? goToLogDO("/notAccepted") : message.warning("Записей нет")}
                     >
@@ -142,7 +144,7 @@ export default class Dashboard extends React.Component {
                 </Row>
 
                 {
-                    print ? <><br/><br/></> : null
+                    print ? <><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/></> : null
                 }
 
                 <Row className="row-3">
@@ -172,7 +174,7 @@ export default class Dashboard extends React.Component {
 
                     {/*Рейтинг отказов за 12 месяцев (Топ-5)*/}
                     <Col
-                        xs={24} sm={24} md={12} lg={6} xl={6}
+                        xs={24} sm={print ? 12 : 24} md={12} lg={6} xl={6}
                         className="col-rating-1"
                         onClick={() =>
                             analytic && analytic.bounceRating ? goToLogDO("/rating/bounceRating") : message.warning("Записей нет")}
@@ -186,7 +188,7 @@ export default class Dashboard extends React.Component {
 
                     {/*Рейтинг незакрытых заявок (Топ-5)*/}
                     <Col
-                        xs={24} sm={24} md={12} lg={6} xl={6}
+                        xs={24} sm={print ? 12 : 24} md={12} lg={6} xl={6}
                         className="col-rating-2"
                         onClick={() =>
                             analytic && analytic.ratingOrders ? goToLogDO("/rating/ratingOrders"): message.warning("Записей нет")}

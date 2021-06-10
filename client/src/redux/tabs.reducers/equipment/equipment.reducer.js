@@ -6,6 +6,7 @@ import {
     DELETE_EQUIPMENT,
     GET_ALL_EQUIPMENT,
     SET_ROW_DATA_EQUIPMENT,
+    SET_EXPAND_ROWS_EQUIPMENT,
     ADD_SELECT_ROW,
     EDIT_SELECT_ROW,
     DELETE_SELECT_ROW,
@@ -16,6 +17,7 @@ import {
     SET_ERROR_RECORD_EQUIPMENT,
     SET_ERROR_TABLE_EQUIPMENT,
 } from "./equipment.constants";
+import {SET_EXPAND_ROWS_DEPARTMENT} from "../department/department.constants";
 
 export default function reducerEquipment(state = initialState, action) {
     switch (action.type) {
@@ -45,6 +47,11 @@ export default function reducerEquipment(state = initialState, action) {
             return {
                 ...state,
                 rowDataEquipment:  action.payload
+            };
+        case SET_EXPAND_ROWS_EQUIPMENT:
+            return {
+                ...state,
+                expandRowsEquipment: action.payload
             };
         case ADD_SELECT_ROW:
             return {

@@ -13,6 +13,10 @@
     border-right: 1px solid grey;
 }
 
+.print-col-2 {
+    border-right: 0;
+}
+
 .col-circle-3 {
     border-top: 1px solid grey;
 }

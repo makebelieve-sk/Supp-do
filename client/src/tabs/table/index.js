@@ -1,5 +1,5 @@
 // Компонент, отрисовывающий таблицу
-import React, {useState, useEffect, useMemo} from "react";
+import React, {useState, useMemo} from "react";
 import {useSelector} from "react-redux";
 import {Row, Table, Col} from "antd";
 
@@ -13,6 +13,7 @@ import {TableAlertComponent} from "../../components/tab.components/tableAlert";
 import {TableBadgeComponent} from "../../components/tab.components/tableBadge";
 
 import "./table.css";
+import {ActionCreator} from "../../redux/combineActions";
 
 export const TableComponent = ({specKey}) => {
     // Получение данных таблиц
@@ -36,16 +37,16 @@ export const TableComponent = ({specKey}) => {
         activeKey: state.reducerTab.activeKey,
         pageSizeOptions: state.reducerMain.pageSizeOptions,
         columnsOptions: state.reducerMain.columnsOptions,
+        expandRowsDepartment: state.reducerDepartment.expandRowsDepartment,
+        expandRowsEquipment: state.reducerEquipment.expandRowsEquipment,
     }));
 
     // Получение колонок таблицы
     const columns = useMemo(() => getColumns(specKey), [specKey]);
 
-    // Создание состояний для текстового поля, колонок таблицы и скрытия/раскрытия строк
+    // Создание состояний для текстового поля, колонок таблицы
     const [filterText, setFilterText] = useState("");
     const [columnsTable, setColumnsTable] = useState(columns);
-    const [expand, setExpand] = useState(true);
-    const [expandState, setExpandState] = useState([]);
 
     // Получение данных таблицы
     const data = specKey === "equipment" || specKey === "departments"
@@ -54,21 +55,6 @@ export const TableComponent = ({specKey}) => {
 
     // Получение отфильтрованных данных таблицы
     const filterData = getFilterFunction(specKey, data.slice(0), filterText.toLowerCase());
-
-    // Сворачивание/разворачивание строк
-    useEffect(() => {
-        if (expand) {
-            if (specKey === "departments") {
-                setExpandState(stateObject.departments.map(object => object._id));
-            }
-
-            if (specKey === "equipment") {
-                setExpandState(stateObject.equipment.map(object => object._id));
-            }
-        } else {
-            setExpandState([]);
-        }
-    }, [expand, specKey, stateObject.departments, stateObject.equipment]);
 
     /**
      * Функция обработки события строки таблицы (в данном случае только событие клика)
@@ -102,21 +88,51 @@ export const TableComponent = ({specKey}) => {
      */
     const onRowExpandHandler = (expanded, record) => {
         if (expanded) {
-            setExpandState([...expandState, record._id])
+            if (specKey === "departments") {
+                store.dispatch(ActionCreator.ActionCreatorDepartment.setExpandRowsDepartment([
+                    ...stateObject.expandRowsDepartment,
+                    record._id
+                ]));
+            }
+            if (specKey === "equipment") {
+                store.dispatch(ActionCreator.ActionCreatorEquipment.setExpandRowsEquipment([
+                    ...stateObject.expandRowsEquipment,
+                    record._id
+                ]));
+            }
         } else {
-            const indexOf = expandState.indexOf(record._id);
+            if (specKey === "departments") {
+                const indexOf = stateObject.expandRowsDepartment.indexOf(record._id);
 
-            if (indexOf >= 0) {
-                setExpandState([
-                    ...expandState.slice(0, indexOf),
-                    ...expandState.slice(indexOf + 1)
-                ]);
+                if (indexOf >= 0) {
+                    store.dispatch(ActionCreator.ActionCreatorDepartment.setExpandRowsDepartment([
+                        ...stateObject.expandRowsDepartment.slice(0, indexOf),
+                        ...stateObject.expandRowsDepartment.slice(indexOf + 1),
+                    ]));
+                }
+            }
+            if (specKey === "equipment") {
+                const indexOf = stateObject.expandRowsDepartment.indexOf(record._id);
+
+                if (indexOf >= 0) {
+                    store.dispatch(ActionCreator.ActionCreatorEquipment.setExpandRowsEquipment([
+                        ...stateObject.expandRowsEquipment.slice(0, indexOf),
+                        ...stateObject.expandRowsEquipment.slice(indexOf + 1),
+                    ]));
+                }
             }
         }
     };
 
     // Название класса таблицы
     const classNameTable = useMemo(() => specKey === "logDO" ? "table-logDo" : "table-usual", [specKey]);
+
+    // Массив свёрнутых/развёрнутых строк таблицы
+    const expandRows = specKey === "departments"
+        ? stateObject.expandRowsDepartment
+        : specKey === "equipment"
+            ? stateObject.expandRowsEquipment
+            : [];
 
     return (
         <>
@@ -127,8 +143,6 @@ export const TableComponent = ({specKey}) => {
                 filterText={filterText}
                 setFilterText={setFilterText}
                 setColumnsTable={setColumnsTable}
-                expand={expand}
-                setExpand={setExpand}
             />
 
             {/*Легенда статусов*/}
@@ -152,7 +166,7 @@ export const TableComponent = ({specKey}) => {
                         }}
                         expandable={{
                             defaultExpandAllRows: true,
-                            expandedRowKeys: expandState,
+                            expandedRowKeys: expandRows,
                             onExpand: onRowExpandHandler
                         }}
                         dataSource={columnsTable && columnsTable.length ? filterData : null}

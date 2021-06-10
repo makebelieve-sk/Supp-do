@@ -5,6 +5,7 @@ import {
     DELETE_DEPARTMENT,
     GET_ALL_DEPARTMENTS,
     SET_ROW_DATA_DEPARTMENT,
+    SET_EXPAND_ROWS_DEPARTMENT,
     SET_ERROR_RECORD_DEPARTMENT,
     SET_ERROR_TABLE_DEPARTMENT,
 } from "./department.constants";
@@ -44,6 +45,13 @@ const ActionCreatorDepartment = {
         return {
             type: SET_ROW_DATA_DEPARTMENT,
             payload: rowData
+        }
+    },
+    // Установка свернутых/развернутых строк раздела "Подразделения"
+    setExpandRowsDepartment: (expandRows) => {
+        return {
+            type: SET_EXPAND_ROWS_DEPARTMENT,
+            payload: expandRows
         }
     },
     // Установка ошибки для записи
