@@ -14,7 +14,7 @@ export const RangePickerComponent = ({ isVisible, onChange, date }) => {
             format={TabOptions.dateFormat}
             onChange={onChange}
             value={date}
-            style={{width: "70%"}}
+            // style={{width: "70%"}}
         />
         : null
 }
