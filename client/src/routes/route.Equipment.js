@@ -80,7 +80,7 @@ export const EquipmentRoute = {
             const data = await request(this.base_url, method, item);
 
             // Если в ответе есть массив errors
-            if (data.errors && data.errors.length) {
+            if (data && data.errors && data.errors.length) {
                 message.error(data.errors[0].msg);
 
                 // Останавливаем спиннер загрузки

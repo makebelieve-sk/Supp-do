@@ -64,6 +64,7 @@ const convertArrayOfObjectsToCSV = (array, key) => {
 // Объект настроек таблицы
 const tableSettings = {
     pagination: {
+        showTotal: (total, range) => `Записи с ${range[0]} по ${range[1]} из ${total}`,
         showSizeChanger: true,
         pageSizeOptions: [10, 20, 50, 100],
         onShowSizeChange: (_, size) => {

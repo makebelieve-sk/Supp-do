@@ -16,7 +16,7 @@ export const request = async (url, method = "GET", body = null, headers = {}) =>
         if (response.status === 400) {
             console.log(data.message);
             message.error(data.message);
-            return data.errors && data.errors.length ? data : null;
+            return data && data.errors && data.errors.length ? data : null;
         }
 
         if (response.status === 401) {

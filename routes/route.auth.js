@@ -125,34 +125,13 @@ router.post("/login", checkMiddlewareAuth, async (req, res) => {
 
         const {userName, password} = req.body; // Получаем объект записи с фронтенда
 
-        if (config.mode && config.mode === "demo") {
-            const candidate = await User.findOne({userName: "demo"});
+        // Ищем запись в базе данных по имени пользователя
+        const user = await User.findOne({userName}).select("password approved");
 
-            if (candidate) {
-                const isMatch = await bcrypt.compare(password, candidate.password);  // Сравниваем пароли
-
-                // Проверяем введенный пароль
-                if (!isMatch) return res.status(400).json({message: "Неверный пользователь или пароль"});
-
-                // Ищем запись в базе данных по имени пользователя, популизируя все вложенные поля и не работаем с полем 'Пароль'
-                const user = await User
-                    .findById(candidate._id)
-                    .populate("roles")
-                    .populate("person")
-                    .select("-password");
-
-                // Создаем объект "токена"
-                const token = jwt.sign(
-                    {userId: user._id},
-                    config.jwtSecret,
-                    {expiresIn: "30min"}
-                );
-
-                return res.status(200).json({token, userId: user._id, user});
-            }
-
+        // Проверяем на существование записи
+        if (!user) {
             // Если нет кандидата, то создаем его вместе с ролью "Зарегистрированный пользователь (демоверсия)"
-            if (!candidate) {
+            if (userName === "demo" && password === "demo" && config.mode === "demo") {
                 // Создаем роль "Зарегистрированный пользователь (демоверсия)"
                 const roleDemo = new Role({
                     name: "Демо-пользователь",
@@ -196,13 +175,9 @@ router.post("/login", checkMiddlewareAuth, async (req, res) => {
 
                 return res.status(200).json({token, userId: user._id, user: newUser});
             }
+
+            return res.status(400).json({message: "Неверный пользователь или пароль"});
         }
-
-        // Ищем запись в базе данных по имени пользователя
-        const user = await User.findOne({userName}).select("password approved");
-
-        // Проверяем на существование записи
-        if (!user) return res.status(400).json({message: "Неверный пользователь или пароль"});
 
         const isMatch = await bcrypt.compare(password, user.password);  // Сравниваем пароли
 
