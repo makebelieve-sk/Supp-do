@@ -8,6 +8,7 @@ import {request} from "../helpers/functions/general.functions/request.helper";
 import {compareObjects} from "../helpers/functions/general.functions/compare";
 import {NoticeError, storeRole} from "./helper";
 import onRemove from "../helpers/functions/general.functions/removeTab";
+import {StorageVars} from "../options/global.options";
 
 export const RoleRoute = {
     // Адрес для работы с разделом "Роли"
