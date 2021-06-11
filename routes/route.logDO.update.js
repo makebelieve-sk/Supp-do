@@ -22,6 +22,7 @@ router.get("/:date", async (req, res) => {
             items.forEach(logDO => {
                 logDO.date = moment(logDO.date, dateFormat).valueOf() + diff;
                 logDO.planDateDone = logDO.planDateDone ? moment(logDO.planDateDone, dateFormat).valueOf() + diff : null;
+                logDO.dateDone = logDO.dateDone ? moment(logDO.dateDone, dateFormat).valueOf() + diff : null;
 
                 logDO.save();
             });
