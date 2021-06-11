@@ -47,7 +47,7 @@ export default class Dashboard extends React.Component {
                 <Row>
                     {/*Неназначенные заявки*/}
                     <Col
-                        xs={24} sm={print ? 8 : 12} md={8} lg={8} xl={4}
+                        xs={print ? 8 : 24} sm={print ? 8 : 12} md={8} lg={8} xl={4}
                         className="col-circle-1"
                         onClick={() =>
                             analytic && analytic.unassignedTasks ? goToLogDO("/unassignedTasks") : message.warning("Записей нет")}
@@ -62,7 +62,7 @@ export default class Dashboard extends React.Component {
 
                     {/*Заявки в работе*/}
                     <Col
-                        xs={24} sm={print ? 8 : 12} md={8} lg={8} xl={4}
+                        xs={print ? 8 : 24} sm={print ? 8 : 12} md={8} lg={8} xl={4}
                         className={`col-circle-2 ${classNameColTwo}`}
                         onClick={() => analytic && analytic.inWorkTasks ? goToLogDO("/inWorkTasks") : message.warning("Записей нет")}
                     >
@@ -76,7 +76,7 @@ export default class Dashboard extends React.Component {
 
                     {/*Непринятые заявки*/}
                     <Col
-                        xs={24} sm={print ? 8 : 24} md={8} lg={8} xl={4}
+                        xs={print ? 8 : 24} sm={print ? 8 : 24} md={8} lg={8} xl={4}
                         className="col-circle-3"
                         onClick={() => analytic && analytic.notAccepted ? goToLogDO("/notAccepted") : message.warning("Записей нет")}
                     >
@@ -114,7 +114,7 @@ export default class Dashboard extends React.Component {
                     {/*Ср. время реагирования, Ср. время выполнения*/}
                     <Col xs={24} sm={24} md={24} lg={24} xl={6} className="block-2">
                         <Row style={{height: "100%"}}>
-                            <Col xs={24} sm={12} md={12} lg={12} xl={24} className="col-circle-4">
+                            <Col xs={print ? 12 : 24} sm={12} md={12} lg={12} xl={24} className="col-circle-4">
                                 <CircleComponent
                                     title={"Ср. время реагирования, " + getUnits(analytic ? analytic.averageResponseTime : null)}
                                     value={analytic && analytic.averageResponseTime ? analytic.averageResponseTime : 0}
@@ -126,7 +126,7 @@ export default class Dashboard extends React.Component {
                                     size={circleSize}
                                 />
                             </Col>
-                            <Col xs={24} sm={12} md={12} lg={12} xl={24} className="col-circle-5">
+                            <Col xs={print ? 12 : 24} sm={12} md={12} lg={12} xl={24} className="col-circle-5">
                                 <CircleComponent
                                     title={"Ср. время выполнения, " + getUnits(analytic ? analytic.averageClosingTime : null)}
                                     value={analytic && analytic.averageClosingTime ? analytic.averageClosingTime : 0}
@@ -149,7 +149,7 @@ export default class Dashboard extends React.Component {
 
                 <Row className="row-3">
                     {/*Продолжительность простоев*/}
-                    <Col xs={24} sm={12} md={12} lg={6} xl={6} className="col-column-1">
+                    <Col xs={print ? 12 : 24} sm={12} md={12} lg={6} xl={6} className="col-column-1">
                         <ColumnChartComponent
                             title="Продолжительность простоев, мин"
                             data={analytic && analytic.changeDowntime ? analytic.changeDowntime : [{
@@ -161,7 +161,7 @@ export default class Dashboard extends React.Component {
                     </Col>
 
                     {/*Количество отказов*/}
-                    <Col xs={24} sm={12} md={12} lg={6} xl={6} className="col-column-2">
+                    <Col xs={print ? 12 : 24} sm={12} md={12} lg={6} xl={6} className="col-column-2">
                         <ColumnChartComponent
                             title="Количество отказов, шт."
                             data={analytic && analytic.changeRefusal ? analytic.changeRefusal : [{
@@ -174,7 +174,7 @@ export default class Dashboard extends React.Component {
 
                     {/*Рейтинг отказов за 12 месяцев (Топ-5)*/}
                     <Col
-                        xs={24} sm={print ? 12 : 24} md={12} lg={6} xl={6}
+                        xs={print ? 12 : 24} sm={print ? 12 : 24} md={12} lg={6} xl={6}
                         className="col-rating-1"
                         onClick={() =>
                             analytic && analytic.bounceRating ? goToLogDO("/rating/bounceRating") : message.warning("Записей нет")}
@@ -188,7 +188,7 @@ export default class Dashboard extends React.Component {
 
                     {/*Рейтинг незакрытых заявок (Топ-5)*/}
                     <Col
-                        xs={24} sm={print ? 12 : 24} md={12} lg={6} xl={6}
+                        xs={print ? 12 : 24} sm={print ? 12 : 24} md={12} lg={6} xl={6}
                         className="col-rating-2"
                         onClick={() =>
                             analytic && analytic.ratingOrders ? goToLogDO("/rating/ratingOrders"): message.warning("Записей нет")}
