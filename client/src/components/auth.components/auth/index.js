@@ -34,7 +34,7 @@ export const AuthComponent = ({setRegForm}) => {
 
         form.setFieldsValue({
             userName: isDemo ? "demo" : "",
-            password: isDemo ? "demo" : "",
+            password: isDemo ? "supp-demo" : "",
             remember: true
         });
     }, [form, isDemo]);

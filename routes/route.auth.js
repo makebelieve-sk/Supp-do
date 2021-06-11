@@ -131,7 +131,7 @@ router.post("/login", checkMiddlewareAuth, async (req, res) => {
         // Проверяем на существование записи
         if (!user) {
             // Если нет кандидата, то создаем его вместе с ролью "Зарегистрированный пользователь (демоверсия)"
-            if (userName === "demo" && password === "demo" && config.mode === "demo") {
+            if (userName === "demo" && password === "supp-demo" && config.mode === "demo") {
                 // Создаем роль "Зарегистрированный пользователь (демоверсия)"
                 const roleDemo = new Role({
                     name: "Демо-пользователь",

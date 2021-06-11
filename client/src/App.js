@@ -42,7 +42,7 @@ export default function App() {
 
         if (mode && JSON.parse(mode) === "demo") {
             setInterval(async () => {
-                if (moment().hours() === 9 && moment().minutes() === 54 && moment().seconds() === 0) {
+                if (moment().hours() === 0 && moment().minutes() === 5 && moment().seconds() === 0) {
                     await LogDORoute.update(moment().format(TabOptions.dateFormat).valueOf());
                 }
             }, 1000);
