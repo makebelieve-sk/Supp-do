@@ -8,12 +8,12 @@ import {getColumns, getFilterFunction, openRecordTab} from "../../helpers/mapper
 import {createTreeData} from "../../helpers/functions/general.functions/createTreeData.helper";
 import tableSettings from "../../options/tab.options/table.options/settings";
 import {goToLogDO} from "../analytic";
+import {ActionCreator} from "../../redux/combineActions";
 import {TableHeaderComponent} from "../../components/tab.components/tableHeader";
 import {TableAlertComponent} from "../../components/tab.components/tableAlert";
 import {TableBadgeComponent} from "../../components/tab.components/tableBadge";
 
 import "./table.css";
-import {ActionCreator} from "../../redux/combineActions";
 
 export const TableComponent = ({specKey}) => {
     // Получение данных таблиц
@@ -71,9 +71,7 @@ export const TableComponent = ({specKey}) => {
                             equipment: row.equipment,
                             date: store.getState().reducerStatistic.dateRating
                         })
-                        : await goToLogDO("/list", {
-                            date: store.getState().reducerStatistic.dateList
-                        });
+                        : await goToLogDO("/list", {_id: row._id});
                 } else {
                     openRecordTab(specKey, row._id);
                 }

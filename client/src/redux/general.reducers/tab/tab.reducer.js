@@ -5,6 +5,7 @@ import {
     EDIT_TAB,
     REMOVE_TAB,
     SET_ACTIVE_KEY,
+    SET_ACTIVE_STATISTIC_KEY,
     SET_TABS_IN_HISTORY,
     SET_TABS,
 } from "./tab.constants";
@@ -30,6 +31,11 @@ export default function reducerTab(state = initialState, action) {
             return {
                 ...state,
                 activeKey: action.payload
+            };
+        case SET_ACTIVE_STATISTIC_KEY:
+            return {
+                ...state,
+                statisticKey: action.payload
             };
         case SET_TABS_IN_HISTORY:
             return {

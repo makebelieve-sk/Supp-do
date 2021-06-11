@@ -23,6 +23,7 @@ const StorageVars = {
     user: "user",
     jwt: "token",
     pageSize: "pageSize",
+    tableTotal: "tableTotal",
 }
 
 // Почтовый адрес нашей компании

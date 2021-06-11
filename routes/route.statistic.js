@@ -336,13 +336,10 @@ router.post("/logDO/rating", async (req, res) => {
     }
 });
 
-// Возвращает записи ЖДО при клике на "Перечень не закрытых заявок"
+// Возвращает записи ЖДО при клике на "Перечень непринятых заявок"
 router.post("/logDO/list", async (req, res) => {
     try {
-        const {date} = req.body;   // Получаем дату с фронтенда
-
-        const millisecondsStart = moment(date.split("/")[0], dateFormat).valueOf();
-        const millisecondsEnd = moment(date.split("/")[1], dateFormat).valueOf();
+        const {_id} = req.body;   // Получаем дату с фронтенда
 
         let departments = [], equipments = [];
         try {
@@ -350,33 +347,24 @@ router.post("/logDO/list", async (req, res) => {
             departments = await Department.find({}).populate("parent");   // Получаем все подразделения
         } catch (err) {
             console.log(err);
-            res.status(500).json({
+            return res.status(500).json({
                 message: "Возникла ошибка при получении записей из баз данных 'Подразделения' и 'Оборудование' (Перечень не закрытых заявок): " + err
             });
         }
 
         // Получаем все записи состояний заявок
-        let statuses = [], statusesFalse = [], idsFalse = [];
+        let statuses = [];
 
         try {
             statuses = await TaskStatus.find({});
-
-            statusesFalse = await TaskStatus.find({isFinish: false}).select("_id");
-
-            if (statusesFalse && statusesFalse.length) {
-                idsFalse = statusesFalse.map(status => status._id)
-            }
         } catch (err) {
             console.log(err);
-            res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Состояния заявок' (Перечень не закрытых заявок)"});
+            return res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Состояния заявок' (Перечень не закрытых заявок)"});
         }
 
         // Даем запрос в бд, передавая нужную дату
         await LogDO.find(
-            {
-                $or: [{acceptTask: false}, {taskStatus: {$in: idsFalse}}],
-                date: {$gte: millisecondsStart, $lte: millisecondsEnd}
-            },
+            {_id: _id},
             function (err, items) {
                 // Обработка ошибки
                 if (err) {
@@ -423,11 +411,11 @@ router.post("/logDO/list", async (req, res) => {
                 }
 
                 // Отправляем ответ
-                res.status(200).json({
+                return res.status(200).json({
                     itemsDto,
                     startDate,
                     endDate,
-                    alert: "Перечень не закрытых заявок",
+                    alert: "Перечень непринятых заявок",
                     statusLegend
                 });
             }

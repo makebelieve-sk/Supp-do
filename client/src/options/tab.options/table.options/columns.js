@@ -822,7 +822,7 @@ const StatisticRatingColumns = [
         dataIndex: "during",
         key: "during",
         width: 100,
-        sorter: (a, b) => a.during.toLowerCase() < b.during.toLowerCase() ? 1 : -1,
+        sorter: (a, b) => a.during * 100 > b.during * 100 ? 1 : -1,
         sortDirections: ["descend", "ascend"],
         align: "center",
         render: (text, record) => {

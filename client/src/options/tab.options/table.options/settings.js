@@ -1,9 +1,10 @@
 // Настройки таблицы
 import {getExportName, getTableHeader} from "../../../helpers/mappers/tabs.mappers/table.helper";
 import filterTableKeys from "../../tab.options/table.options/filterTableKeys";
-import {updateValueInCookies} from "../../../helpers/functions/general.functions/workWithCookies";
+import {updateValueInStorage} from "../../../helpers/functions/general.functions/workWithCookies";
 import {ActionCreator} from "../../../redux/combineActions";
 import {StorageVars} from "../../global.options";
+import Cookies from "js-cookie";
 
 // Экспорт в эксель
 const downloadCSV = (array, key) => {
@@ -68,8 +69,13 @@ const tableSettings = {
         showSizeChanger: true,
         pageSizeOptions: [10, 20, 50, 100],
         onShowSizeChange: (_, size) => {
-            // Обновляем куки
-            updateValueInCookies(StorageVars.pageSize, size, ActionCreator.ActionCreatorMain.setPageSize);
+            const cookieValue = Cookies.get(StorageVars.pageSize);
+
+            if (cookieValue) {
+                const cookie = JSON.parse(Cookies.get(StorageVars.pageSize));
+
+                updateValueInStorage(cookie, StorageVars.pageSize, size, ActionCreator.ActionCreatorMain.setPageSize);
+            }
         }
     },
     export: downloadCSV,

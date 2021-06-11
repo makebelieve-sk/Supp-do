@@ -4,6 +4,7 @@ import {
     EDIT_TAB,
     REMOVE_TAB,
     SET_ACTIVE_KEY,
+    SET_ACTIVE_STATISTIC_KEY,
     SET_TABS_IN_HISTORY,
     SET_TABS,
 } from "./tab.constants";
@@ -35,6 +36,13 @@ const ActionCreatorTab = {
     setActiveKey: (key) => {
         return {
             type: SET_ACTIVE_KEY,
+            payload: key
+        }
+    },
+    // Установка вкладки "Статистика"
+    setActiveStatisticKey: (key) => {
+        return {
+            type: SET_ACTIVE_STATISTIC_KEY,
             payload: key
         }
     },

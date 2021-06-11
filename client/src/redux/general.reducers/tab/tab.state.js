@@ -5,6 +5,7 @@ const initialState = {
     tabs: [{title: "Журнал дефектов и отказов", content: BodyManager, key: "logDO"}],   // Массив открытых вкладок
     activeKey: "logDO",             // Активный ключ вкладки (ключ текущей вкладки)
     historyTabs: ["logDO"],         // История вкладок
+    statisticKey: "statisticRating" // Активный ключ вкладки "Стаистика"
 };
 
 export default initialState;

@@ -28,6 +28,8 @@ app.use("/main", require("./routes/route.main"));
 
 // Авторизация
 app.use("/api/auth", require("./routes/route.auth"));
+// Обновление дат раздела "Журнал дефектов и отказов" в демо режиме
+app.use("/api/logDO-update", require("./routes/route.logDO.update"));
 
 // Для всех роутов, указанных ниже, используется мидлвар проверки авторизации и ролей пользователя
 // Разделы приложения

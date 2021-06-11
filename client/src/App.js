@@ -36,7 +36,7 @@ export default function App() {
         getConfig().then(null);
     }, [logout]);
 
-    // Каждый день в 00:10 обновляем даты у записей ЖДО
+    // Каждый день в 00:05 обновляем даты у записей ЖДО
     useEffect(() => {
         const mode = localStorage.getItem("mode");
 

@@ -44,24 +44,35 @@ const setValueToCookies = (cookieName, defaultValue, dispatchAction) => {
 
 /**
  * Функция обновления значений в куки и редакс
- * @param cookieName - наименование куки
+ * @param object - объект хранилища
+ * @param storageName - наименование хранилища
  * @param newValue - значение, которое нужно установить
  * @param dispatchAction - экшен для записи в редакс
  */
-const updateValueInCookies = (cookieName, newValue, dispatchAction) => {
+const updateValueInStorage = (object, storageName, newValue, dispatchAction = null) => {
     // Получаем текущий активный ключ вкладки и значение куки
     const activeKey = store.getState().reducerTab.activeKey;
-    const cookieObject = JSON.parse(Cookies.get(cookieName));
 
-    // Присваиваем новое значение
-    cookieObject[activeKey] = newValue;
+    if (activeKey === "statistic") {
+        const statisticKey = store.getState().reducerTab.statisticKey;
+
+        // Присваиваем новое значение
+        object[statisticKey] = newValue;
+    } else {
+        // Присваиваем новое значение
+        object[activeKey] = newValue;
+    }
 
     // Обновляем редакс и куки
-    store.dispatch(dispatchAction(cookieObject));
-    Cookies.set(cookieName, cookieObject);
+    if (dispatchAction) {
+        store.dispatch(dispatchAction(object));
+        Cookies.set(storageName, object);
+    } else {
+        localStorage.setItem(storageName, JSON.stringify({totalObjectDefault: object}));
+    }
 };
 
 export {
     setValueToCookies,
-    updateValueInCookies
+    updateValueInStorage
 };

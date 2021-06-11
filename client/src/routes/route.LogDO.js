@@ -15,6 +15,8 @@ import {AnalyticRoute} from "./route.Analytic";
 export const LogDORoute = {
     // Адрес для работы с разделом "Журнал дефектов и отказов"
     base_url: "/api/logDO/",
+    // Адрес для обновления дат раздела "Журнал дефектов и отказов" в демо режиме
+    update_url: "/api/logDO-update/",
     // Адрес для работы с файлами
     file_url: "/files/",
     // Получение всех записей
@@ -312,7 +314,7 @@ export const LogDORoute = {
     update: async function(date) {
         try {
             // Обновляем даты записей
-            const data = await request(this.base_url + "update/" + date);
+            const data = await request(this.update_url + date);
 
             if (data) {
                 message.success(data);
