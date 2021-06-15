@@ -1,12 +1,13 @@
 // Компонент, отрисовывающий столбчатую диаграмму
 import React from "react";
 import {Col, Row} from "antd";
-import {Column} from '@ant-design/charts';
+import {Column} from "@ant-design/charts";
 
-import "./columnChart.css";
 import {useWindowWidth} from "../../../hooks/windowWidth.hook";
 
-export const ColumnChartComponent = ({title, data}) => {
+import "./columnChart.css";
+
+export const ColumnChartComponent = ({title, goToLogDO, data}) => {
     // Определяем название класса, получая текущее значение ширины окна браузера
     const screenClass = useWindowWidth();
 
@@ -30,6 +31,18 @@ export const ColumnChartComponent = ({title, data}) => {
         height: 200,
     };
 
+    /**
+     * Функция клика на диаграмму
+     * @param event - событие мыши
+     */
+    const onClick = (event) => {
+        if (event.type === "click" && event.data) {
+            const type = title === "Продолжительность простоев, мин" ? "downtime" : "failure";
+
+            goToLogDO(`/column/${type}`, event.data.data);
+        }
+    };
+
     return (
         <div className={screenClass}>
             <Row className="column-chart-title title">
@@ -40,7 +53,7 @@ export const ColumnChartComponent = ({title, data}) => {
 
             <Row>
                 <Col span={24} className="column-chart">
-                    <Column {...config} />
+                    <Column {...config} onEvent={(chart, event) => onClick(event)} />
                 </Col>
             </Row>
         </div>

@@ -148,6 +148,7 @@ export default class Dashboard extends React.Component {
                     <Col xs={print ? 12 : 24} sm={12} md={12} lg={6} xl={6} className="col-column-1">
                         <ColumnChartComponent
                             title="Продолжительность простоев, мин"
+                            goToLogDO={goToLogDO}
                             data={analytic && analytic.changeDowntime ? analytic.changeDowntime : [{
                                 month: moment().format("MMMM")[0].toUpperCase() +
                                     moment().format("MMMM").slice(1, 3) + ". " + moment().format("YYYY"),
@@ -160,6 +161,7 @@ export default class Dashboard extends React.Component {
                     <Col xs={print ? 12 : 24} sm={12} md={12} lg={6} xl={6} className="col-column-2">
                         <ColumnChartComponent
                             title="Количество отказов, шт."
+                            goToLogDO={goToLogDO}
                             data={analytic && analytic.changeRefusal ? analytic.changeRefusal : [{
                                 month: moment().format("MMMM")[0].toUpperCase() +
                                     moment().format("MMMM").slice(1, 3) + ". " + moment().format("YYYY"),

@@ -414,6 +414,7 @@ const getHelpTitle = (key) => {
         ["userItem", "Пользователи"],
         ["roleItem", "Роли"],
         ["logItem", "Журнал действий пользователей"],
+        ["statistic", "Статистика"],
     ]);
 
     return localMap.has(key) ? localMap.get(key) : map.get(key).helpTitle;

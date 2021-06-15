@@ -228,48 +228,56 @@ const getChangeDowntime = (logDOs, flag) => {
             {
                 month: moment().format("MMMM")[0].toUpperCase() + moment().format("MMMM").slice(1, 3) + ". "
                     + moment().subtract(1, "year").format("YYYY"),
-                value: downtimePrevYear
+                value: downtimePrevYear,
+                monthNumber: moment().month() + 1
             },
             {
                 month: moment().subtract(2, "month").format("MMMM")[0].toUpperCase()
                     + moment().subtract(2, "month").format("MMMM").slice(1, 3) + ". "
                     + moment().format("YYYY"),
-                value: downtimePrevTwoMonth
+                value: downtimePrevTwoMonth,
+                monthNumber: moment().subtract(2, "month").month() + 1
             },
             {
                 month: moment().subtract(1, "month").format("MMMM")[0].toUpperCase()
                     + moment().subtract(1, "month").format("MMMM").slice(1, 3) + ". "
                     + moment().format("YYYY"),
-                value: downtimePrevMonth
+                value: downtimePrevMonth,
+                monthNumber: moment().subtract(1, "month").month() + 1
             },
             {
                 month: moment().format("MMMM")[0].toUpperCase() + moment().format("MMMM").slice(1, 3) + ". "
                     + moment().format("YYYY"),
-                value: downtimeCurrentMonth
+                value: downtimeCurrentMonth,
+                monthNumber: moment().month() + 1
             },
         ]
         : [
             {
                 month: moment().format("MMMM")[0].toUpperCase() + moment().format("MMMM").slice(1, 3) + ". "
                     + moment().subtract(1, "year").format("YYYY"),
-                value: prevYearLogDOs.length
+                value: prevYearLogDOs.length,
+                monthNumber: moment().month() + 1
             },
             {
                 month: moment().subtract(2, "month").format("MMMM")[0].toUpperCase()
                     + moment().subtract(2, "month").format("MMMM").slice(1, 3) + ". "
                     + moment().format("YYYY"),
-                value: prevTwoMonthLogDOs.length
+                value: prevTwoMonthLogDOs.length,
+                monthNumber: moment().subtract(2, "month").month() + 1
             },
             {
                 month: moment().subtract(1, "month").format("MMMM")[0].toUpperCase()
                     + moment().subtract(1, "month").format("MMMM").slice(1, 3) + ". "
                     + moment().format("YYYY"),
-                value: prevMonthLogDOs.length
+                value: prevMonthLogDOs.length,
+                monthNumber: moment().subtract(1, "month").month() + 1
             },
             {
                 month: moment().format("MMMM")[0].toUpperCase() + moment().format("MMMM").slice(1, 3) + ". "
                     + moment().format("YYYY"),
-                value: currentMonthLogDOs.length
+                value: currentMonthLogDOs.length,
+                monthNumber: moment().month() + 1
             },
         ];
 }
@@ -1316,6 +1324,240 @@ router.get("/logDO/rating/ratingOrders", async (req, res) => {
             alert: "Рейтинг незакрытых заявок (Топ-5)",
             statusLegend
         });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: "Возникла ошибка при переходе в раздел ЖДО " + err});
+    }
+});
+
+// Возвращает записи ЖДО при клике на "Продолжительность простоев, мин"
+router.post("/logDO/column/downtime", async (req, res) => {
+    try {
+        const {monthNumber} = req.body;
+
+        const dateStart = moment().month(monthNumber - 1).startOf("month").valueOf();
+        const dateEnd = moment().month(monthNumber - 1).endOf("month").valueOf();
+
+        let departments = [], equipment = [];
+        try {
+            equipment = await Equipment.find({}).populate("parent");      // Получаем всё оборудование
+            departments = await Department.find({}).populate("parent");   // Получаем все подразделения
+        } catch (err) {
+            console.log(err);
+            return res.status(500).json({
+                message: "Возникла ошибка при получении записей из баз данных 'Подразделения' и 'Оборудование' (bounceRating): " + err
+            });
+        }
+
+        // Получаем все записи состояний заявок
+        let statuses = [];
+
+        try {
+            statuses = await TaskStatus.find({});
+        } catch (err) {
+            console.log(err);
+            return res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Состояния заявок' (/logDO/dto)"});
+        }
+
+        // Даем запрос в бд, передавая нужную дату
+        await LogDO.find(
+            {date: {$gte: dateStart, $lte: dateEnd}, downtime: {$ne: ""}},
+            function (err, items) {
+                // Обработка ошибки
+                if (err) {
+                    console.log(err);
+                    return res.status(500).json({message: "Возникла ошибка при получении записей из базы данных ЖДО (bounceRating) " + err});
+                }
+
+                let startDate = null, endDate = null, itemsDto = [], statusLegend = [];
+
+                if (items && items.length) {
+                    // Получаем начальную и конечную даты записей
+                    startDate = moment(items[items.length - 1].date).format(dateFormat);
+                    endDate = moment(items[0].date).format(dateFormat);
+
+                    // Сортируем записи по полю "Простои"
+                    items = items.sort((a, b) => {
+                        a.downtime = a.downtime ? a.downtime : 0;
+                        b.downtime = b.downtime ? b.downtime : 0;
+
+                        return a.downtime < b.downtime ? 1 : -1;
+                    });
+
+                    // Получаем массив записей ЖДО
+                    itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
+
+                    if (statuses && statuses.length) {
+                        statuses.forEach(task => {
+                            const countTasks = items.filter(logDO =>
+                                logDO.taskStatus && logDO.taskStatus._id.toString() === task._id.toString());
+
+                            if (countTasks.length)
+                                statusLegend.push({
+                                    id: task._id,
+                                    name: task.name,
+                                    count: countTasks.length,
+                                    color: task.color
+                                });
+                        });
+
+                        // Сколько записей без статуса
+                        const countWithoutStatus = items.filter(logDOs => !logDOs.taskStatus).length;
+
+                        if (countWithoutStatus)
+                            statusLegend.push({
+                                id: Date.now(),
+                                name: "Без статуса",
+                                count: countWithoutStatus,
+                                color: "#FFFFFF",
+                                borderColor: "#d9d9d9"
+                            });
+                    }
+                }
+
+                // Отправляем ответ
+                return res.status(200).json({
+                    itemsDto,
+                    startDate,
+                    endDate,
+                    alert: "Продолжительность простоев, мин",
+                    statusLegend
+                });
+            }
+        )
+            .sort({date: -1})
+            .populate("applicant")
+            .populate({
+                path: "equipment",
+                populate: {
+                    path: "parent",
+                    model: "Equipment"
+                }
+            })
+            .populate({
+                    path: "department",
+                    populate: {
+                        path: "parent",
+                        model: "Department"
+                    }
+                }
+            )
+            .populate("responsible")
+            .populate("taskStatus")
+            .populate("files");
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({message: "Возникла ошибка при переходе в раздел ЖДО " + err});
+    }
+});
+
+// Возвращает записи ЖДО при клике на "Количество отказов, шт."
+router.post("/logDO/column/failure", async (req, res) => {
+    try {
+        const {monthNumber} = req.body;
+
+        const dateStart = moment().month(monthNumber - 1).startOf("month").valueOf();
+        const dateEnd = moment().month(monthNumber - 1).endOf("month").valueOf();
+
+        let departments = [], equipment = [];
+        try {
+            equipment = await Equipment.find({}).populate("parent");      // Получаем всё оборудование
+            departments = await Department.find({}).populate("parent");   // Получаем все подразделения
+        } catch (err) {
+            console.log(err);
+            return res.status(500).json({
+                message: "Возникла ошибка при получении записей из баз данных 'Подразделения' и 'Оборудование' (bounceRating): " + err
+            });
+        }
+
+        // Получаем все записи состояний заявок
+        let statuses = [];
+
+        try {
+            statuses = await TaskStatus.find({});
+        } catch (err) {
+            console.log(err);
+            return res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Состояния заявок' (/logDO/dto)"});
+        }
+
+        // Даем запрос в бд, передавая нужную дату
+        await LogDO.find(
+            {date: {$gte: dateStart, $lte: dateEnd}},
+            function (err, items) {
+                // Обработка ошибки
+                if (err) {
+                    console.log(err);
+                    return res.status(500).json({message: "Возникла ошибка при получении записей из базы данных ЖДО (bounceRating) " + err});
+                }
+
+                let startDate = null, endDate = null, itemsDto = [], statusLegend = [];
+
+                if (items && items.length) {
+                    // Получаем начальную и конечную даты записей
+                    startDate = moment(items[items.length - 1].date).format(dateFormat);
+                    endDate = moment(items[0].date).format(dateFormat);
+
+                    // Получаем массив записей ЖДО
+                    itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
+
+                    if (statuses && statuses.length) {
+                        statuses.forEach(task => {
+                            const countTasks = items.filter(logDO =>
+                                logDO.taskStatus && logDO.taskStatus._id.toString() === task._id.toString());
+
+                            if (countTasks.length)
+                                statusLegend.push({
+                                    id: task._id,
+                                    name: task.name,
+                                    count: countTasks.length,
+                                    color: task.color
+                                });
+                        });
+
+                        // Сколько записей без статуса
+                        const countWithoutStatus = items.filter(logDOs => !logDOs.taskStatus).length;
+
+                        if (countWithoutStatus)
+                            statusLegend.push({
+                                id: Date.now(),
+                                name: "Без статуса",
+                                count: countWithoutStatus,
+                                color: "#FFFFFF",
+                                borderColor: "#d9d9d9"
+                            });
+                    }
+                }
+
+                // Отправляем ответ
+                return res.status(200).json({
+                    itemsDto,
+                    startDate,
+                    endDate,
+                    alert: "Количество отказов, шт.",
+                    statusLegend
+                });
+            }
+        )
+            .sort({date: -1})
+            .populate("applicant")
+            .populate({
+                path: "equipment",
+                populate: {
+                    path: "parent",
+                    model: "Equipment"
+                }
+            })
+            .populate({
+                    path: "department",
+                    populate: {
+                        path: "parent",
+                        model: "Department"
+                    }
+                }
+            )
+            .populate("responsible")
+            .populate("taskStatus")
+            .populate("files");
     } catch (err) {
         console.log(err);
         res.status(500).json({message: "Возникла ошибка при переходе в раздел ЖДО " + err});

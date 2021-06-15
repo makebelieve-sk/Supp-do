@@ -6,9 +6,16 @@ import {Bar} from "@ant-design/charts";
 import "./barChart.css";
 
 export const BarChartComponent = ({data, goToLogDO, print}) => {
+    // Удаление дубликатов (если такие имеются)
+    const uniqueArray = data.filter((thing, index) => {
+        const _thing = JSON.stringify(thing);
+
+        return index === data.findIndex(obj => JSON.stringify(obj) === _thing);
+    });
+
     // Объект настроек графика
     const config = {
-        data: data,
+        data: uniqueArray,
         xField: "value",
         yField: "department",
         seriesField: "taskStatus",

@@ -30,6 +30,8 @@ export const AuthComponent = ({setRegForm}) => {
     useEffect(() => {
         const mode = JSON.parse(localStorage.getItem("mode"));
 
+        console.log("Режим приложения: ", mode);
+
         if (mode && mode === "demo") setIsDemo(true);
 
         form.setFieldsValue({

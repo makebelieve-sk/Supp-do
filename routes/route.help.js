@@ -74,10 +74,10 @@ router.get("/help/get/:id", async (req, res) => {
 
         const response = item ? {title: item.name.label, text: item.text} : null;   // Составляем объект ответа
 
-        res.status(200).json(response); // Отправляем ответ
+        return res.status(200).json(response); // Отправляем ответ
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: "Ошибка при получении записи: " + err});
+        return res.status(500).json({message: "Ошибка при получении записи: " + err});
     }
 });
 

@@ -70,7 +70,7 @@ async function start() {
             useCreateIndex: true
         });
 
-        const PORT = config.port || 5000;
+        const PORT = process.env.PORT || 5000;
 
         app.listen(PORT, () => console.log(`Приложение запущено на порту ${PORT} в режиме ${process.env.NODE_ENV}`));
     } catch (e) {

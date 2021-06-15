@@ -1,5 +1,4 @@
 {
-  "port": 5000,
   "jwtSecret": "supp do mern",
   "mongoUri": "mongodb://localhost:27017",
   "mode": "demo"
