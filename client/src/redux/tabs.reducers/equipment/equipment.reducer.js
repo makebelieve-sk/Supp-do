@@ -17,7 +17,6 @@ import {
     SET_ERROR_RECORD_EQUIPMENT,
     SET_ERROR_TABLE_EQUIPMENT,
 } from "./equipment.constants";
-import {SET_EXPAND_ROWS_DEPARTMENT} from "../department/department.constants";
 
 export default function reducerEquipment(state = initialState, action) {
     switch (action.type) {

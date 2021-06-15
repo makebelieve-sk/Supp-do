@@ -263,6 +263,14 @@ const map = new Map([
         filter: (items, str) => filterTable(items, str)
     }],
     ["statisticList", {
+        openRecordTab: (_id) => openRecord(
+            _id,
+            "Создание записи в журнале дефектов и отказов",
+            "Редактирование записи в журнале дефектов и отказов",
+            LogDOTab,
+            "logDOItem",
+            LogDORoute
+        ),
         getColumns: StatisticListColumns,
         getTableHeader: headerStatisticList,
         getPrintName: "Статистика/Перечень незакрытых заявок",

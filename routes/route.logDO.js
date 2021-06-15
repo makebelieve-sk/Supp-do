@@ -185,7 +185,7 @@ router.get("/logDO/dto/:dateStart/:dateEnd", async (req, res) => {
             departments = await Department.find({}).populate("parent");
         } catch (err) {
             console.log(err);
-            res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Подразделения' (/logDO/dto)"});
+            return res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Подразделения' (/logDO/dto)"});
         }
 
         // Получаем все записи оборудования
@@ -195,7 +195,7 @@ router.get("/logDO/dto/:dateStart/:dateEnd", async (req, res) => {
             equipment = await Equipment.find({}).populate("parent");
         } catch (err) {
             console.log(err);
-            res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Оборудование' (/logDO/dto)"});
+            return res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Оборудование' (/logDO/dto)"});
         }
 
         // Получаем все записи состояний заявок
@@ -205,7 +205,7 @@ router.get("/logDO/dto/:dateStart/:dateEnd", async (req, res) => {
             statuses = await TaskStatus.find({});
         } catch (err) {
             console.log(err);
-            res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Состояния заявок' (/logDO/dto)"});
+            return res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Состояния заявок' (/logDO/dto)"});
         }
 
         // Получаем все записи ЖДО с фильтром по дате
@@ -234,7 +234,7 @@ router.get("/logDO/dto/:dateStart/:dateEnd", async (req, res) => {
                 .populate("files");
         } catch (err) {
             console.log(err);
-            res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Журнал дефектов и отказов' (/logDO/dto)"});
+            return res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Журнал дефектов и отказов' (/logDO/dto)"});
         }
 
         let statusLegend = [];  // Инициализация массива легенд статусов
@@ -273,10 +273,10 @@ router.get("/logDO/dto/:dateStart/:dateEnd", async (req, res) => {
         // Изменяем запись для вывода в таблицу
         if (items && items.length) itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
 
-        res.status(200).json({itemsDto, statusLegend});
+        return res.status(200).json({itemsDto, statusLegend});
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: `Ошибка при получении записей: ${err}`});
+        return res.status(500).json({message: `Ошибка при получении записей: ${err}`});
     }
 });
 

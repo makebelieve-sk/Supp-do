@@ -64,14 +64,12 @@ export const TableComponent = ({specKey}) => {
     const onRowEventHandler = (row) => {
         return ({
             onClick: async () => {
-                if (specKey === "statisticRating" || specKey === "statisticList") {
-                    specKey === "statisticRating"
-                        ? await goToLogDO("/rating", {
-                            satisfies: row.satisfies,
-                            equipment: row.equipment,
-                            date: store.getState().reducerStatistic.dateRating
-                        })
-                        : await goToLogDO("/list", {_id: row._id});
+                if (specKey === "statisticRating") {
+                    await goToLogDO("/rating", {
+                        satisfies: row.satisfies,
+                        equipment: row.equipment,
+                        date: store.getState().reducerStatistic.dateRating
+                    })
                 } else {
                     openRecordTab(specKey, row._id);
                 }

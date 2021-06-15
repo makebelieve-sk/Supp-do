@@ -129,6 +129,7 @@ export default class PrintButton extends React.Component {
                         return Promise.resolve();
                     }}
                     onBeforeGetContent={this.onBeforeGetContent}
+                    pageStyle="@media print and (orientation: landscape) { .bar-char-border { border-bottom: 1px solid grey } .row-2 { page-break-before: always; } .row-3 { page-break-before: always; } }}"
                 />
 
                 <div style={{position: "absolute", display: display, opacity: 0}}>

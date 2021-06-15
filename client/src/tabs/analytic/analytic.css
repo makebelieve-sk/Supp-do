@@ -67,3 +67,7 @@
     border-top: 1px solid grey;
     border-left: 1px solid grey;
 }
+
+@media print {
+    @page { size: landscape; }
+}

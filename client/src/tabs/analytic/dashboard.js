@@ -143,10 +143,6 @@ export default class Dashboard extends React.Component {
                     </Col>
                 </Row>
 
-                {
-                    print ? <><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/></> : null
-                }
-
                 <Row className="row-3">
                     {/*Продолжительность простоев*/}
                     <Col xs={print ? 12 : 24} sm={12} md={12} lg={6} xl={6} className="col-column-1">

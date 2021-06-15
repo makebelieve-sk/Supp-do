@@ -313,14 +313,24 @@ export const LogDORoute = {
     // Обновление дат записей в режиме "demo"
     update: async function(date) {
         try {
+            // Устанавливаем спиннер загрузки данных в таблицу
+            store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(true));
+
             // Обновляем даты записей
-            const data = await request(this.update_url + date);
+            const data = await request(this.update_url + date, "POST", {
+                dateStart: store.getState().reducerLogDO.date.split("/")[0],
+                dateEnd: store.getState().reducerLogDO.date.split("/")[1]
+            });
+
+            // Записываем все записи в хранилище
+            storeLogDO(data);
 
             if (data) {
-                message.success(data);
-
-                await this.getAll();
+                message.success(data.message);
             }
+
+            // Останавливаем спиннер загрузки данных в таблицу
+            store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
             store.dispatch(ActionCreator.ActionCreatorLogDO.setErrorTableLogDO("Возникла ошибка при обновлении дат записей: " + e.message));
