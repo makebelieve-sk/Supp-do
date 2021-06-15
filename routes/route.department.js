@@ -67,10 +67,10 @@ router.get("/departments/:id", async (req, res) => {
         if (!department)
             return res.status(404).json({message: `Подразделение с кодом ${_id} не существует`});
 
-        res.status(200).json({isNewItem, department});
+        return res.status(200).json({isNewItem, department});
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: `Ошибка при открытии записи: ${err}`})
+        return res.status(500).json({message: `Ошибка при открытии записи: ${err}`})
     }
 });
 
@@ -78,12 +78,12 @@ router.get("/departments/:id", async (req, res) => {
 router.get("/departments", async (req, res) => {
     try {
         // Получаем все записи раздела "Подразделения"
-        const items = await Department.find({}).populate("parent");
+        const items = await Department.find({}).sort({parent: -1}).populate("parent");
 
-        res.status(200).json(items);
+        return res.status(200).json(items);
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: "Ошибка при получении записей: " + err});
+        return res.status(500).json({message: "Ошибка при получении записей: " + err});
     }
 });
 
@@ -133,10 +133,10 @@ router.post("/departments", checkMiddleware, async (req, res) => {
 
         await logUserActions(req, res, "Сохранение");   // Логируем действие пользвателя
 
-        res.status(201).json({message: "Подразделение сохранено", item});
+        return res.status(201).json({message: "Подразделение сохранено", item});
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: "Ошибка при создании записи: " + err});
+        return res.status(500).json({message: "Ошибка при создании записи: " + err});
     }
 });
 
@@ -220,10 +220,10 @@ router.put("/departments", checkMiddleware, async (req, res) => {
 
         await logUserActions(req, res, "Редактирование");   // Логируем действие пользвателя
 
-        res.status(201).json({message: "Подразделение сохранено", item: savedItem});
+        return res.status(201).json({message: "Подразделение сохранено", item: savedItem});
     } catch (err) {
         console.log(err)
-        res.status(500).json({message: "Ошибка при обновлении записи: " + err});
+        return res.status(500).json({message: "Ошибка при обновлении записи: " + err});
     }
 });
 
@@ -255,7 +255,7 @@ router.delete("/departments/:id", async (req, res) => {
         }
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: `Ошибка при удалении записи: ${err}`});
+        return res.status(500).json({message: `Ошибка при удалении записи: ${err}`});
     }
 });
 

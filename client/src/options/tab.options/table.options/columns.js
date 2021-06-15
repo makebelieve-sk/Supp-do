@@ -962,9 +962,10 @@ const LogColumns = [
         title: "Содержание записи",
         dataIndex: "content",
         key: "content",
-        width: "200%",
+        width: 200,
         sorter: (a, b) => a.content.toLowerCase() < b.content.toLowerCase() ? 1 : -1,
         sortDirections: ["descend", "ascend"],
+        ellipsis: true,
         showSorterTooltip: false
     }
 ];

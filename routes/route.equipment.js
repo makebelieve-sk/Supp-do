@@ -78,10 +78,10 @@ router.get("/equipment/:id", async (req, res) => {
 
         if (!equipment) return res.status(404).json({message: `Запись с кодом ${_id} не существует`});
 
-        res.status(200).json({isNewItem, equipment});
+        return res.status(200).json({isNewItem, equipment});
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: `Ошибка при получении записи: ${err}`});
+        return res.status(500).json({message: `Ошибка при получении записи: ${err}`});
     }
 });
 
@@ -90,14 +90,15 @@ router.get("/equipment", async (req, res) => {
     try {
         // Получаем все записи раздела "Перечень оборудования"
         const items = await Equipment.find({})
+            .sort({parent: -1})
             .populate("parent")
             .populate("properties")
             .populate("files");
 
-        res.status(200).json(items);
+        return res.status(200).json(items);
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: "Ошибка при получении записей: " + err});
+        return res.status(500).json({message: "Ошибка при получении записей: " + err});
     }
 });
 
@@ -165,10 +166,10 @@ router.post("/equipment", checkMiddleware, async (req, res) => {
 
         await logUserActions(req, res, "Сохранение");   // Логируем действие пользвателя
 
-        res.status(201).json({message: "Оборудование сохранено", item});
+        return res.status(201).json({message: "Оборудование сохранено", item});
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: "Ошибка при создании записи: " + err});
+        return res.status(500).json({message: "Ошибка при создании записи: " + err});
     }
 });
 
@@ -278,10 +279,10 @@ router.put("/equipment", checkMiddleware, async (req, res) => {
 
         await logUserActions(req, res, "Редактирование");   // Логируем действие пользвателя
 
-        res.status(201).json({message: "Запись сохранена", item: savedItem});
+        return res.status(201).json({message: "Запись сохранена", item: savedItem});
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: "Ошибка при обновлении записи: " + err});
+        return res.status(500).json({message: "Ошибка при обновлении записи: " + err});
     }
 });
 
@@ -316,7 +317,7 @@ router.delete("/equipment/:id", async (req, res) => {
         }
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: `Ошибка при удалении записи: ${err}`});
+        return res.status(500).json({message: `Ошибка при удалении записи: ${err}`});
     }
 });
 

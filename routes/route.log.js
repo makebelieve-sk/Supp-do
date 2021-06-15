@@ -37,7 +37,7 @@ router.get("/logs/:dateStart/:dateEnd", async (req, res) => {
         const millisecondsStart = moment(dateStart, dateFormat).valueOf();
         const millisecondsEnd = moment(dateEnd, dateFormat).valueOf();
 
-        const items = await Log.find({date: {$gte: millisecondsStart, $lte: millisecondsEnd}});  // Получаем все записи
+        const items = await Log.find({date: {$gte: millisecondsStart, $lte: millisecondsEnd}}).sort({date: -1});  // Получаем все записи
 
         let itemsDto = [];
 
