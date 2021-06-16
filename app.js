@@ -78,7 +78,7 @@ async function start() {
         // Обновление дат записей в 00:05 в демо-режиме
         if (mode && mode === "demo") {
             setInterval(() => {
-                if (moment().hours() === 15 && moment().minutes() === 0 && moment().seconds() === 0) {
+                if (moment().hours() === 0 && moment().minutes() === 5 && moment().seconds() === 0) {
                     http.get(`http://localhost:${PORT}/api/logDO-update`, function(response) {
                         response.pipe(process.stdout);
                     });
