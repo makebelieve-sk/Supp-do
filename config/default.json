@@ -2,5 +2,5 @@
   "jwtSecret": "supp do mern",
   "mongoUri": "mongodb://localhost:27017",
   "mode": "demo",
-  "timeToUpdateDates": "18:33:30"
+  "timeToUpdateDates": "00:05:00"
 }
