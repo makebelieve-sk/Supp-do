@@ -20,9 +20,9 @@ export const FooterComponent = () => {
     const [isDemo, setIsDemo] = useState(false);
 
     useEffect(() => {
-        const mode = JSON.parse(localStorage.getItem("mode"));
+        const config = JSON.parse(localStorage.getItem("config"));
 
-        if (mode && mode === "demo") setIsDemo(true);
+        if (config.mode && config.mode === "demo") setIsDemo(true);
     }, []);
 
     // Функция получения объекта помощи раздела

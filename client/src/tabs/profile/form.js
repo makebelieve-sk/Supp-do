@@ -36,9 +36,9 @@ export const ProfileComponent = ({item}) => {
             typeMenu: item.typeMenu && item.typeMenu[0].value ? item.typeMenu[0].value : "left",
         });
 
-        const mode = JSON.parse(localStorage.getItem("mode"));
+        const config = JSON.parse(localStorage.getItem("config"));
 
-        if (mode && mode === "demo") setDisabled(true);
+        if (config.mode && config.mode === "demo") setDisabled(true);
     }, [form, item]);
 
     // Нажатие на кнопку "Сохранить"

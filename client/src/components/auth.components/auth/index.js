@@ -28,11 +28,9 @@ export const AuthComponent = ({setRegForm}) => {
 
     // Получаем значение режима работы приложения
     useEffect(() => {
-        const mode = JSON.parse(localStorage.getItem("mode"));
+        const config = JSON.parse(localStorage.getItem("config"));
 
-        console.log("Режим приложения: ", mode);
-
-        if (mode && mode === "demo") setIsDemo(true);
+        if (config && config.mode && config.mode === "demo") setIsDemo(true);
 
         form.setFieldsValue({
             userName: isDemo ? "demo" : "",

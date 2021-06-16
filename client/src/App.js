@@ -1,9 +1,9 @@
 // Главный файл фронтенда
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import moment from "moment";
 import {BrowserRouter as Router} from "react-router-dom";
 import {Provider} from "react-redux";
-import {ConfigProvider, message} from "antd";
+import {ConfigProvider, message, Spin, Row, Col} from "antd";
 import ruRU from "antd/lib/locale/ru_RU";
 import "moment/locale/ru";
 
@@ -16,34 +16,51 @@ import {request} from "./helpers/functions/general.functions/request.helper";
 
 import "./App.css";
 
+/**
+ * Функция получения файла настроек проекта
+ * @param setLoading - функция управления состоянием показа спиннера загрузки
+ * @param logout - функция выхода пользоавтеля из системы
+ * @returns {Promise<void>} - сохраняем объект настроек приложения в локальном хранилище браузера
+ */
+const getConfig = async (setLoading, logout) => {
+    const config = await request("/main/config");
+
+    // Устанавливаем в хранилище браузера файл настроек проекта
+    if (config) {
+        localStorage.setItem("config", JSON.stringify(config));
+
+        const {mode, timeToUpdateDates} = config;
+
+        console.log("Режим приложения: ", mode);
+
+        if (mode && mode === "demo") {
+            const hours = +timeToUpdateDates.split(":")[0];
+            const minutes = +timeToUpdateDates.split(":")[1];
+            const seconds = +timeToUpdateDates.split(":")[2];
+
+            setInterval(async () => {
+                if (moment().hours() === hours && moment().minutes() === minutes && moment().seconds() === seconds) {
+                    message.success("Даты записей успешно обновлены");
+
+                    logout();   // Выходим на страницу login
+                }
+            }, 1000);
+        }
+    }
+
+    setLoading(false);
+}
+
 export default function App() {
+    // Инициализация показа спиннера загрузки приложения
+    const [loading, setLoading] = useState(true);
+
     // Определяем контексту начальные значения, полученные из хука useAuth
     const {login, logout, token, user} = useAuth();
 
     // Получаем файл настроек приложения и выходим из приложения, если даты записей обновились
     useEffect(() => {
-        const getConfig = async () => {
-            const config = await request("/main/config");
-
-            // Устанавливаем в хранилище браузера режим работы приложения
-            if (config.mode) {
-                localStorage.setItem("mode", JSON.stringify(config.mode));
-            }
-        }
-
-        const mode = localStorage.getItem("mode");
-
-        if (mode && JSON.parse(mode) === "demo") {
-            setInterval(async () => {
-                if (moment().hours() === 0 && moment().minutes() === 5 && moment().seconds() === 0) {
-                    message.success("Даты записей успешно обновлены");
-
-                    logout();
-                }
-            }, 1000);
-        }
-
-        getConfig().then(null);
+        getConfig(setLoading, logout).then(null);
     }, [logout]);
 
     // Инициализируем флаг авторизации
@@ -51,6 +68,10 @@ export default function App() {
 
     // Определяем роутинг приложения
     const routes = useRoutes(isAuthenticated);
+
+    if (loading) {
+        return <Row justify="space-around" align="middle" style={{height: "100vh"}}><Col><Spin size="large" /></Col></Row>;
+    }
 
     return (
         <ErrorBoundaryPage>

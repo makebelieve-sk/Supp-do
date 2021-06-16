@@ -13,6 +13,8 @@ const AuthMiddleware = require("./middlewares/auth.middleware");
 
 const app = express();
 
+const {jwtSecret, mongoUri, mode, timeToUpdateDates} = config;  // Разворачиваем объект настроек проекта
+
 const corsOptions = {
     origin: "*",
     credentials: true
@@ -22,7 +24,7 @@ app.use(cors(corsOptions));
 
 // Регистрируем мидлвары
 app.use(express.json({extended: true}));
-app.use(cookieParser(config.jwtSecret));
+app.use(cookieParser(jwtSecret));
 
 // Регистрируем маршруты
 // Чтение файла настроек (получение режима работы приложения)
@@ -30,6 +32,7 @@ app.use("/main", require("./routes/route.main"));
 
 // Авторизация
 app.use("/api/auth", require("./routes/route.auth"));
+
 // Обновление дат раздела "Журнал дефектов и отказов" в демо режиме
 app.use("/api/logDO-update", require("./routes/route.logDO.update"));
 
@@ -66,19 +69,22 @@ if (process.env.NODE_ENV === "production") {
 async function start() {
     try {
         // Подключаемся к базе данных
-        await mongoose.connect(config.mongoUri, {
+        await mongoose.connect(mongoUri, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
             useCreateIndex: true
         });
 
         const PORT = process.env.PORT || 5000;
-        const mode = config.mode;
 
         // Обновление дат записей в 00:05 в демо-режиме
         if (mode && mode === "demo") {
+            const hours = +timeToUpdateDates.split(":")[0];
+            const minutes = +timeToUpdateDates.split(":")[1];
+            const seconds = +timeToUpdateDates.split(":")[2];
+
             setInterval(() => {
-                if (moment().hours() === 0 && moment().minutes() === 5 && moment().seconds() === 0) {
+                if (moment().hours() === hours && moment().minutes() === minutes && moment().seconds() === seconds) {
                     http.get(`http://localhost:${PORT}/api/logDO-update`, function(response) {
                         response.pipe(process.stdout);
                     });
