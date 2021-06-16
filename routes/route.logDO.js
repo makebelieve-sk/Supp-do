@@ -13,6 +13,7 @@ const TaskStatus = require("../schemes/TaskStatus");
 const sendingEmail = require("../send/send.email");
 const sendingSms = require("../send/send.sms");
 const {getUser} = require("./helper");
+const config = require("../config/default.json");
 
 const router = Router();
 
@@ -363,7 +364,7 @@ router.post("/logDO", checkMiddleware, async (req, res) => {
             departmentsItems = await Department.find({}).populate("parent");
         } catch (err) {
             console.log(err);
-            res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Подразделения' (/logDO, post)"});
+            return res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Подразделения' (/logDO, post)"});
         }
 
         // Получаем все записи оборудования
@@ -373,7 +374,7 @@ router.post("/logDO", checkMiddleware, async (req, res) => {
             equipmentItems = await Equipment.find({}).populate("parent");
         } catch (err) {
             console.log(err);
-            res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Оборудование' (/logDO, post)"});
+            return res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Оборудование' (/logDO, post)"});
         }
 
         // Ищем запись в базе данных по уникальному идентификатору
@@ -402,7 +403,7 @@ router.post("/logDO", checkMiddleware, async (req, res) => {
                 .populate("files");
         } catch (err) {
             console.log(err);
-            res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Журнал дефектов и отказов' (/logDO, post)"});
+            return res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Журнал дефектов и отказов' (/logDO, post)"});
         }
 
         await logUserActions(req, res, "Сохранение");   // Логируем действие пользвателя
@@ -411,15 +412,15 @@ router.post("/logDO", checkMiddleware, async (req, res) => {
         const savedItem = new LogDoDto(currentItem, departmentsItems, equipmentItems);
 
         // Отправляем письма и СМС уведомления
-        if (sendEmail) {
+        if (sendEmail && config.mode !== "demo") {
             await sendingEmail(req, res);
             await sendingSms(req, res);
         }
 
-        res.status(201).json({message: "Запись сохранена", item: savedItem});
+        return res.status(201).json({message: "Запись сохранена", item: savedItem});
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: "Ошибка при создании записи: " + err});
+        return res.status(500).json({message: "Ошибка при создании записи: " + err});
     }
 });
 
@@ -514,7 +515,7 @@ router.put("/logDO", checkMiddleware, async (req, res) => {
             departmentsItems = await Department.find({}).populate("parent");
         } catch (err) {
             console.log(err);
-            res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Подразделения' (/logDO, put)"});
+            return res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Подразделения' (/logDO, put)"});
         }
 
         // Получаем все записи оборудования
@@ -524,7 +525,7 @@ router.put("/logDO", checkMiddleware, async (req, res) => {
             equipmentItems = await Equipment.find({}).populate("parent");
         } catch (err) {
             console.log(err);
-            res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Оборудование' (/logDO, put)"});
+            return res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Оборудование' (/logDO, put)"});
         }
 
         // Ищем запись в базе данных по уникальному идентификатору
@@ -553,7 +554,7 @@ router.put("/logDO", checkMiddleware, async (req, res) => {
                 .populate("files");
         } catch (err) {
             console.log(err);
-            res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Журнал дефектов и отказов' (/logDO, put)"});
+            return res.status(500).json({message: "Возникла ошибка при получении записей из базы данных 'Журнал дефектов и отказов' (/logDO, put)"});
         }
 
         // Изменяем запись для вывода в таблицу
@@ -561,10 +562,10 @@ router.put("/logDO", checkMiddleware, async (req, res) => {
 
         await logUserActions(req, res, "Редактирование");   // Логируем действие пользвателя
 
-        res.status(201).json({message: "Запись сохранена", item: savedItem});
+        return res.status(201).json({message: "Запись сохранена", item: savedItem});
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: "Ошибка при обновлении записи: " + err});
+        return res.status(500).json({message: "Ошибка при обновлении записи: " + err});
     }
 });
 
@@ -603,7 +604,7 @@ router.delete("/logDO/:id", async (req, res) => {
             return res.status(404).json({message: "Данная запись уже была удалена"});
         }
     } catch (err) {
-        res.status(500).json({message: `Ошибка при удалении записи: ${err}`});
+        return res.status(500).json({message: `Ошибка при удалении записи: ${err}`});
     }
 });
 
@@ -625,7 +626,7 @@ router.post("/logDO/status/:dateStart/:dateEnd", async (req, res) => {
             departments = await Department.find({}).populate("parent");   // Получаем все подразделения
         } catch (err) {
             console.log(err);
-            res.status(500).json({
+            return res.status(500).json({
                 message: "Возникла ошибка при получении записей из баз данных 'Подразделения' и 'Оборудование' (unassignedTasks): " + err
             });
         }
@@ -690,7 +691,7 @@ router.post("/logDO/status/:dateStart/:dateEnd", async (req, res) => {
             .populate("files");
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: `Ошибка при получении записей со статусом: ${err}`});
+        return res.status(500).json({message: `Ошибка при получении записей со статусом: ${err}`});
     }
 });
 

@@ -311,26 +311,15 @@ export const LogDORoute = {
         }
     },
     // Обновление дат записей в режиме "demo"
-    update: async function(date) {
+    update: async function() {
         try {
-            // Устанавливаем спиннер загрузки данных в таблицу
-            store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(true));
-
-            // Обновляем даты записей
-            const data = await request(this.update_url + date, "POST", {
-                dateStart: store.getState().reducerLogDO.date.split("/")[0],
-                dateEnd: store.getState().reducerLogDO.date.split("/")[1]
-            });
-
-            // Записываем все записи в хранилище
-            storeLogDO(data);
+            const data = await request(this.update_url + moment().format(TabOptions.dateFormat));
 
             if (data) {
-                message.success(data.message);
-            }
+                message.success(data);
 
-            // Останавливаем спиннер загрузки данных в таблицу
-            store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));
+                await this.getAll();
+            }
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
             store.dispatch(ActionCreator.ActionCreatorLogDO.setErrorTableLogDO("Возникла ошибка при обновлении дат записей: " + e.message));

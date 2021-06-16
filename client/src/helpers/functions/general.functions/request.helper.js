@@ -25,7 +25,6 @@ export const request = async (url, method = "GET", body = null, headers = {}) =>
             await localStorage.removeItem(StorageVars.user);
 
             message.error(data.message);
-            // window.history.push("/login");
 
             window.location.replace("/login");  // Перенаправляем пользователя на страницу входа
 

@@ -14,7 +14,6 @@ import store from "./redux/store";
 import {LogDORoute} from "./routes/route.LogDO";
 import ErrorBoundaryPage from "./pages/errorBoundaryPage";
 import {request} from "./helpers/functions/general.functions/request.helper";
-import TabOptions from "./options/tab.options/record.options";
 
 import "./App.css";
 
@@ -42,8 +41,8 @@ export default function App() {
 
         if (mode && JSON.parse(mode) === "demo") {
             setInterval(async () => {
-                if (moment().hours() === 9 && moment().minutes() === 40 && moment().seconds() === 0) {
-                    await LogDORoute.update(moment().format(TabOptions.dateFormat).valueOf());
+                if (moment().hours() === 13 && moment().minutes() === 30 && moment().seconds() === 0) {
+                    await LogDORoute.update();
                 }
             }, 1000);
         }
