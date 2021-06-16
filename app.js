@@ -5,6 +5,8 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const fileUpload = require("express-fileupload");
 const cors = require("cors");
+const moment = require("moment");
+const http = require("http")
 
 const config = require("./config/default.json");
 const AuthMiddleware = require("./middlewares/auth.middleware");
@@ -71,6 +73,18 @@ async function start() {
         });
 
         const PORT = process.env.PORT || 5000;
+        const mode = config.mode;
+
+        // Обновление дат записей в 00:05 в демо-режиме
+        if (mode && mode === "demo") {
+            setInterval(() => {
+                if (moment().hours() === 15 && moment().minutes() === 0 && moment().seconds() === 0) {
+                    http.get(`http://localhost:${PORT}/api/logDO-update`, function(response) {
+                        response.pipe(process.stdout);
+                    });
+                }
+            }, 1000);
+        }
 
         app.listen(PORT, () => console.log(`Приложение запущено на порту ${PORT} в режиме ${process.env.NODE_ENV}`));
     } catch (e) {

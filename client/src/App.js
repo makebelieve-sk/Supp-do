@@ -3,7 +3,7 @@ import React, {useEffect} from "react";
 import moment from "moment";
 import {BrowserRouter as Router} from "react-router-dom";
 import {Provider} from "react-redux";
-import {ConfigProvider} from "antd";
+import {ConfigProvider, message} from "antd";
 import ruRU from "antd/lib/locale/ru_RU";
 import "moment/locale/ru";
 
@@ -11,7 +11,6 @@ import {useRoutes} from "./hooks/routes.hook";
 import {useAuth} from "./hooks/auth.hook";
 import {AuthContext} from "./context/auth.context";
 import store from "./redux/store";
-import {LogDORoute} from "./routes/route.LogDO";
 import ErrorBoundaryPage from "./pages/errorBoundaryPage";
 import {request} from "./helpers/functions/general.functions/request.helper";
 
@@ -21,7 +20,7 @@ export default function App() {
     // Определяем контексту начальные значения, полученные из хука useAuth
     const {login, logout, token, user} = useAuth();
 
-    // Получаем файл настроек приложения
+    // Получаем файл настроек приложения и выходим из приложения, если даты записей обновились
     useEffect(() => {
         const getConfig = async () => {
             const config = await request("/main/config");
@@ -32,21 +31,20 @@ export default function App() {
             }
         }
 
-        getConfig().then(null);
-    }, [logout]);
-
-    // Каждый день в 00:05 обновляем даты у записей ЖДО
-    useEffect(() => {
         const mode = localStorage.getItem("mode");
 
         if (mode && JSON.parse(mode) === "demo") {
             setInterval(async () => {
-                if (moment().hours() === 13 && moment().minutes() === 30 && moment().seconds() === 0) {
-                    await LogDORoute.update();
+                if (moment().hours() === 15 && moment().minutes() === 0 && moment().seconds() === 0) {
+                    message.success("Даты записей успешно обновлены");
+
+                    logout();
                 }
             }, 1000);
         }
-    }, []);
+
+        getConfig().then(null);
+    }, [logout]);
 
     // Инициализируем флаг авторизации
     const isAuthenticated = !!token;

@@ -8,9 +8,9 @@ const router = Router();
 const dateFormat = "DD.MM.YYYY HH:mm";  // Константа формата даты
 
 // Обновляем даты у записей в режиме "demo"
-router.get("/:date", async (req, res) => {
+router.get("/", async (req, res) => {
     try {
-        const currentDate = req.params.date;     // Получаем дату "с"
+        const currentDate = moment().format(dateFormat);     // Получаем дату "с"
 
         const items = await LogDO.find({}).sort({date: -1});
 

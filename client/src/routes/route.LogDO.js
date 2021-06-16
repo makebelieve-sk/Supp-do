@@ -311,18 +311,18 @@ export const LogDORoute = {
         }
     },
     // Обновление дат записей в режиме "demo"
-    update: async function() {
-        try {
-            const data = await request(this.update_url + moment().format(TabOptions.dateFormat));
-
-            if (data) {
-                message.success(data);
-
-                await this.getAll();
-            }
-        } catch (e) {
-            // Устанавливаем ошибку в хранилище раздела
-            store.dispatch(ActionCreator.ActionCreatorLogDO.setErrorTableLogDO("Возникла ошибка при обновлении дат записей: " + e.message));
-        }
-    }
+    // update: async function() {
+    //     try {
+    //         // const data = await request(this.update_url + moment().format(TabOptions.dateFormat));
+    //         //
+    //         // if (data) {
+    //             await this.getAll();
+    //
+    //             message.success("Даты записей успешно обновлены");
+    //         // }
+    //     } catch (e) {
+    //         // Устанавливаем ошибку в хранилище раздела
+    //         store.dispatch(ActionCreator.ActionCreatorLogDO.setErrorTableLogDO("Возникла ошибка при обновлении дат записей: " + e.message));
+    //     }
+    // }
 }
