@@ -1,5 +1,5 @@
 // Настройки таблицы
-import {getExportName, getTableHeader} from "../../../helpers/mappers/tabs.mappers/table.helper";
+import {getTitle, getTableHeader} from "../../../helpers/mappers/tabs.mappers/table.helper";
 import filterTableKeys from "../../tab.options/table.options/filterTableKeys";
 import {updateValueInStorage} from "../../../helpers/functions/general.functions/workWithCookies";
 import {ActionCreator} from "../../../redux/combineActions";
@@ -13,7 +13,7 @@ const downloadCSV = async (array, key) => {
     let csv = await convertArrayOfObjectsToCSV(array, key);
     if (csv == null) return;
 
-    const filename = `${getExportName(key)}.csv`;
+    const filename = `${getTitle(key)}.csv`;
 
     if (!csv.match(/^data:text\/csv/i)) {
         csv = `data:text/csv;charset=utf-8,${csv}`;

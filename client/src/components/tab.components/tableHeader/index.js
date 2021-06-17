@@ -51,7 +51,7 @@ export const TableHeaderComponent = ({data, specKey, filterText, setFilterText, 
     }
 
     // Реализация экспорта
-    const onExport = () => data && data.length > 0 ?
+    const onExport = () => data && data.length ?
         tableSettings.export(data, specKey) : message.warning("Записи в таблице отсутствуют");
 
     // Изменение времени в датапикере

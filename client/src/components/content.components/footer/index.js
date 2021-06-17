@@ -6,7 +6,7 @@ import ReactHtmlParser from "react-html-parser";
 
 import store from "../../../redux/store";
 import {HelpRoute} from "../../../routes/route.Help";
-import {getHelpTitle} from "../../../helpers/mappers/tabs.mappers/table.helper";
+import {getTitle} from "../../../helpers/mappers/tabs.mappers/table.helper";
 import ErrorIndicator from "../errorIndicator/errorIndicator.component";
 import {useWindowWidth} from "../../../hooks/windowWidth.hook";
 
@@ -34,7 +34,7 @@ export const FooterComponent = () => {
             const item = await HelpRoute.getHelpToModal(currentKey);
             setIsModalVisible(true);    // Открываем модальное окно
 
-            const title = getHelpTitle(currentKey);
+            const title = getTitle(currentKey);
 
             // Устанавливаем объект помощи в состояние
             item
