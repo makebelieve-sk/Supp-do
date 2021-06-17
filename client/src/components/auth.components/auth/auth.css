@@ -13,3 +13,7 @@
     text-align: center;
     white-space: pre-line;
 }
+
+.form-item-margin {
+    margin-bottom: 10px;
+}

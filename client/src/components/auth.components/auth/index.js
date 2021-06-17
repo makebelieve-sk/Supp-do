@@ -113,10 +113,13 @@ export const AuthComponent = ({setRegForm}) => {
                             </Form.Item>
                         </Form.Item>
 
-                        <Form.Item>
+                        <Form.Item className="form-item-margin">
                             <Button loading={loadingLogin} type="primary" htmlType="submit" className="login-form-button">
                                 Войти
                             </Button>
+                        </Form.Item>
+
+                        <Form.Item className="form-item-margin">
                             Или <Link to="/register" onClick={() => setRegForm(true)}>зарегистрируйтесь сейчас</Link>
                         </Form.Item>
 

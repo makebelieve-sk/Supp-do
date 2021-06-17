@@ -1,6 +1,7 @@
 .container {
     align-items: center;
-    margin-block: 1em;
+    margin-bottom: 1em;
+    margin-top: -8px;
 }
 
 .item {

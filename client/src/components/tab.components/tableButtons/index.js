@@ -117,7 +117,7 @@ export const ButtonsComponent = ({specKey, onExport, setColumnsTable}) => {
                     specKey === "departments" || specKey === "equipment"
                         ? <Button
                             className={`button ${short}`}
-                            icon={expand ? <ExpandAltOutlined /> : <ShrinkOutlined />}
+                            icon={!expand ? <ExpandAltOutlined /> : <ShrinkOutlined />}
                             type="secondary"
                             onClick={() => {
                                 if (specKey === "departments") {

@@ -47,14 +47,15 @@ export const FooterComponent = () => {
 
     const screen = useWindowWidth();    // Получаем текущее значение ширины окна браузера
 
-    // Получение контента кнопки в зависимости от ширины экрана
+    // Изменение контента в зависимости от ширины экрана
     const getContent = (content) => screen !== "xs" && screen !== "sm" && screen !== "md" ? content : null;
+    const cutText = (text) => screen !== "xs" && screen !== "sm" && screen !== "md" ? text : "СУПП-ДО. 2021.";
 
     return (
         <Layout.Footer className="layout-footer">
             <Row align="middle">
                 <Col span={16} className="footer-text">
-                    Система управления производственным процессом. Дефекты и отказы. 2021. Версия 1.0.0 {isDemo ? "(Демоверсия)" : null}
+                    {cutText(`Система управления производственным процессом. Дефекты и отказы. 2021. Версия 1.0.0 ${isDemo ? "(Демоверсия)" : null}`)}
                 </Col>
 
                 <Col span={4} className="footer-text">
