@@ -67,7 +67,7 @@ export const TableComponent = ({specKey}) => {
         <>
             {/*Поиск, Дата с ... по ..., Кнопки таблицы*/}
             <TableHeaderComponent
-                data={table.getData()}
+                table={table}
                 specKey={specKey}
                 filterText={filterText}
                 setFilterText={setFilterText}

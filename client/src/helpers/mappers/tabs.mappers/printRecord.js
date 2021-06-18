@@ -6,11 +6,11 @@ import store from "../../../redux/store";
 // Карта соответствия ключей и наименования/данных записи
 const map = new Map([
     ["equipmentItem", {
-        title: "Печать записи из перечня оборудования",
+        title: "Печать записи перечня оборудования",
         getPrintData: () => store.getState().reducerEquipment.rowDataEquipment
     }],
     ["logDOItem", {
-        title: "Печать записи из журнала дефектов и отказов",
+        title: "Печать записи журнала дефектов и отказов",
         getPrintData: () => store.getState().reducerLogDO.rowDataLogDO
     }],
 ]);

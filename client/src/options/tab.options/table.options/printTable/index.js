@@ -8,13 +8,11 @@ import "./printTable.css";
 
 export default class PrintTable extends React.Component {
     render() {
-        const {headers, data, name, specKey} = this.props;
+        const {headers, data, name, style} = this.props;
 
-        // Выровнивание текста по левому краю в печатных формах разделов:
-        const style = specKey === "professions" || specKey === "departments" || specKey === "person"
-            || specKey === "equipmentProperties" || specKey === "equipment"
-            ? "left"
-            : "";
+        // Получаем массив ключей записи и фильтруем нужные для печати поля
+        const keys = Object.keys(data && data.length ? data[0] : {});
+        const filteredDataKeys = filterTableKeys(keys);
 
         // Шапка таблицы
         const headersTable = headers ? headers.split(", ") : null;
@@ -40,17 +38,15 @@ export default class PrintTable extends React.Component {
                         {
                             data && data.length
                                 ? data.map((record, index) => {
-                                    // Получаем массив ключей записи
-                                    const keys = Object.keys(record);
-
-                                    // Фильтруем нужные для печати поля
-                                    const filteredDataKeys = filterTableKeys(keys);
-
                                     return <tr key={`${record}-${index}`}>
                                         {
                                             filteredDataKeys.map(key => {
                                                 if (typeof record[key] === "boolean") {
                                                     record[key] = record[key] ? <CheckOutlined/> : "";
+                                                }
+
+                                                if (key === "parent") {
+                                                    record[key] = record[key] && record[key].name ? record[key].name : "";
                                                 }
 
                                                 return <td key={`${key}`} className={`print-table-cell ${style}`}>

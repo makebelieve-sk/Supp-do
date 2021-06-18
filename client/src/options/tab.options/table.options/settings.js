@@ -1,19 +1,22 @@
 // Настройки таблицы
-import {getTitle, getTableHeader} from "../../../helpers/mappers/tabs.mappers/table.helper";
+import Cookies from "js-cookie";
+
 import filterTableKeys from "../../tab.options/table.options/filterTableKeys";
 import {updateValueInStorage} from "../../../helpers/functions/general.functions/workWithCookies";
 import {ActionCreator} from "../../../redux/combineActions";
 import {StorageVars} from "../../global.options";
-import Cookies from "js-cookie";
-import {request} from "../../../helpers/functions/general.functions/request.helper";
 
 // Экспорт в эксель
-const downloadCSV = async (array, key) => {
+const downloadCSV = async (table) => {
     const link = document.createElement("a");
-    let csv = await convertArrayOfObjectsToCSV(array, key);
-    if (csv == null) return;
 
-    const filename = `${getTitle(key)}.csv`;
+    let csv = await convertArrayOfObjectsToCSV(table);
+
+    if (csv === null) return;
+
+    const title = table.title;  // Определение названия таблицы
+
+    const filename = `${title}.csv`;
 
     if (!csv.match(/^data:text\/csv/i)) {
         csv = `data:text/csv;charset=utf-8,${csv}`;
@@ -23,30 +26,18 @@ const downloadCSV = async (array, key) => {
     link.setAttribute("download", filename);
     link.click();
 };
-const convertArrayOfObjectsToCSV = async (array, specKey) => {
-    let result;
+const convertArrayOfObjectsToCSV = async (table) => {
+    let result, data = table.data;  // Данные обычных таблиц
+    const treeData = table.initialData; // Данные древовидных таблиц
 
-    const headerDataTable = getTableHeader(specKey);
+    if (treeData) {
+        data = treeData;
+    }
 
+    const headerDataTable = table.header;
     const columnDelimiter = ",";
     const lineDelimiter = "\n";
-    let keys = Object.keys(array[0]);
-
-    if (specKey === "departments") {
-        array = await request("/api/directory/departments/");
-
-        keys = Object.keys(array[0]);
-
-        if (!keys.includes("parent")) {
-            keys.splice(0, 0, "parent");
-        }
-    }
-
-    if (specKey === "equipment") {
-        array = await request("/api/directory/equipment/");
-
-        keys = Object.keys(array[0]);
-    }
+    const keys = Object.keys(data[0]);
 
     // Фильтруем нужные для экспорта поля
     const filteredKeys = filterTableKeys(keys);
@@ -56,8 +47,9 @@ const convertArrayOfObjectsToCSV = async (array, specKey) => {
     result += lineDelimiter;
 
     // Проверяем и форматируем каждое поле объекта данных
-    array.forEach(item => {
+    data.forEach(item => {
         let ctr = 0;
+
         filteredKeys.forEach(key => {
             if (ctr > 0) result += columnDelimiter;
 

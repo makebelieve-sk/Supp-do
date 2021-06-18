@@ -1,7 +1,6 @@
 // Определение конструктора таблицы
 import {message} from "antd";
 
-import TableConstructor from "../../../tables/init";
 import ProfessionTable from "../../../tables/profession";
 import LogDOTable from "../../../tables/logDo";
 import DepartmentTable from "../../../tables/departments";
@@ -14,6 +13,7 @@ import RoleTable from "../../../tables/role";
 import UserTable from "../../../tables/user";
 import StatisticListTable from "../../../tables/statisticList";
 import StatisticRatingTable from "../../../tables/statisticRating";
+import LogTable from "../../../tables/log";
 
 /**
  * Функция определения конструктора таблицы
@@ -34,7 +34,7 @@ export default function getTableConstructor(key) {
         ["help", HelpTable],
         ["users", UserTable],
         ["roles", RoleTable],
-        ["logs", TableConstructor],
+        ["logs", LogTable],
     ]);
 
     if (map.has(key)) {

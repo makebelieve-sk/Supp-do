@@ -6,7 +6,6 @@ import {PrinterOutlined} from "@ant-design/icons";
 
 import PrintTable from "../../../options/tab.options/table.options/printTable";
 import PrintAnalytic from "../../../tabs/analytic/printAnalytic";
-import {getPrintTable} from "../../../helpers/mappers/tabs.mappers/table.helper";
 
 import "./tableButtons.css";
 
@@ -25,15 +24,14 @@ export default class PrintButton extends React.Component {
         this.getContent = this.getContent.bind(this);
     };
 
-    // Фукнция жизниенного цикла компонента (монтирование компонента)
     componentDidMount() {
-        const {specKey} = this.props;
+        const {specKey, table} = this.props;
 
         if (specKey === "analytic") {
-            const {name, getData} = getPrintTable(specKey);
+            const {name, data} = table.print();
 
             // Обновляем состояние данных таблицы
-            this.setState({name, data: getData()});
+            this.setState({name, data});
         }
     }
 
@@ -44,15 +42,15 @@ export default class PrintButton extends React.Component {
 
     // Формируем контент для печати
     onBeforeGetContent() {
-        const {specKey} = this.props;
+        const {specKey, table} = this.props;
 
-        const {name, getData} = getPrintTable(specKey);
+        const {name, data} = table.print();
 
-        let data = getData();
         let result = null;
 
         if (data && data.length && specKey !== "analytic") {
             result = [];
+
             data.forEach(printObj => {
                 if (printObj.textParser) {
                     const assign = Object.assign({}, printObj);
@@ -94,7 +92,7 @@ export default class PrintButton extends React.Component {
         }
 
         // Если записей в таблице нет, то не начинаем печатать
-        if ((specKey === "analytic" && this.state.data) || (specKey !== "analytic" && getData() && getData().length)) {
+        if ((specKey === "analytic" && this.state.data) || (specKey !== "analytic" && data && data.length)) {
             return Promise.resolve();
         } else {
             message.warning("Записи в таблице отсутствуют").then(null);
@@ -103,10 +101,12 @@ export default class PrintButton extends React.Component {
     }
 
     render() {
-        const {specKey, getContent, short, headers} = this.props;
+        const {specKey, getContent, short, table} = this.props;
         const {name, display, data} = this.state;
 
         const btnStyle = specKey === "analytic" ? "not-right-margin" : "";
+        const headers = table.header;
+        const style = table.style ? table.style : "";
 
         return (
             <div>
@@ -138,7 +138,7 @@ export default class PrintButton extends React.Component {
                             ? <PrintAnalytic ref={el => this.analyticRef = el} data={data} name={name} />
                             : <PrintTable
                                 ref={el => this.tableRef = el}
-                                specKey={specKey}
+                                style={style}
                                 headers={headers}
                                 data={data}
                                 name={name}
