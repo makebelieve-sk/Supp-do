@@ -6,7 +6,7 @@ const cookieParser = require("cookie-parser");
 const fileUpload = require("express-fileupload");
 const cors = require("cors");
 const moment = require("moment");
-const http = require("http")
+const http = require("http");
 
 const config = require("./config/default.json");
 const AuthMiddleware = require("./middlewares/auth.middleware");
