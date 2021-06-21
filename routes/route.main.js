@@ -1,7 +1,6 @@
 // Маршрут для получения файла настроек приложения
 const {Router} = require("express");
 const fs = require("fs");
-const IPInfo = require("node-ipinfo");
 
 const router = Router();
 
@@ -15,29 +14,6 @@ router.get("/config", async (req, res) => {
         }
 
         const data = JSON.parse(config);
-
-        // Получаем ip-адрес пользователя
-        const userIpAddress = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
-
-        if (userIpAddress) {
-            try {
-                const token = config.ipKey;
-                const ip = userIpAddress;
-                const ipInfo = new IPInfo(token);
-
-                ipInfo.lookupIp(ip).then((response) => {
-                    console.log(response);
-                });
-
-                // ipInfo.lookupASN(asn).then((response) => {
-                //     console.log(response.asn); // AS7922
-                //     console.log(response.name); // Comcast Cable Communications, LLC
-                //     console.log(response.country); // United States
-                // });
-            } catch (e) {
-                console.log(e)
-            }
-        }
 
         // Удаляем секретные поля
         delete data.jwtSecret;
