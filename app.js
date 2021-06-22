@@ -13,7 +13,7 @@ const AuthMiddleware = require("./middlewares/auth.middleware");
 
 const app = express();
 
-const {jwtSecret, mongoUri, mode, timeToUpdateDates} = config;  // Разворачиваем объект настроек проекта
+const {jwtSecret, mongoUri, mode, timeToUpdateDates, port} = config;  // Разворачиваем объект настроек проекта
 
 const corsOptions = {
     origin: "*",
@@ -75,7 +75,7 @@ async function start() {
             useCreateIndex: true
         });
 
-        const PORT = process.env.PORT || 5000;
+        const PORT = process.env.PORT || port || 7000;
 
         // Обновление дат записей в 00:05 в демо-режиме
         if (mode && mode === "demo") {

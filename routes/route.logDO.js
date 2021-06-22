@@ -4,6 +4,7 @@ const {Router} = require("express");
 const {check, validationResult} = require("express-validator");
 
 const File = require("../schemes/File");
+const Person = require("../schemes/Person");
 const LogDO = require("../schemes/LogDO");
 const Log = require("../schemes/Log");
 const Department = require("../schemes/Department");
@@ -14,6 +15,7 @@ const sendingEmail = require("../send/send.email");
 const sendingSms = require("../send/send.sms");
 const {getUser} = require("./helper");
 const config = require("../config/default.json");
+const PersonDto = require("../dto/PersonDto");
 
 const router = Router();
 
@@ -163,9 +165,34 @@ router.get("/logDO/:id", async (req, res) => {
 
         if (!item) return res.status(400).json({message: `Запись с кодом ${_id} не существует`});
 
-        res.status(200).json({logDo: item, isNewItem});
+        const departments = await Department.find({}).populate("parent");
+
+        // Получаем все записи раздела "Персонал"
+        const items = await Person.find({})
+            .populate({
+                path: "department",
+                populate: {
+                    path: "parent",
+                    model: "Department"
+                }
+            })
+            .populate("profession");
+
+        let peopleDto = [];
+
+        // Изменяем запись для вывода в таблицу
+        if (items && items.length) peopleDto = items.map(item => new PersonDto(item, departments));
+
+        const equipment = await Equipment.find({})
+            .populate("parent")
+            .populate("properties")
+            .populate("files");
+
+        const taskStatuses = await TaskStatus.find({});
+
+        return res.status(200).json({logDo: item, isNewItem, departments, peopleDto, equipment, taskStatuses});
     } catch (err) {
-        res.status(500).json({message: `Ошибка при открытии записи: ${err}`})
+        return res.status(500).json({message: `Ошибка при открытии записи: ${err}`});
     }
 });
 
@@ -637,38 +664,38 @@ router.post("/logDO/status/:dateStart/:dateEnd", async (req, res) => {
         await LogDO.find(
             {date: {$gte: millisecondsStart, $lte: millisecondsEnd}, taskStatus: statusId},
             function (err, items) {
-            // Обработка ошибки
-            if (err) {
-                console.log(err);
-                return res.status(500).json({
-                    message: "Возникла ошибка при получении записей из базы данных ЖДО (unassignedTasks): " + err
+                // Обработка ошибки
+                if (err) {
+                    console.log(err);
+                    return res.status(500).json({
+                        message: "Возникла ошибка при получении записей из базы данных ЖДО (unassignedTasks): " + err
+                    });
+                }
+
+                let statusLegend = [], itemsDto = [];
+
+                if (items && items.length) {
+                    // Получаем готовый массив записей ЖДО
+                    itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
+
+                    statusLegend.push({
+                        id: status ? status._id : Date.now(),
+                        name: status ? status.name : "Без статуса",
+                        count: items.length,
+                        color: status ? status.color : "#FFFFFF",
+                        borderColor: status ? null : "#d9d9d9"
+                    });
+                }
+
+                const statusName = status ? ` со статусом ${status.name}` : "без статуса";
+
+                // Отправляем ответ
+                return res.status(200).json({
+                    itemsDto,
+                    alert: `Записи ${statusName}`,
+                    statusLegend
                 });
-            }
-
-            let statusLegend = [], itemsDto = [];
-
-            if (items && items.length) {
-                // Получаем готовый массив записей ЖДО
-                itemsDto = items.map(item => new LogDoDto(item, departments, equipment));
-
-                statusLegend.push({
-                    id: status ? status._id : Date.now(),
-                    name: status ? status.name : "Без статуса",
-                    count: items.length,
-                    color: status ? status.color : "#FFFFFF",
-                    borderColor: status ? null : "#d9d9d9"
-                });
-            }
-
-            const statusName = status ? ` со статусом ${status.name}` : "без статуса";
-
-            // Отправляем ответ
-            return res.status(200).json({
-                itemsDto,
-                alert: `Записи ${statusName}`,
-                statusLegend
-            });
-        })
+            })
             .sort({date: -1})
             .populate("applicant")
             .populate({

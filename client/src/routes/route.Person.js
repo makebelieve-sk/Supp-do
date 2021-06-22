@@ -51,17 +51,16 @@ export const PersonRoute = {
                 return null;
             }
 
-            const professions = await request("/api/directory/professions/");
-            const departments = await request("/api/directory/departments/");
-
-            // Записываем полученные записи раздела "Профессии" в хранилище
-            storeProfessions(professions);
-
-            // Записываем полученные записи раздела "Подразделения" в хранилище
-            storeDepartments(departments);
-
             // Заполняем модель записи
-            if (item) this.fillItem(item);
+            if (item) {
+                // Записываем полученные записи раздела "Профессии" в хранилище
+                storeProfessions(item.professions);
+
+                // Записываем полученные записи раздела "Подразделения" в хранилище
+                storeDepartments(item.departments);
+
+                this.fillItem(item);
+            }
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
             store.dispatch(ActionCreator.ActionCreatorPerson.setErrorRecordPerson("Возникла ошибка при получении записи: " + e.message));

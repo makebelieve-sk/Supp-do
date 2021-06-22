@@ -60,25 +60,23 @@ export const LogDORoute = {
                 return null;
             }
 
-            const departments = await request("/api/directory/departments/");
-            const people = await request("/api/directory/people/");
-            const equipment = await request("/api/directory/equipment/");
-            const tasks = await request("/api/directory/tasks/");
-
-            // Записываем полученные записи раздела "Подразделения" в хранилище
-            storeDepartments(departments);
-
-            // Записываем полученные записи раздела "Персонал" в хранилище
-            storePeople(people);
-
-            // Записываем полученные записи раздела "Оборудование" в хранилище
-            storeEquipment(equipment);
-
-            // Записываем полученные записи раздела "Состояние заявок" в хранилище
-            storeTask(tasks);
-
             // Заполняем модель записи
-            if (item) this.fillItem(item);
+            if (item) {
+                const {departments, peopleDto, equipment, taskStatuses} = item;
+
+                // Записываем полученные записи раздела "Подразделения" в хранилище
+                storeDepartments(departments);
+
+                // Записываем полученные записи раздела "Персонал" в хранилище
+                storePeople(peopleDto);
+
+                // Записываем полученные записи раздела "Оборудование" в хранилище
+                storeEquipment(equipment);
+
+                // Записываем полученные записи раздела "Состояние заявок" в хранилище
+                storeTask(taskStatuses);
+                this.fillItem(item);
+            }
         } catch (e) {
             // Устанавливаем ошибку в хранилище раздела
             store.dispatch(ActionCreator.ActionCreatorLogDO.setErrorRecordLogDO("Возникла ошибка при получении записи: " + e.message));

@@ -3,6 +3,7 @@ const {Router} = require("express");
 const {check, validationResult} = require("express-validator");
 
 const Equipment = require("../schemes/Equipment");
+const EquipmentProperty = require("../schemes/EquipmentProperty");
 const Log = require("../schemes/Log");
 const File = require("../schemes/File");
 const {getUser} = require("./helper");
@@ -95,7 +96,9 @@ router.get("/equipment", async (req, res) => {
             .populate("properties")
             .populate("files");
 
-        return res.status(200).json(items);
+        const equipmentProperties = await EquipmentProperty.find({});
+
+        return res.status(200).json({items, equipmentProperties});
     } catch (err) {
         console.log(err);
         return res.status(500).json({message: "Ошибка при получении записей: " + err});

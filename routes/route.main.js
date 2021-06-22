@@ -18,7 +18,6 @@ router.get("/config", async (req, res) => {
         // Удаляем секретные поля
         delete data.jwtSecret;
         delete data.mongoUri;
-        delete data.ipKey;
 
         return res.status(200).json(data);
     } catch (err) {

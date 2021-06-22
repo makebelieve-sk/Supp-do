@@ -24,14 +24,13 @@ export const EquipmentRoute = {
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(true));
 
             // Получаем все записи разделов "Характеристики оборудования" и "Оборудование"
-            const itemsEquipment = await request(this.base_url);
-            const itemsEquipmentProperties = await request("/api/directory/equipmentProperties/");
+            const data = await request(this.base_url);
 
             // Записываем полученные записи раздела "Оборудование" в хранилище
-            storeEquipment(itemsEquipment);
+            storeEquipment(data.items);
 
             // Записываем полученные записи раздела "Характеристики оборудования" в хранилище
-            storeEquipmentProperties(itemsEquipmentProperties);
+            storeEquipmentProperties(data.equipmentProperties);
 
             // Останавливаем спиннер загрузки данных в таблицу
             store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingTable(false));

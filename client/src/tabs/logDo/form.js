@@ -1,6 +1,7 @@
 // Компонент формы записи раздела "Журнал дефектов и отказов"
 import moment from "moment";
 import React, {useState, useEffect} from "react";
+import {useSelector} from "react-redux";
 import {Button, Checkbox, Col, DatePicker, Form, Input, Row, Select, Tabs, Card, Tooltip} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
 
@@ -14,6 +15,13 @@ import {ActionCreator} from "../../redux/combineActions";
 import {checkRoleUser} from "../../helpers/mappers/general.mappers/checkRoleUser";
 
 export const LogDoForm = ({item}) => {
+    const {people, equipment, departments, tasks} = useSelector(state => ({
+        people: state.reducerPerson.people,
+        equipment: state.reducerEquipment.equipment,
+        departments: state.reducerDepartment.departments,
+        tasks: state.reducerTask.tasks,
+    }));
+
     // Инициализация стейта для показа спиннера загрузки при изменении записи
     const [loadingSave, setLoadingSave] = useState(false);
     const [loadingCancel, setLoadingCancel] = useState(false);
@@ -182,7 +190,7 @@ export const LogDoForm = ({item}) => {
                                                         filterOption={(input, option) =>
                                                             option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
                                                         }
-                                                        options={getOptions(store.getState().reducerPerson.people)}
+                                                        options={getOptions(people)}
                                                         onChange={(value) => {
                                                             const people = store.getState().reducerPerson.people;
 
@@ -293,7 +301,7 @@ export const LogDoForm = ({item}) => {
                                                 filterOption={(input, option) =>
                                                     option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
                                                 }
-                                                options={getOptions(store.getState().reducerEquipment.equipment)}
+                                                options={getOptions(equipment)}
                                                 onChange={value => {
                                                     const equipment = store.getState().reducerEquipment.equipment;
 
@@ -437,7 +445,7 @@ export const LogDoForm = ({item}) => {
                                                         filterOption={(input, option) =>
                                                             option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
                                                         }
-                                                        options={getOptions(store.getState().reducerPerson.people)}
+                                                        options={getOptions(people)}
                                                         onChange={(value) => {
                                                             const people = store.getState().reducerPerson.people;
                                                             const departments = store.getState().reducerDepartment.departments;
@@ -567,7 +575,7 @@ export const LogDoForm = ({item}) => {
                                                         filterOption={(input, option) =>
                                                             option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
                                                         }
-                                                        options={getOptions(store.getState().reducerDepartment.departments)}
+                                                        options={getOptions(departments)}
                                                         onChange={(value) => {
                                                             const departments = store.getState().reducerDepartment.departments;
 
@@ -689,7 +697,7 @@ export const LogDoForm = ({item}) => {
                                                 filterOption={(input, option) =>
                                                     option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
                                                 }
-                                                options={getOptions(store.getState().reducerTask.tasks)}
+                                                options={getOptions(tasks)}
                                                 onChange={(value) => {
                                                     const tasks = store.getState().reducerTask.tasks;
 

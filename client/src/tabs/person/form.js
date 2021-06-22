@@ -10,8 +10,14 @@ import {openRecordTab} from "../../helpers/mappers/tabs.mappers/table.helper";
 import {ActionCreator} from "../../redux/combineActions";
 import {checkRoleUser} from "../../helpers/mappers/general.mappers/checkRoleUser";
 import onRemove from "../../helpers/functions/general.functions/removeTab";
+import {useSelector} from "react-redux";
 
 export const PersonForm = ({item}) => {
+    const {professions, departments} = useSelector(state => ({
+        professions: state.reducerProfession.professions,
+        departments: state.reducerDepartment.departments,
+    }));
+
     // Получаем объект пользователя
     const user = store.getState().reducerAuth.user;
 
@@ -126,7 +132,7 @@ export const PersonForm = ({item}) => {
                                         filterOption={(input, option) =>
                                             option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
                                         }
-                                        options={getOptions(store.getState().reducerDepartment.departments)}
+                                        options={getOptions(departments)}
                                         onChange={_id => {
                                             const departments = store.getState().reducerDepartment.departments;
 
@@ -238,7 +244,7 @@ export const PersonForm = ({item}) => {
                                         filterOption={(input, option) =>
                                             option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
                                         }
-                                        options={getOptions(store.getState().reducerProfession.professions)}
+                                        options={getOptions(professions)}
                                         onChange={_id => {
                                             const professions = store.getState().reducerProfession.professions;
 

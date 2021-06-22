@@ -4,6 +4,7 @@ const {check, validationResult} = require("express-validator");
 
 const Person = require("../schemes/Person");
 const Log = require("../schemes/Log");
+const Profession = require("../schemes/Profession");
 const Department = require("../schemes/Department");
 const PersonDto = require("../dto/PersonDto");
 const {getUser} = require("./helper");
@@ -79,10 +80,14 @@ router.get("/people/:id", async (req, res) => {
 
         if (!item) return res.status(404).json({message: `Запись с кодом ${_id} не существует`});
 
-        res.status(200).json({isNewItem, person: item});
+        const professions = await Profession.find({});
+
+        const departments = await Department.find({}).populate("parent");
+
+        return res.status(200).json({isNewItem, person: item, professions, departments});
     } catch (err) {
         console.log(err);
-        res.status(500).json({message: `Ошибка при открытии записи: ${err}`});
+        return res.status(500).json({message: `Ошибка при открытии записи: ${err}`});
     }
 });
 

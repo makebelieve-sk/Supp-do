@@ -3,6 +3,7 @@ import React, {useEffect, useState} from "react";
 import {Button, Card, Checkbox, Col, Form, Input, Row, Select, Tooltip} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
 import MaskedInput from "antd-mask-input";
+import {useSelector} from "react-redux";
 
 import {getOptions, onFailed, TabButtons} from "../tab.functions";
 import {UserRoute} from "../../routes/route.User";
@@ -13,6 +14,8 @@ import {checkRoleUser} from "../../helpers/mappers/general.mappers/checkRoleUser
 import onRemove from "../../helpers/functions/general.functions/removeTab";
 
 export const UserForm = ({item}) => {
+    const people = useSelector(state => state.reducerPerson.people);
+
     // Получаем объект пользователя
     const user = store.getState().reducerAuth.user;
 
@@ -180,7 +183,7 @@ export const UserForm = ({item}) => {
                                                 filterOption={(input, option) =>
                                                     option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
                                                 }
-                                                options={getOptions(store.getState().reducerPerson.people)}
+                                                options={getOptions(people)}
                                                 onChange={_id => {
                                                     const people = store.getState().reducerPerson.people;
 

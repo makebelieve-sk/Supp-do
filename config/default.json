@@ -3,5 +3,5 @@
   "mongoUri": "mongodb://localhost:27017",
   "mode": "demo",
   "timeToUpdateDates": "00:05:00",
-  "ipKey": "4cabd4f286f90f"
+  "port": 6000
 }
