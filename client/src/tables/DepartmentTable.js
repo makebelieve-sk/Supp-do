@@ -1,7 +1,9 @@
 // Класс таблицы раздела "Подразделения"
-import {message} from "antd";
+import React from "react";
+import {Button} from "antd";
+import {ExpandAltOutlined, ShrinkOutlined} from "@ant-design/icons";
 
-import TableConstructor from "./init";
+import BaseTable from "./BaseTable";
 import {DepartmentTab} from "../tabs/department";
 import {DepartmentRoute} from "../routes/route.Department";
 import {filterTreeTable} from "../helpers/functions/general.functions/filterTable";
@@ -9,9 +11,8 @@ import {createTreeData} from "../helpers/functions/general.functions/createTreeD
 import store from "../redux/store";
 import {ActionCreator} from "../redux/combineActions";
 import {headerDepartment} from "../options/tab.options/table.options/exportHeaders";
-import tableSettings from "../options/tab.options/table.options/settings";
 
-export default class DepartmentTable extends TableConstructor {
+export default class DepartmentTable extends BaseTable {
     constructor(props) {
         super(props);
 
@@ -43,9 +44,33 @@ export default class DepartmentTable extends TableConstructor {
     }
 
     export() {
-        return this.initialData && this.initialData.length
-            ? tableSettings.export(this)
-            : message.warning("Записи в таблице отсутствуют");
+        // Создаем массив ненужных для экспорта ключей
+        const unUsedKeys = ["_id", "__v", "parent"];
+
+        // Инициализируем заголовок таблицы
+        const headers = {
+            name: "Наименование",
+            notes: "Примечание",
+            nameWithParent: "Принадлежит"
+        };
+
+        // Создаем копию данных
+        const copyData = [];
+
+        if (this.initialData && this.initialData.length) {
+            this.initialData.forEach(obj => {
+                const copyObject = Object.assign({}, obj);
+                copyData.push(copyObject);
+            });
+        }
+
+        copyData.forEach(obj => {
+            unUsedKeys.forEach(key => {
+                delete obj[key];
+            });
+        });
+
+        super.export(this.title, copyData, headers);
     }
 
     print() {
@@ -79,6 +104,21 @@ export default class DepartmentTable extends TableConstructor {
             : [];
 
         store.dispatch(ActionCreator.ActionCreatorDepartment.setExpandRowsDepartment(expandResult));
+    }
+
+    renderExpandButton(short, expand, setExpand, getContent) {
+        return <Button
+            className={`button ${short}`}
+            icon={expand ? <ExpandAltOutlined /> : <ShrinkOutlined />}
+            type="secondary"
+            onClick={() => {
+                this.expandAll(expand);
+
+                setExpand(!expand);
+            }}
+        >
+            {getContent(expand ? "Свернуть" : "Развернуть")}
+        </Button>
     }
 
     render(equipmentOptions = null) {

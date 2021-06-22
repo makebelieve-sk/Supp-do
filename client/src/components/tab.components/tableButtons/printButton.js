@@ -6,6 +6,7 @@ import {PrinterOutlined} from "@ant-design/icons";
 
 import PrintTable from "../../../options/tab.options/table.options/printTable";
 import PrintAnalytic from "../../../tabs/analytic/printAnalytic";
+import store from "../../../redux/store";
 
 import "./tableButtons.css";
 
@@ -25,10 +26,11 @@ export default class PrintButton extends React.Component {
     };
 
     componentDidMount() {
-        const {specKey, table} = this.props;
+        const {specKey} = this.props;
 
         if (specKey === "analytic") {
-            const {name, data} = table.print();
+            const name = "Аналитика";
+            const data = store.getState().reducerAnalytic.analytic;
 
             // Обновляем состояние данных таблицы
             this.setState({name, data});
@@ -44,51 +46,64 @@ export default class PrintButton extends React.Component {
     onBeforeGetContent() {
         const {specKey, table} = this.props;
 
-        const {name, data} = table.print();
+        let name, data;
 
-        let result = null;
+        if (specKey !== "analytic") {
+            name = table.print().name;
+            data = table.print().data;
 
-        if (data && data.length && specKey !== "analytic") {
-            result = [];
+            let result = null;
 
-            data.forEach(printObj => {
-                if (printObj.textParser) {
-                    const assign = Object.assign({}, printObj);
+            if (data && data.length) {
+                result = [];
 
-                    delete assign.textParser;
+                data.forEach(printObj => {
+                    if (printObj.during) {
+                        const assign = Object.assign({}, printObj);
 
-                    result.push(assign);
-                } else if (printObj.nameWithParent) {
-                    const assign = Object.assign({}, printObj);
+                        if (table.transformDuring) {
+                            assign.during = table.transformDuring(assign.during);
+                        }
 
-                    assign.name = assign.nameWithParent;
-                    delete assign.nameWithParent;
+                        result.push(assign);
+                    } else if (printObj.textParser) {
+                        const assign = Object.assign({}, printObj);
 
-                    result.push(assign);
-                } else if (printObj.satisfies) {
-                    const assign = Object.assign({}, printObj);
+                        delete assign.textParser;
 
-                    delete assign.satisfies;
+                        result.push(assign);
+                    } else if (printObj.nameWithParent) {
+                        const assign = Object.assign({}, printObj);
 
-                    result.push(assign);
-                } else if (printObj.permissions) {
-                    const assign = Object.assign({}, printObj);
+                        assign.name = assign.nameWithParent;
+                        delete assign.nameWithParent;
 
-                    delete assign.permissions;
+                        result.push(assign);
+                    } else if (printObj.satisfies) {
+                        const assign = Object.assign({}, printObj);
 
-                    result.push(assign);
-                } else if (printObj.name && printObj.name.label) {
-                    result.push({
-                        ...printObj,
-                        name: printObj.name.label
-                    });
-                } else {
-                    result.push(printObj);
-                }
-            })
+                        delete assign.satisfies;
 
-            // Обновляем состояние данных таблицы
-            this.setState({name, data: result});
+                        result.push(assign);
+                    } else if (printObj.permissions) {
+                        const assign = Object.assign({}, printObj);
+
+                        delete assign.permissions;
+
+                        result.push(assign);
+                    } else if (printObj.name && printObj.name.label) {
+                        result.push({
+                            ...printObj,
+                            name: printObj.name.label
+                        });
+                    } else {
+                        result.push(printObj);
+                    }
+                })
+
+                // Обновляем состояние данных таблицы
+                this.setState({name, data: result});
+            }
         }
 
         // Если записей в таблице нет, то не начинаем печатать
@@ -104,9 +119,13 @@ export default class PrintButton extends React.Component {
         const {specKey, getContent, short, table} = this.props;
         const {name, display, data} = this.state;
 
-        const btnStyle = specKey === "analytic" ? "not-right-margin" : "";
-        const headers = table.header;
-        const style = table.style ? table.style : "";
+        let btnStyle = "not-right-margin", headers, style = {};
+
+        if (specKey !== "analytic") {
+            btnStyle = "";
+            headers = table.header;
+            style = table.style ?? table.style;
+        }
 
         return (
             <div>

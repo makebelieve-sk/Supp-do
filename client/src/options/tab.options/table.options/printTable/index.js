@@ -14,9 +14,6 @@ export default class PrintTable extends React.Component {
         const keys = Object.keys(data && data.length ? data[0] : {});
         const filteredDataKeys = filterTableKeys(keys);
 
-        // Шапка таблицы
-        const headersTable = headers ? headers.split(", ") : null;
-
         return (
             <div className="print-wrapper">
                 <h3 className="print-title">{name}</h3>
@@ -25,7 +22,7 @@ export default class PrintTable extends React.Component {
                     <thead>
                         <tr>
                             {
-                                headersTable && headersTable.map((header, index) =>
+                                headers && headers.map((header, index) =>
                                     <th key={`${header}-${index}`} className="print-table-header">
                                         {header}
                                     </th>

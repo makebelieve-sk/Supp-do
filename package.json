@@ -29,6 +29,7 @@
     "express": "4.17.1",
     "express-fileupload": "1.2.1",
     "express-validator": "6.10.0",
+    "file-saver": "^2.0.5",
     "fs": "0.0.1-security",
     "http": "0.0.1-security",
     "js-cookie": "2.2.1",
@@ -37,6 +38,7 @@
     "mongoose": "5.11.11",
     "nodemailer": "6.6.0",
     "react-color": "2.19.3",
+    "react-csv": "^2.0.3",
     "react-data-table-component": "7.0.0-alpha-3",
     "react-html-parser": "2.0.2",
     "react-phone-input-2": "2.14.0",
@@ -51,7 +53,8 @@
     "styled-components": "5.2.1",
     "tinymce": "5.7.1",
     "tslib": "2.1.0",
-    "world_countries_lists": "2.1.0"
+    "world_countries_lists": "2.1.0",
+    "xlsx": "^0.17.0"
   },
   "devDependencies": {
     "concurrently": "5.3.0",

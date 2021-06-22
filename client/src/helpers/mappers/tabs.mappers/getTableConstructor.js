@@ -1,19 +1,19 @@
 // Определение конструктора таблицы
 import {message} from "antd";
 
-import ProfessionTable from "../../../tables/profession";
-import LogDOTable from "../../../tables/logDo";
-import DepartmentTable from "../../../tables/departments";
-import PersonTable from "../../../tables/person";
-import EquipmentPropertyTable from "../../../tables/equipmentProperty";
-import EquipmentTable from "../../../tables/equipment";
-import TaskTable from "../../../tables/task";
-import HelpTable from "../../../tables/help";
-import RoleTable from "../../../tables/role";
-import UserTable from "../../../tables/user";
-import StatisticListTable from "../../../tables/statisticList";
-import StatisticRatingTable from "../../../tables/statisticRating";
-import LogTable from "../../../tables/log";
+import ProfessionTable from "../../../tables/ProfessionTable";
+import LogDOTable from "../../../tables/LogDoTable";
+import DepartmentTable from "../../../tables/DepartmentTable";
+import PersonTable from "../../../tables/PersonTable";
+import EquipmentPropertyTable from "../../../tables/EquipmentPropertyTable";
+import EquipmentTable from "../../../tables/EquipmentTable";
+import TaskTable from "../../../tables/TaskTable";
+import HelpTable from "../../../tables/HelpTable";
+import RoleTable from "../../../tables/RoleTable";
+import UserTable from "../../../tables/UserTable";
+import StatisticListTable from "../../../tables/StatisticListTable";
+import StatisticRatingTable from "../../../tables/StatisticRatingTable";
+import LogTable from "../../../tables/LogTable";
 
 /**
  * Функция определения конструктора таблицы

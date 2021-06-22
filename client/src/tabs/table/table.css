@@ -55,3 +55,24 @@
 .ant-pagination-total-text {
     flex-grow: 1;
 }
+
+.row-badges {
+    margin-bottom: 20px;
+}
+
+.badge sup {
+    color: black;
+    height: 30px;
+    line-height: 30px;
+    padding-left: 15px;
+    padding-right: 15px;
+    width: 10em;
+}
+
+.badge sup:hover {
+    cursor: pointer;
+}
+
+.row-alert {
+    margin-bottom: 20px;
+}

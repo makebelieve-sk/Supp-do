@@ -4,9 +4,6 @@ import {useSelector} from "react-redux";
 import {Row, Col} from "antd";
 
 import {TableHeaderComponent} from "../../components/tab.components/tableHeader";
-import {TableAlertComponent} from "../../components/tab.components/tableAlert";
-import {TableBadgeComponent} from "../../components/tab.components/tableBadge";
-
 import getTableConstructor from "../../helpers/mappers/tabs.mappers/getTableConstructor";
 import {getColumns} from "../../helpers/mappers/tabs.mappers/table.helper";
 
@@ -54,7 +51,8 @@ export const TableComponent = ({specKey}) => {
         columnsOptions: settings.columns ? settings.columns[specKey] : columnsTable,
         pageSize: settings.pageSize ? settings.pageSize[specKey] : null,
         filterText: filterText.toLowerCase(),
-        loading: settings.loading
+        loading: settings.loading,
+        className: "table-usual"
     };
 
     // Определяем конструктор таблицы
@@ -75,15 +73,23 @@ export const TableComponent = ({specKey}) => {
             />
 
             {/*Легенда статусов*/}
-            <TableBadgeComponent legend={settings.legend} specKey={specKey}/>
+            {
+                table.renderBadge === undefined
+                    ? null
+                    : table.renderBadge(settings.legend)
+            }
 
             {/*Блок фильтров таблицы*/}
-            <TableAlertComponent alert={settings.alert} specKey={specKey}/>
+            {
+                table.renderAlert === undefined
+                    ? null
+                    : table.renderAlert(settings.alert)
+            }
 
             {/*Таблица*/}
             <Row>
                 <Col span={24}>
-                    { table.render() }
+                    {table.render()}
                 </Col>
             </Row>
         </>

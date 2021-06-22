@@ -30,7 +30,11 @@ export const TableHeaderComponent = ({table, specKey, filterText, setFilterText,
 
             {/*Дата с ... по ...*/}
             <Col flex="1 1 auto" className="item">
-                {table.renderRangePicker(date, dateObject)}
+                {
+                    table.renderRangePicker === undefined
+                    ? null
+                    : table.renderRangePicker(date, dateObject)
+                }
             </Col>
 
             {/*Блок кнопок таблицы*/}

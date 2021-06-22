@@ -1,14 +1,11 @@
 // Класс таблицы раздела "Профессии"
-import {message} from "antd";
-
-import TableConstructor from "./init";
+import BaseTable from "./BaseTable";
 import {ProfessionTab} from "../tabs/profession";
 import {ProfessionRoute} from "../routes/route.profession";
 import store from "../redux/store";
 import {headerProfession} from "../options/tab.options/table.options/exportHeaders";
-import tableSettings from "../options/tab.options/table.options/settings";
 
-export default class ProfessionTable extends TableConstructor {
+export default class ProfessionTable extends BaseTable {
     constructor(props) {
         super(props);
 
@@ -28,9 +25,32 @@ export default class ProfessionTable extends TableConstructor {
     }
 
     export() {
-        return this.data && this.data.length
-            ? tableSettings.export(this)
-            : message.warning("Записи в таблице отсутствуют");
+        // Создаем массив ненужных для экспорта ключей
+        const unUsedKeys = ["_id", "__v"];
+
+        // Инициализируем заголовок таблицы
+        const headers = {
+            name: "Наименование",
+            notes: "Примечание"
+        };
+
+        // Создаем копию данных
+        const copyData = [];
+
+        if (this.data && this.data.length) {
+            this.data.forEach(obj => {
+                const copyObject = Object.assign({}, obj);
+                copyData.push(copyObject);
+            });
+        }
+
+        copyData.forEach(obj => {
+            unUsedKeys.forEach(key => {
+                delete obj[key];
+            });
+        });
+
+        super.export(this.title, copyData, headers);
     }
 
     print() {
