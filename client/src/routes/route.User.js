@@ -8,7 +8,7 @@ import {request} from "../helpers/functions/general.functions/request.helper";
 import {compareArrays, compareObjects} from "../helpers/functions/general.functions/compare";
 import {NoticeError, storePeople, storeRole} from "./helper";
 import onRemove from "../helpers/functions/general.functions/removeTab";
-import {StorageVars} from "../options/global.options";
+import {StorageVars} from "../options";
 
 export const UserRoute = {
     // Адрес для работы с разделом "Пользователи"

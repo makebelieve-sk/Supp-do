@@ -1,7 +1,7 @@
 // Создание запроса
 import {message} from "antd";
 
-import {StorageVars} from "../../../options/global.options";
+import {StorageVars} from "../../../options";
 
 export const request = async (url, method = "GET", body = null, headers = {}) => {
     try {

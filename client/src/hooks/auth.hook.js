@@ -4,7 +4,7 @@ import Cookies from "js-cookie";
 
 import store from "../redux/store";
 import {ActionCreator} from "../redux/combineActions";
-import {StorageVars} from "../options/global.options";
+import {StorageVars} from "../options";
 import {setValueToCookies} from "../helpers/functions/general.functions/workWithCookies";
 
 // Значения куки по умолчанию

@@ -4,7 +4,7 @@ import {Card, Form, Input, Select} from "antd";
 
 import {HelpRoute} from "../../routes/route.Help";
 import {onFailed, TabButtons} from "../tab.functions";
-import {sections} from "../../options/global.options";
+import {sections} from "../../options";
 import RichTextComponent from "../../components/tab.components/richText";
 import onRemove from "../../helpers/functions/general.functions/removeTab";
 

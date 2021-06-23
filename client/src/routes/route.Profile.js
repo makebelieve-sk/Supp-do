@@ -6,7 +6,7 @@ import {ActionCreator} from "../redux/combineActions";
 import {request} from "../helpers/functions/general.functions/request.helper";
 import {NoticeError} from "./helper";
 import onRemove from "../helpers/functions/general.functions/removeTab";
-import {StorageVars} from "../options/global.options";
+import {StorageVars} from "../options";
 
 export const ProfileRoute = {
     // Адрес для работы с разделом "Профиль"

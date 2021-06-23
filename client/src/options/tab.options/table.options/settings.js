@@ -3,7 +3,7 @@ import {getExportName, getTableHeader} from "../../../helpers/mappers/tabs.mappe
 import filterTableKeys from "../../tab.options/table.options/filterTableKeys";
 import {updateValueInStorage} from "../../../helpers/functions/general.functions/workWithCookies";
 import {ActionCreator} from "../../../redux/combineActions";
-import {StorageVars} from "../../global.options";
+import {StorageVars} from "../../index";
 import Cookies from "js-cookie";
 import {request} from "../../../helpers/functions/general.functions/request.helper";
 
