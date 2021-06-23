@@ -35,7 +35,7 @@ export default class LogDOTable extends BaseTable {
     export() {
         // Создаем массив ненужных для экспорта ключей
         const unUsedKeys = ["_id", "__v", "files", "sendEmail", "productionCheck", "downtime", "acceptTask", "dateDone",
-            "equipmentTooltip", "departmentTooltip", "chooseResponsibleTime", "chooseStateTime", "color", "content"];
+            "equipmentTooltip", "departmentTooltip", "chooseResponsibleTime", "chooseStateTime", "color"];
 
         // Инициализируем заголовок таблицы
         const headers = {
@@ -47,7 +47,8 @@ export default class LogDOTable extends BaseTable {
             department: "Подразделение",
             task: "Задание",
             taskStatus: "Состояние",
-            planDateDone: "Плановая дата выполнения"
+            planDateDone: "Плановая дата выполнения",
+            content: "Содержание работ"
         };
 
         // Создаем копию данных
