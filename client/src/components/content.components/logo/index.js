@@ -7,6 +7,7 @@ import {ActionCreator} from "../../../redux/combineActions";
 import TabOptions from "../../../options/tab.options/record.options";
 import OpenTableTab from "../../../helpers/functions/tabs.functions/openTableTab";
 import {LogDORoute} from "../../../routes/route.LogDO";
+import {sectionKeys} from "../../../options";
 
 import logo from "../../../assets/logo.png";
 import "./logo.css";
@@ -21,7 +22,7 @@ export const LogoComponent = ({collapsed}) => {
         ));
 
         // Переоткрытие вкладки "Журнал дефектов и отказов"
-        OpenTableTab("Журнал дефектов и отказов", "logDO", LogDORoute);
+        OpenTableTab("Журнал дефектов и отказов", sectionKeys.logDO, LogDORoute);
     };
 
     return (

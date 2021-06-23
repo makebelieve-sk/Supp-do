@@ -29,4 +29,23 @@ const StorageVars = {
 // Почтовый адрес нашей компании
 const emailAddressCompany = "info@itprom.org";
 
-export {sections, StorageVars, emailAddressCompany};
+// Ключи разделов
+const sectionKeys = {
+    professions: "professions",
+    departments: "departments",
+    people: "people",
+    equipmentProperties: "equipmentProperties",
+    equipment: "equipment",
+    tasks: "tasks",
+    users: "users",
+    roles: "roles",
+    logs: "logs",
+    help: "help",
+    analytic: "analytic",
+    statistic: "statistic",
+    statisticList: "statisticList",
+    statisticRating: "statisticRating",
+    logDO: "logDO"
+}
+
+export {sections, StorageVars, emailAddressCompany, sectionKeys};

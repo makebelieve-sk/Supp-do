@@ -7,8 +7,9 @@ import {TableComponent} from "../tabs/table";
 import ErrorIndicator from "../components/content.components/errorIndicator/errorIndicator.component";
 import {ActionCreator} from "../redux/combineActions";
 import StatisticRatingTable from "../tables/StatisticRatingTable";
+import {sectionKeys} from "../options";
 
-const SECTION_NAME = "statisticRating";
+const SECTION_NAME = sectionKeys.statisticRating;
 
 export const StatisticRatingSection = () => {
     // Данные таблицы "Рейтинг отказов"

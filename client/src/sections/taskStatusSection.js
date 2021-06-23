@@ -7,8 +7,9 @@ import {TableComponent} from "../tabs/table";
 import ErrorIndicator from "../components/content.components/errorIndicator/errorIndicator.component";
 import {ActionCreator} from "../redux/combineActions";
 import TaskTable from "../tables/TaskTable";
+import {sectionKeys} from "../options";
 
-const SECTION_NAME = "tasks";
+const SECTION_NAME = sectionKeys.tasks;
 
 export const TaskStatusSection = () => {
     // Данные таблицы "Состояние заявок"

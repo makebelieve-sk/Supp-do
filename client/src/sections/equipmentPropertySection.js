@@ -7,8 +7,9 @@ import {TableComponent} from "../tabs/table";
 import ErrorIndicator from "../components/content.components/errorIndicator/errorIndicator.component";
 import {ActionCreator} from "../redux/combineActions";
 import EquipmentPropertyTable from "../tables/EquipmentPropertyTable";
+import {sectionKeys} from "../options";
 
-const SECTION_NAME = "equipmentProperties";
+const SECTION_NAME = sectionKeys.equipmentProperties;
 
 export const EquipmentPropertySection = () => {
     // Данные таблицы "Характеристики оборудования"

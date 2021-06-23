@@ -7,8 +7,9 @@ import ProfessionTable from "../tables/ProfessionTable";
 import {TableComponent} from "../tabs/table";
 import ErrorIndicator from "../components/content.components/errorIndicator/errorIndicator.component";
 import {ActionCreator} from "../redux/combineActions";
+import {sectionKeys} from "../options";
 
-const SECTION_NAME = "professions";
+const SECTION_NAME = sectionKeys.professions;
 
 export const ProfessionSection = () => {
     // Данные таблицы "Профессии"

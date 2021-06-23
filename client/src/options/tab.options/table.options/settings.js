@@ -3,7 +3,7 @@ import Cookies from "js-cookie";
 
 import {updateValueInStorage} from "../../../helpers/functions/general.functions/workWithCookies";
 import {ActionCreator} from "../../../redux/combineActions";
-import {StorageVars} from "../../global.options";
+import {StorageVars} from "../../index";
 
 // Объект настроек таблицы
 const tableSettings = {

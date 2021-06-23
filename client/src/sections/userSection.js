@@ -7,8 +7,9 @@ import {TableComponent} from "../tabs/table";
 import ErrorIndicator from "../components/content.components/errorIndicator/errorIndicator.component";
 import {ActionCreator} from "../redux/combineActions";
 import UserTable from "../tables/UserTable";
+import {sectionKeys} from "../options";
 
-const SECTION_NAME = "users";
+const SECTION_NAME = sectionKeys.users;
 
 export const UserSection = () => {
     // Данные таблицы "Пользователи"

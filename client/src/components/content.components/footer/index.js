@@ -11,7 +11,7 @@ import ErrorIndicator from "../errorIndicator/errorIndicator.component";
 import {useWindowWidth} from "../../../hooks/windowWidth.hook";
 
 import "./footer.css";
-import {emailAddressCompany} from "../../../options/global.options";
+import {emailAddressCompany} from "../../../options";
 
 export const FooterComponent = () => {
     // Состояние для показа модального окна, содержимого помощи и режима работы приложения

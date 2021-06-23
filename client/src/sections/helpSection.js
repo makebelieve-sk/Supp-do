@@ -7,8 +7,9 @@ import {TableComponent} from "../tabs/table";
 import ErrorIndicator from "../components/content.components/errorIndicator/errorIndicator.component";
 import {ActionCreator} from "../redux/combineActions";
 import HelpTable from "../tables/HelpTable";
+import {sectionKeys} from "../options";
 
-const SECTION_NAME = "help";
+const SECTION_NAME = sectionKeys.help;
 
 export const HelpSection = () => {
     // Данные таблицы "Помощь"

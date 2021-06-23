@@ -11,6 +11,7 @@ import {AuthContext} from "../../../context/auth.context";
 import OpenTableTab from "../../../helpers/functions/tabs.functions/openTableTab";
 import openRecord from "../../../helpers/functions/tabs.functions/openRecordTab";
 import {checkRoleUser} from "../../../helpers/mappers/general.mappers/checkRoleUser";
+import {sectionKeys} from "../../../options";
 
 import {AnalyticRoute} from "../../../routes/route.Analytic";
 import {StatisticRatingRoute} from "../../../routes/route.StatisticRating";
@@ -25,7 +26,6 @@ import {RoleRoute} from "../../../routes/route.Role";
 import {LogRoute} from "../../../routes/route.Log";
 import {HelpRoute} from "../../../routes/route.Help";
 
-import "./menu.css";
 import {ProfessionSection} from "../../../sections/professionSection";
 import {DepartmentSection} from "../../../sections/departmentSection";
 import {PersonSection} from "../../../sections/personSection";
@@ -39,6 +39,8 @@ import {LogSection} from "../../../sections/logSection";
 import {AnalyticComponent} from "../../../tabs/analytic";
 import {StatisticComponent} from "../../../tabs/statistic";
 
+import "./menu.css";
+
 export const MenuComponent = ({mode}) => {
     // Получение объекта пользователя и бокового меню приложения
     const user = useSelector(state => state.reducerAuth.user);
@@ -51,13 +53,13 @@ export const MenuComponent = ({mode}) => {
             children: [
                 {
                     title: "Аналитика",
-                    key: "analytic",
+                    key: sectionKeys.analytic,
                     model: AnalyticRoute,
                     section: AnalyticComponent
                 },
                 {
                     title: "Статистика",
-                    key: "statistic",
+                    key: sectionKeys.statistic,
                     model: StatisticRatingRoute,
                     section: StatisticComponent
                 }
@@ -74,19 +76,19 @@ export const MenuComponent = ({mode}) => {
                     children: [
                         {
                             title: "Профессии",
-                            key: "professions",
+                            key: sectionKeys.professions,
                             model: ProfessionRoute,
                             section: ProfessionSection
                         },
                         {
                             title: "Подразделения",
-                            key: "departments",
+                            key: sectionKeys.departments,
                             model: DepartmentRoute,
                             section: DepartmentSection
                         },
                         {
                             title: "Персонал",
-                            key: "people",
+                            key: sectionKeys.people,
                             model: PersonRoute,
                             section: PersonSection
                         }
@@ -98,19 +100,19 @@ export const MenuComponent = ({mode}) => {
                     children: [
                         {
                             title: "Характеристики оборудования",
-                            key: "equipmentProperties",
+                            key: sectionKeys.equipmentProperties,
                             model: EquipmentPropertyRoute,
                             section: EquipmentPropertySection
                         },
                         {
                             title: "Перечень оборудования",
-                            key: "equipment",
+                            key: sectionKeys.equipment,
                             model: EquipmentRoute,
                             section: EquipmentSection
                         },
                         {
                             title: "Состояние заявок",
-                            key: "tasks",
+                            key: sectionKeys.tasks,
                             model: TaskStatusRoute,
                             section: TaskStatusSection
                         }
@@ -129,19 +131,19 @@ export const MenuComponent = ({mode}) => {
                     children: [
                         {
                             title: "Пользователи",
-                            key: "users",
+                            key: sectionKeys.users,
                             model: UserRoute,
                             section: UserSection
                         },
                         {
                             title: "Роли",
-                            key: "roles",
+                            key: sectionKeys.roles,
                             model: RoleRoute,
                             section: RoleSection
                         },
                         {
                             title: "Журнал действий пользователя",
-                            key: "logs",
+                            key: sectionKeys.logs,
                             model: LogRoute,
                             section: LogSection
                         }
@@ -149,7 +151,7 @@ export const MenuComponent = ({mode}) => {
                 },
                 {
                     title: "Помощь",
-                    key: "help",
+                    key: sectionKeys.help,
                     model: HelpRoute,
                     section: HelpSection
                 }

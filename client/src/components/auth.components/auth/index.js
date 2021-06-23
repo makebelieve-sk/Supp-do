@@ -11,7 +11,7 @@ import {AuthContext} from "../../../context/auth.context";
 import {request} from "../../../helpers/functions/general.functions/request.helper";
 
 import "./auth.css";
-import {emailAddressCompany} from "../../../options/global.options";
+import {emailAddressCompany} from "../../../options";
 
 export const AuthComponent = ({setRegForm}) => {
     // Получаем флаг показа блока предупреждения и режим работы приложения из редакса

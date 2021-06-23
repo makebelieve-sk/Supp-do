@@ -7,8 +7,9 @@ import {TableComponent} from "../tabs/table";
 import ErrorIndicator from "../components/content.components/errorIndicator/errorIndicator.component";
 import {ActionCreator} from "../redux/combineActions";
 import DepartmentTable from "../tables/DepartmentTable";
+import {sectionKeys} from "../options";
 
-const SECTION_NAME = "departments";
+const SECTION_NAME = sectionKeys.departments;
 
 export const DepartmentSection = () => {
     // Данные таблицы "Подразделения"
