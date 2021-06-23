@@ -18,7 +18,6 @@
     "@ant-design/icons": "4.3.0",
     "@tinymce/tinymce-react": "3.12.2",
     "antd": "4.10.2",
-    "antd-country-phone-input": "4.1.0",
     "antd-mask-input": "0.1.15",
     "antd-password-input-strength": "1.1.1",
     "bcryptjs": "2.4.3",

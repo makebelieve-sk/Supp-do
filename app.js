@@ -75,7 +75,7 @@ async function start() {
             useCreateIndex: true
         });
 
-        const PORT = process.env.PORT || port || 7000;
+        const PORT = process.env.PORT || port || 5000;
 
         // Обновление дат записей в 00:05 в демо-режиме
         if (mode && mode === "demo") {
