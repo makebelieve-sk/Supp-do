@@ -15,6 +15,13 @@ const app = express();
 
 const {jwtSecret, mongoUri, mode, timeToUpdateDates, port} = config;  // Разворачиваем объект настроек проекта
 
+// Инициализируем константы
+const MONGO_URI = process.env.MONGO_URI || mongoUri;
+const PORT = process.env.PORT || port || 5000;
+const JWT_SECRET = process.env.JWT_SECRET || jwtSecret;
+const MODE = process.env.MODE || mode;
+const TIME_TO_UPDATE_DATES = process.env.TIME_TO_UPDATE || timeToUpdateDates;
+
 const corsOptions = {
     origin: "*",
     credentials: true
@@ -24,7 +31,7 @@ app.use(cors(corsOptions));
 
 // Регистрируем мидлвары
 app.use(express.json({extended: true}));
-app.use(cookieParser(jwtSecret));
+app.use(cookieParser(JWT_SECRET));
 
 // Регистрируем маршруты
 // Чтение файла настроек (получение режима работы приложения)
@@ -69,19 +76,17 @@ if (process.env.NODE_ENV === "production") {
 async function start() {
     try {
         // Подключаемся к базе данных
-        await mongoose.connect(mongoUri, {
+        await mongoose.connect(MONGO_URI, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
             useCreateIndex: true
         });
 
-        const PORT = process.env.PORT || port || 5000;
-
         // Обновление дат записей в 00:05 в демо-режиме
-        if (mode && mode === "demo") {
-            const hours = +timeToUpdateDates.split(":")[0];
-            const minutes = +timeToUpdateDates.split(":")[1];
-            const seconds = +timeToUpdateDates.split(":")[2];
+        if (MODE && MODE === "demo") {
+            const hours = +TIME_TO_UPDATE_DATES.split(":")[0];
+            const minutes = +TIME_TO_UPDATE_DATES.split(":")[1];
+            const seconds = +TIME_TO_UPDATE_DATES.split(":")[2];
 
             setInterval(() => {
                 if (moment().hours() === hours && moment().minutes() === minutes && moment().seconds() === seconds) {

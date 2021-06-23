@@ -438,8 +438,10 @@ router.post("/logDO", checkMiddleware, async (req, res) => {
         // Изменяем запись для вывода в таблицу
         const savedItem = new LogDoDto(currentItem, departmentsItems, equipmentItems);
 
+        const MODE = process.env.MODE || config.mode;
+
         // Отправляем письма и СМС уведомления
-        if (sendEmail && config.mode !== "demo") {
+        if (sendEmail && MODE !== "demo") {
             await sendingEmail(req, res);
             await sendingSms(req, res);
         }

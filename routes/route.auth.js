@@ -117,6 +117,9 @@ router.post("/register", checkMiddlewareRegister, async (req, res) => {
 // Вход пользователя
 router.post("/login", checkMiddlewareAuth, async (req, res) => {
     try {
+        const MODE = process.env.MODE || config.mode;
+        const JWT_SECRET = process.env.JWT_SECRET || config.jwtSecret;
+
         // Проверка валидации полей раздела "Характеристики оборудования"
         const errors = validationResult(req);
 
@@ -131,7 +134,7 @@ router.post("/login", checkMiddlewareAuth, async (req, res) => {
         // Проверяем на существование записи
         if (!user) {
             // Если нет кандидата, то создаем его вместе с ролью "Зарегистрированный пользователь (демоверсия)"
-            if (userName === "demo" && password === "supp-demo" && config.mode === "demo") {
+            if (userName === "demo" && password === "supp-demo" && MODE === "demo") {
                 // Создаем роль "Зарегистрированный пользователь (демоверсия)"
                 const roleDemo = new Role({
                     name: "Демо-пользователь",
@@ -169,7 +172,7 @@ router.post("/login", checkMiddlewareAuth, async (req, res) => {
                 // Создаем объект "токена"
                 const token = jwt.sign(
                     {userId: newUser._id},
-                    config.jwtSecret,
+                    JWT_SECRET,
                     {expiresIn: "30min"}
                 );
 
@@ -196,7 +199,7 @@ router.post("/login", checkMiddlewareAuth, async (req, res) => {
         // Создаем объект "токена"
         const token = jwt.sign(
             {userId: currentUser._id},
-            config.jwtSecret,
+            JWT_SECRET,
             {expiresIn: "30min"}
         );
 

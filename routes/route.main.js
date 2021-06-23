@@ -1,23 +1,22 @@
 // Маршрут для получения файла настроек приложения
 const {Router} = require("express");
-const fs = require("fs");
+const config = require("../config/default.json");
 
 const router = Router();
 
 // Возвращает содержимое файла настроек
 router.get("/config", async (req, res) => {
     try {
-        const config = fs.readFileSync("config/default.json", "utf8");
+        const {mode, timeToUpdateDates} = config;  // Разворачиваем объект настроек проекта
 
-        if (!config) {
-            return res.status(400).json({message: "Файл настроек проекта не существует или он пуст"});
+        // Инициализируем константы
+        const MODE = process.env.MODE || mode;
+        const TIME_TO_UPDATE_DATES = process.env.TIME_TO_UPDATE || timeToUpdateDates;
+
+        const data = {
+            mode: MODE,
+            timeToUpdateDates: TIME_TO_UPDATE_DATES
         }
-
-        const data = JSON.parse(config);
-
-        // Удаляем секретные поля
-        delete data.jwtSecret;
-        delete data.mongoUri;
 
         return res.status(200).json(data);
     } catch (err) {

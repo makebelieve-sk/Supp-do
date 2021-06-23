@@ -73,8 +73,10 @@ const getUser = async (cookies, res) => {
 
         let decoded;
 
+        const JWT_SECRET = process.env.JWT_SECRET || config.jwtSecret;
+
         try {
-            decoded = jwt.verify(token, config.jwtSecret);    // Расшифровываем токен
+            decoded = jwt.verify(token, JWT_SECRET);    // Расшифровываем токен
 
             if (!decoded.userId) return res.status(401).json({message: "Вы не авторизованы"});
         } catch (e) {
