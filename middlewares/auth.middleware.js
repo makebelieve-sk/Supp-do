@@ -49,8 +49,14 @@ class AuthMiddleware {
 
             // Проверяем юрл, в двух случаях нужно только проверить авторизирован ли пользователь
             if (!req.url.includes("cancel") && !req.url.includes("delete") && !req.url.includes("upload")
-                && !req.url.includes("help/get") && !req.url.includes("/logDO/rating")
+                && !req.url.includes("help/get") && !req.url.includes("logDO")
             ) {
+                const urlParams = req.url.split("/");
+                let urlResult = [];
+                if (urlParams && urlParams.length) {
+                    urlResult = urlParams.filter(param => param);
+                }
+
                 // Находим текущего пользователя с ролями
                 const user = await User.findById({_id: decoded.userId}).populate("roles").select("roles");
 
@@ -59,8 +65,8 @@ class AuthMiddleware {
                 if (user.roles && user.roles.length) {
                     if (url === "statistic-rating" || url === "statistic-list") url = "statistic";
 
-                    const access = method === "GET" ? checkRoleUser(url, user).read : checkRoleUser(url, user).edit;
-                    const accessAction = method === "GET" ? "просмотра" : "редактирования";
+                    const access = method === "GET" && urlResult.length === 1 ? checkRoleUser(url, user).read : checkRoleUser(url, user).edit;
+                    const accessAction = method === "GET" && urlResult.length === 1 ? "просмотра" : "редактирования";
 
                     if (!access) return res.status(403).json({message: `У Вас нет прав для ${accessAction} данного раздела`});
 

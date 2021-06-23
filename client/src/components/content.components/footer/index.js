@@ -19,6 +19,10 @@ export const FooterComponent = () => {
     const [help, setHelp] = useState({title: "", text: ""});
     const [isDemo, setIsDemo] = useState(false);
 
+    // Текст футера
+    const demoText = isDemo ? " (Демоверсия)" : "";
+    const footerText = "Система управления производственным процессом. Дефекты и отказы. 2021. Версия 1.0.0" + demoText;
+
     useEffect(() => {
         const config = JSON.parse(localStorage.getItem("config"));
 
@@ -55,7 +59,7 @@ export const FooterComponent = () => {
         <Layout.Footer className="layout-footer">
             <Row align="middle">
                 <Col span={16} className="footer-text">
-                    {cutText(`Система управления производственным процессом. Дефекты и отказы. 2021. Версия 1.0.0 ${isDemo ? "(Демоверсия)" : null}`)}
+                    {cutText(footerText)}
                 </Col>
 
                 <Col span={4} className="footer-text">
