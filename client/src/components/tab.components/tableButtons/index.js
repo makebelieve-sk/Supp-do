@@ -10,7 +10,7 @@ import {useWindowWidth} from "../../../hooks/windowWidth.hook";
 
 import "./tableButtons.css";
 
-export const ButtonsComponent = ({specKey, setColumnsTable, table}) => {
+export const ButtonsComponent = ({setColumnsTable, table}) => {
     const user = useSelector(state => state.reducerAuth.user);  // Получение объекта пользователя
 
     const screen = useWindowWidth();    // Получаем текущее значение ширины окна браузера
@@ -41,28 +41,25 @@ export const ButtonsComponent = ({specKey, setColumnsTable, table}) => {
             {
                 table.renderAddButton === undefined
                     ? null
-                    : table.renderAddButton(short, specKey, getContent, user)
+                    : table.renderAddButton(short, getContent, user)
             }
 
             {/*Кнопка удаления за период*/}
             {
                 table.renderDeleteByPeriodButton === undefined
                     ? null
-                    : table.renderDeleteByPeriodButton(specKey, short, getContent, visiblePopConfirm, setLoadingDelete, setVisiblePopConfirm, loadingDelete, user)
+                    : table.renderDeleteByPeriodButton(short, getContent, visiblePopConfirm, setLoadingDelete, setVisiblePopConfirm, loadingDelete, user)
             }
 
             {/*Кнопка экспорта таблицы*/}
             {table.renderExportButton(short, getContent)}
 
             {/*Кнопка печати таблицы*/}
-            <PrintButton specKey={specKey} short={short} getContent={getContent} table={table}/>
+            <PrintButton short={short} getContent={getContent} table={table} />
 
             {/*Кнопка колонок*/}
             <Dropdown
-                overlay={<DropdownMenuComponent
-                    setColumnsTable={setColumnsTable}
-                    specKey={specKey}
-                />}
+                overlay={<DropdownMenuComponent setColumnsTable={setColumnsTable} table={table} />}
                 onVisibleChange={handleVisibleChange}
                 visible={visible}
             >

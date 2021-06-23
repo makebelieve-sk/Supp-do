@@ -8,6 +8,6 @@ export default function filterTableKeys (keys) {
         key !== "sendEmail" && key !== "productionCheck" && key !== "downtime" && key !== "acceptTask" &&
         key !== "equipmentTooltip" && key !== "departmentTooltip" && key !== "color" && key !== "departmentId" &&
         key !== "equipmentId" && key !== "mailing" && key !== "password" && key !== "permissions" &&
-        key !== "properties" && key !== "nameWithParent" && key !== "dateDone" && key !== "content" &&
+        key !== "properties" && key !== "nameWithParent" && key !== "dateDone" &&
         key !== "chooseResponsibleTime" && key !== "chooseStateTime" && key !== "satisfies" && key !== "textParser");
 };

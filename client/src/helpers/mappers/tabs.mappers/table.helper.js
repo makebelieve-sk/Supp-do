@@ -1,22 +1,6 @@
 // Помощник для работы с таблицей (записи, колонки, экспорт)
 import {message} from "antd";
 
-import {
-    ProfessionColumns,
-    DepartmentColumns,
-    PersonColumns,
-    TasksColumns,
-    EquipmentPropertyColumns,
-    EquipmentColumns,
-    LogDOColumns,
-    HelpColumns,
-    UserColumns,
-    RoleColumns,
-    StatisticRatingColumns,
-    StatisticListColumns,
-    LogColumns,
-} from "../../../options/tab.options/table.options/columns";
-
 import {ProfessionRoute} from "../../../routes/route.profession";
 import {DepartmentRoute} from "../../../routes/route.Department";
 import {PersonRoute} from "../../../routes/route.Person";
@@ -59,7 +43,6 @@ const map = new Map([
             "professionItem",
             ProfessionRoute
         ),
-        getColumns: ProfessionColumns,
         title: "Профессии",
         model: ProfessionRoute,
     }],
@@ -72,7 +55,6 @@ const map = new Map([
             "departmentItem",
             DepartmentRoute
         ),
-        getColumns: DepartmentColumns,
         title: "Подразделения",
         model: DepartmentRoute,
     }],
@@ -85,7 +67,6 @@ const map = new Map([
             "personItem",
             PersonRoute
         ),
-        getColumns: PersonColumns,
         title: "Персонал",
         model: PersonRoute,
     }],
@@ -98,7 +79,6 @@ const map = new Map([
             "taskStatusItem",
             TaskStatusRoute
         ),
-        getColumns: TasksColumns,
         title: "Состояния заявок",
         model: TaskStatusRoute,
     }],
@@ -111,7 +91,6 @@ const map = new Map([
             "equipmentPropertyItem",
             EquipmentPropertyRoute
         ),
-        getColumns: EquipmentPropertyColumns,
         title: "Характеристики оборудования",
         model: EquipmentPropertyRoute,
     }],
@@ -124,7 +103,6 @@ const map = new Map([
             "equipmentItem",
             EquipmentRoute
         ),
-        getColumns: EquipmentColumns,
         title: "Перечень оборудования",
         model: EquipmentRoute,
     }],
@@ -137,7 +115,6 @@ const map = new Map([
             "logDOItem",
             LogDORoute
         ),
-        getColumns: LogDOColumns,
         title: "Журнал дефектов и отказов",
     }],
     ["help", {
@@ -149,7 +126,6 @@ const map = new Map([
             "helpItem",
             HelpRoute
         ),
-        getColumns: HelpColumns,
         title: "Помощь",
         model: UserRoute,
     }],
@@ -162,7 +138,6 @@ const map = new Map([
             "userItem",
             UserRoute
         ),
-        getColumns: UserColumns,
         title: "Пользователи",
         model: UserRoute,
     }],
@@ -175,7 +150,6 @@ const map = new Map([
             "roleItem",
             RoleRoute
         ),
-        getColumns: RoleColumns,
         title: "Роли",
         model: RoleRoute,
     }],
@@ -184,7 +158,6 @@ const map = new Map([
         title: "Аналитика",
     }],
     ["statisticRating", {
-        getColumns: StatisticRatingColumns,
         title: "Рейтинг отказов",
         model: StatisticRatingRoute,
     }],
@@ -197,7 +170,6 @@ const map = new Map([
             "logDOItem",
             LogDORoute
         ),
-        getColumns: StatisticListColumns,
         title: "Перечень незакрытых заявок",
         model: StatisticListRoute,
     }],
@@ -210,7 +182,6 @@ const map = new Map([
             "logItem",
             LogRoute
         ),
-        getColumns: LogColumns,
         title: "Журнал действий пользователей",
         model: LogRoute,
     }],
@@ -229,22 +200,6 @@ const openRecordTab = (key, _id) => {
         console.log(key);
         message.error(`Раздел с ключём ${key} не существует (открытие вкладки редактирования записи)`).then(null);
         return new Error(`Раздел с ключём ${key} не существует (открытие вкладки редактирования записи)`);
-    }
-};
-
-/**
- * Фукнция получения колонок таблицы
- * @param key - ключ раздела
- * @returns массив колонок
- * @constructor
- */
-const getColumns = (key) => {
-    if (map.has(key)) {
-        return map.get(key).getColumns;
-    } else {
-        console.log(key);
-        message.error(`Раздел с ключём ${key} не существует (создание колонок)`).then(null);
-        return new Error(`Раздел с ключём ${key} не существует (создание колонок)`);
     }
 };
 
@@ -292,4 +247,4 @@ const getTitle = (key) => {
     return localMap.has(key) ? localMap.get(key) : map.get(key).title;
 };
 
-export {openRecordTab, getColumns, getModel, getTitle}
+export {openRecordTab, getModel, getTitle}

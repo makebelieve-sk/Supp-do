@@ -9,7 +9,7 @@ import {ButtonsComponent} from "../tableButtons";
 
 import "./tableHeader.css";
 
-export const TableHeaderComponent = ({table, specKey, filterText, setFilterText, setColumnsTable}) => {
+export const TableHeaderComponent = ({table, filterText, setFilterText, setColumnsTable}) => {
     // Получение дат
     const dateObject = useSelector(state => ({
         logDO: state.reducerLogDO.date,
@@ -39,11 +39,7 @@ export const TableHeaderComponent = ({table, specKey, filterText, setFilterText,
 
             {/*Блок кнопок таблицы*/}
             <Col flex="0 1 auto">
-                <ButtonsComponent
-                    specKey={specKey}
-                    setColumnsTable={setColumnsTable}
-                    table={table}
-                />
+                <ButtonsComponent setColumnsTable={setColumnsTable} table={table} />
             </Col>
         </Row>
     )

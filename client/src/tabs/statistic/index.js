@@ -2,9 +2,10 @@
 import React from "react";
 import {Tabs} from "antd";
 
-import {TableComponent} from "../table";
 import store from "../../redux/store";
 import {ActionCreator} from "../../redux/combineActions";
+import {StatisticRatingSection} from "../../sections/statisticRatingSection";
+import {StatisticListSection} from "../../sections/statisticListSection";
 
 import "./statistic.css";
 
@@ -20,10 +21,11 @@ export const StatisticComponent = () => {
         <>
             <Tabs defaultActiveKey="statisticRating" className="statistic" onChange={onChangeTab}>
                 <TabPane tab="Рейтинг отказов" key="statisticRating">
-                    <TableComponent specKey="statisticRating"/>
+                    {StatisticRatingSection()}
                 </TabPane>
+
                 <TabPane tab="Перечень непринятых заявок" key="statisticList">
-                    <TableComponent specKey="statisticList"/>
+                    {StatisticListSection()}
                 </TabPane>
             </Tabs>
         </>

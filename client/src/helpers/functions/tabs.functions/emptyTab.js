@@ -8,14 +8,15 @@ import setTabsHistory from "../general.functions/setTabsHistory";
  * @param title - заголовок вкладки
  * @param content - контент вкладки (UI-компонент)
  * @param key - ключ вкладки
+ * @param section - раздел
  */
-export default function emptyTab(title, content, key) {
+export default function emptyTab(title, content, key, section) {
     // Получаем текущие вкладки, активную вкладку и историю вкладок
     const tabs = store.getState().reducerTab.tabs;
     const historyTabs = store.getState().reducerTab.historyTabs;
 
     // Создаем объект вкладки
-    const tabObject = {title, content, key};
+    const tabObject = {title, content, key, section};
 
     // Добавляем или изменяем объект вкладки
     const findTab = tabs.find((tab) => tab.key === key);

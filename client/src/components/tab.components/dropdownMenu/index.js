@@ -1,17 +1,16 @@
 // Компонент, отрисовывающий колонки таблицы в выпадающием списке
-import React, {useMemo, useState} from "react";
+import React, {useState} from "react";
 import {Checkbox, Menu} from "antd";
 
 import store from "../../../redux/store";
 import {ActionCreator} from "../../../redux/combineActions";
-import {getColumns} from "../../../helpers/mappers/tabs.mappers/table.helper";
 
-export const DropdownMenuComponent = ({setColumnsTable, specKey}) => {
+export const DropdownMenuComponent = ({setColumnsTable, table}) => {
     // Создание состояний для для колонок таблицы
     const [checkedColumns, setCheckedColumns] = useState([]);
 
     // Получение колонок таблицы
-    const columns = useMemo(() => getColumns(specKey), [specKey]);
+    const columns = table.columns;
 
     // Функция изменения видимости колонок
     const onChange = (e) => {

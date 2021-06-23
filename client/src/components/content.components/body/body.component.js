@@ -1,44 +1,17 @@
 // Компонент, отрисовывающий содержимое вкладки таблицы или компонент ошибки
-import React, {useMemo} from "react";
+import React from "react";
 import {useSelector} from "react-redux";
 import {Card, Skeleton} from "antd";
 
-import ErrorIndicator from "../errorIndicator/errorIndicator.component";
-import getErrorTable from "../../../helpers/mappers/tabs.mappers/getErrorTable";
-import getContentToTab from "../../../helpers/mappers/tabs.mappers/getContentToTab";
-
 import "./body.css";
 
-export const BodyManager = ({specKey}) => {
-    const stateObject = useSelector(state => ({
-        loadingSkeleton: state.reducerLoading.loadingSkeleton,
-        errorProfession: state.reducerProfession.errorTableProfession,
-        errorDepartment: state.reducerDepartment.errorTableDepartment,
-        errorPerson: state.reducerPerson.errorTablePerson,
-        errorTask: state.reducerTask.errorTableTask,
-        errorEquipmentProperty: state.reducerEquipmentProperty.errorTableEquipmentProperty,
-        errorEquipment: state.reducerEquipment.errorTableEquipment,
-        errorLogDO: state.reducerLogDO.errorTableLogDO,
-        errorAnalytic: state.reducerAnalytic.errorAnalytic,
-        errorRating: state.reducerStatistic.errorRating,
-        errorList: state.reducerStatistic.errorList,
-        errorHelp: state.reducerHelp.errorTableHelp,
-        errorUser: state.reducerUser.errorTableUser,
-        errorRole: state.reducerRole.errorTableRole,
-        errorLog: state.reducerLog.errorTableLog,
-    }));
+export const BodyManager = ({sectionComponent, specKey}) => {
+    const {loadingSkeleton} = useSelector(state => state.reducerLoading);
 
     return <div className="container-dto">
-        <Skeleton loading={stateObject.loadingSkeleton} active>
+        <Skeleton loading={loadingSkeleton} active>
             <Card className={specKey === "logDO" ? "card-dto-logDo" : "card-dto"}>
-                {useMemo(() => {
-                    const error = getErrorTable(specKey, stateObject);  // Получаем ошибку раздела
-
-                    // Если ошибка в разделе есть, то отрисовываем компонент ErrorIndicator, передавая в него текст ошибки
-                    return error.errorText
-                        ? <ErrorIndicator error={error}/>
-                        : getContentToTab(specKey);
-                }, [specKey, stateObject])}
+                {sectionComponent()}
             </Card>
         </Skeleton>
     </div>

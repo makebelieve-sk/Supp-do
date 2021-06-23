@@ -26,7 +26,6 @@ export default class EquipmentTable extends DepartmentTable {
     }
 
     export() {
-        console.log(this.initialData)
         // Создаем массив ненужных для экспорта ключей
         const unUsedKeys = ["_id", "__v", "parent", "properties", "files"];
 

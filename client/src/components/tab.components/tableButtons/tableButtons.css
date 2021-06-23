@@ -24,3 +24,8 @@
 .not-right-margin {
     margin-right: 0;
 }
+
+.print {
+    position: absolute;
+    opacity: 0;
+}

@@ -12,9 +12,10 @@ import TabOptions from "../../../options/tab.options/record.options";
  * @param title - заголовок вкладки
  * @param key - ключ вкладки
  * @param model - модель раздела
+ * @param section - раздел
  * @constructor
  */
-export default async function OpenTableTab(title, key, model) {
+export default async function OpenTableTab(title, key, model, section) {
     try {
         // Обнуляем датапикер раздела Статистика
         if (key === "statistic")
@@ -27,7 +28,7 @@ export default async function OpenTableTab(title, key, model) {
         store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(true));
 
         // Создаем пустую вкладку
-        emptyTab(title, BodyManager, key);
+        emptyTab(title, BodyManager, key, section);
 
         await model.getAll();
 

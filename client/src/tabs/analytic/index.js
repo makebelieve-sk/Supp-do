@@ -11,8 +11,10 @@ import {BodyManager} from "../../components/content.components/body/body.compone
 import {useWindowWidth} from "../../hooks/windowWidth.hook";
 import Dashboard from "./dashboard";
 import PrintButton from "../../components/tab.components/tableButtons/printButton";
+import ErrorIndicator from "../../components/content.components/errorIndicator/errorIndicator.component";
 
 import "./analytic.css";
+import {LogDOSection} from "../../sections/logDOSection";
 
 /**
  * Функция обработки перехода в раздел ЖДО
@@ -25,7 +27,7 @@ export const goToLogDO = async (url, filter) => {
         store.dispatch(ActionCreator.ActionCreatorLoading.setLoadingSkeleton(true));
 
         // Создаем пустую вкладку
-        emptyTab("Журнал дефектов и отказов", BodyManager, "logDO");
+        emptyTab("Журнал дефектов и отказов", BodyManager, "logDO", LogDOSection);
 
         await AnalyticRoute.goToLogDO(url, filter);
 
@@ -39,10 +41,7 @@ export const goToLogDO = async (url, filter) => {
 
 export const AnalyticComponent = () => {
     // Получаем из хранилища объект текущий аналитики, предыдущий объект аналитики (для сравнения)
-    const {analytic, prevAnalyticData} = useSelector(state => ({
-        analytic: state.reducerAnalytic.analytic,
-        prevAnalyticData: state.reducerAnalytic.prevAnalyticData
-    }));
+    const {analytic, prevAnalyticData, errorAnalytic} = useSelector(state => state.reducerAnalytic);
 
     // Получаем текущее значение ширины окна браузера
     const screen = useWindowWidth();
@@ -56,17 +55,25 @@ export const AnalyticComponent = () => {
         .filter(screen => !!screen[1])
         .map(screen => screen[0]);
 
-    return (
-        <div className="analytic">
+    // Инициализация ошибки раздела "Аналитика"
+    const error = errorAnalytic
+        ? {
+            errorText: errorAnalytic,
+            action: ActionCreator.ActionCreatorAnalytic.setErrorAnalytic(null)
+        }
+        : null;
+
+    return error
+        ? <ErrorIndicator error={error}/>
+        : <div className="analytic">
             {/*Компонент, отрисовывающий кнопку печати*/}
             <Row justify="end">
                 <Col>
-                    <PrintButton headers={null} specKey="analytic" short={short} getContent={getContent}/>
+                    <PrintButton short={short} getContent={getContent} table={null} />
                 </Col>
             </Row>
 
             {/*Компонент, отрисовывающий дашбоард*/}
             <Dashboard analytic={analytic} prevAnalyticData={prevAnalyticData} currentScreen={currentScreen} />
         </div>
-    )
 }

@@ -17,8 +17,6 @@ export default class LogDOTable extends BaseTable {
     constructor(props) {
         super(props);
 
-        this.className = "table-logDo";
-
         this.export = this.export.bind(this);
     }
 

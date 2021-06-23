@@ -96,8 +96,8 @@ export default class LogTable extends BaseTable {
         return null;
     }
 
-    renderDeleteByPeriodButton(specKey, short, getContent, visiblePopConfirm, setLoadingDelete, setVisiblePopConfirm, loadingDelete, user) {
-        return user && checkRoleUser(specKey, user).edit
+    renderDeleteByPeriodButton(short, getContent, visiblePopConfirm, setLoadingDelete, setVisiblePopConfirm, loadingDelete, user) {
+        return user && checkRoleUser(this.sectionName, user).edit
             ? <Popconfirm
                 title="Удалить всё за выбранный период?"
                 okText="Удалить"

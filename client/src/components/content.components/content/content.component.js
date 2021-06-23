@@ -48,7 +48,7 @@ export const ContentComponent = () => {
             >
                 {tabs.map(tab => (
                     <Tabs.TabPane tab={tab.title} key={tab.key}>
-                        {<tab.content specKey={tab.key}/>}
+                        <tab.content sectionComponent={tab.section} specKey={tab.key} />
                     </Tabs.TabPane>
                 ))}
             </Tabs>

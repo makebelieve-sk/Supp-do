@@ -26,6 +26,18 @@ import {LogRoute} from "../../../routes/route.Log";
 import {HelpRoute} from "../../../routes/route.Help";
 
 import "./menu.css";
+import {ProfessionSection} from "../../../sections/professionSection";
+import {DepartmentSection} from "../../../sections/departmentSection";
+import {PersonSection} from "../../../sections/personSection";
+import {EquipmentPropertySection} from "../../../sections/equipmentPropertySection";
+import {EquipmentSection} from "../../../sections/equipmentSection";
+import {TaskStatusSection} from "../../../sections/taskStatusSection";
+import {HelpSection} from "../../../sections/helpSection";
+import {UserSection} from "../../../sections/userSection";
+import {RoleSection} from "../../../sections/roleSection";
+import {LogSection} from "../../../sections/logSection";
+import {AnalyticComponent} from "../../../tabs/analytic";
+import {StatisticComponent} from "../../../tabs/statistic";
 
 export const MenuComponent = ({mode}) => {
     // Получение объекта пользователя и бокового меню приложения
@@ -40,12 +52,14 @@ export const MenuComponent = ({mode}) => {
                 {
                     title: "Аналитика",
                     key: "analytic",
-                    model: AnalyticRoute
+                    model: AnalyticRoute,
+                    section: AnalyticComponent
                 },
                 {
                     title: "Статистика",
                     key: "statistic",
-                    model: StatisticRatingRoute
+                    model: StatisticRatingRoute,
+                    section: StatisticComponent
                 }
             ]
         },
@@ -61,17 +75,20 @@ export const MenuComponent = ({mode}) => {
                         {
                             title: "Профессии",
                             key: "professions",
-                            model: ProfessionRoute
+                            model: ProfessionRoute,
+                            section: ProfessionSection
                         },
                         {
                             title: "Подразделения",
                             key: "departments",
-                            model: DepartmentRoute
+                            model: DepartmentRoute,
+                            section: DepartmentSection
                         },
                         {
                             title: "Персонал",
                             key: "people",
-                            model: PersonRoute
+                            model: PersonRoute,
+                            section: PersonSection
                         }
                     ]
                 },
@@ -82,17 +99,20 @@ export const MenuComponent = ({mode}) => {
                         {
                             title: "Характеристики оборудования",
                             key: "equipmentProperties",
-                            model: EquipmentPropertyRoute
+                            model: EquipmentPropertyRoute,
+                            section: EquipmentPropertySection
                         },
                         {
                             title: "Перечень оборудования",
                             key: "equipment",
-                            model: EquipmentRoute
+                            model: EquipmentRoute,
+                            section: EquipmentSection
                         },
                         {
                             title: "Состояние заявок",
                             key: "tasks",
-                            model: TaskStatusRoute
+                            model: TaskStatusRoute,
+                            section: TaskStatusSection
                         }
                     ]
                 },
@@ -110,24 +130,28 @@ export const MenuComponent = ({mode}) => {
                         {
                             title: "Пользователи",
                             key: "users",
-                            model: UserRoute
+                            model: UserRoute,
+                            section: UserSection
                         },
                         {
                             title: "Роли",
                             key: "roles",
-                            model: RoleRoute
+                            model: RoleRoute,
+                            section: RoleSection
                         },
                         {
                             title: "Журнал действий пользователя",
                             key: "logs",
-                            model: LogRoute
+                            model: LogRoute,
+                            section: LogSection
                         }
                     ]
                 },
                 {
                     title: "Помощь",
                     key: "help",
-                    model: HelpRoute
+                    model: HelpRoute,
+                    section: HelpSection
                 }
             ]
         }
@@ -234,7 +258,7 @@ export const MenuComponent = ({mode}) => {
                                                     {
                                                         subgroup.children.map(item => {
                                                             return <Menu.Item key={item.key} onClick={() =>
-                                                                OpenTableTab(item.title, item.key, item.model)}
+                                                                OpenTableTab(item.title, item.key, item.model, item.section)}
                                                             >
                                                                 {item.title}
                                                             </Menu.Item>
@@ -243,7 +267,7 @@ export const MenuComponent = ({mode}) => {
                                                 </Menu.SubMenu>
                                             } else {
                                                 return <Menu.Item key={subgroup.key} onClick={() =>
-                                                    OpenTableTab(subgroup.title, subgroup.key, subgroup.model)}
+                                                    OpenTableTab(subgroup.title, subgroup.key, subgroup.model, subgroup.section)}
                                                 >
                                                     {subgroup.title}
                                                 </Menu.Item>
